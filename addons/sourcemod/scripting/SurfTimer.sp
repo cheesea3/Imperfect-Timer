@@ -1923,7 +1923,7 @@ public void OnClientPutInServer(int client)
 
 	// Defaults
 	SetClientDefaults(client);
-	Command_Restart(client, 1);
+	//Command_Restart(client, 1);
 
 	// SDKHooks
 	SDKHook(client, SDKHook_SetTransmit, Hook_SetTransmit);
