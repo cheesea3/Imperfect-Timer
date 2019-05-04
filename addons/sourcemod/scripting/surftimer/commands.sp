@@ -380,7 +380,7 @@ public void CustomTitleMenu(int client)
 	getColourName(client, szColour[0], 32, g_iCustomColours[client][0]);
 	getColourName(client, szColour[1], 32, g_iCustomColours[client][1]);
 
-	Format(szTitle, 256, "Custom Titles Menu: %s\nCustom Title: %s\n \n", szName, g_szCustomTitle[client]);
+	Format(szTitle, 256, "Custom Titles Menu: %s\nCustom Title: %s\n \n", szName, g_pr_rankname[client]);
 	Format(szItem, 128, "Name Colour [VIP]: %s", szColour[0]);
 	Format(szItem2, 128, "Text Colour [VIP]: %s", szColour[1]);
 

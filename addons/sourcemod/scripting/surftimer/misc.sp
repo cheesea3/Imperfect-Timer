@@ -1388,7 +1388,6 @@ public void SetClientDefaults(int client)
 	g_fProfileMenuLastQuery[client] = GameTime;
 	Format(g_szPlayerPanelText[client], 512, "");
 	Format(g_pr_rankname[client], 128, "");
-	Format(g_pr_rankname_style[client], 32, "");
 	g_PlayerChatRank[client] = -1;
 	g_bValidRun[client] = false;
 	g_fMaxPercCompleted[client] = 0.0;
@@ -1475,9 +1474,6 @@ public void SetClientDefaults(int client)
 
 	// surf_christmas2
 	g_bUsingStageTeleport[client] = false;
-
-	// Enforce Titles
-	g_bEnforceTitle[client] = false;
 
 	g_iWaitingForResponse[client] = -1;
 
@@ -2506,29 +2502,7 @@ public void SetPlayerRank(int client)
 	int index = GetSkillgroupIndex(rank, points);
 	GetArrayArray(g_hSkillGroups, index, RankValue[0]);
 
-	if (g_bEnforceTitle[client])
-	{
-		// g_iEnforceTitleType[client], 0 = chat, 1 = scoreboard, 2 = both
-		ReplaceString(g_szEnforcedTitle[client], sizeof(g_szEnforcedTitle), "{style}", g_szStyleAcronyms[style]);
-		if (g_iEnforceTitleType[client] == 0 || g_iEnforceTitleType[client] == 2)
-		{
-			Format(g_pr_rankname_style[client], 128, RankValue[RankName]);
-			Format(g_pr_rankname[client], 128, RankValue[RankName]);
-			ReplaceString(g_pr_rankname[client], 128, "{style}", "");
-			Format(g_szRankName[client], sizeof(g_szRankName), RankValue[RankName]);
-			Format(g_pr_namecolour[client], 32, RankValue[NameColour]);
-			Format(g_pr_chat_coloredrank[client], 256, g_szEnforcedTitle[client]);
-		}
-
-		if (g_iEnforceTitleType[client] == 1 || g_iEnforceTitleType[client] == 2)
-		{
-			char szTitle[256];
-			Format(szTitle, 256, g_szEnforcedTitle[client]);
-			CRemoveColors(szTitle, 256);
-			Format(g_pr_rankname[client], 256, szTitle);
-		}
-	}
-	else if (!g_bDbCustomTitleInUse[client])
+    if (!g_bDbCustomTitleInUse[client])
 	{
 		// Player is not using a title
 		if (GetConVarBool(g_hPointSystem))
@@ -2538,12 +2512,8 @@ public void SetPlayerRank(int client)
 			CRemoveColors(szName, sizeof(szName));
 			
 			Format(g_pr_chat_coloredrank[client], 128, RankValue[RankNameColored]);
-			Format(g_pr_chat_coloredrank_style[client], 128, RankValue[RankNameColored]);
-			ReplaceString(g_pr_chat_coloredrank[client], 128, "{style}", "");
-			Format(g_pr_rankname_style[client], 128, RankValue[RankName]);
 			Format(g_pr_rankname[client], 128, RankValue[RankName]);
 			ReplaceString(g_pr_rankname[client], 128, "{style}", "");
-			Format(g_szRankName[client], sizeof(g_szRankName), RankValue[RankName]);
 			Format(g_pr_namecolour[client], 32, RankValue[NameColour]);
 		}
 	}
@@ -4594,102 +4564,6 @@ public void CallAdmin(int client, char[] sText)
 	delete hook;
 
 	CPrintToChat(client, "%t", "Misc45", g_szChatPrefix);
-}
-
-public void ReadDefaultTitlesWhitelist()
-{
-	ClearArray(g_DefaultTitlesWhitelist);
-	char sPath[PLATFORM_MAX_PATH];
-	BuildPath(Path_SM, sPath, sizeof(sPath), "%s", DEFAULT_TITLES_WHITELIST_PATH);
-	File whitelist = OpenFile(sPath, "r");
-	if (whitelist != null)
-	{
-		char line[32];
-		while (!IsEndOfFile(whitelist) && ReadFileLine(whitelist, line, sizeof(line)))
-		{
-			TrimString(line);
-			if (StrContains(line, "//", true) == -1)
-				PushArrayString(g_DefaultTitlesWhitelist, line);
-		}
-		CloseHandle(whitelist);
-	}
-	else
-		LogError("[Surftimer] %s not found", DEFAULT_TITLES_WHITELIST_PATH);
-}
-
-public void LoadDefaultTitle(int client)
-{
-	// Set Defaults
-	g_bEnforceTitle[client] = false;
-	Format(g_szEnforcedTitle[client], sizeof(g_szEnforcedTitle), "");
-	if (g_DefaultTitlesWhitelist != null)
-		if ((FindStringInArray(g_DefaultTitlesWhitelist, g_szSteamID[client])) != -1)
-			return;
-
-	char sPath[PLATFORM_MAX_PATH];
-	BuildPath(Path_SM, sPath, sizeof(sPath), "%s", DEFAULT_TITLES_PATH);
-
-	if (FileExists(sPath))
-	{
-		Handle kv = CreateKeyValues("Default Titles");
-		if (FileToKeyValues(kv, sPath) && KvGotoFirstSubKey(kv))
-		{
-			char szBuffer[256];
-			do
-			{
-				KvGetString(kv, "steamid", szBuffer, sizeof(szBuffer), "none");
-				// Check if this keyvalue has a steamid
-				if (!StrEqual(szBuffer, "none"))
-				{
-					// Does the steamid match the clients?
-					if (StrEqual(g_szSteamID[client], szBuffer))
-					{
-						KvGetString(kv, "title", szBuffer, sizeof(szBuffer));
-						SetDefaultTitle(client, szBuffer);
-						break;
-					}
-					else
-						continue;
-				}
-
-				KvGetString(kv, "flag", szBuffer, sizeof(szBuffer), "none");
-				// Has to be a flag since no steamid was found, otherwise invalid entry
-				if (StrEqual(szBuffer, "none"))
-					continue;
-
-				// Check if client has access to this flag
-				int bit = ReadFlagString(szBuffer);
-				if (!CheckCommandAccess(client, "", bit))
-					continue;
-
-				// "type"
-				g_iEnforceTitleType[client] = 2;
-				KvGetString(kv, "type", szBuffer, sizeof(szBuffer), "both");
-				if (StrEqual(szBuffer, "scoreboard"))
-					g_iEnforceTitleType[client] = 1;
-				else if (StrEqual(szBuffer, "chat"))
-					g_iEnforceTitleType[client] = 0;
-				else
-					g_iEnforceTitleType[client] = 2;
-
-				KvGetString(kv, "title", szBuffer, sizeof(szBuffer));
-				SetDefaultTitle(client, szBuffer);
-				break;
-
-			} while (KvGotoNextKey(kv));
-		}
-		delete kv;
-	}
-	else
-		LogError("[Surftimer] %s not found", DEFAULT_TITLES_PATH);
-}
-
-public void SetDefaultTitle(int client, const char szTitle[256])
-{
-	// Set the clients default title
-	g_bEnforceTitle[client] = true;
-	Format(g_szEnforcedTitle[client], sizeof(g_szEnforcedTitle), szTitle);
-	CreateTimer(1.0, SetClanTag, client, TIMER_FLAG_NO_MAPCHANGE);
 }
 
 public int GetStyleIndex(char[] szBuffer)

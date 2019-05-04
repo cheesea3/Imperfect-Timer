@@ -659,18 +659,19 @@ public void SQL_viewCustomTitlesCallback(Handle owner, Handle hndl, const char[]
 	    g_iCustomColours[client][1] = 0;
 	}
 
-	FormatTitle(client, g_szCustomTitleRaw[client], g_szCustomTitleColoured[client], sizeof(g_szCustomTitleColoured[]));
-	Format(g_pr_chat_coloredrank[client], 1024, "%s", g_szCustomTitleColoured[client]);
+    char formatted[32];
+	FormatTitle(client, g_szCustomTitleRaw[client], formatted, sizeof(formatted));
 
-    char szTitle[1024];
-    Format(szTitle, 1024, "%s", g_szCustomTitleColoured[client]);
-    parseColorsFromString(szTitle, 1024);
-    Format(g_pr_rankname[client], 1024, "%s", szTitle);
-    Format(g_pr_rankname_style[client], 1024, "%s", szTitle);
-    Format(g_szCustomTitle[client], 1024, "%s", szTitle);
+	if (!StrEquals(formatted, "")) {
+	    strcopy(g_pr_chat_coloredrank[client], sizeof(g_pr_chat_coloredrank), formatted);
+	    strcopy(g_pr_rankname[client], sizeof(g_pr_chat_coloredrank), formatted);
+        parseColorsFromString(g_pr_rankname[client], sizeof(g_pr_chat_coloredrank));
+        g_bDbCustomTitleInUse[client] = true;
+	} else {
+	    g_bDbCustomTitleInUse[client] = false;
+	}
 
     g_szCustomJoinMsg[client] = "none";
-    g_bDbCustomTitleInUse[client] = !StrEqual(g_szCustomTitleColoured[client], "");
     g_bHasCustomTextColour[client] = g_bDbCustomTitleInUse[client];
 
 	if (g_bUpdatingColours[client])
@@ -686,10 +687,6 @@ public void SQL_viewCustomTitlesCallback(Handle owner, Handle hndl, const char[]
 
 		g_fTick[client][0] = GetGameTime();
 		LoadClientSetting(client, g_iSettingToLoad[client]);
-
-		// Check Enforced Tags
-		if (GetConVarBool(g_hEnforceDefaultTitles))
-			LoadDefaultTitle(client);
 	}
 }
 

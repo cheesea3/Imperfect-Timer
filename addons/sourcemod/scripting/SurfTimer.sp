@@ -420,8 +420,6 @@ char g_szCustomJoinMsg[MAXPLAYERS + 1][256];
 
 /*----------  Custom Titles  ----------*/
 char g_szCustomTitleRaw[MAXPLAYERS + 1][1024];
-char g_szCustomTitleColoured[MAXPLAYERS + 1][1024];
-char g_szCustomTitle[MAXPLAYERS + 1][1024];
 bool g_bDbCustomTitleInUse[MAXPLAYERS + 1] = false;
 
 // 0 = name, 1 = text;
@@ -555,7 +553,6 @@ int g_totalPlayerTimes[MAXPLAYERS + 1];
 int g_rankArg[MAXPLAYERS + 1];
 
 /*----------  KSF Style Ranking Distribution  ----------*/
-char g_szRankName[MAXPLAYERS + 1][32];
 int g_rankNameChatColour[MAXPLAYERS + 1];
 int g_GroupMaps[MAX_PR_PLAYERS + 1][MAX_STYLES];
 int g_Top10Maps[MAX_PR_PLAYERS + 1][MAX_STYLES];
@@ -1035,10 +1032,8 @@ int g_PlayerChatRank[MAXPLAYERS + 1];
 
 // Clients rank, colored, used in chat
 char g_pr_chat_coloredrank[MAXPLAYERS + 1][256];
-char g_pr_chat_coloredrank_style[MAXPLAYERS + 1][256];
 
 // Client's rank, non-colored, used in clantag
-char g_pr_rankname_style[MAXPLAYERS + 1][32];
 char g_pr_rankname[MAXPLAYERS + 1][32];
 char g_pr_namecolour[MAXPLAYERS + 1][32];
 
@@ -1287,12 +1282,6 @@ bool g_bUsingStageTeleport[MAXPLAYERS + 1];
 
 // Footsteps
 ConVar g_hFootsteps = null;
-
-// Enforced Titles
-bool g_bEnforceTitle[MAXPLAYERS + 1];
-int g_iEnforceTitleType[MAXPLAYERS + 1];
-char g_szEnforcedTitle[MAXPLAYERS + 1][256];
-Handle g_DefaultTitlesWhitelist = null;
 
 // Prespeed in zones
 int g_iWaitingForResponse[MAXPLAYERS + 1];
@@ -1873,9 +1862,6 @@ public void OnConfigsExecuted()
 		readMapycycle();
 	else
 		readMultiServerMapcycle();
-
-	if (GetConVarBool(g_hEnforceDefaultTitles))
-		ReadDefaultTitlesWhitelist();
 
 	// Count the amount of bonuses and then set skillgroups
 	if (!g_bRenaming && !g_bInTransactionChain)
@@ -2564,19 +2550,6 @@ public void OnSettingChanged(Handle convar, const char[] oldValue, const char[] 
 	{
 		GetConVarString(g_hHostName, g_sServerName, sizeof(g_sServerName));
 	}
-	else if (convar == g_hEnforceDefaultTitles)
-	{
-		for (int i = 1; i < MaxClients; i++)
-		{
-			if (IsValidClient(i) && !IsFakeClient(i))
-			{
-				if (!GetConVarBool(g_hEnforceDefaultTitles))
-					db_viewCustomTitles(i, g_szSteamID[i]);
-				else
-					LoadDefaultTitle(i);
-			}
-		}
-	}
 	else if (convar == g_hAutoVipFlag)
 	{
 		AdminFlag flag;
@@ -2689,9 +2662,6 @@ public void OnPluginStart()
 	// mapcycle array
 	int arraySize = ByteCountToCells(PLATFORM_MAX_PATH);
 	g_MapList = CreateArray(arraySize);
-
-	// default titles whitelist array
-	g_DefaultTitlesWhitelist = CreateArray();
 
 	// button sound hook
 	// AddNormalSoundHook(NormalSHook_callback);

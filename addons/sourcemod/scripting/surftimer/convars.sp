@@ -94,7 +94,6 @@ ConVar g_hRecordAnnounceDiscord = null;							// Web hook link to announce recor
 ConVar g_hReportBugsDiscord = null;								// Web hook link to report bugs to discord
 ConVar g_hCalladminDiscord = null;								// Web hook link to allow players to call admin to discord
 ConVar g_hSidewaysBlockKeys = null;
-ConVar g_hEnforceDefaultTitles = null;
 ConVar g_hWrcpPoints = null;
 ConVar g_hPlayReplayVipOnly = null;
 ConVar g_hSoundPathWR = null;
@@ -329,9 +328,6 @@ void CreateConVars()
 	g_hCalladminDiscord = CreateConVar("ck_calladmin_discord", "", "Web hook link to allow players to call admin to discord, keep empty to disable");
 
 	g_hSidewaysBlockKeys = CreateConVar("ck_sideways_block_keys", "0", "Changes the functionality of sideways, 1 will block keys, 0 will change the clients style to normal if not surfing sideways");
-
-	g_hEnforceDefaultTitles = CreateConVar("ck_enforce_default_titles", "0", "Sets whether default titles will be enforced on clients, Enable / Disable");
-	HookConVarChange(g_hEnforceDefaultTitles, OnSettingChanged);
 
 	// WRCP Points
 	g_hWrcpPoints = CreateConVar("ck_wrcp_points", "0", "Sets the amount of points a player should get for a WRCP, 0 to disable");
