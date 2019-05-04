@@ -3259,8 +3259,7 @@ public void SQL_selectCheckpointsCallback(Handle owner, Handle hndl, const char[
 
 		db_UpdateLastSeen(client);
 
-		if (GetConVarBool(g_hTeleToStartWhenSettingsLoaded))
-		{
+		if (GetConVarBool(g_hTeleToStartWhenSettingsLoaded) && IsPlayerAlive(client)) {
 			Command_Restart(client, 1);
 			CreateTimer(0.1, RestartPlayer, client);
 		}

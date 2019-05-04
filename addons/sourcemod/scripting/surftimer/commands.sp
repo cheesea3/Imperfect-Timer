@@ -3368,8 +3368,8 @@ public void NextTitle(int client, int target) {
     }
 }
 public void SaveRawTitle(int target, char[] raw) {
-	char authSteamId[MAXPLAYERS + 1];
-	GetClientAuthId(target, AuthId_Steam2, authSteamId, MAX_NAME_LENGTH, true);
+	char authSteamId[32];
+	GetClientAuthId(target, AuthId_Steam2, authSteamId, sizeof(authSteamId), true);
 	db_checkCustomPlayerTitle(target, authSteamId, raw);
 }
 

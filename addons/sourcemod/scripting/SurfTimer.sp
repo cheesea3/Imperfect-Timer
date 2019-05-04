@@ -423,7 +423,6 @@ char g_szCustomTitleRaw[MAXPLAYERS + 1][1024];
 char g_szCustomTitleColoured[MAXPLAYERS + 1][1024];
 char g_szCustomTitle[MAXPLAYERS + 1][1024];
 bool g_bDbCustomTitleInUse[MAXPLAYERS + 1] = false;
-bool g_bdbHasCustomTitle[MAXPLAYERS + 1] = false;
 
 // 0 = name, 1 = text;
 int g_iCustomColours[MAXPLAYERS + 1][2];

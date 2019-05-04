@@ -388,7 +388,7 @@ public Action SetClanTag(Handle timer, any client)
 		if (GetConVarBool(g_hPointSystem))
 		{
 			char tag[154];
-			Format(tag, 154, "%s", g_pr_rankname_style[client]);
+			Format(tag, 154, "[%s]", g_pr_rankname_style[client]);
 			
 			// Replace {style} with style
 			if (g_iCurrentStyle[client] > 0)

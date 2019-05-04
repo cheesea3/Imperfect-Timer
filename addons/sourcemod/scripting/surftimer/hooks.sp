@@ -492,8 +492,13 @@ public Action Say_Hook(int client, const char[] command, int argc)
 			else*/
 				ReplaceString(szChatRank, sizeof(szChatRank), "{style}", "");
 
+
 			if (!g_bDbCustomTitleInUse[client]) {
 			    szChatRank = "";
+			} else {
+			    char tmp[1024];
+			    Format(tmp, 1024, "%s {gray}|{default}", szChatRank);
+			    strcopy(szChatRank, sizeof(szChatRank), tmp);
 			}
 
 			if (GetConVarBool(g_hCountry) && (GetConVarBool(g_hPointSystem)))
