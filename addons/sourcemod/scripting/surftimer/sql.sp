@@ -5972,6 +5972,9 @@ public void SQL_UpdateWrcpRecordCallback2(Handle owner, Handle hndl, const char[
 	int client = ReadPackCell(data);
 	CloseHandle(data);
 
+	if (!IsValidClient(client))
+		return;
+
 	if (bInsert) // fluffys FIXME
 	{
 		if (style == 0)
@@ -6315,7 +6318,7 @@ public void db_GetTotalStagesCallback(Handle owner, Handle hndl, const char[] er
 public void db_viewWrcpMap(int client, char mapname[128])
 {
 	char szQuery[1024];
-	Format(szQuery, 512, "SELECT `mapname`, COUNT(`zonetype`) AS stages FROM `ck_zones` WHERE `zonetype` = '3' AND `mapname` = (SELECT DISTINCT `mapname` FROM `ck_zones` WHERE `zonetype` = '3' AND `mapname` LIKE '%c%s%c' LIMIT 0, 1)", PERCENT, g_szWrcpMapSelect[client], PERCENT);
+	Format(szQuery, 512, "SELECT `mapname`, COUNT(`zonetype`) AS stages FROM `ck_zones` WHERE `zonetype` = '3' AND `mapname` = (SELECT DISTINCT `mapname` FROM `ck_zones` WHERE `zonetype` = '3' AND `mapname` LIKE '%c%s%c' LIMIT 0, 1) GROUP BY mapname LIMIT 1", PERCENT, g_szWrcpMapSelect[client], PERCENT);
 	Handle pack = CreateDataPack();
 	WritePackCell(pack, client);
 	WritePackString(pack, mapname);
