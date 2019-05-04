@@ -237,8 +237,10 @@ public Action CKTimer2(Handle timer)
 				Client_SetScore(i, 0);
 			}
 
-			if (g_pr_AllPlayers[0] < g_PlayerRank[i][0])
-				CS_SetClientContributionScore(i, -99999);
+            if (IsFakeClient(i))
+                CS_SetClientContributionScore(i, -99999);
+			else    if (g_pr_AllPlayers[0] < g_PlayerRank[i][0])
+				CS_SetClientContributionScore(i, -99998);
 			else
 				CS_SetClientContributionScore(i, -g_PlayerRank[i][0]);
 
