@@ -554,38 +554,6 @@ public void SQL_updateCustomPlayerTextColourCallback(Handle owner, Handle hndl, 
 	db_viewCustomTitles(client, szSteamID);
 }
 
-public void db_toggleCustomPlayerTitle(int client, char[] szSteamID)
-{
-	Handle pack = CreateDataPack();
-	WritePackCell(pack, client);
-	WritePackString(pack, szSteamID);
-
-	char szQuery[512];
-	if (g_bDbCustomTitleInUse[client])
-	{
-		Format(szQuery, 512, "UPDATE `ck_vipadmins` SET `inuse` = '0' WHERE `steamid` = '%s';", szSteamID);
-	}
-	else
-	{
-		Format(szQuery, 512, "UPDATE `ck_vipadmins` SET `inuse` = '1' WHERE `steamid` = '%s';", szSteamID);
-	}
-
-	SQL_TQuery(g_hDb, SQL_insertCustomPlayerTitleCallback, szQuery, pack, DBPrio_Low);
-}
-
-public void SQL_toggleCustomPlayerTitleCallback(Handle owner, Handle hndl, const char[] error, any pack)
-{
-	ResetPack(pack);
-	int client = ReadPackCell(pack);
-	char szSteamID[32];
-	ReadPackString(pack, szSteamID, 32);
-	CloseHandle(pack);
-
-	/*PrintToServer("Successfully updated custom title.");
-	db_viewCustomTitles(client, szSteamID);*/
-	SetPlayerRank(client);
-}
-
 public void db_viewCustomTitles(int client, char[] szSteamID)
 {
 	char szQuery[728];
@@ -662,7 +630,7 @@ public void SQL_viewCustomTitlesCallback(Handle owner, Handle hndl, const char[]
     char formatted[32];
 	FormatTitle(client, g_szCustomTitleRaw[client], formatted, sizeof(formatted));
 
-	if (!StrEquals(formatted, "")) {
+	if (!StrEqual(formatted, "")) {
 	    strcopy(g_pr_chat_coloredrank[client], sizeof(g_pr_chat_coloredrank), formatted);
 	    strcopy(g_pr_rankname[client], sizeof(g_pr_chat_coloredrank), formatted);
         parseColorsFromString(g_pr_rankname[client], sizeof(g_pr_chat_coloredrank));
