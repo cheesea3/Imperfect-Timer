@@ -419,6 +419,7 @@ char g_szCustomJoinMsg[MAXPLAYERS + 1][256];
 // char g_szCustomSounds[MAXPLAYERS + 1][3][256];
 
 /*----------  Custom Titles  ----------*/
+char g_szCustomTitleRaw[MAXPLAYERS + 1][1024];
 char g_szCustomTitleColoured[MAXPLAYERS + 1][1024];
 char g_szCustomTitle[MAXPLAYERS + 1][1024];
 bool g_bDbCustomTitleInUse[MAXPLAYERS + 1] = false;
@@ -1188,9 +1189,6 @@ bool g_bPracticeMode[MAXPLAYERS + 1];
 
 /*----------  Reports  ----------*/
 bool g_bReportSuccess[MAXPLAYERS + 1];
-
-// old challenge variables might need just incase
-float g_fSpawnPosition[MAXPLAYERS + 1][3];
 
 // Chat Colors in String Format
 char szWHITE[12], szDARKRED[12], szPURPLE[12], szGREEN[12], szLIGHTGREEN[12], szLIMEGREEN[12], szRED[12], szGRAY[12], szYELLOW[12], szDARKGREY[12], szBLUE[12], szDARKBLUE[12], szLIGHTBLUE[12], szPINK[12], szLIGHTRED[12], szORANGE[12];
@@ -1993,9 +1991,6 @@ public void OnClientPutInServer(int client)
 	// Position Restoring
 	if (GetConVarBool(g_hcvarRestore) && !g_bRenaming && !g_bInTransactionChain)
 	db_selectLastRun(client);
-
-	if (g_bLateLoaded && IsPlayerAlive(client))
-	PlayerSpawn(client);
 
 	if (g_bTierFound)
 		AnnounceTimer[client] = CreateTimer(20.0, AnnounceMap, client, TIMER_FLAG_NO_MAPCHANGE);

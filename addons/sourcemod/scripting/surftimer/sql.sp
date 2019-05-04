@@ -24,7 +24,7 @@ public void db_setupDatabase()
 	if (strcmp(szIdent, "mysql", false) == 0)
 	{
 		// https://github.com/nikooo777/ckSurf/pull/58
-		SQL_FastQuery(g_hDb, "SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));");
+		//SQL_FastQuery(g_hDb, "SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));");
 		g_DbType = MYSQL;
 	}
 	else if (strcmp(szIdent, "sqlite", false) == 0)
@@ -3252,10 +3252,6 @@ public void SQL_selectCheckpointsCallback(Handle owner, Handle hndl, const char[
 		char szName[32];
 		GetClientName(client, szName, sizeof(szName));
 		LogToFileEx(g_szLogFile, "[Surftimer] Finished loading %s - %s settings in %fs", g_szSteamID[client], szName, time);
-		
-		// Print a VIP's custom join msg to all
-		if (g_bEnableJoinMsgs && !StrEqual(g_szCustomJoinMsg[client], "none") && IsPlayerVip(client, true, false))
-			CPrintToChatAll("%s", g_szCustomJoinMsg[client]);
 
 		// CalculatePlayerRank(client);
 		g_bSettingsLoaded[client] = true;
@@ -6382,7 +6378,7 @@ public void sql_viewWrcpMapCallback(Handle owner, Handle hndl, const char[] erro
 public void db_viewWrcpMapRecord(int client)
 {
 	char szQuery[1024];
-	Format(szQuery, 512, "SELECT name, MIN(runtimepro) FROM ck_wrcps WHERE mapname = '%s' AND runtimepro > -1.0 AND stage = %s AND style = 0;", g_szMapName, g_szWrcpMapSelect[client]);
+	Format(szQuery, 512, "SELECT name, runtimepro FROM ck_wrcps WHERE mapname = '%s' AND runtimepro > -1.0 AND stage = %s AND style = 0 ORDER BY runtimepro ASC LIMIT 1;", g_szMapName, g_szWrcpMapSelect[client]);
 
 	SQL_TQuery(g_hDb, sql_viewWrcpMapRecordCallback, szQuery, client, DBPrio_Low);
 }
@@ -6530,7 +6526,7 @@ public int StageTopMenuHandler(Menu menu, MenuAction action, int client, int ite
 public void db_viewStageRecords()
 {
 	char szQuery[512];
-	Format(szQuery, 512, "SELECT name, MIN(runtimepro), stage, style FROM ck_wrcps WHERE mapname = '%s' GROUP BY stage, style;", g_szMapName);
+	Format(szQuery, 512, "SELECT full.name, full.runtimepro, full.stage, full.style FROM ( SELECT MIN(runtimepro) AS time, stage, style, mapname FROM ck_wrcps WHERE mapname = '%s' GROUP BY stage, style ) as mins INNER JOIN ck_wrcps AS full ON mins.time = full.runtimepro AND mins.stage = full.stage AND mins.style = full.style AND mins.mapname = full.mapname;", g_szMapName);
 	SQL_TQuery(g_hDb, sql_viewStageRecordsCallback, szQuery, 0, DBPrio_Low);
 }
 
@@ -6825,7 +6821,7 @@ public void db_GetStyleMapRecord_Pro(int style)
 {
 	g_fRecordStyleMapTime[style] = 9999999.0;
 	char szQuery[512];
-	Format(szQuery, 512, "SELECT MIN(runtimepro), name, steamid FROM ck_playertimes WHERE mapname = '%s' AND style = %i AND runtimepro > -1.0", g_szMapName, style);
+	Format(szQuery, 512, "SELECT runtimepro, name, steamid FROM ck_playertimes WHERE mapname = '%s' AND style = %i AND runtimepro > -1.0 ORDER BY runtimepro ASC LIMIT 1", g_szMapName, style);
 	SQL_TQuery(g_hDb, sql_selectStyleMapRecordCallback, szQuery, style, DBPrio_Low);
 }
 

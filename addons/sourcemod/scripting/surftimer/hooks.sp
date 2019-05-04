@@ -191,9 +191,6 @@ public Action Event_OnPlayerSpawn(Handle event, const char[] name, bool dontBroa
 			g_bFirstSpawn[client] = false;
 		}
 
-		// Get Start Position For Challenge
-		GetClientAbsOrigin(client, g_fSpawnPosition[client]);
-
 		// Restore Position
 		if (!g_specToStage[client])
 		{
@@ -256,11 +253,6 @@ public Action Event_OnPlayerSpawn(Handle event, const char[] name, bool dontBroa
 		SetEntData(client, FindSendPropInfo("CBaseEntity", "m_CollisionGroup"), 2, 4, true);
 	}
 	return Plugin_Continue;
-}
-
-public void PlayerSpawn(int client)
-{
-
 }
 
 public Action Say_Hook(int client, const char[] command, int argc)
@@ -486,6 +478,8 @@ public Action Say_Hook(int client, const char[] command, int argc)
 			char szChatRank[1024], szChatRank2[1024];
 			Format(szChatRank, 1024, "%s", g_pr_chat_coloredrank[client]);
 			Format(szChatRank2, 1024, "%s", g_pr_chat_coloredrank_style[client]);
+
+			/*
 			if (g_iCurrentStyle[client] > 0)
 			{
 				char szStyle[128];
@@ -495,8 +489,12 @@ public Action Say_Hook(int client, const char[] command, int argc)
 				ReplaceString(szChatRank2, sizeof(szChatRank2), "{style}", szStyle);
 				Format(szChatRank, sizeof(szChatRank), "%s", szChatRank2);
 			}
-			else
+			else*/
 				ReplaceString(szChatRank, sizeof(szChatRank), "{style}", "");
+
+			if (!g_bDbCustomTitleInUse[client]) {
+			    szChatRank = "";
+			}
 
 			if (GetConVarBool(g_hCountry) && (GetConVarBool(g_hPointSystem)))
 			{

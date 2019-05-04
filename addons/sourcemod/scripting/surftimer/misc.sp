@@ -4477,7 +4477,7 @@ bool IsPlayerVip(int client, bool admin = true, bool reply = true)
 			return true;
 	}
 
-	if (!g_bVip[client] && !CheckCommandAccess(client, "", ADMFLAG_RESERVATION))
+	if (!CheckCommandAccess(client, "", ADMFLAG_CUSTOM1))
 	{
 		if (reply)
 		{

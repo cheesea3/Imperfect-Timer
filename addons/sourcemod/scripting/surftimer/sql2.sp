@@ -597,6 +597,42 @@ public void db_viewCustomTitles(int client, char[] szSteamID)
 	SQL_TQuery(g_hDb, SQL_viewCustomTitlesCallback, szQuery, pack, DBPrio_Low);
 }
 
+public void FormatTitle(int client, char[] raw, char[] out, int size) {
+    char parts[32][32];
+    char colored[32] = "";
+    int numParts = ExplodeString(raw, "`", parts, sizeof(parts), sizeof(parts[]));
+    if (numParts >= 1) {
+        int num = StringToInt(parts[0]);
+        if (num == 0) {
+            if (StrEqual(parts[0], "vip")) {
+                if (IsPlayerVip(client, true, false)) {
+                    colored = "{green}VIP";
+                }
+            } else if (StrEqual(parts[0], "admin")) {
+                if (CheckCommandAccess(client, "", ADMFLAG_ROOT)) {
+                    colored = "{red}Admin";
+                }
+            } else if (StrEqual(parts[0], "mod")) {
+                if (CheckCommandAccess(client, "", ADMFLAG_KICK)) {
+                    colored = "{yellow}Mod";
+                }
+            }
+        } else if (num > 0 && num < numParts) {
+            strcopy(colored, sizeof(colored), parts[num]);
+        }
+    }
+    FormatTitleSlug(colored, out, size);
+}
+public void FormatTitleSlug(char[] raw, char[] out, int size) {
+    strcopy(out, size, raw);
+    if (StrEqual(out, "rapper")) strcopy(out, size, "{yellow}Rapper");
+    if (StrEqual(out, "beat")) strcopy(out, size, "{yellow}Beatboxer");
+    if (StrEqual(out, "dj")) strcopy(out, size, "{yellow}DJ");
+    ReplaceString(out, size, "{red}", "{lightred}", false);
+    ReplaceString(out, size, "{limegreen}", "{lime}", false);
+    ReplaceString(out, size, "{white}", "{default}", false);
+}
+
 public void SQL_viewCustomTitlesCallback(Handle owner, Handle hndl, const char[] error, any pack) 
 {
 	ResetPack(pack);
@@ -620,7 +656,10 @@ public void SQL_viewCustomTitlesCallback(Handle owner, Handle hndl, const char[]
 	if (SQL_HasResultSet(hndl) && SQL_FetchRow(hndl))
 	{
 		g_bdbHasCustomTitle[client] = true;
-		SQL_FetchString(hndl, 0, g_szCustomTitleColoured[client], sizeof(g_szCustomTitleColoured));
+		SQL_FetchString(hndl, 0, g_szCustomTitleRaw[client], sizeof(g_szCustomTitleRaw[]));
+
+		// Format title
+		FormatTitle(client, g_szCustomTitleRaw[client], g_szCustomTitleColoured[client], sizeof(g_szCustomTitleColoured[]));
 
 		// fluffys temp fix for scoreboard
 		// int RankValue[SkillGroup];
@@ -636,33 +675,18 @@ public void SQL_viewCustomTitlesCallback(Handle owner, Handle hndl, const char[]
 		Format(g_szCustomTitle[client], 1024, "%s", szTitle);
 
 		if (!SQL_IsFieldNull(hndl, 6) && IsPlayerVip(client, true, false))
-			SQL_FetchString(hndl, 6, g_szCustomJoinMsg[client], sizeof(g_szCustomJoinMsg));
+			SQL_FetchString(hndl, 6, g_szCustomJoinMsg[client], sizeof(g_szCustomJoinMsg[]));
 		else
 			Format(g_szCustomJoinMsg[client], sizeof(g_szCustomJoinMsg), "none");
 
-		// SQL_FetchString(hndl, 7, g_szCustomSounds[client][0], sizeof(g_szCustomSounds));
-		// SQL_FetchString(hndl, 8, g_szCustomSounds[client][1], sizeof(g_szCustomSounds));
-		// SQL_FetchString(hndl, 9, g_szCustomSounds[client][2], sizeof(g_szCustomSounds));
+		// SQL_FetchString(hndl, 7, g_szCustomSounds[client][0], sizeof(g_szCustomSounds[]));
+		// SQL_FetchString(hndl, 8, g_szCustomSounds[client][1], sizeof(g_szCustomSounds[]));
+		// SQL_FetchString(hndl, 9, g_szCustomSounds[client][2], sizeof(g_szCustomSounds[]));
 
-		if (SQL_FetchInt(hndl, 3) == 0)
-		{
-			g_bDbCustomTitleInUse[client] = false;
-		}
-		else
-		{
-			g_bDbCustomTitleInUse[client] = true;
-			g_iCustomColours[client][0] = SQL_FetchInt(hndl, 1);
-			// setNameColor(szName, g_szdbCustomNameColour[client], 64);
-
-			g_iCustomColours[client][1] = SQL_FetchInt(hndl, 2);
-			g_bHasCustomTextColour[client] = true;
-		}
-	}
-	else
-	{
-		g_bDbCustomTitleInUse[client] = false;
-		g_bHasCustomTextColour[client] = false;
-		g_bdbHasCustomTitle[client] = false;
+        g_bDbCustomTitleInUse[client] = !StrEqual(g_szCustomTitleColoured[client], "");
+        g_iCustomColours[client][0] = SQL_FetchInt(hndl, 1);
+        g_iCustomColours[client][1] = SQL_FetchInt(hndl, 2);
+        g_bHasCustomTextColour[client] = true;
 	}
 
 	if (g_bUpdatingColours[client])

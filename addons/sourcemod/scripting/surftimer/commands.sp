@@ -107,18 +107,22 @@ void CreateCommands()
 	RegConsoleCmd("sm_noclipspeed", Command_NoclipSpeed, "[surftimer] [zoner] Changes the value of sv_noclipspeed");
 
 	// VIP Commands
-	RegAdminCmd("sm_fixbot", Admin_FixBot, g_VipFlag, "[surftimer] Toggles replay bots off and on");
+	RegAdminCmd("sm_fixbot", Admin_FixBot, ADMFLAG_ROOT, "[surftimer] Toggles replay bots off and on");
 
 	RegConsoleCmd("sm_vip", Command_Vip, "[surftimer] [vip] Displays the VIP menu to client");
+	RegConsoleCmd("sm_vmute", Command_Vmute, "[surftimer] [vip] Toggle vmute on a player");
+	RegAdminCmd("sm_givetitle", Command_GiveTitle, ADMFLAG_ROOT, "[surftimer] Grants a title to a player");
+	RegAdminCmd("sm_removetitle", Command_RemoveTitle, ADMFLAG_ROOT, "[surftimer] Removes a title from a player");
+	RegAdminCmd("sm_listtitles", Command_ListTitles, ADMFLAG_ROOT, "[surftimer] Lists titles for a player");
+	RegAdminCmd("sm_nexttitle", Command_NextTitle, ADMFLAG_ROOT, "[surftimer] Forced a player to use their next available title");
 	RegConsoleCmd("sm_mytitle", Command_PlayerTitle, "[surftimer] [vip] Displays a menu to the player showing their custom title and allowing them to change their colours");
 	RegConsoleCmd("sm_title", Command_PlayerTitle, "[surftimer] [vip] Displays a menu to the player showing their custom title and allowing them to change their colours");
-	RegConsoleCmd("sm_customtitle", Command_SetDbTitle, "[surftimer] [vip] VIPs can set their own custom title into a db");
 	RegConsoleCmd("sm_namecolour", Command_SetDbNameColour, "[surftimer] [vip] VIPs can set their own custom name colour into the db");
 	RegConsoleCmd("sm_textcolour", Command_SetDbTextColour, "[surftimer] [vip] VIPs can set their own custom text colour into the db");
 	RegConsoleCmd("sm_ve", Command_VoteExtend, "[surftimer] [vip] Vote to extend the map");
 	RegConsoleCmd("sm_colours", Command_ListColours, "[surftimer] Lists available colours for sm_mytitle and sm_namecolour");
-	RegConsoleCmd("sm_toggletitle", Command_ToggleTitle, "[surftimer] [vip] VIPs can toggle their title.");
-	RegConsoleCmd("sm_joinmsg", Command_JoinMsg, "[surftimer] [vip] Allows a vip to set their join msg");
+	//RegConsoleCmd("sm_toggletitle", Command_ToggleTitle, "[surftimer] [vip] VIPs can toggle their title.");
+	//RegConsoleCmd("sm_joinmsg", Command_JoinMsg, "[surftimer] [vip] Allows a vip to set their join msg");
 
 	// Automatic Donate Commands
 	RegAdminCmd("sm_givevip", VIP_GiveVip, ADMFLAG_ROOT, "[surftimer] Give a player VIP");
@@ -369,9 +373,6 @@ public Action Command_Vip(int client, int args)
 
 public void CustomTitleMenu(int client)
 {
-	if (!IsPlayerVip(client))
-		return;
-
 	char szName[64], szSteamID[32], szColour[3][96], szTitle[256], szItem[128], szItem2[128];
 
 	GetClientName(client, szName, 64);
@@ -380,18 +381,15 @@ public void CustomTitleMenu(int client)
 	getColourName(client, szColour[1], 32, g_iCustomColours[client][1]);
 
 	Format(szTitle, 256, "Custom Titles Menu: %s\nCustom Title: %s\n \n", szName, g_szCustomTitle[client]);
-	Format(szItem, 128, "Name Colour: %s", szColour[0]);
-	Format(szItem2, 128, "Text Colour: %s", szColour[1]);
+	Format(szItem, 128, "Name Colour [VIP]: %s", szColour[0]);
+	Format(szItem2, 128, "Text Colour [VIP]: %s", szColour[1]);
 
 	Menu menu = CreateMenu(CustomTitleMenuHandler);
 	SetMenuTitle(menu, szTitle);
 
-	AddMenuItem(menu, "Name Colour", szItem);
-	AddMenuItem(menu, "Text Colour", szItem2);
-	if (g_bDbCustomTitleInUse[client])
-		AddMenuItem(menu, "disable", "Disable Custom Title");
-	else
-		AddMenuItem(menu, "disable", "Enable Custom Title");
+	AddMenuItem(menu, "name", szItem);
+	AddMenuItem(menu, "text", szItem2);
+    AddMenuItem(menu, "next", "Change Title");
 
 	SetMenuOptionFlags(menu, MENUFLAG_BUTTON_EXIT);
 	DisplayMenu(menu, client, MENU_TIME_FOREVER);
@@ -401,11 +399,19 @@ public int CustomTitleMenuHandler(Handle menu, MenuAction action, int param1, in
 {
 	if (action == MenuAction_Select)
 	{
-		switch (param2)
-		{
-			case 0, 1: db_viewPlayerColours(param1, g_szSteamID[param1], param2);
-			case 2: db_toggleCustomPlayerTitle(param1, g_szSteamID[param1]);
-		}
+	    int client = param1;
+	    char info[32];
+	    GetMenuItem(menu, param2, info, sizeof(info));
+	    if (StrEqual(info, "name")) {
+	    	if (!IsPlayerVip(client)) return;
+	        db_viewPlayerColours(client, g_szSteamID[client], 0);
+	    } else if (StrEqual(info, "text")) {
+	        if (!IsPlayerVip(client)) return;
+            db_viewPlayerColours(client, g_szSteamID[client], 1);
+        } else if (StrEqual(info, "next")) {
+            g_bUpdatingColours[client] = true;
+            NextTitle(client, client);
+        }
 	}
 	else if (action == MenuAction_End)
 		CloseHandle(menu);
@@ -3139,67 +3145,232 @@ public int MiscellaneousOptionsHandler(Menu menu, MenuAction action, int param1,
 // fluffys
 public Action Command_PlayerTitle(int client, int args)
 {
-	if (IsValidClient(client) && IsPlayerVip(client))
+	if (IsValidClient(client))
 		CustomTitleMenu(client);
 	return Plugin_Handled;
 }
 
-public Action Command_SetDbTitle(int client, int args)
+public Action Command_Vmute(int client, int args)
 {
 	if (!IsValidClient(client) || !IsPlayerVip(client))
 		return Plugin_Handled;
 
-	char arg[256], authSteamId[MAXPLAYERS + 1];
-	GetClientAuthId(client, AuthId_Steam2, authSteamId, MAX_NAME_LENGTH, true);
-
-	if (args == 0)
+	if (args < 1)
 	{
-		if (g_bdbHasCustomTitle[client])
-		{
-			db_toggleCustomPlayerTitle(client, authSteamId);
-		}
-		else
-		{
-			CPrintToChat(client, "%t", "Commands40", g_szChatPrefix);
-		}
-	}
-	else
-	{
-		GetCmdArg(1, arg, 256);
-		char upperArg[256];
-		char noColoursArg[256];
-		upperArg = arg;
-		StringToUpper(upperArg);
-		noColoursArg = upperArg;
-		parseColorsFromString(noColoursArg, 256);
-
-		if (strlen(noColoursArg) > 20)
-		{
-			CPrintToChat(client, "%t", "Commands41", g_szChatPrefix);
-
-			return Plugin_Handled;
-		}
-		else if (StrContains(upperArg, "{RED}") != -1)
-			ReplaceString(arg, 256, "{red}", "{lightred}", false);
-		else if (StrContains(upperArg, "{LIMEGREEN}") != -1)
-			ReplaceString(arg, 256, "{limegreen}", "{lime}");
-		else if (StrContains(upperArg, "{WHITE}") != -1)
-			ReplaceString(arg, 256, "{white}", "{default}", false);
-
-		// Check if arg is in unallowed titles array
-		for (int i = 0; i < sizeof(UnallowedTitles); i++)
-		{
-			if (StrContains(UnallowedTitles[i], upperArg)!=-1)
-			{
-				arg = "{pink}Fag";
-				break;
-			}
-		}
-
-		db_checkCustomPlayerTitle(client, authSteamId, arg);
+		CReplyToCommand(client, "Usage: <name> - mutes / unmutes the given player (30 minutes)");
+		return Plugin_Handled;
 	}
 
+	char clientName[128];
+	GetClientName(client, clientName, sizeof(clientName));
+    char reason[128];
+    Format(reason, sizeof(reason), "vmute by %s", clientName);
+
+	char target[128];
+	GetCmdArg(1, target, sizeof(target));
+
+	int targetId = FindTarget(client, target, true, false);
+    if (targetId < 0) {
+        CReplyToCommand(client, "Target player not found");
+        return Plugin_Handled;
+    }
+
+    char targetNamed[128];
+    GetClientName(targetId, targetNamed, sizeof(targetNamed));
+
+    bType isMuted = SourceComms_GetClientMuteType(targetId);
+    if (isMuted == bNot) {
+        SourceComms_SetClientMute(targetId, true, 30, true, reason);
+        CPrintToChatAll("VIP %s muted %s for 30 minutes", clientName, targetNamed);
+    } else if (isMuted == bPerm) {
+        CReplyToCommand(client, "Cannot unmute a permanately muted player using vmute.");
+    } else {
+        SourceComms_SetClientMute(targetId, false, -1, false, reason);
+        CPrintToChatAll("VIP %s unmuted %s temporarily", clientName, targetNamed);
+    }
+
+    return Plugin_Handled;
+}
+
+public Action Command_GiveTitle(int client, int args) {
+	if (!IsValidClient(client))
+		return Plugin_Handled;
+	if (args < 2) {
+		CReplyToCommand(client, "Usage: <name> <title> - title can be rapper, dj, beat, or something custom (if paid)");
+		return Plugin_Handled;
+	}
+	char targetStr[128], szBuffer[32];
+	GetCmdArg(1, targetStr, sizeof(targetStr));
+	GetCmdArg(2, szBuffer, sizeof(szBuffer));
+	int target = FindTarget(client, targetStr, true, false);
+    GiveTitle(client, target, szBuffer);
 	return Plugin_Handled;
+}
+public void GiveTitle(int client, int target, char[] title) {
+    if (target < 0) {
+        CReplyToCommand(client, "Target player not found");
+        return;
+    }
+    if (!g_bSettingsLoaded[target]) {
+        CReplyToCommand(client, "Player not yet loaded");
+        return;
+    }
+    char newTitle[1024];
+    if (StrEqual(g_szCustomTitleRaw[target], "")) {
+        Format(newTitle, sizeof(newTitle), "0`%s", title);
+    } else {
+        Format(newTitle, sizeof(newTitle), "%s`%s", g_szCustomTitleRaw[target], title);
+    }
+
+    SaveRawTitle(target, newTitle);
+
+    char targetNamed[128];
+    GetClientName(target, targetNamed, sizeof(targetNamed));
+    char pretty[32];
+    FormatTitleSlug(title, pretty, sizeof(pretty));
+    CPrintToChatAll("%s was granted the title: %s", targetNamed, pretty);
+}
+
+public Action Command_RemoveTitle(int client, int args) {
+	if (!IsValidClient(client))
+		return Plugin_Handled;
+	if (args < 2) {
+		CReplyToCommand(client, "Usage: <name> <title>");
+		return Plugin_Handled;
+	}
+	char targetStr[128], szBuffer[32];
+	GetCmdArg(1, targetStr, sizeof(targetStr));
+	GetCmdArg(2, szBuffer, sizeof(szBuffer));
+	int target = FindTarget(client, targetStr, true, false);
+    RemoveTitle(client, target, szBuffer);
+	return Plugin_Handled;
+}
+public void RemoveTitle(int client, int target, char[] title) {
+    if (!g_bSettingsLoaded[target]) {
+        CReplyToCommand(client, "Player not yet loaded");
+        return;
+    }
+    char newTitle[1024] = "";
+    if (!StrEqual(title, "all")) {
+        char parts[32][32];
+        int numParts = ExplodeString(g_szCustomTitleRaw[target], "`", parts, sizeof(parts), sizeof(parts[]));
+        for (int i = 0; i < numParts; i++) {
+            if (i == 0 || !StrEqual(parts[i], title, false)) {
+                if (i != 0) {
+                    StrCat(newTitle, sizeof(newTitle), "`");
+                }
+                StrCat(newTitle, sizeof(newTitle), parts[i]);
+            }
+        }
+    }
+    SaveRawTitle(target, newTitle);
+
+    char targetNamed[128];
+    GetClientName(target, targetNamed, sizeof(targetNamed));
+    char pretty[32];
+    FormatTitleSlug(title, pretty, sizeof(pretty));
+    CPrintToChatAll("%s was stripped of title: %s", targetNamed, pretty);
+}
+
+public Action Command_ListTitles(int client, int args) {
+	if (!IsValidClient(client))
+		return Plugin_Handled;
+	if (args < 1) {
+		CReplyToCommand(client, "Usage: <name>");
+		return Plugin_Handled;
+	}
+	char targetStr[128];
+	GetCmdArg(1, targetStr, sizeof(targetStr));
+	int target = FindTarget(client, targetStr, true, false);
+    ListTitles(client, target);
+	return Plugin_Handled;
+}
+public void ListTitles(int client, int target) {
+    if (!g_bSettingsLoaded[target]) {
+        CReplyToCommand(client, "Player not yet loaded");
+        return;
+    }
+    char parts[32][32];
+    char out[1024];
+    if (client == target) {
+        out = "You have these titles: ";
+    } else {
+        char targetNamed[128];
+        GetClientName(target, targetNamed, sizeof(targetNamed));
+        Format(out, sizeof(out), "%s has these titles: ", targetNamed);
+    }
+    int numParts = ExplodeString(g_szCustomTitleRaw[target], "`", parts, sizeof(parts), sizeof(parts[]));
+    for (int i = 1; i < numParts; i++) {
+        StrCat(out, sizeof(out), parts[i]);
+        if (i != numParts-1) {
+            StrCat(out, sizeof(out), ", ");
+        }
+    }
+    PrintToChat(client, out);
+}
+
+public Action Command_NextTitle(int client, int args) {
+	if (!IsValidClient(client))
+		return Plugin_Handled;
+	if (args < 1) {
+		CReplyToCommand(client, "Usage: <name>");
+		return Plugin_Handled;
+	}
+	char targetStr[128];
+	GetCmdArg(1, targetStr, sizeof(targetStr));
+	int target = FindTarget(client, targetStr, true, false);
+    NextTitle(client, target);
+	return Plugin_Handled;
+}
+public void NextTitle(int client, int target) {
+    if (!g_bSettingsLoaded[target]) {
+        CReplyToCommand(client, "Player not yet loaded");
+        return;
+    }
+
+    char parts[32][32];
+    char newStr[1024];
+    int numParts = ExplodeString(g_szCustomTitleRaw[target], "`", parts, sizeof(parts), sizeof(parts[]));
+    if (numParts >= 1) {
+        for (int attempt = 0; attempt < 10; attempt++) {
+            if (StrEqual(parts[0], "vip")) parts[0] = "mod";
+            else if (StrEqual(parts[0], "mod")) parts[0] = "admin";
+            else if (StrEqual(parts[0], "admin")) parts[0] = "0";
+            else {
+                int num = StringToInt(parts[0]);
+                num++;
+                if (num >= numParts) {
+                    parts[0] = "vip";
+                } else {
+                    Format(parts[0], sizeof(parts[]), "%d", num);
+                }
+            }
+            ImplodeStrings(parts, numParts, "`", newStr, sizeof(newStr));
+            char formatted[32];
+            FormatTitle(target, newStr, formatted, sizeof(formatted));
+            if (StrEqual(parts[0], "0")) {
+                formatted = "<default>";
+            }
+            if (!StrEqual(formatted, "")) {
+                SaveRawTitle(target, newStr);
+                char out[1024];
+                if (client == target) {
+                    Format(out, sizeof(out), "You have changed your title to %s", formatted);
+                } else {
+                    char targetNamed[128];
+                    GetClientName(target, targetNamed, sizeof(targetNamed));
+                    Format(out, sizeof(out), "You have changed the title of %s to %s", targetNamed, formatted);
+                }
+                CPrintToChat(client, out);
+                return;
+            }
+        }
+    }
+}
+public void SaveRawTitle(int target, char[] raw) {
+	char authSteamId[MAXPLAYERS + 1];
+	GetClientAuthId(target, AuthId_Steam2, authSteamId, MAX_NAME_LENGTH, true);
+	db_checkCustomPlayerTitle(target, authSteamId, raw);
 }
 
 public Action Command_JoinMsg(int client, int args)
@@ -3216,20 +3387,6 @@ public Action Command_JoinMsg(int client, int args)
 	char szArg[256];
 	GetCmdArg(1, szArg, sizeof(szArg));
 	db_setJoinMsg(client, szArg);
-
-	return Plugin_Handled;
-}
-
-public Action Command_ToggleTitle(int client, int args)
-{
-	if (!IsValidClient(client) || !IsPlayerVip(client))
-		return Plugin_Handled;
-
-	char authSteamId[MAXPLAYERS + 1];
-
-	GetClientAuthId(client, AuthId_Steam2, authSteamId, MAX_NAME_LENGTH, true);
-
-	db_toggleCustomPlayerTitle(client, authSteamId);
 
 	return Plugin_Handled;
 }
@@ -4050,9 +4207,6 @@ public Action Command_Repeat(int client, int args)
 
 public Action Admin_FixBot(int client, int args)
 {
-	if (!g_bZoner[client] && !CheckCommandAccess(client, "", ADMFLAG_ROOT))
-		return Plugin_Handled;
-
 	CPrintToChat(client, "%t", "Commands52", g_szChatPrefix);
 	CreateTimer(5.0, FixBot_Off, INVALID_HANDLE, TIMER_FLAG_NO_MAPCHANGE);
 	CreateTimer(10.0, FixBot_On, INVALID_HANDLE, TIMER_FLAG_NO_MAPCHANGE);
