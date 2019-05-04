@@ -640,7 +640,6 @@ public void SQL_viewCustomTitlesCallback(Handle owner, Handle hndl, const char[]
 	}
 
     g_szCustomJoinMsg[client] = "none";
-    g_bHasCustomTextColour[client] = g_bDbCustomTitleInUse[client];
 
 	if (g_bUpdatingColours[client])
 		CustomTitleMenu(client);
