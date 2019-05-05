@@ -189,6 +189,7 @@ public Action CKTimer2(Handle timer)
 						GetNextMap(szNextMap, 128);
 						CPrintToChatAll("%t", "Timer2", g_szChatPrefix, szNextMap);
 						CreateTimer(1.0, TerminateRoundTimer, INVALID_HANDLE, TIMER_FLAG_NO_MAPCHANGE);
+						CreateTimer(10.0, ForceNextMap, INVALID_HANDLE, TIMER_FLAG_NO_MAPCHANGE);
 					}
 				}
 			}
@@ -413,6 +414,14 @@ public Action SetClanTag(Handle timer, any client)
 		if (!StrEqual(g_pr_rankname[client], old_pr_rankname, false) && IsValidClient(client))
 			CPrintToChat(client, "%t", "SkillGroup", g_szChatPrefix, g_pr_chat_coloredrank[client]);
 
+	return Plugin_Handled;
+}
+
+public Action ForceNextMap(Handle timer)
+{
+    char szNextMap[128];
+    GetNextMap(szNextMap, 128);
+    ServerCommand("changelevel %s", szNextMap);
 	return Plugin_Handled;
 }
 
