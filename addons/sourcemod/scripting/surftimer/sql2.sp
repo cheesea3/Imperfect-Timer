@@ -897,7 +897,7 @@ public void SQL_CheckAnnouncementsCallback(Handle owner, Handle hndl, const char
 public void db_selectMapCycle()
 {
 	char szQuery[128];
-	Format(szQuery, sizeof(szQuery), "SELECT mapname, tier FROM ck_maptier ORDER BY mapname ASC");
+	Format(szQuery, sizeof(szQuery), "SELECT mapname, tier FROM ck_maptier WHERE ranked = 1 AND tier > 0 ORDER BY mapname ASC");
 	SQL_TQuery(g_hDb, SQL_SelectMapCycleCallback, szQuery, 1, DBPrio_Low);
 }
 
