@@ -461,7 +461,7 @@ public Action Say_Hook(int client, const char[] command, int argc)
     WriteChatLog(client, "say", sText);
     PrintToServer("%s: %s", szName, sText);
 
-    if (IsPlayerVip(client)) {
+    if (IsPlayerVip(client, true, false)) {
         setNameColor(szName, g_iCustomColours[client][0], 64);
         setTextColor(sText, g_iCustomColours[client][1], 1024);
     }
