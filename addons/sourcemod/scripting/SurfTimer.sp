@@ -2040,11 +2040,13 @@ public void OnClientAuthorized(int client)
 
 public void OnClientDisconnect(int client)
 {
-	if (IsFakeClient(client) && g_hRecordingAdditionalTeleport[client] != null)
+	if (g_hRecordingAdditionalTeleport[client] != null)
 	{
 		CloseHandle(g_hRecordingAdditionalTeleport[client]);
 		g_hRecordingAdditionalTeleport[client] = null;
 	}
+
+	StopRecording(client);
 
 	db_savePlayTime(client);
 

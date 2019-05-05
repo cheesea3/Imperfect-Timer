@@ -100,6 +100,8 @@ public Action Hook_WeaponCanSwitchTo(int client, int weapon)
 
 public void StartRecording(int client)
 {
+    StopRecording(client);
+
 	if (!IsValidClient(client) || IsFakeClient(client))
 		return;
 
@@ -113,7 +115,7 @@ public void StartRecording(int client)
 
 public void StopRecording(int client)
 {
-	if (!IsValidClient(client) || g_hRecording[client] == null)
+	if (g_hRecording[client] == null)
 		return;
 
 	CloseHandle(g_hRecording[client]);
@@ -706,7 +708,7 @@ public void LoadRecordReplay()
 		// "Having a bot in noclip and zero gravity ensures it's smooth" - Crashfort
 		// https://github.com/crashfort/SourceToolAssist/blob/be9218583ee0a8086c817a5bd29101b2a260e5a7/Source/surf_segmentplay.sp#L113
 		// Disabling noclip, makes the bot bug, look into later
-		// SetEntityMoveType(g_RecordBot, MOVETYPE_NOCLIP);
+		SetEntityMoveType(g_RecordBot, MOVETYPE_NOCLIP);
 		SetEntityGravity(g_RecordBot, 0.0);
 
 		PlayRecord(g_RecordBot, 0, 0);
@@ -766,7 +768,7 @@ public void LoadBonusReplay()
 		// "Having a bot in noclip and zero gravity ensures it's smooth" - Crashfort
 		// https://github.com/crashfort/SourceToolAssist/blob/be9218583ee0a8086c817a5bd29101b2a260e5a7/Source/surf_segmentplay.sp#L113
 		// Disabling noclip, makes the bot bug, look into later
-		// SetEntityMoveType(g_BonusBot, MOVETYPE_NOCLIP);
+		SetEntityMoveType(g_BonusBot, MOVETYPE_NOCLIP);
 		SetEntityGravity(g_BonusBot, 0.0);
 
 		PlayRecord(g_BonusBot, 1, 0);
@@ -826,7 +828,7 @@ public void LoadWrcpReplay()
 		// "Having a bot in noclip and zero gravity ensures it's smooth" - Crashfort
 		// https://github.com/crashfort/SourceToolAssist/blob/be9218583ee0a8086c817a5bd29101b2a260e5a7/Source/surf_segmentplay.sp#L113
 		// Disabling noclip, makes the bot bug, look into later
-		// SetEntityMoveType(g_WrcpBot, MOVETYPE_NOCLIP);
+		SetEntityMoveType(g_WrcpBot, MOVETYPE_NOCLIP);
 		SetEntityGravity(g_WrcpBot, 0.0);
 
 		PlayRecord(g_WrcpBot, -g_StageReplayCurrentStage, 0);

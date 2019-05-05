@@ -100,8 +100,6 @@ public void CL_OnStartTimerPress(int client)
 		}
 		else
 		{
-			if (g_hRecording[client] != null)
-				StopRecording(client);
 			StartRecording(client);
 			if (g_bhasStages)
 				Stage_StartRecording(client);
