@@ -565,8 +565,6 @@ int g_Points[MAX_PR_PLAYERS + 1][MAX_STYLES][7];
 
 int g_ClientProfile[MAXPLAYERS + 1];
 bool g_bProfileInServer[MAXPLAYERS + 1];
-bool g_bInBonus[MAXPLAYERS + 1];
-int g_iInBonus[MAXPLAYERS + 1];
 
 /*----------  KSF Points System  ----------*/
 float g_Group1Pc = 0.03125;

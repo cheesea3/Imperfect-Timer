@@ -237,19 +237,6 @@ public void teleportClient(int client, int zonegroup, int zone, bool stopTime)
 	}
 	else if (g_bGotSpawnLocation[zonegroup][realZone][teleside])
 	{
-		// Check if teleporting to bonus
-		if (zonegroup > 0)
-		{
-			// Set a bool to allow bonus zones to sit on top of start zones, e.g surf_aircontrol_ksf bonus 1
-			g_bInBonus[client] = true;
-			g_iInBonus[client] = zonegroup;
-		}
-		else
-		{
-			// Not teleporting to a bonus
-			g_bInBonus[client] = false;
-		}
-
 		if (GetClientTeam(client) == 1 || GetClientTeam(client) == 0) // Spectating
 		{
 			if (stopTime)
@@ -295,18 +282,6 @@ public void teleportClient(int client, int zonegroup, int zone, bool stopTime)
 			// Check if zone was found
 			if (destinationZoneId > -1)
 			{
-				// Check if teleporting to bonus
-				if (zonegroup > 0)
-				{
-					// Set a bool to allow bonus zones to sit on top of start zones, e.g surf_aircontrol_ksf bonus 1
-					g_bInBonus[client] = true;
-					g_iInBonus[client] = zonegroup;
-				}
-				else
-				{
-					// Not teleporting to a bonus
-					g_bInBonus[client] = false;
-				}
 				// Check if client is spectating, or not chosen a team yet
 				if (GetClientTeam(client) == 1 || GetClientTeam(client) == 0)
 				{
@@ -1452,9 +1427,6 @@ public void SetClientDefaults(int client)
 
 	// WRCP Replays
 	g_bSavingWrcpReplay[client] = false;
-
-	// Reset Bonus Bool
-	g_bInBonus[client] = false;
 
 	g_iCenterSpeedEnt[client] = -1;
 
@@ -3271,7 +3243,7 @@ public void CenterHudAlive(int client)
 						// Prac mode
 						Format(module[i], 128, "<font color='#ffffff'>[P]: %s       </font>", pAika);
 					}
-					else if (g_bInBonus[client])
+					else if (g_iClientInZone[client][2] != 0)
 					{
 						// In Bonus
 						Format(module[i], 128, "<font color='#ff8200'>%s       </font>", pAika);

@@ -168,44 +168,6 @@ public Action StartTouchTrigger(int caller, int activator)
 	action[1] = g_mapZones[id][zoneTypeId];
 	action[2] = g_mapZones[id][zoneGroup];
 
-	// Hack fix to allow bonus zones to sit on top of start zones, e.g surf_aircontrol_ksf bonus 1
-	if (g_bTimerRunning[activator])
-	{
-		if (action[0] < 6 && g_bInBonus[activator])
-		{
-			if (action[2] != g_iInBonus[activator])
-			{
-				return Plugin_Handled;
-			}
-		}
-		else
-		{
-			if (!g_bInBonus[activator] && action[2] > 0)
-			{
-				return Plugin_Handled;
-			}
-
-			else if (StrEqual(g_szMapName, "surf_christmas2") && !g_bUsingStageTeleport[activator])
-			{
-				if (action[0] == 3)
-				{
-					if (action[1] > (g_Stage[g_iClientInZone[activator][2]][activator] + 1) || action[1] < (g_Stage[g_iClientInZone[activator][2]][activator] - 1))
-						return Plugin_Handled;
-				}
-			}
-		}
-	}
-	else
-	{
-		if (!g_bInBonus[activator] && action[2] > 0)
-		{
-			g_bInBonus[activator] = false;
-			return Plugin_Handled;
-		}
-		else if (action[2] > 0)
-			g_bInBonus[activator] = true;
-	}
-
 	if (g_bUsingStageTeleport[activator])
 		g_bUsingStageTeleport[activator] = false;
 
@@ -219,7 +181,6 @@ public Action StartTouchTrigger(int caller, int activator)
 		g_iClientInZone[activator][0] = action[0];
 		g_iClientInZone[activator][1] = action[1];
 		g_iClientInZone[activator][2] = action[2];
-		g_iInBonus[activator] = action[2];
 		g_iClientInZone[activator][3] = id;
 		StartTouch(activator, action);
 	}
@@ -231,7 +192,6 @@ public Action StartTouchTrigger(int caller, int activator)
 			g_iClientInZone[activator][0] = action[0];
 			g_iClientInZone[activator][1] = action[1];
 			g_iClientInZone[activator][2] = action[2];
-			g_iInBonus[activator] = action[2];
 			g_iClientInZone[activator][3] = id;
 			StartTouch(activator, action);
 		}
