@@ -346,21 +346,18 @@ void CreateConVars()
 	g_hSoundPathTop = CreateConVar("ck_sp_top", "sound/surftimer/top10/valve_logo_music.mp3", "Set the sound path for the Top 10 sound");
 	HookConVarChange(g_hSoundPathTop, OnSettingChanged);
 	GetConVarString(g_hSoundPathTop, g_szSoundPathTop, sizeof(g_szSoundPathTop));
-    char sBuffer[2][PLATFORM_MAX_PATH];
     ExplodeString(g_szSoundPathTop, "sound/", sBuffer, 2, PLATFORM_MAX_PATH);
     Format(g_szRelativeSoundPathTop, sizeof(g_szRelativeSoundPathTop), "*%s", sBuffer[1]);
 
 	g_hSoundPathPB = CreateConVar("ck_sp_pb", "sound/surftimer/pr/valve_logo_music.mp3", "Set the sound path for the PB sound");
 	HookConVarChange(g_hSoundPathPB, OnSettingChanged);
 	GetConVarString(g_hSoundPathPB, g_szSoundPathPB, sizeof(g_szSoundPathPB));
-    char sBuffer[2][PLATFORM_MAX_PATH];
     ExplodeString(g_szSoundPathPB, "sound/", sBuffer, 2, PLATFORM_MAX_PATH);
     Format(g_szRelativeSoundPathPB, sizeof(g_szRelativeSoundPathPB), "*%s", sBuffer[1]);
 
 	g_hSoundPathWRCP = CreateConVar("ck_sp_wrcp", "sound/physics/glass/glass_bottle_break2.wav", "Set the sound path for the WRCP sound");
 	HookConVarChange(g_hSoundPathWRCP, OnSettingChanged);
 	GetConVarString(g_hSoundPathWRCP, g_szSoundPathWRCP, sizeof(g_szSoundPathWRCP));
-    char sBuffer[2][PLATFORM_MAX_PATH];
     ExplodeString(g_szSoundPathWRCP, "sound/", sBuffer, 2, PLATFORM_MAX_PATH);
     Format(g_szRelativeSoundPathWRCP, sizeof(g_szRelativeSoundPathWRCP), "*%s", sBuffer[1]);
 

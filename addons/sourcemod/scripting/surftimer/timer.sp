@@ -183,7 +183,7 @@ public Action CKTimer2(Handle timer)
 					if (!g_bRoundEnd)
 					{
 						g_bRoundEnd = true;
-						ServerCommand("mp_ignore_round_win_conditions 0");
+						ServerCommand("mp_ignore_round_win_conditions 0; mp_maxrounds 1");
 						CPrintToChatAll("%t", "TimeleftCounter", g_szChatPrefix, g_szMapName, 1);
 						char szNextMap[128];
 						GetNextMap(szNextMap, 128);
