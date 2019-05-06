@@ -4923,7 +4923,9 @@ public void SQL_db_GetDynamicTimelimitCallback(Handle owner, Handle hndl, const 
 				maptimes++;
 			}
 		}
+
 		// requires min. 5 map times
+		int timelimit = 50;
 		if (maptimes > 5)
 		{
 			int scale_factor = 3;
@@ -4949,14 +4951,14 @@ public void SQL_db_GetDynamicTimelimitCallback(Handle owner, Handle hndl, const 
 			if (avg > 120)
 			avg = 120;
 
-			// set timelimit
-			char szTimelimit[32];
-			Format(szTimelimit, 32, "mp_timelimit %i;mp_roundtime %i", avg, avg);
-			ServerCommand(szTimelimit);
-			ServerCommand("mp_restartgame 1");
-		} else {
-    		ServerCommand("mp_timelimit 50;mp_roundtime 50");
-        }
+			timelimit = avg;
+		}
+
+        // set timelimit
+        char szTimelimit[32];
+        Format(szTimelimit, 32, "mp_timelimit %i;mp_roundtime %i", timelimit, timelimit);
+        ServerCommand(szTimelimit);
+        ServerCommand("mp_restartgame 1");
 	}
 
 	if (!g_bServerDataLoaded)
