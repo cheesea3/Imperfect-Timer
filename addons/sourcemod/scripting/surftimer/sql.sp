@@ -1843,7 +1843,7 @@ public int ProfileMenuHandler(Handle menu, MenuAction action, int client, int it
 			switch (g_MenuLevel[client])
 			{
 				case 0:db_selectTopPlayers(client, 0);
-				case 3:db_viewWrcpMap(client, g_szWrcpMapSelect[client]);
+				case 3:db_viewStyleWrcpMap(client, g_szWrcpMapSelect[client], 0);
 			}
 			if (g_MenuLevel[client] < 0)
 			{
@@ -6291,76 +6291,6 @@ public void db_GetTotalStagesCallback(Handle owner, Handle hndl, const char[] er
 		db_viewStageRecords();
 }
 
-public void db_viewWrcpMap(int client, char mapname[128])
-{
-	char szQuery[1024];
-	Format(szQuery, 512, "SELECT `mapname`, COUNT(`zonetype`) AS stages FROM `ck_zones` WHERE `zonetype` = '3' AND `mapname` = (SELECT DISTINCT `mapname` FROM `ck_zones` WHERE `zonetype` = '3' AND `mapname` LIKE '%c%s%c' LIMIT 0, 1) GROUP BY mapname LIMIT 1", PERCENT, g_szWrcpMapSelect[client], PERCENT);
-	Handle pack = CreateDataPack();
-	WritePackCell(pack, client);
-	WritePackString(pack, mapname);
-	SQL_TQuery(g_hDb, sql_viewWrcpMapCallback, szQuery, pack, DBPrio_Low);
-}
-
-public void sql_viewWrcpMapCallback(Handle owner, Handle hndl, const char[] error, any pack)
-{
-	if (hndl == null)
-	{
-		LogError("[Surftimer] SQL Error (sql_viewWrcpMapCallback): %s ", error);
-	}
-
-	int totalstages;
-	char mapnameresult[128];
-	char stage[MAXPLAYERS + 1];
-	char szStageString[MAXPLAYERS + 1];
-	ResetPack(pack);
-	int client = ReadPackCell(pack);
-	char mapname[128];
-	ReadPackString(pack, mapname, 128);
-	CloseHandle(pack);
-
-	if (SQL_HasResultSet(hndl) && SQL_FetchRow(hndl))
-	{
-		totalstages = SQL_FetchInt(hndl, 1) + 1;
-		SQL_FetchString(hndl, 0, mapnameresult, 128);
-		if (totalstages == 0 || totalstages == 1)
-		{
-			CPrintToChat(client, "%t", "SQL23", g_szChatPrefix, mapname);
-			return;
-		}
-
-		if (pack != INVALID_HANDLE)
-		{
-			g_szWrcpMapSelect[client] = mapnameresult;
-			Menu menu = CreateMenu(StageSelectMenuHandler);
-			SetMenuTitle(menu, "%s: select a stage\n------------------------------\n", mapnameresult);
-			int stageCount = totalstages;
-			for (int i = 1; i <= stageCount; i++)
-			{
-				stage[0] = i;
-				Format(szStageString, sizeof(szStageString), "Stage %i", i);
-				AddMenuItem(menu, stage[0], szStageString);
-			}
-			g_bSelectWrcp[client] = true;
-			SetMenuOptionFlags(menu, MENUFLAG_BUTTON_EXIT);
-			DisplayMenu(menu, client, MENU_TIME_FOREVER);
-			return;
-
-			/*// Find out how many times are are faster than the players time
-			char szQuery[512];
-			Format(szQuery, 512, "", g_szMapName, g_CurrentStage[data], stagetime);
-			SQL_TQuery(g_hDb, SQL_UpdateRecordProCallback2, szQuery, client, DBPrio_Low);*/
-		}
-	}
-}
-
-public void db_viewWrcpMapRecord(int client)
-{
-	char szQuery[1024];
-	Format(szQuery, 512, "SELECT name, runtimepro FROM ck_wrcps WHERE mapname = '%s' AND runtimepro > -1.0 AND stage = %s AND style = 0 ORDER BY runtimepro ASC LIMIT 1;", g_szMapName, g_szWrcpMapSelect[client]);
-
-	SQL_TQuery(g_hDb, sql_viewWrcpMapRecordCallback, szQuery, client, DBPrio_Low);
-}
-
 public void sql_viewWrcpMapRecordCallback(Handle owner, Handle hndl, const char[] error, any client)
 {
 	if (hndl == null)
@@ -6495,7 +6425,7 @@ public int StageTopMenuHandler(Menu menu, MenuAction action, int client, int ite
 	}
 	else if (action == MenuAction_Cancel)
 	{
-		db_viewWrcpMap(client, g_szWrcpMapSelect[client]);
+		db_viewStyleWrcpMap(client, g_szWrcpMapSelect[client], 0);
 	}
 	else if (action == MenuAction_End)
 		CloseHandle(menu);
@@ -7162,23 +7092,11 @@ public void sql_viewStyleStageRanksCallback(Handle owner, Handle hndl, const cha
 	}
 }
 
-public void db_viewWrcpStyleMapRecord(int client, int style)
-{
-	char szQuery[1024];
-	Format(szQuery, 512, "SELECT name, s%s FROM `ck_wrcps` WHERE `mapname` = '%s' AND `style` = %i AND `s%s` > -1.0 ORDER BY s%s ASC LIMIT 0, 1", g_szWrcpMapSelect[client], g_szMapName, style, g_szWrcpMapSelect[client], g_szWrcpMapSelect[client]);
-
-	Handle pack = CreateDataPack();
-	WritePackCell(pack, client);
-	WritePackCell(pack, style);
-
-	SQL_TQuery(g_hDb, sql_viewWrcpStyleMapRecordCallback, szQuery, pack, DBPrio_Low);
-}
-
 public void sql_viewWrcpStyleMapRecordCallback(Handle owner, Handle hndl, const char[] error, any pack)
 {
 	if (hndl == null)
 	{
-		LogError("[Surftimer] SQL Error (sql_viewWrcpMapCallback): %s ", error);
+		LogError("[Surftimer] SQL Error (sql_viewWrcpStyleMapRecordCallback): %s ", error);
 	}
 
 	ResetPack(pack);
@@ -7208,7 +7126,7 @@ public void sql_viewWrcpStyleMapRecordCallback(Handle owner, Handle hndl, const 
 public void db_viewStyleWrcpMap(int client, char mapname[128], int style)
 {
 	char szQuery[1024];
-	Format(szQuery, 512, "SELECT `mapname`, COUNT(`zonetype`) AS stages FROM `ck_zones` WHERE `zonetype` = '3' AND `mapname` = (SELECT DISTINCT `mapname` FROM `ck_zones` WHERE `zonetype` = '3' AND `mapname` LIKE '%c%s%c' LIMIT 0, 1)", PERCENT, g_szWrcpMapSelect[client], PERCENT);
+	Format(szQuery, 512, "SELECT `mapname`, COUNT(`zonetype`) AS stages FROM `ck_zones` WHERE `zonetype` = '3' AND `mapname` = (SELECT DISTINCT `mapname` FROM `ck_zones` WHERE `zonetype` = '3' AND `mapname` LIKE '%c%s%c' LIMIT 1) GROUP BY mapname LIMIT 1", PERCENT, g_szWrcpMapSelect[client], PERCENT);
 	Handle pack = CreateDataPack();
 	WritePackCell(pack, client);
 	WritePackCell(pack, style);
@@ -7220,7 +7138,7 @@ public void sql_viewStyleWrcpMapCallback(Handle owner, Handle hndl, const char[]
 {
 	if (hndl == null)
 	{
-		LogError("[Surftimer] SQL Error (sql_viewWrcpMapCallback): %s ", error);
+		LogError("[Surftimer] SQL Error (sql_viewStyleWrcpMapCallback): %s ", error);
 	}
 
 	int totalstages;

@@ -3668,21 +3668,7 @@ public void WrcpMenu(int client, int args, int style)
 	}
 	else
 	{
-		if (StrContains(g_szWrcpMapSelect[client], "#", false) != -1)
-		{
-			ReplaceString(g_szWrcpMapSelect[client], 128, "#", "", false);
-			if (style == 0)
-				db_viewWrcpMapRecord(client);
-			else
-				db_viewWrcpStyleMapRecord(client, style);
-		}
-		else
-		{
-			if (style == 0)
-				db_viewWrcpMap(client, g_szWrcpMapSelect[client]);
-			else
-				db_viewStyleWrcpMap(client, g_szWrcpMapSelect[client], style);
-		}
+        db_viewStyleWrcpMap(client, g_szWrcpMapSelect[client], style);
 	}
 }
 

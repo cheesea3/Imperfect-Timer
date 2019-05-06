@@ -190,6 +190,7 @@ public Action CKTimer2(Handle timer)
 						CPrintToChatAll("%t", "Timer2", g_szChatPrefix, szNextMap);
 						CreateTimer(1.0, TerminateRoundTimer, INVALID_HANDLE, TIMER_FLAG_NO_MAPCHANGE);
 						CreateTimer(10.0, ForceNextMap, INVALID_HANDLE, TIMER_FLAG_NO_MAPCHANGE);
+						CreateTimer(12.0, ForceNextMap2, INVALID_HANDLE, TIMER_FLAG_NO_MAPCHANGE);
 					}
 				}
 			}
@@ -417,18 +418,23 @@ public Action SetClanTag(Handle timer, any client)
 	return Plugin_Handled;
 }
 
-public Action ForceNextMap(Handle timer)
-{
+public Action ForceNextMap(Handle timer) {
     char szNextMap[128];
     GetNextMap(szNextMap, 128);
     ServerCommand("changelevel %s", szNextMap);
 	return Plugin_Handled;
 }
 
+public Action ForceNextMap2(Handle timer) {
+    ServerCommand("changelevel surf_progressw");
+	return Plugin_Handled;
+}
+
 public Action TerminateRoundTimer(Handle timer)
 {
 	CS_TerminateRound(1.0, CSRoundEnd_CTWin, true);
-	bool bSlay = GetConVarBool(g_hSlayOnRoundEnd);
+	//bool bSlay = GetConVarBool(g_hSlayOnRoundEnd);
+	bool bSlay = false;
 	for (int i = 0; i <= MaxClients; i++)
 	{
 		if (IsValidClient(i) && !IsFakeClient(i))
