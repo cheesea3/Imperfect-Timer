@@ -225,6 +225,11 @@ public void teleportClient(int client, int zonegroup, int zone, bool stopTime)
 		{
 			SetEntPropVector(client, Prop_Data, "m_vecVelocity", view_as<float>( { 0.0, 0.0, 0.0 } ));
 
+			// Hack fix for zoneid not being set with hooked zones
+			int zId = getZoneID(zonegroup, zone);
+			if (!StrEqual(g_mapZones[zId][hookName], "None"))
+				g_iTeleportingZoneId[client] = zId;
+
 			teleportEntitySafe(client, g_fStartposLocation[client][zonegroup], g_fStartposAngle[client][zonegroup], view_as<float>( { 0.0, 0.0, 0.0 } ), stopTime);
 
 			return;
@@ -248,6 +253,11 @@ public void teleportClient(int client, int zonegroup, int zone, bool stopTime)
 		else
 		{
 			SetEntPropVector(client, Prop_Data, "m_vecVelocity", view_as<float>( { 0.0, 0.0, 0.0 } ));
+
+			// Hack fix for zoneid not being set with hooked zones
+			int zId = getZoneID(zonegroup, zone);
+			if (!StrEqual(g_mapZones[zId][hookName], "None"))
+				g_iTeleportingZoneId[client] = zId;
 
 			if (realZone == 0)
 			{
@@ -387,6 +397,13 @@ void teleportEntitySafe(int client, float fDestination[3], float fAngles[3], flo
 int setClientLocation(int client, float fDestination[3])
 {
 	int zId = IsInsideZone(fDestination);
+
+	// Hack fix for hooked zones setting the clients zone id to -1
+	if (g_mapZonesCount > 0 && g_iTeleportingZoneId[client] >= 0 && !StrEqual(g_mapZones[g_iTeleportingZoneId[client]][hookName], "None"))
+	{
+		// Any side effects from doing this? Not sure, I assume joni is getting a new zone id for a reason but I don't understand why when he gets the new zone id in the teleportClient function
+		zId = g_iTeleportingZoneId[client];
+	}
 
 	if (zId != g_iClientInZone[client][3]) // Ignore location changes, if teleporting to the same zone they are already in
 	{
