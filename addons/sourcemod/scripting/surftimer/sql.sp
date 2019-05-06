@@ -4954,9 +4954,9 @@ public void SQL_db_GetDynamicTimelimitCallback(Handle owner, Handle hndl, const 
 			Format(szTimelimit, 32, "mp_timelimit %i;mp_roundtime %i", avg, avg);
 			ServerCommand(szTimelimit);
 			ServerCommand("mp_restartgame 1");
-		}
-		else
-		ServerCommand("mp_timelimit 50");
+		} else {
+    		ServerCommand("mp_timelimit 50;mp_roundtime 50");
+        }
 	}
 
 	if (!g_bServerDataLoaded)
