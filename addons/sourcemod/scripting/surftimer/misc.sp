@@ -1909,7 +1909,7 @@ stock void MapFinishedMsgs(int client, int rankThisRun = 0)
 		}
 
 		// Send Announcements
-		if (g_bMapSRVRecord[client])
+		if (g_bMapSRVRecord[client] && count > 10)
 		{
 			if (GetConVarBool(g_hRecordAnnounce))
 				db_insertAnnouncement(szName, g_szMapName, g_szFinalTime[client]);
@@ -1919,7 +1919,7 @@ stock void MapFinishedMsgs(int client, int rankThisRun = 0)
 				sendDiscordAnnouncement(szName, g_szMapName, g_szFinalTime[client]);
 		}
 
-		if (g_bTop10Time[client])
+		if (g_bTop10Time[client] && count > 100)
 			PlayRecordSound(3);
 
 		if (g_MapRank[client] == 99999 && IsValidClient(client))
