@@ -1667,6 +1667,7 @@ public void OnMapStart()
 
 	// reload language files
 	LoadTranslations("surftimer.phrases");
+	LoadTranslations("common.phrases.txt");
 
 	CheatFlag("bot_zombie", false, true);
 	g_bTierFound = false;
