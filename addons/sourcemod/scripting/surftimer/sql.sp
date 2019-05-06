@@ -3399,6 +3399,9 @@ public void SQL_selectMapTierCallback(Handle owner, Handle hndl, const char[] er
 		return;
 	}
 	g_bRankedMap = false;
+	g_bTierEntryFound = false;
+    g_bTierFound = false;
+    g_iMapTier = 0;
 
 	if (SQL_HasResultSet(hndl) && SQL_FetchRow(hndl))
 	{
@@ -3435,8 +3438,6 @@ public void SQL_selectMapTierCallback(Handle owner, Handle hndl, const char[] er
 					Format(g_sTierString, 512, "%s %c-%c Bonus", g_sTierString, WHITE, ORANGE, (g_mapZoneGroupCount - 1));
 		}
 	}
-	else
-	g_bTierEntryFound = false;
 
 	if (!g_bServerDataLoaded)
 		db_viewRecordCheckpointInMap();
