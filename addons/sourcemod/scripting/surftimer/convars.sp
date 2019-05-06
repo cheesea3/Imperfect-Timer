@@ -179,13 +179,13 @@ void CreateConVars()
 	HookConVarChange(g_hAutoRespawn, OnSettingChanged);
 	g_hCvarNoBlock = CreateConVar("ck_noblock", "1", "on/off - Player no blocking", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	HookConVarChange(g_hCvarNoBlock, OnSettingChanged);
-	g_hReplayBot = CreateConVar("ck_replay_bot", "0", "on/off - Bots mimic the local map record", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hReplayBot = CreateConVar("ck_replay_bot", "1", "on/off - Bots mimic the local map record", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	HookConVarChange(g_hReplayBot, OnSettingChanged);
-	g_hBonusBot = CreateConVar("ck_bonus_bot", "0", "on/off - Bots mimic the local bonus record", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hBonusBot = CreateConVar("ck_bonus_bot", "1", "on/off - Bots mimic the local bonus record", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	HookConVarChange(g_hBonusBot, OnSettingChanged);
 	g_hInfoBot = CreateConVar("ck_info_bot", "0", "on/off - provides information about nextmap and timeleft in his player name", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	HookConVarChange(g_hInfoBot, OnSettingChanged);
-	g_hWrcpBot = CreateConVar("ck_wrcp_bot", "0", "on/off - Bots mimic the local stage records", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hWrcpBot = CreateConVar("ck_wrcp_bot", "1", "on/off - Bots mimic the local stage records", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	HookConVarChange(g_hWrcpBot, OnSettingChanged);
 
 	g_hReplayBotColor = CreateConVar("ck_replay_bot_color", "52 91 248", "The default replay bot color - Format: \"red green blue\" from 0 - 255.", FCVAR_NOTIFY);
