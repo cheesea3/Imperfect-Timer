@@ -108,6 +108,9 @@ public void loadAllClientSettings()
 
 public void LoadClientSetting(int client, int setting)
 {
+    if (StrEqual(g_szSteamID[client], "")) {
+        return;
+    }
 	if (IsValidClient(client) && !IsFakeClient(client))
 	{
 		switch (setting)
@@ -3230,7 +3233,11 @@ public void CenterHudAlive(int client)
 			if (g_iCentreHudModule[client][i] == 1)
 			{
 				// Timer
-				if (g_bTimerRunning[client])
+				if (StrEqual(g_szSteamID[client], "")) {
+				    Format(module[i], 128, "<font color='#FFFF00'>Failed to get STEAMID    </font>", pAika);
+				} else if(!g_bSettingsLoaded[client]) {
+				    Format(module[i], 128, "<font color='#FFFF00'>Loading settings...    </font>", pAika);
+				} else if (g_bTimerRunning[client])
 				{
 					FormatTimeFloat(client, g_fCurrentRunTime[client], 3, pAika, 128);
 					if (g_bPause[client])

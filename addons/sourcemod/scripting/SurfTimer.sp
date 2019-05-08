@@ -1969,7 +1969,10 @@ public void OnClientPutInServer(int client)
 		DHookEntity(g_hTeleport, false, client);
 
 	// Get SteamID
-	GetClientAuthId(client, AuthId_Steam2, g_szSteamID[client], MAX_NAME_LENGTH, true);
+	g_szSteamID[client] = "";
+	if (!GetClientAuthId(client, AuthId_Steam2, g_szSteamID[client], MAX_NAME_LENGTH, true)) {
+	    g_szSteamID[client] = "";
+	}
 
 	// char fix
 	FixPlayerName(client);
