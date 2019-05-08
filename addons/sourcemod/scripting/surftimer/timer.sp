@@ -433,9 +433,9 @@ public Action ForceNextMap(Handle timer) {
     char szNextMap[128];
     GetNextMap(szNextMap, 128);
     if (IsMapValid(szNextMap))  {
-        ForceChangeLevel(szNextMap);
+        ForceChangeLevel(szNextMap, "Map Time Ended");
     } else {
-        ForceChangeLevel("surf_progress");
+        ForceChangeLevel("surf_progress", "Map Time Ended");
     }
 	return Plugin_Handled;
 }

@@ -22,7 +22,7 @@ public int Handle_VoteMenuExtend(Menu menu, MenuAction action, int param1, int p
 		} else {
 			CPrintToChatAll("%t", "CVote9", g_szChatPrefix, RoundToNearest(100.0*percent), totalVotes);
 			CPrintToChatAll("%t", "CVote10", g_szChatPrefix);
-			extendMap(600);
+			ExtendMapTimeLimit(600);
 		}
 	}
 }
