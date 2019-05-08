@@ -3069,7 +3069,7 @@ public void CreateNavFile()
 	if (!FileExists(szNav))
 	{
 		File_Copy(szSource, szNav);
-		ForceChangeLevel(g_szMapName, ".nav file generated");
+		//ForceChangeLevel(g_szMapName, ".nav file generated");
 	}
 }
 

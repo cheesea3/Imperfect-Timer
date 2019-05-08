@@ -192,9 +192,6 @@ void CreateCommands()
 	// CPR
 	RegConsoleCmd("sm_cpr", Command_CPR, "[surftimer] Compare clients time to another clients time");
 
-	// reload map
-	RegAdminCmd("sm_rm", Command_ReloadMap, ADMFLAG_ROOT, "[surftimer] Reloads the current map");
-
 	// Play record
 	RegConsoleCmd("sm_replay", Command_PlayRecord, "[surftimer] Set the replay bot to replay a run");
 	RegConsoleCmd("sm_replays", Command_PlayRecord, "[surftimer] Set the replay bot to replay a run");
@@ -4891,12 +4888,6 @@ public Action Command_CPR(int client, int args)
 		}
 	}
 
-	return Plugin_Handled;
-}
-
-public Action Command_ReloadMap(int client, int args)
-{
-	ServerCommand("changelevel %s", g_szMapName);
 	return Plugin_Handled;
 }
 

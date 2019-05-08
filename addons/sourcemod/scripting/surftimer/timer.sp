@@ -188,9 +188,8 @@ public Action CKTimer2(Handle timer)
 						char szNextMap[128];
 						GetNextMap(szNextMap, 128);
 						CPrintToChatAll("%t", "Timer2", g_szChatPrefix, szNextMap);
-						CreateTimer(1.0, TerminateRoundTimer, INVALID_HANDLE, TIMER_FLAG_NO_MAPCHANGE);
-						CreateTimer(10.0, ForceNextMap, INVALID_HANDLE, TIMER_FLAG_NO_MAPCHANGE);
-						CreateTimer(12.0, ForceNextMap2, INVALID_HANDLE, TIMER_FLAG_NO_MAPCHANGE);
+                        CreateTimer(1.0, Timer_RetryPlayers, INVALID_HANDLE, TIMER_FLAG_NO_MAPCHANGE);
+						CreateTimer(1.1, ForceNextMap, INVALID_HANDLE, TIMER_FLAG_NO_MAPCHANGE);
 					}
 				}
 			}
@@ -418,33 +417,26 @@ public Action SetClanTag(Handle timer, any client)
 	return Plugin_Handled;
 }
 
+public Action Timer_RetryPlayers(Handle hTimer) {
+    for (int i = 1; i <= MaxClients; i++)
+    {
+        if (IsClientConnected(i) && !IsFakeClient(i))
+        {
+            ClientCommand(i, "retry");
+            LogMessage("Sending retry to %N", i);
+        }
+    }
+    return Plugin_Stop;
+}
+
 public Action ForceNextMap(Handle timer) {
     char szNextMap[128];
     GetNextMap(szNextMap, 128);
-    ServerCommand("changelevel %s", szNextMap);
-	return Plugin_Handled;
-}
-
-public Action ForceNextMap2(Handle timer) {
-    ServerCommand("changelevel surf_progressw");
-	return Plugin_Handled;
-}
-
-public Action TerminateRoundTimer(Handle timer)
-{
-	CS_TerminateRound(1.0, CSRoundEnd_CTWin, true);
-	//bool bSlay = GetConVarBool(g_hSlayOnRoundEnd);
-	bool bSlay = false;
-	for (int i = 0; i <= MaxClients; i++)
-	{
-		if (IsValidClient(i) && !IsFakeClient(i))
-		{
-			if (bSlay)
-				ForcePlayerSuicide(i);
-			else
-				Client_Stop(i, 1);
-		}
-	}
+    if (IsMapValid(szNextMap))  {
+        ForceChangeLevel(szNextMap);
+    } else {
+        ForceChangeLevel("surf_progress");
+    }
 	return Plugin_Handled;
 }
 
