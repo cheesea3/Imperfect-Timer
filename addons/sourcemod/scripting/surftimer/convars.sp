@@ -37,7 +37,6 @@ ConVar g_hTeleToStartWhenSettingsLoaded = null;
 bool g_bMapReplay[MAX_STYLES];									// Why two bools?
 ConVar g_hBonusBot = null;										// Bonus bot?
 bool g_bMapBonusReplay[MAXZONEGROUPS][MAX_STYLES];
-ConVar g_hColoredNames = null;									// Colored names in chat?
 ConVar g_hPauseServerside = null;								// Allow !pause?
 ConVar g_hAutoBhopConVar = null;								// Allow autobhop?
 bool g_bAutoBhop;
@@ -81,8 +80,6 @@ ConVar g_hChatSpamFilter = null;								// Chat spam limiter
 float g_fLastChatMessage[MAXPLAYERS + 1];						// Last message time
 int g_messages[MAXPLAYERS + 1];									// Spam message count
 ConVar g_henableChatProcessing = null;							// Is chat processing enabled
-ConVar g_hMultiServerMapcycle = null;							// Use multi server mapcycle
-ConVar g_hDBMapcycle = null;									// use maps from ck_maptier as the servers mapcycle
 ConVar g_hPrestigeRank = null;									// Rank to limit the server
 ConVar g_hPrestigeStyles = null;								// Determines if the rank limit applies to normal style or all styles
 ConVar g_hServerType = null;									// Set server to surf or bhop mode
@@ -108,7 +105,6 @@ ConVar g_hSoundPathWRCP = null;
 char g_szSoundPathWRCP[PLATFORM_MAX_PATH];
 char g_szRelativeSoundPathWRCP[PLATFORM_MAX_PATH];
 ConVar g_hMustPassCheckpoints = null;
-ConVar g_hSlayOnRoundEnd = null;
 ConVar g_hLimitSpeedType = null;
 
 void CreateConVars()
@@ -120,7 +116,6 @@ void CreateConVars()
 	g_hAllowRoundEndCvar = CreateConVar("ck_round_end", "0", "on/off - Allows to end the current round", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_hDisconnectMsg = CreateConVar("ck_disconnect_msg", "1", "on/off - Enables a player disconnect message in chat", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_hMapEnd = CreateConVar("ck_map_end", "1", "on/off - Allows map changes after the timelimit has run out (mp_timelimit must be greater than 0)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hColoredNames = CreateConVar("ck_colored_chatnames", "1", "on/off Colors players names based on their rank in chat.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_hNoClipS = CreateConVar("ck_noclip", "1", "on/off - Allows players to use noclip", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_hGoToServer = CreateConVar("ck_goto", "1", "on/off - Allows players to use the !goto command", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_hCommandToEnd = CreateConVar("ck_end", "1", "on/off - Allows players to use the !end command", FCVAR_NOTIFY, true, 0.0, true, 1.0);
@@ -146,8 +141,6 @@ void CreateConVars()
 	g_hForceCT = CreateConVar("ck_force_players_ct", "0", "Forces all players to join the CT team.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_hChatSpamFilter = CreateConVar("ck_chat_spamprotection_time", "1.0", "The frequency in seconds that players are allowed to send chat messages. 0.0 = No chat cap.", FCVAR_NOTIFY, true, 0.0);
 	g_henableChatProcessing = CreateConVar("ck_chat_enable", "1", "(1 / 0) Enable or disable Surftimers chat processing.", FCVAR_NOTIFY);
-	g_hMultiServerMapcycle = CreateConVar("ck_multi_server_mapcycle", "0", "0 = Use mapcycle.txt to load servers maps, 1 = use configs/surftimer/multi_server_mapcycle.txt to load maps", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hDBMapcycle = CreateConVar("ck_db_mapcycle", "1", "0 = use non-db map cycles, 1 use maps from ck_maptier", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_hTriggerPushFixEnable = CreateConVar("ck_triggerpushfix_enable", "1", "Enables trigger push fix.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_hSlopeFixEnable = CreateConVar("ck_slopefix_enable", "1", "Enables slope fix.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_hDoubleRestartCommand = CreateConVar("ck_double_restart_command", "1", "(1 / 0) Requires 2 successive !r commands to restart the player to prevent accidental usage.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
@@ -360,8 +353,6 @@ void CreateConVars()
     Format(g_szRelativeSoundPathWRCP, sizeof(g_szRelativeSoundPathWRCP), "*%s", sBuffer[1]);
 
 	g_hMustPassCheckpoints = CreateConVar("ck_enforce_checkpoints", "1", "Sets whether a player must pass all checkpoints to finish their run. Enable/Disable");
-
-	g_hSlayOnRoundEnd = CreateConVar("ck_slay_on_round_end", "1", "If enabled, all players will be slain on round end. If disabled all players timers will be stopped on round end");
 
 	g_hLimitSpeedType = CreateConVar("ck_limit_speed_type", "1", "1 Use new style of limiting speed, 0 use old/cksurf way");
 

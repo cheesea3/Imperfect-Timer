@@ -637,13 +637,6 @@ public Action CenterSpeedDisplayTimer(Handle timer, any client)
 	return Plugin_Continue;
 }
 
-public Action EnableJoinMsgs(Handle timer)
-{
-	g_bEnableJoinMsgs = true;
-
-	return Plugin_Handled;
-}
-
 public Action SetArmsModel(Handle timer, any client)
 {
 	if (IsValidClient(client) && IsPlayerAlive(client))

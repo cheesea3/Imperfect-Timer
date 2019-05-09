@@ -317,9 +317,6 @@ int g_tmpBonusCount[MAXZONEGROUPS];
 // Amount of players that have passed the bonus in current map
 int g_iBonusCount[MAXZONEGROUPS];
 
-// How many total bonuses there are
-int g_totalBonusCount;
-
 // Does map have a bonus?
 bool g_bhasBonus;
 
@@ -427,7 +424,6 @@ ConVar g_hAutoVipFlag = null;
 int g_VipFlag;
 bool g_bVip[MAXPLAYERS + 1];
 bool g_bCheckCustomTitle[MAXPLAYERS + 1];
-bool g_bEnableJoinMsgs;
 char g_szCustomJoinMsg[MAXPLAYERS + 1][256];
 
 // 1 = PB Sound, 2 = Top 10 Sound, 3 = WR sound
@@ -446,15 +442,7 @@ bool g_bCustomTitleAccess[MAXPLAYERS + 1] = false;
 bool g_bUpdatingColours[MAXPLAYERS + 1];
 // char g_szsText[MAXPLAYERS + 1];
 
-// to be used with sm_p, stage sr
-int g_pr_BonusCount;
-int g_totalMapsCompleted[MAXPLAYERS + 1];
-int g_mapsCompletedLoop[MAXPLAYERS + 1];
-int g_uncMapsCompleted[MAXPLAYERS + 1];
-Handle g_CompletedMenu;
-
 /*----------  WRCP Variables  ----------*/
-int g_pr_StageCount;
 
 // Clients best WRCP times
 float g_fWrcpRecord[MAXPLAYERS + 1][CPLIMIT][MAX_STYLES];
@@ -568,7 +556,6 @@ int g_totalPlayerTimes[MAXPLAYERS + 1];
 int g_rankArg[MAXPLAYERS + 1];
 
 /*----------  KSF Style Ranking Distribution  ----------*/
-int g_rankNameChatColour[MAXPLAYERS + 1];
 int g_GroupMaps[MAX_PR_PLAYERS + 1][MAX_STYLES];
 int g_Top10Maps[MAX_PR_PLAYERS + 1][MAX_STYLES];
 
@@ -577,9 +564,6 @@ int g_WRs[MAX_PR_PLAYERS + 1][MAX_STYLES][3];
 
 // 0 = Map Points, 1 = Bonus Points, 2 = Group Points, 3 = Map WR Points, 4 = Bonus WR Points, 5 = Top 10 Points, 6 = WRCP Points
 int g_Points[MAX_PR_PLAYERS + 1][MAX_STYLES][7];
-
-int g_ClientProfile[MAXPLAYERS + 1];
-bool g_bProfileInServer[MAXPLAYERS + 1];
 
 /*----------  KSF Points System  ----------*/
 float g_Group1Pc = 0.03125;
@@ -967,9 +951,6 @@ int g_iCurrentlyPlayingStage;
 
 /*----------  Misc  ----------*/
 
-// Used to load the mapcycle
-Handle g_MapList = null;
-
 // Used to check if a player just joined the server
 float g_fMapStartTime;
 
@@ -1104,9 +1085,6 @@ float g_fProfileMenuLastQuery[MAXPLAYERS + 1];
 // Tracking menu level
 int g_MenuLevel[MAXPLAYERS + 1];
 
-// Client's rank string displayed in !profile
-char g_pr_szrank[MAXPLAYERS + 1][512];
-
 // !Profile name
 char g_szProfileName[MAXPLAYERS + 1][MAX_NAME_LENGTH];
 char g_szProfileSteamId[MAXPLAYERS + 1][32];
@@ -1122,9 +1100,6 @@ Handle g_hAdminMenu = null;
 int g_AdminMenuLastPage[MAXPLAYERS + 1];
 
 /*----------  Player Points  ----------*/
-
-// % of maps the client has finished
-float g_pr_finishedmaps_perc[MAX_PR_PLAYERS + 1][MAX_STYLES];
 
 // Is point recalculation in progress?
 bool g_pr_RankingRecalc_InProgress;
@@ -1155,9 +1130,6 @@ int g_pr_AllPlayers[MAX_STYLES];
 
 // Player count with points
 int g_pr_RankedPlayers[MAX_STYLES];
-
-// Total map count in mapcycle
-int g_pr_MapCount[7];
 
 // The amount of clients that get recalculated in a full recalculation
 int g_pr_TableRowCount;
@@ -1433,53 +1405,6 @@ char g_szRainbowGradient[][] =
 	"#00ff00"
 };
 
-char UnallowedTitles[][] =
-{
-	"NEWBIE",
-	"LEARNING",
-	"NOVICE",
-	"BEGINNER",
-	"ROOKIE",
-	"AVERAGE",
-	"CASUAL",
-	"ADVANCED",
-	"SKILLED",
-	"EXCEPTIONAL",
-	"AMAZING",
-	"PRO",
-	"VETERAN",
-	"EXPERT",
-	"ELITE",
-	"MASTER",
-	"LEGENDARY",
-	"GODLY",
-	"KING",
-	"ADMIN",
-	"ADMLN",
-	"HEAD ADMIN",
-	"HEADADMIN",
-	"MODERATOR",
-	"M0DERATOR",
-	"M0DERAT0R",
-	"MODERAT0R",
-	"OWNER",
-	"0WNER",
-	"ZTS",
-	"MOD",
-	"M0D",
-	"CKSURF",
-	"STAFF",
-	"BIGDICKCLUB",
-	"BIG DICK CLUB",
-	"BIGDICK CLUB",
-	"BIG DICKCLUB",
-	"B DC",
-	"BD C",
-	"B D C",
-	"VIP",
-	"SUPER VIP"
-};
-
 char g_szStyleRecordPrint[][] =
 {
 	"",
@@ -1637,8 +1562,6 @@ public void OnEntityCreated(int entity, const char[] classname)
 
 public void OnMapStart()
 {
-	CreateTimer(30.0, EnableJoinMsgs, INVALID_HANDLE, TIMER_FLAG_NO_MAPCHANGE);
-
 	// Get mapname
 	GetCurrentMap(g_szMapName, 128);
 
@@ -1812,7 +1735,6 @@ public void OnMapStart()
 public void OnMapEnd()
 {
 	// ServerCommand("sm_updater_force");
-	g_bEnableJoinMsgs = false;
 	g_bServerDataLoaded = false;
 	g_bHasLatestID = false;
 	for (int i = 0; i < MAXZONEGROUPS; i++)
@@ -1872,16 +1794,8 @@ public void OnConfigsExecuted()
 	GetConVarString(g_hChatPrefix, g_szMenuPrefix, sizeof(g_szMenuPrefix));
 	CRemoveColors(g_szMenuPrefix, sizeof(g_szMenuPrefix));
 
-	if (GetConVarBool(g_hDBMapcycle))
-		db_selectMapCycle();
-	else if (!GetConVarBool(g_hMultiServerMapcycle))
-		readMapycycle();
-	else
-		readMultiServerMapcycle();
-
 	// Count the amount of bonuses and then set skillgroups
-	if (!g_bRenaming && !g_bInTransactionChain)
-		db_selectBonusCount();
+	SetSkillGroups();
 
 	ServerCommand("sv_pure 0");
 
@@ -2645,10 +2559,6 @@ public void OnPluginStart()
 	Handle tpMenu;
 	if (LibraryExists("adminmenu") && ((tpMenu = GetAdminTopMenu()) != null))
 		OnAdminMenuReady(tpMenu);
-
-	// mapcycle array
-	int arraySize = ByteCountToCells(PLATFORM_MAX_PATH);
-	g_MapList = CreateArray(arraySize);
 
 	// button sound hook
 	// AddNormalSoundHook(NormalSHook_callback);

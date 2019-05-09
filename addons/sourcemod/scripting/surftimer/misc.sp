@@ -1,28 +1,3 @@
-void disableServerHibernate()
-{
-	Handle hServerHibernate = FindConVar("sv_hibernate_when_empty");
-	g_iServerHibernationValue = GetConVarInt(hServerHibernate);
-	if (g_iServerHibernationValue > 0)
-	{
-		PrintToServer("[surftimer] Disabling server hibernation.");
-		SetConVarInt(hServerHibernate, 0, false, false);
-	}
-	CloseHandle(hServerHibernate);
-	return;
-}
-
-void revertServerHibernateSettings()
-{
-	Handle hServerHibernate = FindConVar("sv_hibernate_when_empty");
-	if (GetConVarInt(hServerHibernate) != g_iServerHibernationValue)
-	{
-		PrintToServer("[surftimer] Resetting Server Hibernation CVar");
-		SetConVarInt(hServerHibernate, g_iServerHibernationValue, false, false);
-	}
-	CloseHandle(hServerHibernate);
-	return;
-}
-
 void setBotQuota()
 {
 	// Get bot_quota value
@@ -656,70 +631,6 @@ public int getZoneID(int zoneGrp, int stage)
 	return -1;
 }
 
-public void readMultiServerMapcycle()
-{
-	char sPath[PLATFORM_MAX_PATH];
-	char line[128];
-
-	ClearArray(g_MapList);
-	g_pr_MapCount[0] = 0;
-	BuildPath(Path_SM, sPath, sizeof(sPath), "%s", MULTI_SERVER_MAPCYCLE);
-	Handle fileHandle = OpenFile(sPath, "r");
-
-	if (fileHandle != null)
-	{
-		while (!IsEndOfFile(fileHandle) && ReadFileLine(fileHandle, line, sizeof(line)))
-		{
-			TrimString(line); // Only take the map name
-			if (StrContains(line, "//", true) == -1) // Escape comments
-			{
-				g_pr_MapCount[0]++;
-				PushArrayString(g_MapList, line);
-	 		}
-		}
-	}
-	else
-		SetFailState("[surftimer] %s is empty or does not exist.", MULTI_SERVER_MAPCYCLE);
-
-	if (fileHandle != null)
-		CloseHandle(fileHandle);
-
-	return;
-}
-
-public void readMapycycle()
-{
-	char map[128];
-	char map2[128];
-	int mapListSerial = -1;
-	g_pr_MapCount[0] = 0;
-	if (ReadMapList(g_MapList,
-			mapListSerial,
-			"mapcyclefile",
-			MAPLIST_FLAG_CLEARARRAY | MAPLIST_FLAG_NO_DEFAULT)
-		 == null)
-	{
-		if (mapListSerial == -1)
-		{
-			SetFailState("[surftimer] mapcycle.txt is empty or does not exist.");
-		}
-	}
-	for (int i = 0; i < GetArraySize(g_MapList); i++)
-	{
-		GetArrayString(g_MapList, i, map, sizeof(map));
-		if (!StrEqual(map, "", false))
-		{
-			// fix workshop map name
-			char mapPieces[6][128];
-			int lastPiece = ExplodeString(map, "/", mapPieces, sizeof(mapPieces), sizeof(mapPieces[]));
-			Format(map2, sizeof(map2), "%s", mapPieces[lastPiece - 1]);
-			SetArrayString(g_MapList, i, map2);
-			g_pr_MapCount[0]++;
-		}
-	}
-	return;
-}
-
 public void setNameColor(char[] ClientName, int index, int size)
 {
 	switch (index)
@@ -1248,7 +1159,6 @@ public void LimitSpeedNew(int client)
 		// }
 
 		// Reduce each vector by the appropriate amount
-		float speed = SquareRoot(Pow(fVel[0], 2.0) + Pow(fVel[1], 2.0));
 		fVel[0] = FloatMul(fVel[0], scale);
 		fVel[1] = FloatMul(fVel[1], scale);
 
@@ -2328,34 +2238,8 @@ public void FormatTimeFloat(int client, float time, int type, char[] string, int
 
 public void SetSkillGroups()
 {
-	// Map Points
-	int mapcount;
-	if (g_pr_MapCount[0] < 1)
-		mapcount = 1;
-	else
-		mapcount = g_pr_MapCount[0];
-
-	float MaxPoints = 0.0;
-
-	if (GetConVarBool(g_hDBMapcycle))
-	{
-		// There is no "maxpoints" since WR points are always scaling, I'll just use total map completion points + bonus wr points (bonus wrs dont scale)
-		// Map Points (arrays start at 1 lol!)
-		MaxPoints += g_pr_MapCount[1] * 25.0;
-		MaxPoints += g_pr_MapCount[2] * 50.0;
-		MaxPoints += g_pr_MapCount[3] * 100.0;
-		MaxPoints += g_pr_MapCount[4] * 200.0;
-		MaxPoints += g_pr_MapCount[5] * 400.0;
-		MaxPoints += g_pr_MapCount[6] * 600.0; 
-		
-		// Bonus Points
-		MaxPoints += (float(g_totalBonusCount) * 200.0);
-	}
-	else
-	{
-		// Old way of calculating max points (inaccurate since map WR points aren't flat 700)
-		MaxPoints = (float(mapcount) * 700.0) + (float(g_totalBonusCount) * 200.0);
-	}
+    // old junk
+	float MaxPoints = 100000.0;
 
 	// Load rank cfg
 	char sPath[PLATFORM_MAX_PATH];
@@ -3026,34 +2910,6 @@ public void LoadInfoBot()
 		CreateTimer(0.5, RefreshInfoBot, TIMER_FLAG_NO_MAPCHANGE);
 	}
 }
-
-// public void CreateNavFiles()
-// {
-// 	char DestFile[256];
-// 	char SourceFile[256];
-// 	Format(SourceFile, sizeof(SourceFile), "maps/replay_bot.nav");
-// 	if (!FileExists(SourceFile))
-// 	{
-// 		LogError("<surftimer> Failed to create .nav files. Reason: %s doesn't exist!", SourceFile);
-// 		return;
-// 	}
-// 	char map[256];
-// 	int mapListSerial = -1;
-// 	if (ReadMapList(g_MapList, mapListSerial, "mapcyclefile", MAPLIST_FLAG_CLEARARRAY | MAPLIST_FLAG_NO_DEFAULT) == null)
-// 		if (mapListSerial == -1)
-// 			return;
-
-// 	for (int i = 0; i < GetArraySize(g_MapList); i++)
-// 	{
-// 		GetArrayString(g_MapList, i, map, sizeof(map));
-// 		if (map[0])
-// 		{
-// 			Format(DestFile, sizeof(DestFile), "maps/%s.nav", map);
-// 			if (!FileExists(DestFile))
-// 				File_Copy(SourceFile, DestFile);
-// 		}
-// 	}
-// }
 
 public void CreateNavFile()
 {
@@ -4518,33 +4374,3 @@ public bool IsPlayerTimerAdmin(int client)
 	}
 	return false;
 }
-
-// public void getMapName(char[] szMapName, int size)
-// {
-// 	bool bFound = false;
-// 	bool bPossible;
-// 	char szMapName2[128], szMapName3[128];
-// 	// Check that the map is in the mapcycle
-// 	for (int i = 0; i < GetArraySize(g_MapList); i++)
-// 	{
-// 		// Exact Match
-// 		if (StrEqual(szMapName, szMapName2, false))
-// 		{
-// 			Format(szMapName, size, szMapName2);
-// 			bFound = true;
-// 			break;
-// 		}
-
-// 		// Possible match e.g surf_me or surf_forbidden_tomb
-// 		if (StrContains(szMapName, szMapName2, false) == -1)
-// 		{
-// 			Format(szMapName3, sizeof(szMapName3), szMapName2);
-// 			bPossible = true;
-// 		}
-// 	}
-
-// 	if (!bFound && bPossible)
-// 	{
-// 		Format(szMapName, sizeof(szMapName), szMapName3);
-// 	}
-// }

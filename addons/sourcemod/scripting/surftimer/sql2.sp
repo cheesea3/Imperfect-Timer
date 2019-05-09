@@ -770,46 +770,6 @@ public void SQL_CheckAnnouncementsCallback(Handle owner, Handle hndl, const char
 	}
 }
 
-public void db_selectMapCycle()
-{
-	char szQuery[128];
-	Format(szQuery, sizeof(szQuery), "SELECT mapname, tier FROM ck_maptier WHERE ranked = 1 AND tier > 0 ORDER BY mapname ASC");
-	SQL_TQuery(g_hDb, SQL_SelectMapCycleCallback, szQuery, 1, DBPrio_Low);
-}
-
-public void SQL_SelectMapCycleCallback(Handle owner, Handle hndl, const char[] error, any data)
-{
-	if (hndl == null)
-	{
-		LogError("[surftimer] SQL Error (SQL_SelectMapCycleCallback): %s", error);
-		return;
-	}
-
-	g_pr_MapCount[0] = 0;
-	ClearArray(g_MapList);
-
-	if (SQL_HasResultSet(hndl))
-	{
-		char szMapname[128];
-		int tier;
-
-		while (SQL_FetchRow(hndl))
-		{
-			g_pr_MapCount[0]++;
-			SQL_FetchString(hndl, 0, szMapname, sizeof(szMapname));
-			tier = SQL_FetchInt(hndl, 1);
-			// No out of bounds arrays please
-			if (tier > 6)
-				tier = 6;
-			else if (tier < 1)
-				tier = 1;
-
-			g_pr_MapCount[tier]++;
-			PushArrayString(g_MapList, szMapname);
-		}
-	}
-}
-
 public void db_setJoinMsg(int client, char[] szArg)
 {
 	char szQuery[512];

@@ -681,7 +681,6 @@ public void sql_CalcuatePlayerRankCallback(Handle owner, Handle hndl, const char
 			SQL_TQuery(g_hDb, SQL_InsertPlayerCallBack, szQuery, client, DBPrio_Low);
 
 			g_pr_finishedmaps[client][style] = 0;
-			g_pr_finishedmaps_perc[client][style] = 0.0;
 			g_pr_finishedbonuses[client][style] = 0;
 			g_pr_finishedstages[client][style] = 0;
 			g_GroupMaps[client][style] = 0; // Group Maps
@@ -1218,12 +1217,11 @@ public void sql_CountFinishedMapsCallback(Handle owner, Handle hndl, const char[
 
 	// Finished maps amount is stored in memory
 	g_pr_finishedmaps[client][style] = finishedMaps;
-	// Percentage of maps finished
-	g_pr_finishedmaps_perc[client][style] = (float(finishedMaps) / float(g_pr_MapCount[0])) * 100.0;
 
 	// WRs
 	g_WRs[client][style][0] = wrs;
 
+    /*
 	int totalperc = g_pr_finishedstages[client][style] + g_pr_finishedbonuses[client][style] + g_pr_finishedmaps[client][style];
 	int totalcomp = g_pr_StageCount + g_pr_BonusCount + g_pr_MapCount[0];
 	float ftotalperc;
@@ -1232,6 +1230,7 @@ public void sql_CountFinishedMapsCallback(Handle owner, Handle hndl, const char[
 
 	if (IsValidClient(client) && !IsFakeClient(client))
 		CS_SetMVPCount(client, (RoundFloat(ftotalperc)));
+    */
 
 	// Done checking, update points
 	db_updatePoints(client, style);
@@ -1377,7 +1376,6 @@ public void db_viewPlayerPoints(int client)
 	for (int i = 0; i < MAX_STYLES; i++)
 	{
 		g_pr_finishedmaps[client][i] = 0;
-		g_pr_finishedmaps_perc[client][i] = 0.0;
 		g_pr_points[client][i] = 0;
 	}
 	
@@ -1414,7 +1412,6 @@ public void db_viewPlayerPointsCallback(Handle owner, Handle hndl, const char[] 
 			style = SQL_FetchInt(hndl, 10);
 			g_pr_points[client][style] = SQL_FetchInt(hndl, 2);
 			g_pr_finishedmaps[client][style] = SQL_FetchInt(hndl, 3);
-			g_pr_finishedmaps_perc[client][style] = (float(g_pr_finishedmaps[client][style]) / float(g_pr_MapCount[0])) * 100.0;
 			if (style == 0)
 			{
 				g_iPlayTimeAlive[client] = SQL_FetchInt(hndl, 6);
@@ -1565,247 +1562,162 @@ public void sql_selectRankedPlayersRankCallback(Handle owner, Handle hndl, const
 	}
 }
 
-public void db_viewPlayerProfile(int client, int style, char szSteamId[32], bool bPlayerFound, char szName[MAX_NAME_LENGTH])
-{
+public void db_viewPlayerProfileByName(int client, int style, const char[] szName) {
+	char szNameEx[MAX_NAME_LENGTH*2+1];
+	SQL_EscapeString(g_hDb, szName, szNameEx, sizeof(szNameEx));
 	char szQuery[512];
-	Format(g_pr_szrank[client], 512, "");
-
-	Handle pack = CreateDataPack();
-	WritePackCell(pack, client);
-	WritePackCell(pack, style);
-	WritePackString(pack, szSteamId);
-	WritePackString(pack, szName);
-
-	if (bPlayerFound)
-	{
-		// "SELECT name FROM ck_playerrank WHERE style = %i AND points >= (SELECT points FROM ck_playerrank WHERE steamid = '%s' AND style = %i) ORDER BY points";
-		Format(szQuery, 512, sql_selectRankedPlayersRank, style, szSteamId, style);
-		SQL_TQuery(g_hDb, sql_selectPlayerRankCallback, szQuery, pack, DBPrio_Low);
-	}
-	else
-	{
-		// "SELECT steamid, steamid64, name, country, points, wrpoints, wrbpoints, top10points, groupspoints, mappoints, bonuspoints, finishedmapspro, finishedbonuses, finishedstages, wrs, wrbs, wrcps, top10s, groups, lastseen FROM ck_playerrank WHERE name LIKE '%c%s%c' AND style = '%i';"; sql_selectUnknownProfile
-		Format(szQuery, sizeof(szQuery), "SELECT steamid FROM ck_playerrank WHERE style = %i AND name LIKE '%c%s%c' LIMIT 1;", style, PERCENT, szName, PERCENT);
-		SQL_TQuery(g_hDb, sql_selectUnknownPlayerCallback, szQuery, pack, DBPrio_Low);
-	}
+    Format(szQuery, sizeof(szQuery), "SELECT steamid, style FROM ck_playerrank WHERE style=%i AND name LIKE '%c%s%c' LIMIT 1", style, PERCENT, szNameEx, PERCENT);
+    SQL_TQuery(g_hDb, db_viewPlayerProfileByName2, szQuery, client, DBPrio_Low);
 }
-
-public void sql_selectUnknownPlayerCallback (Handle owner, Handle hndl, const char[] error, any pack)
-{
-	if (hndl == null)
-	{
-		LogError("[Surftimer] SQL Error (sql_selectUnknownPlayerCallback): %s", error);
-		CloseHandle(pack);
-		return;
-	}
-
-	ResetPack(pack);
-	int client = ReadPackCell(pack);
-	int style = ReadPackCell(pack);
-	char szSteamId[32], szName[MAX_NAME_LENGTH];
-	ReadPackString(pack, szSteamId, sizeof(szSteamId));
-	ReadPackString(pack, szName, sizeof(szName));
-
-	if (SQL_HasResultSet(hndl) && SQL_FetchRow(hndl))
-	{
-		SQL_FetchString(hndl, 0, szSteamId, sizeof(szSteamId));
-
-		// Remake pack
-		ResetPack(pack, true);
-		WritePackCell(pack, client);
-		WritePackCell(pack, style);
-		WritePackString(pack, szSteamId);
-		WritePackString(pack, szName);
-
-		// "SELECT name FROM ck_playerrank WHERE style = %i AND points >= (SELECT points FROM ck_playerrank WHERE steamid = '%s' AND style = %i) ORDER BY points";
-		char szQuery[512];
-		Format(szQuery, 512, sql_selectRankedPlayersRank, style, szSteamId, style);
-		SQL_TQuery(g_hDb, sql_selectPlayerRankCallback, szQuery, pack, DBPrio_Low);
-	}
-	else
-	{
-		CPrintToChat(client, "%t", "SQL40", g_szChatPrefix, szName);
-		CloseHandle(pack);
-	}
+public void db_viewPlayerProfileByName2(Handle owner, Handle hndl, const char[] error, int client) {
+	if (hndl == null) { LogError("[Surftimer] SQL Error (db_viewPlayerProfileByName2): %s", error); return; }
+	if (!SQL_HasResultSet(hndl) || !SQL_FetchRow(hndl)) { CPrintToChat(client, "Player not found"); return; }
+	char szSteamid[MAX_NAME_LENGTH];
+	SQL_FetchString(hndl, 0, szSteamid, sizeof(szSteamid));
+	int style = SQL_FetchInt(hndl, 1);
+	db_viewPlayerProfileBySteamid(client, style, szSteamid);
 }
-
-public void sql_selectPlayerRankCallback (Handle owner, Handle hndl, const char[] error, any pack)
-{
-	if (hndl == null)
-	{
-		LogError("[Surftimer] SQL Error (sql_selectPlayerRankCallback): %s", error);
-		CloseHandle(pack);
-		return;
-	}
-
-	ResetPack(pack);
-	int client = ReadPackCell(pack);
-	int style = ReadPackCell(pack);
-	char szSteamId[32], szName[MAX_NAME_LENGTH];
-	ReadPackString(pack, szSteamId, sizeof(szSteamId));
-	ReadPackString(pack, szName, sizeof(szName));
-
-	if (SQL_HasResultSet(hndl) && SQL_FetchRow(hndl))
-	{
-		WritePackCell(pack, SQL_GetRowCount(hndl));
-
-		// "SELECT steamid, steamid64, name, country, points, wrpoints, wrbpoints, wrcppoints, top10points, groupspoints, mappoints, bonuspoints, finishedmapspro, finishedbonuses, finishedstages, wrs, wrbs, wrcps, top10s, groups, lastseen FROM ck_playerrank WHERE steamid = '%s' AND style = '%i';";
-		char szQuery[512];
-		Format(szQuery, sizeof(szQuery), sql_selectPlayerProfile, szSteamId, style);
-		SQL_TQuery(g_hDb, sql_selectPlayerProfileCallback, szQuery, pack, DBPrio_Low);
-	}
-	else
-	{
-		CPrintToChat(client, "%t", "SQL40", g_szChatPrefix, szName);
-		CloseHandle(pack);
-	}
+public void db_viewPlayerProfileBySteamid(int client, int style, const char[] szSteamid) {
+	char szSteamidEx[MAX_NAME_LENGTH*2+1];
+	SQL_EscapeString(g_hDb, szSteamid, szSteamidEx, sizeof(szSteamidEx));
+    char szQuery[512];
+    Format(szQuery, sizeof(szQuery), " \
+        SELECT steamid, name, country, style, points, wrpoints, wrbpoints, wrcppoints, top10points, groupspoints, mappoints, bonuspoints, finishedmapspro, finishedbonuses, finishedstages, wrs, wrbs, wrcps, top10s, groups, lastseen, \
+            (SELECT COUNT(*)+1 FROM ck_playerrank b WHERE a.style=b.style AND b.points > a.points) AS rank, \
+            (SELECT COUNT(DISTINCT ck_zones.mapname, `zonegroup`) FROM ck_zones INNER JOIN ck_maptier ON ck_zones.mapname=ck_maptier.mapname WHERE `zonetypeid` = 0 AND `zonegroup` > 0 AND ranked = 1 AND tier > 0) AS bonuscount \
+            (SELECT COUNT(*) FROM ck_maptier WHERE ranked = 1 AND tier > 0) AS mapcount \
+            (SELECT COUNT(DISTINCT ck_zones.mapname, `zonetypeid`) FROM `ck_zones` INNER JOIN ck_maptier ON ck_zones.mapname=ck_maptier.mapname WHERE `zonetype` IN (1, 3, 5) AND `zonegroup` = 0 AND ranked = 1 AND tier > 0) AS stagecount \
+        FROM ck_playerrank a \
+        WHERE steamid='%s' AND style=%i \
+        LIMIT 1 \
+    ", szSteamidEx, style);
+    SQL_TQuery(g_hDb, db_viewPlayerProfileBySteamid2, szQuery, client, DBPrio_Low);
 }
+public void db_viewPlayerProfileBySteamid2(Handle owner, Handle hndl, const char[] error, int client) {
+	if (hndl == null) { LogError("[Surftimer] SQL Error (db_viewPlayerProfileBySteamid): %s", error); return; }
+	if (!SQL_HasResultSet(hndl) || !SQL_FetchRow(hndl)) { CPrintToChat(client, "Player not found"); return; }
 
-public void sql_selectPlayerProfileCallback(Handle owner, Handle hndl, const char[] error, any pack)
-{
-	if (hndl == null)
-	{
-		LogError("[Surftimer] SQL Error (sql_selectPlayerProfileCallback): %s", error);
-		CloseHandle(pack);
-		return;
-	}
+    char szName[MAX_NAME_LENGTH], szSteamId[32], szCountry[64];
 
-	ResetPack(pack);
-	int client = ReadPackCell(pack);
-	int style = ReadPackCell(pack);
-	char szSteamId[32], szName2[MAX_NAME_LENGTH];
-	ReadPackString(pack, szSteamId, sizeof(szSteamId));
-	ReadPackString(pack, szName2, sizeof(szName2));
-	int rank = ReadPackCell(pack);
-	CloseHandle(pack);
+    int i = 0;
+    SQL_FetchString(hndl, i++, szSteamId, sizeof(szSteamId));
+    SQL_FetchString(hndl, i++, szName, sizeof(szName));
+    SQL_FetchString(hndl, i++, szCountry, sizeof(szCountry));
+    int style = SQL_FetchInt(hndl, i++);
+    int points = SQL_FetchInt(hndl, i++);
+    int wrPoints = SQL_FetchInt(hndl, i++);
+    int wrbPoints = SQL_FetchInt(hndl, i++);
+    int wrcpPoints = SQL_FetchInt(hndl, i++);
+    int top10Points = SQL_FetchInt(hndl, i++);
+    int groupPoints = SQL_FetchInt(hndl, i++);
+    int mapPoints = SQL_FetchInt(hndl, i++);
+    int bonusPoints = SQL_FetchInt(hndl, i++);
+    int finishedMaps = SQL_FetchInt(hndl, i++);
+    int finishedBonuses = SQL_FetchInt(hndl, i++);
+    int finishedStages = SQL_FetchInt(hndl, i++);
+    int wrs = SQL_FetchInt(hndl, i++);
+    int wrbs = SQL_FetchInt(hndl, i++);
+    int wrcps = SQL_FetchInt(hndl, i++);
+    int top10s = SQL_FetchInt(hndl, i++);
+    int groups = SQL_FetchInt(hndl, i++);
+    int lastseen = SQL_FetchInt(hndl, i++);
+    int rank = SQL_FetchInt(hndl, i++);
+    int bonusCount = SQL_FetchInt(hndl, i++);
+    int mapCount = SQL_FetchInt(hndl, i++);
+    int stageCount = SQL_FetchInt(hndl, i++);
 
-	// "SELECT steamid, steamid64, name, country, points, wrpoints, wrbpoints, wrcppoints top10points, groupspoints, mappoints, bonuspoints, finishedmapspro, finishedbonuses, finishedstages, wrs, wrbs, wrcps, top10s, groups, lastseen FROM ck_playerrank WHERE steamid = '%s' AND style = '%i';";
+    strcopy(g_szProfileSteamId[client], sizeof(g_szProfileSteamId), szSteamId);
+    strcopy(g_szProfileName[client], sizeof(g_szProfileName), szName);
 
-	if (SQL_HasResultSet(hndl) && SQL_FetchRow(hndl))
-	{
-		char szName[MAX_NAME_LENGTH], szSteamId2[32], szCountry[64];
+    if (finishedMaps > mapCount) finishedMaps = mapCount;
+    if (finishedBonuses > bonusCount) finishedBonuses = bonusCount;
+    if (finishedStages > stageCount) finishedStages = stageCount;
 
-		SQL_FetchString(hndl, 0, szSteamId2, sizeof(szSteamId2));
-		Format(g_szProfileSteamId[client], sizeof(g_szProfileSteamId), szSteamId2);
-		SQL_FetchString(hndl, 2, szName, sizeof(szName));
-		Format(g_szProfileName[client], sizeof(g_szProfileName), szName);
-		SQL_FetchString(hndl, 3, szCountry, sizeof(szCountry));
-		int points = SQL_FetchInt(hndl, 4);
-		int wrPoints = SQL_FetchInt(hndl, 5);
-		int wrbPoints = SQL_FetchInt(hndl, 6);
-		int wrcpPoints = SQL_FetchInt(hndl, 7);
-		int top10Points = SQL_FetchInt(hndl, 8);
-		int groupPoints = SQL_FetchInt(hndl, 9);
-		int mapPoints = SQL_FetchInt(hndl, 10);
-		int bonusPoints = SQL_FetchInt(hndl, 11);
-		int finishedMaps = SQL_FetchInt(hndl, 12);
-		int finishedBonuses = SQL_FetchInt(hndl, 13);
-		int finishedStages = SQL_FetchInt(hndl, 14);
-		int wrs = SQL_FetchInt(hndl, 15);
-		int wrbs = SQL_FetchInt(hndl, 16);
-		int wrcps = SQL_FetchInt(hndl, 17);
-		int top10s = SQL_FetchInt(hndl, 18);
-		int groups = SQL_FetchInt(hndl, 19);
-		int lastseen = SQL_FetchInt(hndl, 20);
+    int totalCompleted = finishedMaps + finishedBonuses + finishedStages;
+    int totalZones = mapCount + bonusCount + stageCount;
 
-		if (finishedMaps > g_pr_MapCount[0])
-			finishedMaps = g_pr_MapCount[0];
-		
-		if (finishedBonuses > g_pr_BonusCount)
-			finishedBonuses = g_pr_BonusCount;
-		
-		if (finishedStages > g_pr_StageCount)
-			finishedStages = g_pr_StageCount;
+    // Completion Percentage
+    float fPerc, fBPerc, fSPerc, fTotalPerc;
+    char szPerc[32], szBPerc[32], szSPerc[32], szTotalPerc[32];
 
-		int totalCompleted = finishedMaps + finishedBonuses + finishedStages;
-		int totalZones = g_pr_MapCount[0] + g_pr_BonusCount + g_pr_StageCount;
+    // Calculate percentages and format them into strings
+    fPerc = (float(finishedMaps) / (float(mapCount))) * 100.0;
+    fBPerc = (float(finishedBonuses) / (float(bonusCount))) * 100.0;
+    fSPerc = (float(finishedStages) / (float(stageCount))) * 100.0;
+    fTotalPerc = (float(totalCompleted) / (float(totalZones))) * 100.0;
 
-		// Completion Percentage 
-		float fPerc, fBPerc, fSPerc, fTotalPerc;
-		char szPerc[32], szBPerc[32], szSPerc[32], szTotalPerc[32];
+    FormatPercentage(fPerc, szPerc, sizeof(szPerc));
+    FormatPercentage(fBPerc, szBPerc, sizeof(szBPerc));
+    FormatPercentage(fSPerc, szSPerc, sizeof(szSPerc));
+    FormatPercentage(fTotalPerc, szTotalPerc, sizeof(szTotalPerc));
 
-		// Calculate percentages and format them into strings
-		fPerc = (float(finishedMaps) / (float(g_pr_MapCount[0]))) * 100.0;
-		fBPerc = (float(finishedBonuses) / (float(g_pr_BonusCount))) * 100.0;
-		fSPerc = (float(finishedStages) / (float(g_pr_StageCount))) * 100.0;
-		fTotalPerc = (float(totalCompleted) / (float(totalZones))) * 100.0;
+    // Get players skillgroup
+    int RankValue[SkillGroup];
+    int index = GetSkillgroupIndex(rank, points);
+    GetArrayArray(g_hSkillGroups, index, RankValue[0]);
+    char szSkillGroup[128];
+    Format(szSkillGroup, sizeof(szSkillGroup), RankValue[RankName]);
+    ReplaceString(szSkillGroup, sizeof(szSkillGroup), "{style}", "");
 
-		FormatPercentage(fPerc, szPerc, sizeof(szPerc));
-		FormatPercentage(fBPerc, szBPerc, sizeof(szBPerc));
-		FormatPercentage(fSPerc, szSPerc, sizeof(szSPerc));
-		FormatPercentage(fTotalPerc, szTotalPerc, sizeof(szTotalPerc));
+    char szRank[32];
+    if (rank > g_pr_RankedPlayers[0] || points == 0)
+        Format(szRank, 32, "-");
+    else
+        Format(szRank, 32, "%i", rank);
 
-		// Get players skillgroup
-		int RankValue[SkillGroup];
-		int index = GetSkillgroupIndex(rank, points);
-		GetArrayArray(g_hSkillGroups, index, RankValue[0]);
-		char szSkillGroup[128];
-		Format(szSkillGroup, sizeof(szSkillGroup), RankValue[RankName]);
-		ReplaceString(szSkillGroup, sizeof(szSkillGroup), "{style}", "");
+    // Format Profile Menu
+    char szCompleted[1024], szMapPoints[128], szBonusPoints[128], szTop10Points[128], szStagePc[128], szMiPc[128], szRecords[128], szLastSeen[128], szRankLine[128];
 
-		char szRank[32];
-		if (rank > g_pr_RankedPlayers[0] || points == 0)
-			Format(szRank, 32, "-");
-		else
-			Format(szRank, 32, "%i", rank);
+    // Get last seen
+    int time = GetTime();
+    int unix = time - lastseen;
+    diffForHumans(unix, szLastSeen, sizeof(szLastSeen), 1);
 
-		// Format Profile Menu
-		char szCompleted[1024], szMapPoints[128], szBonusPoints[128], szTop10Points[128], szStagePc[128], szMiPc[128], szRecords[128], szLastSeen[128];
-		
-		// Get last seen
-		int time = GetTime();
-		int unix = time - lastseen;
-		diffForHumans(unix, szLastSeen, sizeof(szLastSeen), 1);
+    Format(szMapPoints, 128, "Maps: %i/%i - [%i] (%s%c)", finishedMaps, mapCount, mapPoints, szPerc, PERCENT);
 
-		Format(szMapPoints, 128, "Maps: %i/%i - [%i] (%s%c)", finishedMaps, g_pr_MapCount[0], mapPoints, szPerc, PERCENT);
+    if (wrbPoints > 0)
+        Format(szBonusPoints, sizeof(szBonusPoints), "Bonuses: %i/%i - [%i+%i] (%s%c)", finishedBonuses, bonusCount, bonusPoints, wrbPoints, szBPerc, PERCENT);
+    else
+        Format(szBonusPoints, sizeof(szBonusPoints), "Bonuses: %i/%i - [%i] (%s%c)", finishedBonuses, bonusCount, bonusPoints, szBPerc, PERCENT);
 
-		if (wrbPoints > 0)
-			Format(szBonusPoints, 128, "Bonuses: %i/%i - [%i+%i] (%s%c)", finishedBonuses, g_pr_BonusCount, bonusPoints, wrbPoints, szBPerc, PERCENT);
-		else
-			Format(szBonusPoints, 128, "Bonuses: %i/%i - [%i] (%s%c)", finishedBonuses, g_pr_BonusCount, bonusPoints, szBPerc, PERCENT);
+    if (wrPoints > 0)
+        Format(szTop10Points, sizeof(szTop10Points), "Top10: %i - [%i+%i]", top10s, top10Points, wrPoints);
+    else
+        Format(szTop10Points, sizeof(szTop10Points), "Top10: %i - [%i]", top10s, top10Points);
 
-		if (wrPoints > 0)
-			Format(szTop10Points, 128, "Top10: %i - [%i+%i]", top10s, top10Points, wrPoints);
-		else
-			Format(szTop10Points, 128, "Top10: %i - [%i]", top10s, top10Points);
+    if (wrcpPoints > 0)
+        Format(szStagePc, sizeof(szStagePc), "Stages: %i/%i [0+%d] (%s%c)", finishedStages, stageCount, wrcpPoints, szSPerc, PERCENT);
+    else
+        Format(szStagePc, sizeof(szStagePc), "Stages: %i/%i [0] (%s%c)", finishedStages, stageCount, szSPerc, PERCENT);
 
-		if (wrcpPoints > 0)
-			Format(szStagePc, 128, "Stages: %i/%i [0+%d] (%s%c)", finishedStages, g_pr_StageCount, wrcpPoints, szSPerc, PERCENT);
-		else
-			Format(szStagePc, 128, "Stages: %i/%i [0] (%s%c)", finishedStages, g_pr_StageCount, szSPerc, PERCENT);
+    Format(szMiPc, sizeof(szMiPc), "Map Improvement Pts: %i - [%i]", groups, groupPoints);
+    Format(szRecords, sizeof(szRecords), "Records:\nMap WR: %i\nStage WR: %i\nBonus WR: %i", wrs, wrcps, wrbs);
+    Format(szCompleted, sizeof(szCompleted), "Completed - Points (%s%c):\n%s\n%s\n%s\n%s\n \n%s\n \n%s\n \n", szTotalPerc, PERCENT, szMapPoints, szBonusPoints, szTop10Points, szStagePc, szMiPc, szRecords);
+    Format(szRankLine, sizeof(szRankLine), "Rank: %s/%i %s\nTotal pts: %i\n \n", szRank, g_pr_RankedPlayers[style], szSkillGroup, points);
 
-		Format(szMiPc, 128, "Map Improvement Pts: %i - [%i]", groups, groupPoints);
+    char szTop[128];
+    if (style > 0)
+        Format(szTop, sizeof(szTop), "[%s | %s | Online: %s]\n", szName, g_szStyleMenuPrint[style], szLastSeen);
+    else
+        Format(szTop, sizeof(szTop), "[%s ||| Online: %s]\n", szName, szLastSeen);
 
-		Format(szRecords, 128, "Records:\nMap WR: %i\nStage WR: %i\nBonus WR: %i", wrs, wrcps, wrbs);
+    char szTitle[1024];
+    if (GetConVarBool(g_hCountry))
+        Format(szTitle, sizeof(szTitle), "%s-------------------------------------\n%s\nCountry: %s\n \n%s\n", szTop, szSteamId, szCountry, szRankLine);
+    else
+        Format(szTitle, sizeof(szTitle), "%s-------------------------------------\n%s\n \n%s", szTop, szSteamId, szRankLine);
 
-		Format(szCompleted, 1024, "Completed - Points (%s%c):\n%s\n%s\n%s\n%s\n \n%s\n \n%s\n \n", szTotalPerc, PERCENT, szMapPoints, szBonusPoints, szTop10Points, szStagePc, szMiPc, szRecords);
+    Menu menu = CreateMenu(ProfileMenuHandler);
+    SetMenuTitle(menu, szTitle);
+    AddMenuItem(menu, "Finished maps", szCompleted);
+    AddMenuItem(menu, szSteamId, "Player Info");
 
-		Format(g_pr_szrank[client], 512, "Rank: %s/%i %s\nTotal pts: %i\n \n", szRank, g_pr_RankedPlayers[style], szSkillGroup, points);
-		
-		char szTop[128];
-		if (style > 0)
-			Format(szTop, sizeof(szTop), "[%s | %s | Online: %s]\n", szName, g_szStyleMenuPrint[style], szLastSeen);
-		else
-			Format(szTop, sizeof(szTop), "[%s ||| Online: %s]\n", szName, szLastSeen);
+    if (IsValidClient(client))
+        if (StrEqual(szSteamId, g_szSteamID[client]))
+            AddMenuItem(menu, "Refresh my profile", "Refresh my profile");
 
-		char szTitle[1024];
-		if (GetConVarBool(g_hCountry))
-			Format(szTitle, 1024, "%s-------------------------------------\n%s\nCountry: %s\n \n%s\n", szTop, szSteamId, szCountry, g_pr_szrank[client]);
-		else
-			Format(szTitle, 1024, "%s-------------------------------------\n%s\n \n%s", szTop, szSteamId, g_pr_szrank[client]);
-
-		Menu menu = CreateMenu(ProfileMenuHandler);
-		SetMenuTitle(menu, szTitle);
-		AddMenuItem(menu, "Finished maps", szCompleted);
-		AddMenuItem(menu, szSteamId, "Player Info");
-
-		if (IsValidClient(client))
-			if (StrEqual(szSteamId, g_szSteamID[client]))
-				AddMenuItem(menu, "Refresh my profile", "Refresh my profile");
-
-		SetMenuExitButton(menu, true);
-		DisplayMenu(menu, client, MENU_TIME_FOREVER);
-	}
+    SetMenuExitButton(menu, true);
+    DisplayMenu(menu, client, MENU_TIME_FOREVER);
 }
 
 public int ProfileMenuHandler(Handle menu, MenuAction action, int client, int item)
@@ -1890,7 +1802,7 @@ public int CompletionMenuHandler(Handle menu, MenuAction action, int client, int
 		}
 	}
 	else if (action == MenuAction_Cancel)
-		db_viewPlayerProfile(client, g_ProfileStyleSelect[client], g_szProfileSteamId[client], true, "");
+		db_viewPlayerProfileBySteamid(client, g_ProfileStyleSelect[client], g_szProfileSteamId[client]);
 	else if (action == MenuAction_End)
 		CloseHandle(menu);
 }
@@ -2468,244 +2380,103 @@ public void SQL_UpdateRecordProCallback2(Handle owner, Handle hndl, const char[]
 	}
 }
 
+char sql_selectPersonalAllRecords[] = "\
+SELECT \
+    map.mapname, \
+    map.tier, \
+    map.ranked, \
+    mytime.runtimepro AS time, \
+    (SELECT COUNT(*)+1 FROM ck_playertimes alltimes WHERE alltimes.mapname=mytime.mapname AND alltimes.style=mytime.style AND alltimes.runtimepro<mytime.runtimepro) AS rank, \
+    (SELECT COUNT(*) FROM ck_playertimes alltimes WHERE alltimes.mapname=mytime.mapname AND alltimes.style=mytime.style) AS total \
+FROM \
+	ck_maptier AS map \
+    INNER JOIN ck_playertimes AS mytime ON map.mapname=mytime.mapname AND mytime.steamid = '%s' AND mytime.style = %i \
+WHERE map.ranked=1 AND map.tier > 0 \
+ORDER BY map.mapname ASC \
+";
+
 public void db_viewAllRecords(int client, char szSteamId[32])
 {
-	// "SELECT db1.name, db2.steamid, db2.mapname, db2.runtimepro as overall, db1.steamid, db3.tier FROM ck_playertimes as db2 INNER JOIN ck_playerrank as db1 on db2.steamid = db1.steamid INNER JOIN ck_maptier AS db3 ON db2.mapname = db3.mapname WHERE db2.steamid = '%s' AND db2.style = %i AND db1.style = %i AND db2.runtimepro > -1.0 ORDER BY mapname ASC;";
-
 	char szQuery[1024];
-	Format(szQuery, 1024, sql_selectPersonalAllRecords, szSteamId, g_ProfileStyleSelect[client], g_ProfileStyleSelect[client]);
-
-	if ((StrContains(szSteamId, "STEAM_") != -1))
-		SQL_TQuery(g_hDb, SQL_ViewAllRecordsCallback, szQuery, client, DBPrio_Low);
-	else if (IsClientInGame(client))
-		CPrintToChat(client, "%t", "SQL3", g_szChatPrefix);
+	Format(szQuery, 1024, sql_selectPersonalAllRecords, szSteamId, g_ProfileStyleSelect[client]);
+	SQL_TQuery(g_hDb, SQL_ViewAllRecordsCallback, szQuery, client, DBPrio_Low);
 }
 
 
-public void SQL_ViewAllRecordsCallback(Handle owner, Handle hndl, const char[] error, any data)
+public void SQL_ViewAllRecordsCallback(Handle owner, Handle hndl, const char[] error, any client)
 {
-	if (hndl == null)
-	{
+	if (hndl == null) {
 		LogError("[Surftimer] SQL Error (SQL_ViewAllRecordsCallback): %s", error);
 		return;
 	}
 
-	int bHeader = false;
-	char szUncMaps[1024];
-	int mapcount = 0;
-	char szName[MAX_NAME_LENGTH];
-	char szSteamId[32];
-	if (SQL_HasResultSet(hndl))
-	{
-		float time;
-		char szMapName[128];
-		char szMapName2[128];
-		char szQuery[1024];
-		Format(szUncMaps, sizeof(szUncMaps), "");
-		g_totalMapsCompleted[data] = SQL_GetRowCount(hndl);
-
-		g_CompletedMenu = CreateMenu(FinishedMapsMenuHandler);
-		SetMenuPagination(g_CompletedMenu, 5);
-		g_mapsCompletedLoop[data] = 0;
-
-		while (SQL_FetchRow(hndl))
-		{
-			SQL_FetchString(hndl, 0, szName, MAX_NAME_LENGTH);
-			SQL_FetchString(hndl, 1, szSteamId, MAX_NAME_LENGTH);
-			SQL_FetchString(hndl, 2, szMapName, 128);
-
-			time = SQL_FetchFloat(hndl, 3);
-
-			int tier = SQL_FetchInt(hndl, 5);
-
-			int mapfound = false;
-
-			// map in rotation?
-			for (int i = 0; i < GetArraySize(g_MapList); i++)
-			{
-				GetArrayString(g_MapList, i, szMapName2, sizeof(szMapName2));
-				if (StrEqual(szMapName2, szMapName, false))
-				{
-					if (!bHeader)
-					{
-						PrintToConsole(data, " ");
-						PrintToConsole(data, "-------------");
-						PrintToConsole(data, "Finished Maps");
-						PrintToConsole(data, "Player: %s", szName);
-						PrintToConsole(data, "SteamID: %s", szSteamId);
-						PrintToConsole(data, "-------------");
-						PrintToConsole(data, " ");
-						bHeader = true;
-						CPrintToChat(data, "%t", "ConsoleOutput", g_szChatPrefix);
-					}
-					Handle pack = CreateDataPack();
-					WritePackString(pack, szName);
-					WritePackString(pack, szSteamId);
-					WritePackString(pack, szMapName);
-					WritePackFloat(pack, time);
-					WritePackCell(pack, data);
-					WritePackCell(pack, tier);
-					Format(szQuery, 1024, sql_selectPlayerRankProTime, szSteamId, szMapName, szMapName);
-					SQL_TQuery(g_hDb, SQL_ViewAllRecordsCallback2, szQuery, pack, DBPrio_Low);
-					mapfound = true;
-					continue;
-				}
-			}
-			if (!mapfound)
-			{
-				mapcount++;
-				g_uncMapsCompleted[data] = mapcount;
-				if (!mapfound && mapcount == 1)
-				{
-					Format(szUncMaps, sizeof(szUncMaps), "%s", szMapName);
-				}
-				else
-				{
-					if (!mapfound && mapcount > 1)
-					{
-						Format(szUncMaps, sizeof(szUncMaps), "%s, %s", szUncMaps, szMapName);
-					}
-				}
-			}
-		}
-	}
-	if (!StrEqual(szUncMaps, ""))
-	{
-		if (!bHeader)
-		{
-			CPrintToChat(data, "%t", "ConsoleOutput", g_szChatPrefix);
-			PrintToConsole(data, " ");
-			PrintToConsole(data, "-------------");
-			PrintToConsole(data, "Finished Maps");
-			PrintToConsole(data, "Player: %s", szName);
-			PrintToConsole(data, "SteamID: %s", szSteamId);
-			PrintToConsole(data, "-------------");
-			PrintToConsole(data, " ");
-		}
-		PrintToConsole(data, "Times on maps which are not in the mapcycle.txt (Records still count but you don't get points): %s", szUncMaps);
-	}
-	if (!bHeader && StrEqual(szUncMaps, ""))
-	{
-		ProfileMenu2(data, g_ProfileStyleSelect[data], "", g_szSteamID[data]);
-		CPrintToChat(data, "%t", "PlayerHasNoMapRecords", g_szChatPrefix, g_szProfileName[data]);
-	}
-}
-
-public void SQL_ViewAllRecordsCallback2(Handle owner, Handle hndl, const char[] error, any data)
-{
-	if (hndl == null)
-	{
-		LogError("[Surftimer] SQL Error (SQL_ViewAllRecordsCallback2): %s", error);
-		return;
+	if (!SQL_HasResultSet(hndl)) {
+	    return;
 	}
 
-	if (SQL_HasResultSet(hndl) && SQL_FetchRow(hndl))
-	{
-		char szQuery[512];
-		char szName[MAX_NAME_LENGTH];
-		char szSteamId[32];
-		char szMapName[128];
+    Handle menu = CreateMenu(FinishedMapsMenuHandler);
+    SetMenuPagination(menu, 5);
 
-		int rank = SQL_GetRowCount(hndl);
-		WritePackCell(data, rank);
-		ResetPack(data);
-		ReadPackString(data, szName, MAX_NAME_LENGTH);
-		ReadPackString(data, szSteamId, 32);
-		ReadPackString(data, szMapName, 128);
+    int totalMaps = 0;
+    while (SQL_FetchRow(hndl)) {
+        totalMaps++;
+        char szMapName[128];
+        SQL_FetchString(hndl, 0, szMapName, sizeof(szMapName));
+        int tier = SQL_FetchInt(hndl, 1);
+        bool ranked = SQL_FetchInt(hndl, 2) > 0;
+        float time = SQL_FetchFloat(hndl, 3);
+        int rank = SQL_FetchInt(hndl, 4);
+        int count = SQL_FetchInt(hndl, 5);
+        char szTime[32];
+        FormatTimeFloat(client, time, 3, szTime, sizeof(szTime));
 
-		Format(szQuery, 512, sql_selectPlayerProCount, szMapName);
-		SQL_TQuery(g_hDb, SQL_ViewAllRecordsCallback3, szQuery, data, DBPrio_Low);
-	}
-}
+        char szS[32];
+        char szT[32];
+        char szTotal[32];
+        char szValue[128];
+        IntToString(rank, szT, sizeof(szT));
+        IntToString(count, szS, sizeof(szS));
+        Format(szTotal, sizeof(szTotal), "%s%s", szT, szS);
+        if (strlen(szTotal) == 6)
+            Format(szValue, 128, "%i/%i    %s | » %s - %i", rank, count, szTime, szMapName, tier);
+        else if (strlen(szTotal) == 5)
+            Format(szValue, 128, "%i/%i      %s | » %s - %i", rank, count, szTime, szMapName, tier);
+        else if (strlen(szTotal) == 4)
+            Format(szValue, 128, "%i/%i        %s | » %s - %i", rank, count, szTime, szMapName, tier);
+        else if (strlen(szTotal) == 3)
+            Format(szValue, 128, "%i/%i          %s | » %s - %i", rank, count, szTime, szMapName, tier);
+        else if (strlen(szTotal) == 2)
+            Format(szValue, 128, "%i/%i           %s | » %s - %i", rank, count, szTime, szMapName, tier);
+        else if (strlen(szTotal) == 1)
+            Format(szValue, 128, "%i/%i            %s | » %s - %i", rank, count, szTime, szMapName, tier);
+        else
+            Format(szValue, 128, "%i/%i  %s | » %s - %i", rank, count, szTime, szMapName, tier);
 
-public void SQL_ViewAllRecordsCallback3(Handle owner, Handle hndl, const char[] error, any data)
-{
-	if (hndl == null)
-	{
-		LogError("[Surftimer] SQL Error (SQL_ViewAllRecordsCallback3): %s", error);
-		return;
-	}
+        AddMenuItem(menu, "", szValue, ITEMDRAW_DISABLED);
+    }
 
-	// fluffys
-	/*Handle menu;
-	menu = CreateMenu(FinishedMapsMenuHandler);
-	SetMenuPagination(menu, 5);*/
-
-	// if there is a player record
-	if (SQL_HasResultSet(hndl) && SQL_FetchRow(hndl))
-	{
-		int count = SQL_FetchInt(hndl, 1);
-		char szTime[32];
-		char szMapName[128];
-		char szSteamId[32];
-		char szName[MAX_NAME_LENGTH];
-		// fluffys
-		char szValue[128];
-
-		ResetPack(data);
-		ReadPackString(data, szName, MAX_NAME_LENGTH);
-		ReadPackString(data, szSteamId, 32);
-		ReadPackString(data, szMapName, 128);
-		float time = ReadPackFloat(data);
-		int client = ReadPackCell(data);
-		int tier = ReadPackCell(data);
-		int rank = ReadPackCell(data);
-		CloseHandle(data);
-
-		FormatTimeFloat(client, time, 3, szTime, sizeof(szTime));
-
-		if (time < 3600.0)
-		Format(szTime, 32, "%s", szTime);
-
-		char szS[32];
-		char szT[32];
-		char szTotal[32];
-		IntToString(rank, szT, sizeof(szT));
-		IntToString(count, szS, sizeof(szS));
-		Format(szTotal, sizeof(szTotal), "%s%s", szT, szS);
-		if (strlen(szTotal) == 6)
-			Format(szValue, 128, "%i/%i    %s | » %s - %i", rank, count, szTime, szMapName, tier);
-		else if (strlen(szTotal) == 5)
-			Format(szValue, 128, "%i/%i      %s | » %s - %i", rank, count, szTime, szMapName, tier);
-		else if (strlen(szTotal) == 4)
-			Format(szValue, 128, "%i/%i        %s | » %s - %i", rank, count, szTime, szMapName, tier);
-		else if (strlen(szTotal) == 3)
-			Format(szValue, 128, "%i/%i          %s | » %s - %i", rank, count, szTime, szMapName, tier);
-		else if (strlen(szTotal) == 2)
-			Format(szValue, 128, "%i/%i           %s | » %s - %i", rank, count, szTime, szMapName, tier);
-		else if (strlen(szTotal) == 1)
-			Format(szValue, 128, "%i/%i            %s | » %s - %i", rank, count, szTime, szMapName, tier);
-		else
-			Format(szValue, 128, "%i/%i  %s | » %s - %i", rank, count, szTime, szMapName, tier);
-
-		g_mapsCompletedLoop[client]++;
-		AddMenuItem(g_CompletedMenu, szSteamId, szValue, ITEMDRAW_DISABLED);
-		int totalMaps = g_totalMapsCompleted[client] - g_uncMapsCompleted[client];
-
-		if (g_mapsCompletedLoop[client] == totalMaps)
-		{
-			char title[256];
-			Format(title, 256, "%i Finished maps for %s \n    Rank          Time          Mapname - Tier", totalMaps, szName);
-			SetMenuTitle(g_CompletedMenu, title);
-			SetMenuOptionFlags(g_CompletedMenu, MENUFLAG_BUTTON_EXIT);
-			DisplayMenu(g_CompletedMenu, client, MENU_TIME_FOREVER);
-		}
-
-		if (IsValidClient(client))
-			PrintToConsole(client, "%s - Tier: %i, Time: %s, Rank: %i/%i", szMapName, tier, szTime, rank, count);
-	}
+    char title[256];
+    Format(title, 256, "%i Finished maps\n    Rank          Time          Mapname - Tier", totalMaps);
+    SetMenuTitle(menu, title);
+    SetMenuOptionFlags(menu, MENUFLAG_BUTTON_EXIT);
+    DisplayMenu(menu, client, MENU_TIME_FOREVER);
 }
 
 public void db_viewTop10Records(int client, char szSteamId[32], int type)
 {
-	// "SELECT db1.name, db2.steamid, db2.mapname, db2.runtimepro as overall, db1.steamid, db3.tier FROM ck_playertimes as db2 INNER JOIN ck_playerrank as db1 on db2.steamid = db1.steamid INNER JOIN ck_maptier AS db3 ON db2.mapname = db3.mapname WHERE db2.steamid = '%s' AND db2.style = %i AND db1.style = %i AND db2.runtimepro > -1.0 ORDER BY mapname ASC;";
-
 	Handle data = CreateDataPack();
 	WritePackCell(data, client);
 	WritePackCell(data, type);
 
 	char szQuery[1024];
-	Format(szQuery, 1024, sql_selectPersonalAllRecords, szSteamId, g_ProfileStyleSelect[client], g_ProfileStyleSelect[client]);
+	Format(szQuery, 1024, " \
+	    SELECT db1.name, db2.steamid, db2.mapname, db2.runtimepro as overall, db3.tier, db3.ranked \
+	    FROM ck_playertimes as db2 \
+	        INNER JOIN ck_playerrank as db1 on db2.steamid = db1.steamid \
+	        INNER JOIN ck_maptier AS db3 ON db2.mapname = db3.mapname \
+	    WHERE db2.steamid = '%s' AND db2.style = %i AND db1.style = %i AND db2.runtimepro > -1.0 \
+	    ORDER BY mapname ASC \
+	", szSteamId, g_ProfileStyleSelect[client], g_ProfileStyleSelect[client]);
 
 	if ((StrContains(szSteamId, "STEAM_") != -1))
 		SQL_TQuery(g_hDb, SQL_ViewTop10RecordsCallback, szQuery, data, DBPrio_Low);
@@ -2715,16 +2486,12 @@ public void db_viewTop10Records(int client, char szSteamId[32], int type)
 
 public void SQL_ViewTop10RecordsCallback(Handle owner, Handle hndl, const char[] error, any pack)
 {
-	if (hndl == null)
-	{
-		LogError("[Surftimer] SQL Error (SQL_ViewAllRecordsCallback): %s", error);
-		return;
-	}
-
 	ResetPack(pack);
 	int data = ReadPackCell(pack);
 	int type = ReadPackCell(pack);
 	CloseHandle(pack);
+
+	if (hndl == null) { LogError("[Surftimer] SQL Error (SQL_ViewAllRecordsCallback): %s", error); return; }
 
 	int bHeader = false;
 	char szUncMaps[1024];
@@ -2733,9 +2500,7 @@ public void SQL_ViewTop10RecordsCallback(Handle owner, Handle hndl, const char[]
 	char szSteamId[32];
 	if (SQL_HasResultSet(hndl))
 	{
-		float time;
 		char szMapName[128];
-		char szMapName2[128];
 		char szQuery[1024];
 		Format(szUncMaps, sizeof(szUncMaps), "");
 		while (SQL_FetchRow(hndl))
@@ -2743,59 +2508,42 @@ public void SQL_ViewTop10RecordsCallback(Handle owner, Handle hndl, const char[]
 			SQL_FetchString(hndl, 0, szName, MAX_NAME_LENGTH);
 			SQL_FetchString(hndl, 1, szSteamId, MAX_NAME_LENGTH);
 			SQL_FetchString(hndl, 2, szMapName, 128);
+			float time = SQL_FetchFloat(hndl, 3);
+			int tier = SQL_FetchInt(hndl, 4);
+			int ranked = SQL_FetchInt(hndl, 5);
 
-			time = SQL_FetchFloat(hndl, 3);
+            if (tier > 0 && ranked > 0) {
+                if (!bHeader)
+                {
+                    PrintToConsole(data, " ");
+                    PrintToConsole(data, "-------------");
+                    if (type == 0)
+                        PrintToConsole(data, "Top 10 Maps");
+                    else
+                        PrintToConsole(data, "World Records");
+                    PrintToConsole(data, "Player: %s", szName);
+                    PrintToConsole(data, "SteamID: %s", szSteamId);
+                    PrintToConsole(data, "-------------");
+                    PrintToConsole(data, " ");
+                    bHeader = true;
+                    CPrintToChat(data, "%t", "ConsoleOutput", g_szChatPrefix);
+                }
+                Handle pack2 = CreateDataPack();
+                WritePackString(pack2, szName);
+                WritePackString(pack2, szSteamId);
+                WritePackString(pack2, szMapName);
+                WritePackFloat(pack2, time);
+                WritePackCell(pack2, data);
+                WritePackCell(pack2, type);
 
-			int mapfound = false;
-
-			// map in rotation?
-			for (int i = 0; i < GetArraySize(g_MapList); i++)
-			{
-				GetArrayString(g_MapList, i, szMapName2, sizeof(szMapName2));
-				if (StrEqual(szMapName2, szMapName, false))
-				{
-					if (!bHeader)
-					{
-						PrintToConsole(data, " ");
-						PrintToConsole(data, "-------------");
-						if (type == 0)
-							PrintToConsole(data, "Top 10 Maps");
-						else
-							PrintToConsole(data, "World Records");
-						PrintToConsole(data, "Player: %s", szName);
-						PrintToConsole(data, "SteamID: %s", szSteamId);
-						PrintToConsole(data, "-------------");
-						PrintToConsole(data, " ");
-						bHeader = true;
-						CPrintToChat(data, "%t", "ConsoleOutput", g_szChatPrefix);
-					}
-					Handle pack2 = CreateDataPack();
-					WritePackString(pack2, szName);
-					WritePackString(pack2, szSteamId);
-					WritePackString(pack2, szMapName);
-					WritePackFloat(pack2, time);
-					WritePackCell(pack2, data);
-					WritePackCell(pack2, type);
-
-					Format(szQuery, 1024, sql_selectPlayerRankProTime, szSteamId, szMapName, szMapName);
-					SQL_TQuery(g_hDb, SQL_ViewTop10RecordsCallback2, szQuery, pack2, DBPrio_Low);
-					mapfound = true;
-					continue;
-				}
-			}
-			if (!mapfound)
-			{
+                Format(szQuery, 1024, sql_selectPlayerRankProTime, szSteamId, szMapName, szMapName);
+                SQL_TQuery(g_hDb, SQL_ViewTop10RecordsCallback2, szQuery, pack2, DBPrio_Low);
+            } else {
 				mapcount++;
-				if (!mapfound && mapcount == 1)
-				{
+				if (mapcount == 1) {
 					Format(szUncMaps, sizeof(szUncMaps), "%s", szMapName);
-				}
-				else
-				{
-					if (!mapfound && mapcount > 1)
-					{
-						Format(szUncMaps, sizeof(szUncMaps), "%s, %s", szUncMaps, szMapName);
-					}
+				} else {
+                    Format(szUncMaps, sizeof(szUncMaps), "%s, %s", szUncMaps, szMapName);
 				}
 			}
 		}
@@ -3804,44 +3552,6 @@ public void SQL_deleteBonusCallback(Handle owner, Handle hndl, const char[] erro
 		LogError("[Surftimer] SQL Error (SQL_deleteBonusCallback): %s", error);
 		return;
 	}
-}
-
-public void db_selectBonusCount()
-{
-	char szQuery[258];
-	Format(szQuery, 258, sql_selectTotalBonusCount);
-	SQL_TQuery(g_hDb, SQL_selectBonusCountCallback, szQuery, 1, DBPrio_Low);
-}
-
-public void SQL_selectBonusCountCallback(Handle owner, Handle hndl, const char[] error, any data)
-{
-	if (hndl == null)
-	{
-		LogError("[Surftimer] SQL Error (SQL_selectBonusCountCallback): %s", error);
-		return;
-	}
-
-	if (SQL_HasResultSet(hndl))
-	{
-		char mapName[128];
-		char mapName2[128];
-		g_totalBonusCount = 0;
-		while (SQL_FetchRow(hndl))
-		{
-			SQL_FetchString(hndl, 0, mapName2, 128);
-			for (int i = 0; i < GetArraySize(g_MapList); i++)
-			{
-				GetArrayString(g_MapList, i, mapName, 128);
-				if (StrEqual(mapName, mapName2, false))
-				g_totalBonusCount++;
-			}
-		}
-	}
-	else
-	{
-		g_totalBonusCount = 0;
-	}
-	SetSkillGroups();
 }
 
 /*===================================
@@ -5049,7 +4759,23 @@ public void db_viewUnfinishedMaps(int client, char szSteamId[32])
 
 	char szQuery[720];
 	// Gets all players unfinished maps and bonuses from the database
-	Format(szQuery, 720, "SELECT mapname, zonegroup, zonename, (SELECT tier FROM ck_maptier d WHERE d.mapname = a.mapname) AS tier FROM ck_zones a WHERE (zonetype = 1 OR zonetype = 5) AND (SELECT runtimepro FROM ck_playertimes b WHERE b.mapname = a.mapname AND a.zonegroup = 0 AND b.style = %d AND steamid = '%s' UNION SELECT runtime FROM ck_bonus c WHERE c.mapname = a.mapname AND c.zonegroup = a.zonegroup AND c.style = %d AND steamid = '%s') IS NULL GROUP BY mapname, zonegroup, zonename ORDER BY tier, mapname, zonegroup ASC", g_ProfileStyleSelect[client], szSteamId, g_ProfileStyleSelect[client], szSteamId);
+	Format(szQuery, 720, " \
+	    SELECT zones.mapname, zones.zonegroup, zones.zonename, tiers.tier, tiers.ranked \
+	    FROM ck_zones zones \
+	    INNER JOIN ck_maptier tiers ON zones.mapname=tiers.mapname \
+	    WHERE \
+	        (zonetype = 1 OR zonetype = 5) \
+	        AND ( \
+	            SELECT runtimepro \
+	            FROM ck_playertimes b \
+	            WHERE b.mapname = zones.mapname AND zones.zonegroup = 0 AND b.style = %d AND steamid = '%s' \
+	            UNION SELECT runtime \
+	            FROM ck_bonus c \
+	            WHERE c.mapname = zones.mapname AND c.zonegroup = zones.zonegroup AND c.style = %d AND steamid = '%s' \
+            ) IS NULL \
+        GROUP BY mapname, zonegroup, zonename, tier, ranked \
+        ORDER BY tier, mapname, zonegroup ASC \
+    ", g_ProfileStyleSelect[client], szSteamId, g_ProfileStyleSelect[client], szSteamId);
 	SQL_TQuery(g_hDb, db_viewUnfinishedMapsCallback, szQuery, client, DBPrio_Low);
 }
 
@@ -5065,14 +4791,15 @@ public void db_viewUnfinishedMapsCallback(Handle owner, Handle hndl, const char[
 	{
 		char szMap[128], szMap2[128], tmpMap[128], consoleString[1024], unfinishedBonusBuffer[772], zName[128];
 		bool mapUnfinished, bonusUnfinished;
-		int zGrp, count, mapCount, bonusCount, mapListSize = GetArraySize(g_MapList), digits;
+		int zGrp, count, mapCount, bonusCount, digits;
 		float time = 0.5;
-		int tier;
 		while (SQL_FetchRow(hndl))
 		{
 			// Get the map and check that it is in the mapcycle
 			SQL_FetchString(hndl, 0, szMap, 128);
-			tier = SQL_FetchInt(hndl, 3);
+			int tier = SQL_FetchInt(hndl, 3);
+			// TODO
+			/*
 			for (int i = 0; i < mapListSize; i++)
 			{
 				GetArrayString(g_MapList, i, szMap2, 128);
@@ -5151,12 +4878,13 @@ public void db_viewUnfinishedMapsCallback(Handle owner, Handle hndl, const char[
 					break;
 				}
 			}
+            */
 		}
 		if (IsValidClient(client))
 		{
 			PrintToConsole(client, " ");
 			PrintToConsole(client, "------- User Stats -------");
-			PrintToConsole(client, "%i unfinished maps of total %i maps", mapCount, g_pr_MapCount[0]);
+			PrintToConsole(client, "%i unfinished maps", mapCount);
 			PrintToConsole(client, "%i unfinished bonuses", bonusCount);
 			PrintToConsole(client, "SteamID: %s", g_szProfileSteamId[client]);
 			PrintToConsole(client, "--------------------------");
@@ -5532,7 +5260,7 @@ public void db_selectTopPlayers(int client, int style)
 	WritePackCell(pack, style);
 
 	char szQuery[128];
-	Format(szQuery, 128, sql_selectTopPlayers, style);
+	Format(szQuery, 128, "SELECT name, points, finishedmapspro, steamid FROM ck_playerrank WHERE style = %i ORDER BY points DESC LIMIT 100", style);
 	SQL_TQuery(g_hDb, db_selectTop100PlayersCallback, szQuery, pack, DBPrio_Low);
 }
 
@@ -5583,8 +5311,9 @@ public void db_selectTop100PlayersCallback(Handle owner, Handle hndl, const char
 			points = SQL_FetchInt(hndl, 1);
 			int pro = SQL_FetchInt(hndl, 2);
 			SQL_FetchString(hndl, 3, szSteamID, 32);
-			float fperc;
-			fperc = (float(pro) / (float(g_pr_MapCount[0]))) * 100.0;
+			// TODO
+			float fperc = 0.0;
+			//fperc = (float(pro) / (float(g_pr_MapCount[0]))) * 100.0;
 
 			if (fperc < 10.0)
 			Format(szPerc, 16, "  %.1f%c  ", fperc, PERCENT);
@@ -5640,7 +5369,7 @@ public int TopPlayersMenuHandler1(Handle menu, MenuAction action, int client, in
 		char info[32];
 		GetMenuItem(menu, item, info, sizeof(info));
 		g_MenuLevel[client] = 0;
-		db_viewPlayerProfile(client, g_ProfileStyleSelect[client], info, true, "");
+		db_viewPlayerProfileBySteamid(client, g_ProfileStyleSelect[client], info);
 	}
 	if (action == MenuAction_Cancel)
 	{
@@ -5659,7 +5388,7 @@ public int MapMenuHandler1(Handle menu, MenuAction action, int client, int item)
 		char info[32];
 		GetMenuItem(menu, item, info, sizeof(info));
 		g_MenuLevel[client] = 1;
-		db_viewPlayerProfile(client, g_ProfileStyleSelect[client], info, true, "");
+		db_viewPlayerProfileBySteamid(client, g_ProfileStyleSelect[client], info);
 	}
 	if (action == MenuAction_Cancel)
 	{
@@ -5683,59 +5412,14 @@ public int FinishedMapsMenuHandler(Handle menu, MenuAction action, int client, i
 	}
 }
 
-// fluffys sql select total bonus
 public void db_selectTotalBonusCount()
 {
-	char szQuery[512];
-	Format(szQuery, 512, "SELECT COUNT(DISTINCT ck_zones.mapname, `zonegroup`) FROM ck_zones INNER JOIN ck_maptier ON ck_zones.mapname=ck_maptier.mapname WHERE `zonetypeid` = 0 AND `zonegroup` > 0 AND tier > 0 AND ranked = 1");
-	SQL_TQuery(g_hDb, sql_selectTotalBonusCountCallback, szQuery, DBPrio_Low);
+    db_selectTotalStageCount();
 }
 
-public void sql_selectTotalBonusCountCallback(Handle owner, Handle hndl, const char[] error, any data)
-{
-	if (hndl == null)
-	{
-		LogError("[Surftimer] SQL Error (sql_selectTotalBonusCountCallback): %s", error);
-		if (!g_bServerDataLoaded)
-			db_selectTotalStageCount();
-		return;
-	}
-
-	if (SQL_HasResultSet(hndl) && SQL_FetchRow(hndl))
-		g_pr_BonusCount = SQL_FetchInt(hndl, 0);
-
-	if (!g_bServerDataLoaded)
-		db_selectTotalStageCount();
-
-	return;
-}
-
-// fluffys sql select total stages
 public void db_selectTotalStageCount()
 {
-	char szQuery[512];
-	Format(szQuery, 512, "SELECT COUNT(DISTINCT ck_zones.mapname, `zonetypeid`) FROM `ck_zones` INNER JOIN ck_maptier ON ck_zones.mapname=ck_maptier.mapname WHERE `zonetype` IN (1, 3, 5) AND `zonegroup` = 0 AND tier > 0 AND ranked = 1");
-	SQL_TQuery(g_hDb, sql_selectTotalStageCountCallback, szQuery, DBPrio_Low);
-}
-
-public void sql_selectTotalStageCountCallback(Handle owner, Handle hndl, const char[] error, any data)
-{
-	if (hndl == null)
-	{
-		LogError("[Surftimer] SQL Error (sql_selectTotalBonusCountCallback): %s", error);
-
-		if (!g_bServerDataLoaded)
-			db_selectCurrentMapImprovement();
-		return;
-	}
-
-	if (SQL_HasResultSet(hndl) && SQL_FetchRow(hndl))
-		g_pr_StageCount = SQL_FetchInt(hndl, 0);
-
-	if (!g_bServerDataLoaded)
-		db_selectCurrentMapImprovement();
-
-	return;
+	db_selectCurrentMapImprovement();
 }
 
 public void db_selectWrcpRecord(int client, int style, int stage)
@@ -6424,7 +6108,7 @@ public int StageTopMenuHandler(Menu menu, MenuAction action, int client, int ite
 		char info[32];
 		GetMenuItem(menu, item, info, sizeof(info));
 		g_MenuLevel[client] = 3;
-		db_viewPlayerProfile(client, g_ProfileStyleSelect[client], info, true, "");
+		db_viewPlayerProfileBySteamid(client, g_ProfileStyleSelect[client], info);
 	}
 	else if (action == MenuAction_Cancel)
 	{
@@ -7288,7 +6972,7 @@ public int StageStyleTopMenuHandler(Menu menu, MenuAction action, int client, in
 		char info[32];
 		GetMenuItem(menu, item, info, sizeof(info));
 		g_MenuLevel[client] = 3;
-		db_viewPlayerProfile(client, g_ProfileStyleSelect[client], info, true, "");
+		db_viewPlayerProfileBySteamid(client, g_ProfileStyleSelect[client], info);
 	}
 	else if (action == MenuAction_Cancel)
 	{

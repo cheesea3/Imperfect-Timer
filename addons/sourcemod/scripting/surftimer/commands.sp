@@ -321,53 +321,6 @@ public Action Command_Vip(int client, int args)
 	return Plugin_Handled;
 }
 
-// public Action Command_Vip(int client, int args)
-// {
-// 	if (!IsPlayerVip(client, 1))
-// 	{
-// 		return Plugin_Handled;
-// 	}
-	
-// 	VipMenu(client);
-// 	return Plugin_Handled;
-// }
-
-// public void VipMenu(int client)
-// {
-// 	Menu menu = CreateMenu(VipMenuHandler);
-// 	SetMenuTitle(menu, "VIP Menu");
-// 	AddMenuItem(menu, "ve", "Vote Extend");
-// 	AddMenuItem(menu, "models", "Player Models");
-// 	if (g_iVipLvl[client] > 1)
-// 	{
-// 		AddMenuItem(menu, "title", "VIP Title");
-// 		AddMenuItem(menu, "paintcolour", "Paint Colour");
-// 	}
-// 	else
-// 	{
-// 		AddMenuItem(menu, "title", "VIP Title", ITEMDRAW_DISABLED);
-// 		AddMenuItem(menu, "paintcolour", "Paint Colour", ITEMDRAW_DISABLED);
-// 	}
-// 	SetMenuOptionFlags(menu, MENUFLAG_BUTTON_EXIT);
-// 	DisplayMenu(menu, client, MENU_TIME_FOREVER);
-// }
-
-// public int VipMenuHandler(Menu menu, MenuAction action, int param1, int param2)
-// {
-// 	if (action == MenuAction_Select)
-// 	{
-// 		switch (param2)
-// 		{
-// 			case 0: VoteExtend(param1);
-// 			case 1: FakeClientCommandEx(param1, "sm_models");
-// 			case 2: CustomTitleMenu(param1);
-// 			case 3: FakeClientCommandEx(param1, "sm_paintcolour");
-// 		}
-// 	}
-// 	else if (action == MenuAction_End)
-// 		CloseHandle(menu);
-// }
-
 public void CustomTitleMenu(int client)
 {
 	char szName[64], szSteamID[32], szColour[3][96], szTitle[256], szItem[128], szItem2[128];
@@ -595,41 +548,6 @@ public Action Command_createPlayerCheckpoint(int client, int args)
 	return Plugin_Handled;
 }
 
-// public Action Command_createPlayerCheckpoint(int client, int args)
-// {
-// 	if (!IsValidClient(client))
-// 		return Plugin_Handled;
-
-// 	if (g_iClientInZone[client][0] == 1 || g_iClientInZone[client][0] == 5)
-// 	{
-// 		CPrintToChat(client, "%t", "PracticeInStartZone", g_szChatPrefix);
-// 		return Plugin_Handled;
-// 	}
-
-// 	float CheckpointTime = GetGameTime();
-
-// 	// Move old checkpoint to the undo values, if the last checkpoint was made more than a second ago
-// 	if (g_bCreatedTeleport[client] && (CheckpointTime - g_fLastPlayerCheckpoint[client]) > 1.0)
-// 	{
-// 		g_fLastPlayerCheckpoint[client] = CheckpointTime;
-// 		Array_Copy(g_fCheckpointLocation[client], g_fCheckpointLocation_undo[client], 3);
-// 		Array_Copy(g_fCheckpointVelocity[client], g_fCheckpointVelocity_undo[client], 3);
-// 		Array_Copy(g_fCheckpointAngle[client], g_fCheckpointAngle_undo[client], 3);
-// 		Format(g_szCheckpointTargetname_undo[client], sizeof(g_szCheckpointTargetname_undo), "%s", g_szCheckpointTargetname[client]);
-// 	}
-
-// 	g_bCreatedTeleport[client] = true;
-// 	GetClientAbsOrigin(client, g_fCheckpointLocation[client]);
-// 	GetEntPropVector(client, Prop_Data, "m_vecVelocity", g_fCheckpointVelocity[client]);
-// 	GetClientEyeAngles(client, g_fCheckpointAngle[client]);
-// 	GetEntPropString(client, Prop_Data, "m_iName", g_szCheckpointTargetname[client], sizeof(g_szCheckpointTargetname));
-
-
-// 	CPrintToChat(client, "%t", "PracticePointCreated", g_szChatPrefix, LIMEGREEN, WHITE);
-
-// 	return Plugin_Handled;
-// }
-
 public Action Command_goToPlayerCheckpoint(int client, int args)
 {
 	if (!IsValidClient(client))
@@ -745,76 +663,6 @@ public int SaveLocListHandler(Menu menu, MenuAction action, int param1, int para
 	else if (action == MenuAction_End)
 		delete menu;
 }
-
-// public Action Command_goToPlayerCheckpoint(int client, int args)
-// {
-// 	if (!IsValidClient(client))
-// 		return Plugin_Handled;
-
-// 	if (g_fCheckpointLocation[client][0] != 0.0 && g_fCheckpointLocation[client][1] != 0.0 && g_fCheckpointLocation[client][2] != 0.0)
-// 	{
-// 		if (g_bPracticeMode[client] == false)
-// 		{
-// 			CPrintToChat(client, "%t", "PracticeStarted", g_szChatPrefix, LIMEGREEN, WHITE, LIMEGREEN, WHITE);
-// 			CPrintToChat(client, "%t", "PracticeStarted2", g_szChatPrefix, LIMEGREEN, WHITE, LIMEGREEN, WHITE);
-// 			g_bPracticeMode[client] = true;
-// 		}
-
-// 		// fluffys gravity
-// 		if (g_iInitalStyle[client] != 4)
-// 			ResetGravity(client);
-// 		else // lowgravity
-// 			SetEntityGravity(client, 0.5);
-
-// 		CL_OnStartTimerPress(client);
-// 		SetEntPropVector(client, Prop_Data, "m_vecVelocity", view_as<float>( { 0.0, 0.0, 0.0 } ));
-// 		TeleportEntity(client, g_fCheckpointLocation[client], g_fCheckpointAngle[client], g_fCheckpointVelocity[client]);
-// 		g_bWrcpTimeractivated[client] = false;
-// 		DispatchKeyValue(client, "targetname", g_szCheckpointTargetname[client]);
-// 	}
-// 	else
-// 		CPrintToChat(client, "%t", "PracticeStartError", g_szChatPrefix, LIGHTGREEN);
-
-// 	return Plugin_Handled;
-// }
-
-// public Action Command_undoPlayerCheckpoint(int client, int args)
-// {
-// 	if (!IsValidClient(client))
-// 		return Plugin_Handled;
-
-// 	if (g_fCheckpointLocation_undo[client][0] != 0.0 && g_fCheckpointLocation_undo[client][1] != 0.0 && g_fCheckpointLocation_undo[client][2] != 0.0)
-// 	{
-// 		float tempLocation[3], tempVelocity[3], tempAngle[3];
-// 		char tempTargetname[128];
-
-// 		// Location
-// 		Array_Copy(g_fCheckpointLocation_undo[client], tempLocation, 3);
-// 		Array_Copy(g_fCheckpointLocation[client], g_fCheckpointLocation_undo[client], 3);
-// 		Array_Copy(tempLocation, g_fCheckpointLocation[client], 3);
-
-// 		// Velocity
-// 		Array_Copy(g_fCheckpointVelocity_undo[client], tempVelocity, 3);
-// 		Array_Copy(g_fCheckpointVelocity[client], g_fCheckpointVelocity_undo[client], 3);
-// 		Array_Copy(tempVelocity, g_fCheckpointVelocity[client], 3);
-
-// 		// Angle
-// 		Array_Copy(g_fCheckpointAngle_undo[client], tempAngle, 3);
-// 		Array_Copy(g_fCheckpointAngle[client], g_fCheckpointAngle_undo[client], 3);
-// 		Array_Copy(tempAngle, g_fCheckpointAngle[client], 3);
-
-// 		// Targetname
-// 		Format(tempTargetname, sizeof(tempTargetname), "%s", g_szCheckpointTargetname_undo[client]);
-// 		Format(g_szCheckpointTargetname[client], sizeof(g_szCheckpointTargetname), "%s", g_szCheckpointTargetname_undo);
-// 		Format(g_szCheckpointTargetname[client], sizeof(g_szCheckpointTargetname), "%s", tempTargetname);
-
-// 		CPrintToChat(client, "%t", "PracticeUndo", g_szChatPrefix);
-// 	}
-// 	else
-// 		CPrintToChat(client, "%t", "PracticeUndoError", g_szChatPrefix, LIGHTGREEN);
-
-// 	return Plugin_Handled;
-// }
 
 public Action Command_Teleport(int client, int args)
 {
@@ -2313,32 +2161,25 @@ public void ProfileMenu2(int client, int style, char szName[MAX_NAME_LENGTH], ch
 		// If provided with a steamid
 		if (!StrEqual(szSteamId3, ""))
 		{
-			db_viewPlayerProfile(client, style, szSteamId3, true, "");
+			db_viewPlayerProfileBySteamid(client, style, szSteamId3);
 			return;
 		}
 
 		// Name provided, search for player on server
-		bool bPlayerFound = false;
-		g_bProfileInServer[client] = false;
-		char szSteamId[32];
-		char szBuffer[MAX_NAME_LENGTH];
-		for (int i = 1; i <= MaxClients; i++)
-		{
-			if (IsValidClient(i) && !IsFakeClient(i))
-			{
+		for (int i = 1; i <= MaxClients; i++) {
+			if (IsValidClient(i) && !IsFakeClient(i)) {
+			    char szBuffer[MAX_NAME_LENGTH];
 				GetClientName(i, szBuffer, sizeof(szBuffer));
-				if (StrContains(szBuffer, szName, false) != -1)
-				{
-					bPlayerFound = true;
+				if (StrContains(szBuffer, szName, false) != -1) {
+				    char szSteamId[32];
 					GetClientAuthId(i, AuthId_Steam2, szSteamId, 32, true);
-					g_ClientProfile[client] = i;
-					g_bProfileInServer[client] = true;
-					break;
+					db_viewPlayerProfileBySteamid(client, style, szSteamId);
+					return;
 				}
 			}
 		}
 
-		db_viewPlayerProfile(client, style, szSteamId, bPlayerFound, szName);
+		db_viewPlayerProfileByName(client, style, szName);
 	}
 }
 
@@ -2358,7 +2199,7 @@ public int ProfilePlayerSelectMenuHandler(Handle menu, MenuAction action, int pa
 				if (StrEqual(szPlayerName, szBuffer))
 				{
 					GetClientAuthId(i, AuthId_Steam2, szSteamId, 32, true);
-					db_viewPlayerProfile(param1, g_ProfileStyleSelect[param1], szSteamId, true, szPlayerName);
+					db_viewPlayerProfileBySteamid(param1, g_ProfileStyleSelect[param1], szSteamId);
 					break;	
 				}
 			}
