@@ -97,6 +97,8 @@
 #define DISCOTIME_FULL_SOUND_PATH "sound/surftimer/discotime.mp3"
 #define DISCOTIME_RELATIVE_SOUND_PATH "*/surftimer/discotime.mp3"
 
+#define ZONE_REFRESH_TIME 5.0
+
 #define MAX_STYLES 7
 
 #define VOTE_NO "###no###"
@@ -108,6 +110,19 @@
 
 // Zone Definitions
 #define ZONE_MODEL "models/props/de_train/barrel.mdl"
+
+#define ZONETYPE_STOP 0
+#define ZONETYPE_START 1
+#define ZONETYPE_END 2
+#define ZONETYPE_STAGE 3
+#define ZONETYPE_CHECKPOINT 4
+#define ZONETYPE_SPEEDSTART 5
+#define ZONETYPE_TELETOSTART 6
+#define ZONETYPE_VALIDATOR 7
+#define ZONETYPE_CHECKER 8
+#define ZONETYPE_ANTIJUMP 9
+#define ZONETYPE_ANTIDUCK 10
+#define ZONETYPE_MAXSPEED 11
 
 // Zone Amount
 // Types: Start(1), End(2), Stage(3), Checkpoint(4), Speed(5), 
@@ -1688,7 +1703,7 @@ public void OnMapStart()
 	CreateTimer(1.0, CKTimer2, INVALID_HANDLE, TIMER_FLAG_NO_MAPCHANGE | TIMER_REPEAT);
 	CreateTimer(60.0, AttackTimer, INVALID_HANDLE, TIMER_FLAG_NO_MAPCHANGE | TIMER_REPEAT);
 	CreateTimer(600.0, PlayerRanksTimer, INVALID_HANDLE, TIMER_FLAG_NO_MAPCHANGE | TIMER_REPEAT);
-	g_hZoneTimer = CreateTimer(GetConVarFloat(g_hChecker), BeamBoxAll, _, TIMER_REPEAT);
+	g_hZoneTimer = CreateTimer(ZONE_REFRESH_TIME, BeamBoxAll, _, TIMER_FLAG_NO_MAPCHANGE | TIMER_REPEAT);
 
 	// AutoBhop
 	if (GetConVarBool(g_hAutoBhopConVar))
@@ -2603,8 +2618,6 @@ public void OnSettingChanged(Handle convar, const char[] oldValue, const char[] 
 		KillTimer(g_hZoneTimer);
 		g_hZoneTimer = INVALID_HANDLE;
 	}
-
-	g_hZoneTimer = CreateTimer(GetConVarFloat(g_hChecker), BeamBoxAll, _, TIMER_REPEAT);
 }
 
 public void OnPluginStart()
