@@ -414,7 +414,7 @@ bool g_bInStartZone[MAXPLAYERS + 1] = false;
 bool g_bInStageZone[MAXPLAYERS + 1];
 
 /*----------  MaxSpeed Variables  ----------*/
-bool g_bInMaxSpeed[MAXPLAYERS + 1];
+float g_bInMaxSpeed[MAXPLAYERS + 1];
 
 /*----------  Bhop Limiter  ----------*/
 int g_userJumps[MAXPLAYERS][UserJumps];
@@ -1853,6 +1853,15 @@ public void OnClientPutInServer(int client)
 	// Defaults
 	SetClientDefaults(client);
 	//Command_Restart(client, 1);
+
+    // Sometimes these get stuck because of our csgo panorama "retry" before map change fix
+	ClientCommand(client, "-duck");
+	ClientCommand(client, "-speed");
+	ClientCommand(client, "-jump");
+	ClientCommand(client, "-moveleft");
+	ClientCommand(client, "-moveright");
+	ClientCommand(client, "-forward");
+	ClientCommand(client, "-back");
 
 	// SDKHooks
 	SDKHook(client, SDKHook_SetTransmit, Hook_SetTransmit);

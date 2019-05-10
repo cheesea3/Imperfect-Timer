@@ -342,7 +342,7 @@ public Action StartTouchTrigger(int caller, int activator)
     } else if (iZoneType == ZONETYPE_ANTIDUCK) {
         g_bInDuck[client] = true;
     } else if (iZoneType == ZONETYPE_MAXSPEED) {
-        g_bInMaxSpeed[client] = true;
+        g_bInMaxSpeed[client] = g_mapZones[id][preSpeed];
     }
 
 	return Plugin_Handled;
@@ -464,7 +464,7 @@ public Action EndTouchTrigger(int caller, int activator)
     } else if (iZoneType == ZONETYPE_ANTIDUCK) {
         g_bInDuck[client] = false;
     } else if (iZoneType == ZONETYPE_MAXSPEED) {
-        g_bInMaxSpeed[client] = false;
+        g_bInMaxSpeed[client] = 0;
     }
 
     // Set client location

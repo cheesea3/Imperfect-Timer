@@ -798,9 +798,9 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 		buttons &= ~IN_DUCK;
 		g_bInPushTrigger[client] = false;
 	}
-	else if (g_bInMaxSpeed[client])
+	else if (g_bInMaxSpeed[client] > 0)
 	{
-		LimitMaxSpeed(client, 2500.0);
+		LimitMaxSpeed(client, g_bInMaxSpeed[client]);
 	}
 
 	/*------ Styles ------*/
