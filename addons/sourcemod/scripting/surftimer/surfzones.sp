@@ -464,7 +464,7 @@ public Action EndTouchTrigger(int caller, int activator)
     } else if (iZoneType == ZONETYPE_ANTIDUCK) {
         g_bInDuck[client] = false;
     } else if (iZoneType == ZONETYPE_MAXSPEED) {
-        g_bInMaxSpeed[client] = 0;
+        g_bInMaxSpeed[client] = 0.0;
     }
 
     // Set client location

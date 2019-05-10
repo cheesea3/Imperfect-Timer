@@ -2439,7 +2439,7 @@ public void SQL_ViewAllRecordsCallback(Handle owner, Handle hndl, const char[] e
     ResetPack(pack);
     int client = ReadPackCell(pack);
     int rankedOnly = ReadPackCell(pack);
-    int finished = ReadPackCell(pack);
+    int finishedOnly = ReadPackCell(pack);
     int top = ReadPackCell(pack);
     CloseHandle(pack);
 
@@ -2447,7 +2447,7 @@ public void SQL_ViewAllRecordsCallback(Handle owner, Handle hndl, const char[] e
 	if (!SQL_HasResultSet(hndl)) return;
 
 	char szTitle[64];
-	if (finished) {
+	if (finishedOnly) {
 	    szTitle = "Finished Maps";
 	} else {
 	    szTitle = "Unfinished Maps";
@@ -2504,11 +2504,11 @@ public void SQL_ViewAllRecordsCallback(Handle owner, Handle hndl, const char[] e
 
     if (totalMaps > 0) {
         CPrintToChat(client, "%t", "ConsoleOutput", g_szChatPrefix);
-	    DataPack pack = CreateDataPack();
-	    WritePackCell(pack, client);
-	    WritePackCell(pack, 0);
-	    WritePackCell(pack, msgs);
-	    ThrottledConsolePrint(pack);
+	    DataPack out = CreateDataPack();
+	    WritePackCell(out, client);
+	    WritePackCell(out, 0);
+	    WritePackCell(out, msgs);
+	    ThrottledConsolePrint(out);
     } else {
         CloseHandle(msgs);
     }
