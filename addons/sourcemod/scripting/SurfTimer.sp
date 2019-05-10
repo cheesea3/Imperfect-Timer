@@ -718,7 +718,6 @@ bool g_bServerDataLoaded;
 
 // SteamdID of #1 player in map, used to fetch checkpoint times
 char g_szRecordMapSteamID[MAX_NAME_LENGTH];
-int g_iServerHibernationValue;
 
 /*----------  User Commands  ----------*/
 

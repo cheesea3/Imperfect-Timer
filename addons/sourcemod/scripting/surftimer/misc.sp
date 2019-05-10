@@ -4374,3 +4374,41 @@ public bool IsPlayerTimerAdmin(int client)
 	}
 	return false;
 }
+
+public Action ThrottledConsolePrint(DataPack pack) {
+    ThrottledConsolePrint2(INVALID_HANDLE, pack);
+}
+
+public Action ThrottledConsolePrint2(Handle timer, DataPack pack) {
+    ResetPack(pack);
+    int client = ReadPackCell(pack);
+    int offset = ReadPackCell(pack);
+    ArrayList msgs = ReadPackCell(pack);
+    CloseHandle(pack);
+
+    if (!IsValidClient(client)) {
+        CloseHandle(msgs);
+        return;
+    }
+
+    int size = GetArraySize(msgs);
+    int max = offset + 20;
+    if (max > size) max = size;
+
+    char line[1024];
+    for (; offset < max; offset++) {
+        GetArrayString(msgs, offset, line, sizeof(line));
+        PrintToConsole(client, "%s", line);
+    }
+
+    if (offset >= size) {
+        CloseHandle(msgs);
+        return;
+    }
+
+    DataPack out = CreateDataPack();
+    WritePackCell(out, client);
+    WritePackCell(out, offset);
+    WritePackCell(out, msgs);
+    CreateTimer(0.3, ThrottledConsolePrint2, out);
+}
