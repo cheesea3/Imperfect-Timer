@@ -1854,15 +1854,6 @@ public void OnClientPutInServer(int client)
 	SetClientDefaults(client);
 	//Command_Restart(client, 1);
 
-    // Sometimes these get stuck because of our csgo panorama "retry" before map change fix
-	ClientCommand(client, "-duck");
-	ClientCommand(client, "-speed");
-	ClientCommand(client, "-jump");
-	ClientCommand(client, "-moveleft");
-	ClientCommand(client, "-moveright");
-	ClientCommand(client, "-forward");
-	ClientCommand(client, "-back");
-
 	// SDKHooks
 	SDKHook(client, SDKHook_SetTransmit, Hook_SetTransmit);
 	SDKHook(client, SDKHook_PostThinkPost, Hook_PostThinkPost);

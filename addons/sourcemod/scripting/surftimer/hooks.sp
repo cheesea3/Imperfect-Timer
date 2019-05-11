@@ -75,183 +75,192 @@ public Action Event_OnFire(Handle event, const char[] name, bool dontBroadcast)
 }
 
 // Player Spawns
-public Action Event_OnPlayerSpawn(Handle event, const char[] name, bool dontBroadcast)
-{
+public Action Event_OnPlayerSpawn(Handle event, const char[] name, bool dontBroadcast) {
 	int client = GetClientOfUserId(GetEventInt(event, "userid"));
-	if (client != 0)
-	{
-		g_SpecTarget[client] = -1;
-		g_bPause[client] = false;
-		g_bFirstTimerStart[client] = true;
-		SetEntityMoveType(client, MOVETYPE_WALK);
-		SetEntityRenderMode(client, RENDER_NORMAL);
-		// fluffys
-		g_bInJump[client] = false;
-		g_bInDuck[client] = false;
 
-		// Set stage to 1 on spawn cause why not
-		if (!g_bRespawnPosition[client] && !g_specToStage[client])
-		{
-			g_WrcpStage[client] = 1;
-			g_Stage[0][client] = 1;
-		}
-
-		if (g_iCurrentStyle[client] == 4) // 4 low gravity
-			SetEntityGravity(client, 0.5);
-		else if (g_iCurrentStyle[client] == 5)// 5 slowmo
-			SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", 0.5);
-		else if (g_iCurrentStyle[client] == 6)// 6 fastforward
-			SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", 1.5);
-
-		if (g_iCurrentStyle[client] < 4) // 0 normal, 1 hsw, 2 sw, 3 bw
-		{
-			SetEntityGravity(client, 1.0); // normal gravity
-			SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", 1.0); // normal speed
-		}
-
-		// Strip Weapons
-		if ((GetClientTeam(client) > 1) && IsValidClient(client))
-		{
-			StripAllWeapons(client);
-			if (!IsFakeClient(client))
-				GivePlayerItem(client, "weapon_usp_silencer");
-			int weapon = GetPlayerWeaponSlot(client, 2);
-			if (weapon != -1 && !IsFakeClient(client))
-				SetEntPropEnt(client, Prop_Send, "m_hActiveWeapon", weapon);
-		}
-
-		// NoBlock
-		if (GetConVarBool(g_hCvarNoBlock))
-			SetEntData(client, FindSendPropInfo("CBaseEntity", "m_CollisionGroup"), 2, 4, true);
-		else
-			SetEntData(client, FindSendPropInfo("CBaseEntity", "m_CollisionGroup"), 5, 4, true);
-
-		// Botmimic2
-		if (g_hBotMimicsRecord[client] != null && IsFakeClient(client))
-		{
-			g_BotMimicTick[client] = 0;
-			g_CurrentAdditionalTeleportIndex[client] = 0;
-		}
-
-		if (IsFakeClient(client))
-		{
-			if (client == g_InfoBot)
-				CS_SetClientClanTag(client, "");
-			else if (client == g_RecordBot)
-				CS_SetClientClanTag(client, "WR Replay");
-			else if (client == g_BonusBot)
-				CS_SetClientClanTag(client, "WRB Replay");
-			else if (client == g_WrcpBot)
-				CS_SetClientClanTag(client, "WRCP Replay");
-
-			if (client == g_RecordBot || client == g_BonusBot || client == g_WrcpBot)
-			{
-				// Disabling noclip, makes the bot bug, look into later
-				// SetEntityMoveType(client, MOVETYPE_NOCLIP);
-				SetEntityGravity(client, 0.0);
-			}
-
-			return Plugin_Continue;
-		}
-
-		// Change Player Skin
-		if (GetConVarBool(g_hPlayerSkinChange) && (GetClientTeam(client) > 1))
-		{
-			char szBuffer[256];
-			// GetConVarString(g_hArmModel, szBuffer, 256);
-			// SetEntPropString(client, Prop_Send, "m_szArmsModel", szBuffer);
-
-			GetConVarString(g_hPlayerModel, szBuffer, 256);
-			SetEntityModel(client, szBuffer);
-			CreateTimer(1.0, SetArmsModel, client, TIMER_FLAG_NO_MAPCHANGE);
-			//SetEntPropString(client, Prop_Send, "m_szArmsModel", "models/weapons/ct_arms.mdl");
-		}
-
-		// 1st Spawn & T/CT
-		if (g_bFirstSpawn[client] && (GetClientTeam(client) > 1))
-		{
-			float fLocation[3];
-			GetClientAbsOrigin(client, fLocation);
-			if (setClientLocation(client, fLocation) == -1)
-			{
-				g_iClientInZone[client][2] = 0;
-				g_bIgnoreZone[client] = false;
-			}
-
-
-			StartRecording(client);
-			CreateTimer(1.5, CenterMsgTimer, client, TIMER_FLAG_NO_MAPCHANGE);
-
-			if (g_bCenterSpeedDisplay[client])
-			{
-				SetHudTextParams(-1.0, 0.30, 1.0, 255, 255, 255, 255, 0, 0.25, 0.0, 0.0);
-				CreateTimer(0.1, CenterSpeedDisplayTimer, client, TIMER_FLAG_NO_MAPCHANGE|TIMER_REPEAT);
-			}
-
-			g_bFirstSpawn[client] = false;
-		}
-
-		// Restore Position
-		if (!g_specToStage[client])
-		{
-
-			if ((GetClientTeam(client) > 1))
-			{
-				if (g_bRestorePosition[client])
-				{
-					g_bPositionRestored[client] = true;
-					teleportEntitySafe(client, g_fPlayerCordsRestore[client], g_fPlayerAnglesRestore[client], NULL_VECTOR, false);
-					g_bRestorePosition[client] = false;
-				}
-				else
-				{
-					if (g_bRespawnPosition[client])
-					{
-						teleportEntitySafe(client, g_fPlayerCordsRestore[client], g_fPlayerAnglesRestore[client], NULL_VECTOR, false);
-						g_bRespawnPosition[client] = false;
-					}
-					else
-					{
-						g_bTimerRunning[client] = false;
-						g_fStartTime[client] = -1.0;
-						g_fCurrentRunTime[client] = -1.0;
-
-						// Spawn Client To The Start Zone.
-						if (GetConVarBool(g_hSpawnToStartZone))
-							Command_Restart(client, 1);
-					}
-				}
-			}
-		}
-		else
-		{
-			Array_Copy(g_fTeleLocation[client], g_fPlayerCordsRestore[client], 3);
-			Array_Copy(NULL_VECTOR, g_fPlayerAnglesRestore[client], 3);
-			SetEntPropVector(client, Prop_Data, "m_vecVelocity", view_as<float>( { 0.0, 0.0, -100.0 } ));
-			teleportEntitySafe(client, g_fTeleLocation[client], NULL_VECTOR, view_as<float>( { 0.0, 0.0, -100.0 } ), false);
-			g_specToStage[client] = false;
-		}
-
-		// Hide Radar
-		CreateTimer(0.0, HideHud, client, TIMER_FLAG_NO_MAPCHANGE);
-
-		// Set Clantag
-		CreateTimer(1.5, SetClanTag, client, TIMER_FLAG_NO_MAPCHANGE);
-
-		// Set Speclist
-		Format(g_szPlayerPanelText[client], 512, "");
-
-		// Get Speed & Origin
-		g_fLastSpeed[client] = GetSpeed(client);
-		
-		// Give Player Kevlar + Helmet
-		GivePlayerItem(client, "item_assaultsuit");
-		
+	if (client == 0) {
+	    if (IsFakeClient(client)) {
+	        SetEntData(client, FindSendPropInfo("CBaseEntity", "m_CollisionGroup"), 2, 4, true);
+	    }
+	    return Plugin_Continue;
 	}
-	else if (IsFakeClient(client)) 
-	{
-		SetEntData(client, FindSendPropInfo("CBaseEntity", "m_CollisionGroup"), 2, 4, true);
-	}
+
+    // Sometimes these get stuck because of our csgo panorama "retry" before map change fix
+    ClientCommand(client, "-duck");
+    ClientCommand(client, "-speed");
+    ClientCommand(client, "-jump");
+    ClientCommand(client, "-moveleft");
+    ClientCommand(client, "-moveright");
+    ClientCommand(client, "-forward");
+    ClientCommand(client, "-back");
+
+    g_SpecTarget[client] = -1;
+    g_bPause[client] = false;
+    g_bFirstTimerStart[client] = true;
+    SetEntityMoveType(client, MOVETYPE_WALK);
+    SetEntityRenderMode(client, RENDER_NORMAL);
+    // fluffys
+    g_bInJump[client] = false;
+    g_bInDuck[client] = false;
+
+    // Set stage to 1 on spawn cause why not
+    if (!g_bRespawnPosition[client] && !g_specToStage[client])
+    {
+        g_WrcpStage[client] = 1;
+        g_Stage[0][client] = 1;
+    }
+
+    if (g_iCurrentStyle[client] == 4) // 4 low gravity
+        SetEntityGravity(client, 0.5);
+    else if (g_iCurrentStyle[client] == 5)// 5 slowmo
+        SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", 0.5);
+    else if (g_iCurrentStyle[client] == 6)// 6 fastforward
+        SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", 1.5);
+
+    if (g_iCurrentStyle[client] < 4) // 0 normal, 1 hsw, 2 sw, 3 bw
+    {
+        SetEntityGravity(client, 1.0); // normal gravity
+        SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", 1.0); // normal speed
+    }
+
+    // Strip Weapons
+    if ((GetClientTeam(client) > 1) && IsValidClient(client))
+    {
+        StripAllWeapons(client);
+        if (!IsFakeClient(client))
+            GivePlayerItem(client, "weapon_usp_silencer");
+        int weapon = GetPlayerWeaponSlot(client, 2);
+        if (weapon != -1 && !IsFakeClient(client))
+            SetEntPropEnt(client, Prop_Send, "m_hActiveWeapon", weapon);
+    }
+
+    // NoBlock
+    if (GetConVarBool(g_hCvarNoBlock))
+        SetEntData(client, FindSendPropInfo("CBaseEntity", "m_CollisionGroup"), 2, 4, true);
+    else
+        SetEntData(client, FindSendPropInfo("CBaseEntity", "m_CollisionGroup"), 5, 4, true);
+
+    // Botmimic2
+    if (g_hBotMimicsRecord[client] != null && IsFakeClient(client))
+    {
+        g_BotMimicTick[client] = 0;
+        g_CurrentAdditionalTeleportIndex[client] = 0;
+    }
+
+    if (IsFakeClient(client))
+    {
+        if (client == g_InfoBot)
+            CS_SetClientClanTag(client, "");
+        else if (client == g_RecordBot)
+            CS_SetClientClanTag(client, "WR Replay");
+        else if (client == g_BonusBot)
+            CS_SetClientClanTag(client, "WRB Replay");
+        else if (client == g_WrcpBot)
+            CS_SetClientClanTag(client, "WRCP Replay");
+
+        if (client == g_RecordBot || client == g_BonusBot || client == g_WrcpBot)
+        {
+            // Disabling noclip, makes the bot bug, look into later
+            // SetEntityMoveType(client, MOVETYPE_NOCLIP);
+            SetEntityGravity(client, 0.0);
+        }
+
+        return Plugin_Continue;
+    }
+
+    // Change Player Skin
+    if (GetConVarBool(g_hPlayerSkinChange) && (GetClientTeam(client) > 1))
+    {
+        char szBuffer[256];
+        // GetConVarString(g_hArmModel, szBuffer, 256);
+        // SetEntPropString(client, Prop_Send, "m_szArmsModel", szBuffer);
+
+        GetConVarString(g_hPlayerModel, szBuffer, 256);
+        SetEntityModel(client, szBuffer);
+        CreateTimer(1.0, SetArmsModel, client, TIMER_FLAG_NO_MAPCHANGE);
+        //SetEntPropString(client, Prop_Send, "m_szArmsModel", "models/weapons/ct_arms.mdl");
+    }
+
+    // 1st Spawn & T/CT
+    if (g_bFirstSpawn[client] && (GetClientTeam(client) > 1))
+    {
+        float fLocation[3];
+        GetClientAbsOrigin(client, fLocation);
+        if (setClientLocation(client, fLocation) == -1)
+        {
+            g_iClientInZone[client][2] = 0;
+            g_bIgnoreZone[client] = false;
+        }
+
+
+        StartRecording(client);
+        CreateTimer(1.5, CenterMsgTimer, client, TIMER_FLAG_NO_MAPCHANGE);
+
+        if (g_bCenterSpeedDisplay[client])
+        {
+            SetHudTextParams(-1.0, 0.30, 1.0, 255, 255, 255, 255, 0, 0.25, 0.0, 0.0);
+            CreateTimer(0.1, CenterSpeedDisplayTimer, client, TIMER_FLAG_NO_MAPCHANGE|TIMER_REPEAT);
+        }
+
+        g_bFirstSpawn[client] = false;
+    }
+
+    // Restore Position
+    if (!g_specToStage[client])
+    {
+
+        if ((GetClientTeam(client) > 1))
+        {
+            if (g_bRestorePosition[client])
+            {
+                g_bPositionRestored[client] = true;
+                teleportEntitySafe(client, g_fPlayerCordsRestore[client], g_fPlayerAnglesRestore[client], NULL_VECTOR, false);
+                g_bRestorePosition[client] = false;
+            }
+            else
+            {
+                if (g_bRespawnPosition[client])
+                {
+                    teleportEntitySafe(client, g_fPlayerCordsRestore[client], g_fPlayerAnglesRestore[client], NULL_VECTOR, false);
+                    g_bRespawnPosition[client] = false;
+                }
+                else
+                {
+                    g_bTimerRunning[client] = false;
+                    g_fStartTime[client] = -1.0;
+                    g_fCurrentRunTime[client] = -1.0;
+
+                    // Spawn Client To The Start Zone.
+                    if (GetConVarBool(g_hSpawnToStartZone))
+                        Command_Restart(client, 1);
+                }
+            }
+        }
+    }
+    else
+    {
+        Array_Copy(g_fTeleLocation[client], g_fPlayerCordsRestore[client], 3);
+        Array_Copy(NULL_VECTOR, g_fPlayerAnglesRestore[client], 3);
+        SetEntPropVector(client, Prop_Data, "m_vecVelocity", view_as<float>( { 0.0, 0.0, -100.0 } ));
+        teleportEntitySafe(client, g_fTeleLocation[client], NULL_VECTOR, view_as<float>( { 0.0, 0.0, -100.0 } ), false);
+        g_specToStage[client] = false;
+    }
+
+    // Hide Radar
+    CreateTimer(0.0, HideHud, client, TIMER_FLAG_NO_MAPCHANGE);
+
+    // Set Clantag
+    CreateTimer(1.5, SetClanTag, client, TIMER_FLAG_NO_MAPCHANGE);
+
+    // Set Speclist
+    Format(g_szPlayerPanelText[client], 512, "");
+
+    // Get Speed & Origin
+    g_fLastSpeed[client] = GetSpeed(client);
+
+    // Give Player Kevlar + Helmet
+    GivePlayerItem(client, "item_assaultsuit");
+
 	return Plugin_Continue;
 }
 
