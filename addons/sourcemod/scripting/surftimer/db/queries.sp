@@ -72,8 +72,6 @@ char sql_selectPlayerTmp[] = "SELECT cords1,cords2,cords3, angle1, angle2, angle
 char sql_createPlayertimes[] = "CREATE TABLE IF NOT EXISTS ck_playertimes (steamid VARCHAR(32), mapname VARCHAR(32), name VARCHAR(32), runtimepro FLOAT NOT NULL DEFAULT '-1.0', style INT(11) NOT NULL DEFAULT '0', PRIMARY KEY(steamid, mapname, style)) DEFAULT CHARSET=utf8mb4;";
 char sql_createPlayertimesIndex[] = "CREATE INDEX maprank ON ck_playertimes (mapname, runtimepro, style);";
 char sql_insertPlayer[] = "INSERT INTO ck_playertimes (steamid, mapname, name) VALUES('%s', '%s', '%s');";
-char sql_insertPlayerTime[] = "INSERT INTO ck_playertimes (steamid, mapname, name, runtimepro, style) VALUES('%s', '%s', '%s', '%f', %i);";
-char sql_updateRecordPro[] = "UPDATE ck_playertimes SET name = '%s', runtimepro = '%f' WHERE steamid = '%s' AND mapname = '%s' AND style = %i;";
 char sql_selectPlayer[] = "SELECT steamid FROM ck_playertimes WHERE steamid = '%s' AND mapname = '%s';";
 char sql_selectMapRecord[] = "SELECT full.runtimepro, full.name, full.steamid, full.style FROM ( SELECT MIN(runtimepro) AS time, style, mapname FROM ck_playertimes WHERE mapname = '%s' AND runtimepro > -1.0 GROUP BY style ) as mins INNER JOIN ck_playertimes as full ON mins.time = full.runtimepro AND mins.style = full.style AND mins.mapname = full.mapname;";
 //char sql_selectPersonalRecords[] = "SELECT runtimepro, name FROM ck_playertimes WHERE mapname = '%s' AND steamid = '%s' AND runtimepro > 0.0";

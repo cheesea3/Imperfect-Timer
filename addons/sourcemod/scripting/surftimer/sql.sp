@@ -1567,7 +1567,7 @@ public void db_viewPlayerProfileByName(int client, int style, const char[] szNam
 	char szNameEx[MAX_NAME_LENGTH*2+1];
 	SQL_EscapeString(g_hDb, szName, szNameEx, sizeof(szNameEx));
 	char szQuery[512];
-    Format(szQuery, sizeof(szQuery), "SELECT steamid, style FROM ck_playerrank WHERE style=%i AND name LIKE '%c%s%c' LIMIT 1", style, PERCENT, szNameEx, PERCENT);
+    Format(szQuery, sizeof(szQuery), "SELECT steamid, style FROM ck_playerrank WHERE style=%i AND name LIKE '%c%s%c' ORDER BY points DESC LIMIT 1", style, PERCENT, szNameEx, PERCENT);
     SQL_TQuery(g_hDb, db_viewPlayerProfileByName2, szQuery, client, DBPrio_Low);
 }
 public void db_viewPlayerProfileByName2(Handle owner, Handle hndl, const char[] error, int client) {
@@ -2258,105 +2258,75 @@ public void db_selectRecord(int client)
 	SQL_TQuery(g_hDb, sql_selectRecordCallback, szQuery, client, DBPrio_Low);
 }
 
-public void sql_selectRecordCallback(Handle owner, Handle hndl, const char[] error, any data)
+public void sql_selectRecordCallback(Handle owner, Handle hndl, const char[] error, int client)
 {
-	if (hndl == null)
-	{
+	if (hndl == null) {
 		LogError("[Surftimer] SQL Error (sql_selectRecordCallback): %s", error);
 		return;
 	}
-
-	if (!IsValidClient(data))
-	return;
-
+	if (!IsValidClient(client)) {
+        return;
+    }
 
 	char szQuery[512];
+    DataPack pack = CreateDataPack();
+    WritePackFloat(pack, g_fFinalTime[client]);
+    WritePackCell(pack, client);
 
-	// Found old time from database
-	if (SQL_HasResultSet(hndl) && SQL_FetchRow(hndl))
-	{
+	if (SQL_HasResultSet(hndl) && SQL_FetchRow(hndl)) {
+	    // Found old time from database
 		float time = SQL_FetchFloat(hndl, 0);
 
 		// If old time was slower than the new time, update record
-		if ((g_fFinalTime[data] <= time || time <= 0.0))
-		{
-			db_updateRecordPro(data);
+		if ((g_fFinalTime[client] <= time || time <= 0.0)) {
+            char szUName[MAX_NAME_LENGTH];
+
+            if (IsValidClient(client))
+                GetClientName(client, szUName, MAX_NAME_LENGTH);
+            else
+                return;
+
+            // Also updating name in database, escape string
+            char szName[MAX_NAME_LENGTH * 2 + 1];
+            SQL_EscapeString(g_hDb, szUName, szName, MAX_NAME_LENGTH * 2 + 1);
+
+            // "UPDATE ck_playertimes SET name = '%s', runtimepro = '%f' WHERE steamid = '%s' AND mapname = '%s' AND style = %i;";
+            Format(szQuery, sizeof(szQuery), "UPDATE ck_playertimes SET name = '%s', runtimepro = '%f' WHERE steamid = '%s' AND mapname = '%s' AND style = %i", szName, g_fFinalTime[client], g_szSteamID[client], g_szMapName, 0);
+            SQL_TQuery(g_hDb, SQL_UpdateRecordProCallback, szQuery, pack, DBPrio_Low);
 		}
-	}
-	else
-	{ // No record found from database - Let's insert
+	} else {
+	    // No record found from database - Let's insert
 
 		// Escape name for SQL injection protection
 		char szName[MAX_NAME_LENGTH * 2 + 1], szUName[MAX_NAME_LENGTH];
-		GetClientName(data, szUName, MAX_NAME_LENGTH);
+		GetClientName(client, szUName, MAX_NAME_LENGTH);
 		SQL_EscapeString(g_hDb, szUName, szName, MAX_NAME_LENGTH);
 
-		// Move required information in datapack
-		Handle pack = CreateDataPack();
-		WritePackFloat(pack, g_fFinalTime[data]);
-		WritePackCell(pack, data);
-
 		// "INSERT INTO ck_playertimes (steamid, mapname, name, runtimepro, style) VALUES('%s', '%s', '%s', '%f', %i);";
-		Format(szQuery, 512, sql_insertPlayerTime, g_szSteamID[data], g_szMapName, szName, g_fFinalTime[data], 0);
+		Format(szQuery, sizeof(szQuery), "INSERT INTO ck_playertimes (steamid, mapname, name, runtimepro, style) VALUES ('%s', '%s', '%s', '%f', %i)", g_szSteamID[client], g_szMapName, szName, g_fFinalTime[client], 0);
 		SQL_TQuery(g_hDb, SQL_UpdateRecordProCallback, szQuery, pack, DBPrio_Low);
 
 		g_bInsertNewTime = true;
 	}
 }
+public void SQL_UpdateRecordProCallback(Handle owner, Handle hndl, const char[] error, DataPack data) {
+    ResetPack(data);
+    float time = ReadPackFloat(data);
+    int client = ReadPackCell(data);
+    CloseHandle(data);
 
-// If latest record was faster than old - Update time
-public void db_updateRecordPro(int client)
-{
-	char szUName[MAX_NAME_LENGTH];
-
-	if (IsValidClient(client))
-		GetClientName(client, szUName, MAX_NAME_LENGTH);
-	else
-		return;
-
-	// Also updating name in database, escape string
-	char szName[MAX_NAME_LENGTH * 2 + 1];
-	SQL_EscapeString(g_hDb, szUName, szName, MAX_NAME_LENGTH * 2 + 1);
-
-	// Packing required information for later
-	Handle pack = CreateDataPack();
-	WritePackFloat(pack, g_fFinalTime[client]);
-	WritePackCell(pack, client);
-
-	char szQuery[1024];
-	// "UPDATE ck_playertimes SET name = '%s', runtimepro = '%f' WHERE steamid = '%s' AND mapname = '%s' AND style = %i;";
-	Format(szQuery, 1024, sql_updateRecordPro, szName, g_fFinalTime[client], g_szSteamID[client], g_szMapName, 0);
-	SQL_TQuery(g_hDb, SQL_UpdateRecordProCallback, szQuery, pack, DBPrio_Low);
-}
-
-
-public void SQL_UpdateRecordProCallback(Handle owner, Handle hndl, const char[] error, any data)
-{
-	if (hndl == null)
-	{
-		LogError("[Surftimer] SQL Error (SQL_UpdateRecordProCallback): %s", error);
+	if (hndl == null) {
+	    LogError("[Surftimer] SQL Error (SQL_UpdateRecordProCallback): %s", error);
 		return;
 	}
 
-	if (data != INVALID_HANDLE)
-	{
-		ResetPack(data);
-		float time = ReadPackFloat(data);
-		int client = ReadPackCell(data);
-		CloseHandle(data);
-
-		// Find out how many times are are faster than the players time
-		char szQuery[512];
-		Format(szQuery, 512, "SELECT count(runtimepro) FROM `ck_playertimes` WHERE `mapname` = '%s' AND `runtimepro` < %f AND style = 0;", g_szMapName, time);
-		SQL_TQuery(g_hDb, SQL_UpdateRecordProCallback2, szQuery, client, DBPrio_Low);
-
-	}
+    // Find out how many times are are faster than the players time
+    char szQuery[512];
+    Format(szQuery, 512, "SELECT count(runtimepro) FROM `ck_playertimes` WHERE `mapname` = '%s' AND `runtimepro` < %f AND style = 0;", g_szMapName, time);
+    SQL_TQuery(g_hDb, SQL_UpdateRecordProCallback2, szQuery, client, DBPrio_Low);
 }
-
-public void SQL_UpdateRecordProCallback2(Handle owner, Handle hndl, const char[] error, any data)
-{
-	if (hndl == null)
-	{
+public void SQL_UpdateRecordProCallback2(Handle owner, Handle hndl, const char[] error, int client) {
+	if (hndl == null) {
 		LogError("[Surftimer] SQL Error (SQL_UpdateRecordProCallback2): %s", error);
 		return;
 	}
@@ -2366,13 +2336,13 @@ public void SQL_UpdateRecordProCallback2(Handle owner, Handle hndl, const char[]
 	{
 		rank = (SQL_FetchInt(hndl, 0)+1);
 	}
-	g_MapRank[data] = rank;
+	g_MapRank[client] = rank;
 	if (rank <= 10 && rank > 1)
-		g_bTop10Time[data] = true;
+		g_bTop10Time[client] = true;
 	else
-		g_bTop10Time[data] = false;
+		g_bTop10Time[client] = false;
 
-	MapFinishedMsgs(data);
+	MapFinishedMsgs(client);
 
 	if (g_bInsertNewTime)
 	{
@@ -5302,7 +5272,7 @@ public void SQL_UpdateWrcpRecordCallback2(Handle owner, Handle hndl, const char[
 {
 	if (hndl == null)
 	{
-		LogError("[Surftimer] SQL Error (SQL_UpdateRecordProCallback2): %s", error);
+		LogError("[Surftimer] SQL Error (SQL_UpdateWrcpRecordCallback2): %s", error);
 		CloseHandle(data);
 		return;
 	}

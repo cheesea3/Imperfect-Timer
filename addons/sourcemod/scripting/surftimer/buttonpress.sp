@@ -297,14 +297,10 @@ public void CL_OnEndTimerPress(int client)
 					}
 					g_bCheckpointRecordFound[zGroup] = true;
 				}
-
-				// wrCredits = fcTierCredits;
 			}
 
-
 			// Clients first record
-			if (g_fPersonalRecord[client] == 0.0)
-			{
+			if (g_fPersonalRecord[client] == 0.0) {
 				g_fPersonalRecord[client] = g_fFinalTime[client];
 				g_pr_finishedmaps[client][0]++;
 				g_MapTimesCount++;
@@ -315,11 +311,7 @@ public void CL_OnEndTimerPress(int client)
 				db_UpdateCheckpoints(client, g_szSteamID[client], zGroup);
 
 				db_selectRecord(client);
-
-				// fcCredits = fcTierCredits;
-			}
-			else if (diff > 0.0)
-			{
+			} else if (diff > 0.0) {
 				// Client's new record
 				g_fPersonalRecord[client] = g_fFinalTime[client];
 				FormatTimeFloat(1, g_fPersonalRecord[client], 3, g_szPersonalRecord[client], 64);
@@ -329,14 +321,10 @@ public void CL_OnEndTimerPress(int client)
 				db_UpdateCheckpoints(client, g_szSteamID[client], zGroup);
 
 				db_selectRecord(client);
-
-				// pbCredits = tierCredits;
 			}
-			if (!g_bMapSRVRecord[client] && !g_bMapFirstRecord[client] && !g_bMapPBRecord[client])
-			{
+			if (!g_bMapSRVRecord[client] && !g_bMapFirstRecord[client] && !g_bMapPBRecord[client]) {
 				// for ck_min_rank_announce
 				db_currentRunRank(client);
-				// slowCredits = 1 * g_iMapTier;
 			}
 		}
 		else if (style != 0)

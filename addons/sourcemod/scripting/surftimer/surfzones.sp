@@ -569,49 +569,27 @@ public Action BeamBoxAll(Handle timer, any data) {
 		    continue;
 		}
 
-        int zColor[4], tzColor[4];
+        int zColor[4];
         getZoneDisplayColor(g_mapZones[i][zoneType], zColor, g_mapZones[i][zoneGroup]);
-        getZoneTeamColor(g_mapZones[i][Team], tzColor);
         for (int p = 1; p <= MaxClients; p++)
         {
-            if (GetConVarInt(g_hZoneDisplayType) == 0 && !g_bShowZones[p] && g_Editing[p] == 0)
-            {
-                // if (GetConVarInt(g_hZoneDisplayType) < 1)
-                    continue;
+            if (!IsValidClient(p) || IsFakeClient(p)) {
+                continue;
+            }
+            if (GetConVarInt(g_hZoneDisplayType) == 0 && !g_bShowZones[p]) {
+                continue;
+            }
+            if (g_ClientSelectedZone[p] == i) {
+                continue;
             }
 
-            if (IsValidClient(p) && !IsFakeClient(p))
+            float buffer_a[3], buffer_b[3];
+            for (int x = 0; x < 3; x++)
             {
-                if (GetConVarInt(g_hZoneDisplayType) == 0 && !g_bShowZones[p])
-                    continue;
-
-                if ( g_mapZones[i][Vis] == 2 ||  g_mapZones[i][Vis] == 3)
-                {
-                    if (GetClientTeam(p) ==  g_mapZones[i][Vis] && g_ClientSelectedZone[p] != i)
-                    {
-                        float buffer_a[3], buffer_b[3];
-                        for (int x = 0; x < 3; x++)
-                        {
-                            buffer_a[x] = g_mapZones[i][PointA][x];
-                            buffer_b[x] = g_mapZones[i][PointB][x];
-                        }
-                        TE_SendBeamBoxToClient(p, buffer_a, buffer_b, g_BeamSprite, g_HaloSprite, 0, 30, ZONE_REFRESH_TIME, 1.0, 1.0, 2, 0.0, tzColor, 0, 0, i);
-                    }
-                }
-                else
-                {
-                    if (g_ClientSelectedZone[p] != i)
-                    {
-                        float buffer_a[3], buffer_b[3];
-                        for (int x = 0; x < 3; x++)
-                        {
-                            buffer_a[x] = g_mapZones[i][PointA][x];
-                            buffer_b[x] = g_mapZones[i][PointB][x];
-                        }
-                        TE_SendBeamBoxToClient(p, buffer_a, buffer_b, g_BeamSprite, g_HaloSprite, 0, 30, ZONE_REFRESH_TIME, 1.0, 1.0, 2, 0.0, zColor, 0, 0, i);
-                    }
-                }
+                buffer_a[x] = g_mapZones[i][PointA][x];
+                buffer_b[x] = g_mapZones[i][PointB][x];
             }
+            TE_SendBeamBoxToClient(p, buffer_a, buffer_b, g_BeamSprite, g_HaloSprite, 0, 30, ZONE_REFRESH_TIME, 1.0, 1.0, 2, 0.0, zColor, 0, 0, i);
 		}
 	}
 	return Plugin_Continue;
