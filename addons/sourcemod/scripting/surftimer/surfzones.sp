@@ -570,8 +570,6 @@ public Action BeamBoxAll(Handle timer, any data) {
 		    continue;
 		}
 
-		int players = 0;
-
         int zColor[4];
         getZoneDisplayColor(iZoneType, zColor, iZoneGroup);
         for (int p = 1; p <= MaxClients; p++)
@@ -588,8 +586,6 @@ public Action BeamBoxAll(Handle timer, any data) {
             if (g_ClientSelectedZone[p] == i) {
                 continue;
             }
-
-            players++;
 
             float buffer_a[3], buffer_b[3];
             for (int x = 0; x < 3; x++)
