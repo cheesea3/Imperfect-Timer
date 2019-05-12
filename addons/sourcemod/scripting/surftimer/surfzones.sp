@@ -521,7 +521,7 @@ public void DrawBeamBox(int client)
 {
 	int zColor[4];
 	getZoneTeamColor(g_CurrentZoneTeam[client], zColor);
-	TE_SendBeamBoxToClient(client, g_Positions[client][1], g_Positions[client][0], g_BeamSprite, g_HaloSprite, 0, 30, 1.0, 1.0, 1.0, 2, 0.0, zColor, 0, 1);
+	TE_SendBeamBoxToClient(client, g_Positions[client][1], g_Positions[client][0], g_BeamSprite, g_HaloSprite, 0, 30, 1.0, 1.0, 1.0, 2, 0.0, zColor, 0, true);
 	CreateTimer(1.0, BeamBox, client, TIMER_REPEAT);
 }
 
@@ -533,7 +533,7 @@ public Action BeamBox(Handle timer, any client)
 		{
 			int zColor[4];
 			getZoneTeamColor(g_CurrentZoneTeam[client], zColor);
-			TE_SendBeamBoxToClient(client, g_Positions[client][1], g_Positions[client][0], g_BeamSprite, g_HaloSprite, 0, 30, 1.0, 1.0, 1.0, 2, 0.0, zColor, 0, 1);
+			TE_SendBeamBoxToClient(client, g_Positions[client][1], g_Positions[client][0], g_BeamSprite, g_HaloSprite, 0, 30, 1.0, 1.0, 1.0, 2, 0.0, zColor, 0, true);
 			return Plugin_Continue;
 		}
 	}
@@ -545,11 +545,12 @@ public Action BeamBoxAll(Handle timer, any data) {
 
 	for (int i = 0; i < g_mapZonesCount; ++i) {
 		bool draw = false;
+		int iZoneType = g_mapZones[i][zoneType];
+		int iZoneGroup = g_mapZones[i][zoneGroup];
 
         if (0 < g_mapZones[i][Vis] < 4) {
             draw = true;
         } else {
-            int iZoneType = g_mapZones[i][zoneType];
             switch(iZoneType) {
                 case ZONETYPE_START,
                      ZONETYPE_SPEEDSTART,
@@ -569,19 +570,26 @@ public Action BeamBoxAll(Handle timer, any data) {
 		    continue;
 		}
 
+		int players = 0;
+
         int zColor[4];
-        getZoneDisplayColor(g_mapZones[i][zoneType], zColor, g_mapZones[i][zoneGroup]);
+        getZoneDisplayColor(iZoneType, zColor, iZoneGroup);
         for (int p = 1; p <= MaxClients; p++)
         {
             if (!IsValidClient(p) || IsFakeClient(p)) {
                 continue;
             }
-            if (GetConVarInt(g_hZoneDisplayType) == 0 && !g_bShowZones[p]) {
+            bool full = false;
+            if (g_bShowZones[p] || GetConVarInt(g_hZoneDisplayType) >= 2) {
+                full = true;
+            } else if (GetConVarInt(g_hZoneDisplayType) == 0) {
                 continue;
             }
             if (g_ClientSelectedZone[p] == i) {
                 continue;
             }
+
+            players++;
 
             float buffer_a[3], buffer_b[3];
             for (int x = 0; x < 3; x++)
@@ -589,7 +597,7 @@ public Action BeamBoxAll(Handle timer, any data) {
                 buffer_a[x] = g_mapZones[i][PointA][x];
                 buffer_b[x] = g_mapZones[i][PointB][x];
             }
-            TE_SendBeamBoxToClient(p, buffer_a, buffer_b, g_BeamSprite, g_HaloSprite, 0, 30, ZONE_REFRESH_TIME, 1.0, 1.0, 2, 0.0, zColor, 0, 0, i);
+            TE_SendBeamBoxToClient(p, buffer_a, buffer_b, g_BeamSprite, g_HaloSprite, 0, 30, ZONE_REFRESH_TIME, 1.0, 1.0, 2, 0.0, zColor, 0, full);
 		}
 	}
 	return Plugin_Continue;
@@ -661,16 +669,16 @@ public void BeamBox_OnPlayerRunCmd(int client)
 			if (g_Editing[client] == 10)
 			{
 				TR_GetEndPosition(g_fBonusStartPos[client][1]);
-				TE_SendBeamBoxToClient(client, g_fBonusStartPos[client][1], g_fBonusStartPos[client][0], g_BeamSprite, g_HaloSprite, 0, 30, 0.1, 1.0, 1.0, 2, 0.0, zColor, 0, 1);
+				TE_SendBeamBoxToClient(client, g_fBonusStartPos[client][1], g_fBonusStartPos[client][0], g_BeamSprite, g_HaloSprite, 0, 30, 0.1, 1.0, 1.0, 2, 0.0, zColor, 0, true);
 			}
 			else
 			{
 				TR_GetEndPosition(g_fBonusEndPos[client][1]);
-				TE_SendBeamBoxToClient(client, g_fBonusEndPos[client][1], g_fBonusEndPos[client][0], g_BeamSprite, g_HaloSprite, 0, 30, 0.1, 1.0, 1.0, 2, 0.0, zColor, 0, 1);
+				TE_SendBeamBoxToClient(client, g_fBonusEndPos[client][1], g_fBonusEndPos[client][0], g_BeamSprite, g_HaloSprite, 0, 30, 0.1, 1.0, 1.0, 2, 0.0, zColor, 0, true);
 			}
 		}
 		else
-			TE_SendBeamBoxToClient(client, g_Positions[client][1], g_Positions[client][0], g_BeamSprite, g_HaloSprite, 0, 30, 0.1, 1.0, 1.0, 2, 0.0, zColor, 0, 1);
+			TE_SendBeamBoxToClient(client, g_Positions[client][1], g_Positions[client][0], g_BeamSprite, g_HaloSprite, 0, 30, 0.1, 1.0, 1.0, 2, 0.0, zColor, 0, true);
 	}
 
 	if (g_iSelectedTrigger[client] > -1)
@@ -697,127 +705,34 @@ public void BeamBox_OnPlayerRunCmd(int client)
 				fMaxs[j] = (fMaxs[j] + position[j]);
 			}
 
-			TE_SendBeamBoxToClient(client, fMins, fMaxs, g_BeamSprite, g_HaloSprite, 0, 30, 1.0, 1.0, 1.0, 2, 0.0, view_as<int>({255, 255, 0, 255}), 0, 1);
+			TE_SendBeamBoxToClient(client, fMins, fMaxs, g_BeamSprite, g_HaloSprite, 0, 30, 1.0, 1.0, 1.0, 2, 0.0, view_as<int>({255, 255, 0, 255}), 0, true);
 		}
 	}
 }
 
-stock void TE_SendBeamBoxToClient(int client, float uppercorner[3], float bottomcorner[3], int ModelIndex, int HaloIndex, int StartFrame, int FrameRate, float Life, float Width, float EndWidth, int FadeLength, float Amplitude, const int Color[4], int Speed, int type, int zoneid = -1)
+stock void TE_SendBeamBoxToClient(int client, float uppercorner[3], float bottomcorner[3], int ModelIndex, int HaloIndex, int StartFrame, int FrameRate, float Life, float Width, float EndWidth, int FadeLength, float Amplitude, const int Color[4], int Speed, bool full)
 {
-	// 0 = Do not display zones, 1 = Display the lower edges of zones, 2 = Display whole zone
-	if (!IsValidClient(client) || GetConVarInt(g_hZoneDisplayType) < 1 && !g_bShowZones[client] && g_Editing[client] == 0 && g_iSelectedTrigger[client] == -1)
-		return;
+    float corners[8][3];
+    Array_Copy(uppercorner, corners[0], 3);
+    Array_Copy(bottomcorner, corners[7], 3);
+    float minY = corners[0][2];
+    if (corners[7][2] < minY) minY = corners[7][2];
+    // Count ponts from coordinates provided
+    for(int i = 1; i < 7; i++) {
+        for(int j = 0; j < 3; j++) {
+            corners[i][j] = corners[((i >> (2-j)) & 1) * 7][j];
+        }
+    }
 
-	if (GetConVarInt(g_hZoneDisplayType) > 1 || type == 1 || g_bShowZones[client] || g_Editing[client] > 0 || g_iSelectedTrigger[client] > -1) // All sides
-	{
-		float corners[8][3];
-		if (zoneid == -1)
-		{
-			Array_Copy(uppercorner, corners[0], 3);
-			Array_Copy(bottomcorner, corners[7], 3);
-
-			// Count ponts from coordinates provided
-			for(int i = 1; i < 7; i++)
-			{
-				for(int j = 0; j < 3; j++)
-				{
-					corners[i][j] = corners[((i >> (2-j)) & 1) * 7][j];
-				}
-			}
-		}
-		else
-		{
-			// Get values that are already counted
-			for (int i = 0; i < 8; i++)
-				for (int k = 0; k < 3; k++)
-					corners[i][k] = g_fZoneCorners[zoneid][i][k];
-		}
-
-		// Send beams to client
-		// https://forums.alliedmods.net/showpost.php?p=2006539&postcount=8
-		for (int i = 0, i2 = 3; i2 >= 0; i+=i2--)
-		{
-		for(int j = 1; j <= 7; j += (j / 2) + 1)
-			{
-				if (j != 7-i)
-				{
-					TE_SetupBeamPoints(corners[i], corners[j], ModelIndex, HaloIndex, StartFrame, FrameRate, Life, Width, EndWidth, FadeLength, Amplitude, Color, Speed);
-					TE_SendToClient(client);
-				}
-			}
-		}
-	}
-	else
-	{
-		if (GetConVarInt(g_hZoneDisplayType) == 1 && zoneid != -1 || g_bShowZones[client] || g_Editing[client] > 0 || g_iSelectedTrigger[client] > -1) // Only bottom corners
-		{
-			float corners[4][3], fTop[3];
-
-			if (g_mapZones[zoneid][PointA][2] > g_mapZones[zoneid][PointB][2]) // Make sure bottom corner is always the lowest
-			{
-				for(int i = 0; i < 3; i++)
-				{
-					corners[0][i] = g_mapZones[zoneid][PointB][i];
-					fTop[i] = g_mapZones[zoneid][PointA][i];
-				}
-			}
-			else
-			{
-				for(int i = 0; i < 3; i++)
-				{
-					corners[0][i] = g_mapZones[zoneid][PointA][i];
-					fTop[i] = g_mapZones[zoneid][PointB][i];
-				}
-			}
-
-			bool foundOther = false;
-			// Get other corners
-			for (int i = 0, count = 0, k = 2; i < 8; i++)
-			{
-				if (g_fZoneCorners[zoneid][i][2] != fTop[2]) // Get the lowest corner
-				{
-					if (!foundOther && g_fZoneCorners[zoneid][i][0] == fTop[0] && g_fZoneCorners[zoneid][i][1] == fTop[1]) // Other corner
-					{
-						count++;
-						for (int x = 0; x < 3; x++)
-							corners[1][x] = g_fZoneCorners[zoneid][i][x];
-
-						foundOther = true;
-					}
-					else
-					{
-						if (k < 4 && (g_fZoneCorners[zoneid][i][0] != corners[0][0] || g_fZoneCorners[zoneid][i][1] != corners[0][1])) // Other two corners
-						{
-							for (int x = 0; x < 3; x++)
-								corners[k][x] = g_fZoneCorners[zoneid][i][x];
-
-							count++;
-							k++;
-						}
-					}
-				}
-				if (count == 3)
-					break;
-			}
-
-			// lift a bit higher, so not under ground
-			// corners[0][2] += 5.0;
-			// corners[1][2] += 5.0;
-			// corners[2][2] += 5.0;
-			// corners[3][2] += 5.0;
-
-			corners[0][2] += 1.0;
-			corners[1][2] += 1.0;
-			corners[2][2] += 1.0;
-			corners[3][2] += 1.0;
-
-			for (int i = 0; i < 2; i++) // Connect main corners to the other corners
-			{
-				TE_SetupBeamPoints(corners[i], corners[2], ModelIndex, HaloIndex, StartFrame, FrameRate, Life, Width, EndWidth, FadeLength, Amplitude, Color, Speed);
-				TE_SendToClient(client);
-				TE_SetupBeamPoints(corners[i], corners[3], ModelIndex, HaloIndex, StartFrame, FrameRate, Life, Width, EndWidth, FadeLength, Amplitude, Color, Speed);
-				TE_SendToClient(client);
-			}
+    // Send beams to client
+    // https://forums.alliedmods.net/showpost.php?p=2006539&postcount=8
+	for (int i = 0, i2 = 3; i2 >= 0; i+=i2--) {
+		for(int j = 1; j <= 7; j += (j / 2) + 1) {
+            if (j != 7-i) {
+                if (!full && (corners[i][2] != minY || corners[j][2] != minY)) continue;
+                TE_SetupBeamPoints(corners[i], corners[j], ModelIndex, HaloIndex, StartFrame, FrameRate, Life, Width, EndWidth, FadeLength, Amplitude, Color, Speed);
+                TE_SendToClient(client);
+            }
 		}
 	}
 }

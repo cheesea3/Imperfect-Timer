@@ -1625,7 +1625,7 @@ public void OnMapStart()
 	CreateTimer(1.0, CKTimer2, INVALID_HANDLE, TIMER_FLAG_NO_MAPCHANGE | TIMER_REPEAT);
 	CreateTimer(60.0, AttackTimer, INVALID_HANDLE, TIMER_FLAG_NO_MAPCHANGE | TIMER_REPEAT);
 	CreateTimer(600.0, PlayerRanksTimer, INVALID_HANDLE, TIMER_FLAG_NO_MAPCHANGE | TIMER_REPEAT);
-	g_hZoneTimer = CreateTimer(ZONE_REFRESH_TIME, BeamBoxAll, _, TIMER_FLAG_NO_MAPCHANGE | TIMER_REPEAT);
+	CreateTimer(ZONE_REFRESH_TIME, BeamBoxAll, _, TIMER_FLAG_NO_MAPCHANGE | TIMER_REPEAT);
 
 	// AutoBhop
 	if (GetConVarBool(g_hAutoBhopConVar))
@@ -2525,11 +2525,6 @@ public void OnSettingChanged(Handle convar, const char[] oldValue, const char[] 
         char sBuffer[2][PLATFORM_MAX_PATH];
         ExplodeString(g_szSoundPathWRCP, "sound/", sBuffer, 2, PLATFORM_MAX_PATH);
         Format(g_szRelativeSoundPathWRCP, sizeof(g_szRelativeSoundPathWRCP), "*%s", sBuffer[1]);
-	}
-	if (g_hZoneTimer != INVALID_HANDLE)
-	{
-		KillTimer(g_hZoneTimer);
-		g_hZoneTimer = INVALID_HANDLE;
 	}
 }
 
