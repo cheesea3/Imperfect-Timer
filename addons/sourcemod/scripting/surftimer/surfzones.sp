@@ -541,39 +541,42 @@ public Action BeamBox(Handle timer, any client)
 }
 
 public Action BeamBoxAll(Handle timer, any data) {
+    ThrottledBeamBoxAll(INVALID_HANDLE, 0);
+}
+
+public Action ThrottledBeamBoxAll(Handle timer, int i) {
+    if (i >= g_mapZonesCount) {
+        return;
+    }
+
 	int zonesToDisplay = GetConVarInt(g_hZonesToDisplay);
 
-	for (int i = 0; i < g_mapZonesCount; ++i) {
-		bool draw = false;
-		int iZoneType = g_mapZones[i][zoneType];
-		int iZoneGroup = g_mapZones[i][zoneGroup];
+    bool draw = false;
+    int iZoneType = g_mapZones[i][zoneType];
+    int iZoneGroup = g_mapZones[i][zoneGroup];
 
-        if (0 < g_mapZones[i][Vis] < 4) {
-            draw = true;
-        } else {
-            switch(iZoneType) {
-                case ZONETYPE_START,
-                     ZONETYPE_SPEEDSTART,
-                     ZONETYPE_END: {
-                    draw = zonesToDisplay >= 1;
-                }
-                case ZONETYPE_STAGE: {
-                    draw = zonesToDisplay >= 2;
-                }
-                default: {
-                    draw = zonesToDisplay >= 3;
-                }
+    if (0 < g_mapZones[i][Vis] < 4) {
+        draw = true;
+    } else {
+        switch(iZoneType) {
+            case ZONETYPE_START,
+                 ZONETYPE_SPEEDSTART,
+                 ZONETYPE_END: {
+                draw = zonesToDisplay >= 1;
+            }
+            case ZONETYPE_STAGE: {
+                draw = zonesToDisplay >= 2;
+            }
+            default: {
+                draw = zonesToDisplay >= 3;
             }
         }
+    }
 
-		if (!draw) {
-		    continue;
-		}
-
+    if (draw) {
         int zColor[4];
         getZoneDisplayColor(iZoneType, zColor, iZoneGroup);
-        for (int p = 1; p <= MaxClients; p++)
-        {
+        for (int p = 1; p <= MaxClients; p++) {
             if (!IsValidClient(p) || IsFakeClient(p)) {
                 continue;
             }
@@ -594,9 +597,10 @@ public Action BeamBoxAll(Handle timer, any data) {
                 buffer_b[x] = g_mapZones[i][PointB][x];
             }
             TE_SendBeamBoxToClient(p, buffer_a, buffer_b, g_BeamSprite, g_HaloSprite, 0, 30, ZONE_REFRESH_TIME, 1.0, 1.0, 2, 0.0, zColor, 0, full);
-		}
-	}
-	return Plugin_Continue;
+        }
+    }
+
+    CreateTimer(0.1, ThrottledBeamBoxAll, i + 1);
 }
 
 public void getZoneDisplayColor(int type, int zColor[4], int zGrp)
@@ -706,18 +710,38 @@ public void BeamBox_OnPlayerRunCmd(int client)
 	}
 }
 
+#define WALL_BEAMBOX_OFFSET_UNITS 2.0
+
 stock void TE_SendBeamBoxToClient(int client, float uppercorner[3], float bottomcorner[3], int ModelIndex, int HaloIndex, int StartFrame, int FrameRate, float Life, float Width, float EndWidth, int FadeLength, float Amplitude, const int Color[4], int Speed, bool full)
 {
     float corners[8][3];
     Array_Copy(uppercorner, corners[0], 3);
     Array_Copy(bottomcorner, corners[7], 3);
-    float minY = corners[0][2];
-    if (corners[7][2] < minY) minY = corners[7][2];
-    // Count ponts from coordinates provided
+
+    // Calculate mins
+    float min[3];
+    for (int i = 0; i < 3; i++) {
+        min[i] = corners[0][i];
+        if (corners[7][i] < min[i]) min[i] = corners[7][i];
+    }
+
+    // Calculate all corners from two provided
     for(int i = 1; i < 7; i++) {
         for(int j = 0; j < 3; j++) {
             corners[i][j] = corners[((i >> (2-j)) & 1) * 7][j];
         }
+    }
+
+    // Pull corners in by 1 unit to prevent them being hidden inside the ground / walls / ceiling
+    for (int j = 0; j < 3; j++) {
+        for (int i = 0; i < 8; i++) {
+            if (corners[i][j] == min[j]) {
+                corners[i][j] += WALL_BEAMBOX_OFFSET_UNITS;
+            } else {
+                corners[i][j] -= WALL_BEAMBOX_OFFSET_UNITS;
+            }
+        }
+        min[j] += WALL_BEAMBOX_OFFSET_UNITS;
     }
 
     // Send beams to client
@@ -725,7 +749,7 @@ stock void TE_SendBeamBoxToClient(int client, float uppercorner[3], float bottom
 	for (int i = 0, i2 = 3; i2 >= 0; i+=i2--) {
 		for(int j = 1; j <= 7; j += (j / 2) + 1) {
             if (j != 7-i) {
-                if (!full && (corners[i][2] != minY || corners[j][2] != minY)) continue;
+                if (!full && (corners[i][2] != min[2] || corners[j][2] != min[2])) continue;
                 TE_SetupBeamPoints(corners[i], corners[j], ModelIndex, HaloIndex, StartFrame, FrameRate, Life, Width, EndWidth, FadeLength, Amplitude, Color, Speed);
                 TE_SendToClient(client);
             }
