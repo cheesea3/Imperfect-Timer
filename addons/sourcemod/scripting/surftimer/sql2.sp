@@ -593,7 +593,7 @@ public void FormatTitle(int client, char[] raw, char[] out, int size) {
 }
 public void FormatTitleSlug(char[] raw, char[] out, int size) {
     strcopy(out, size, raw);
-    char[32] rawNoColor;
+    char rawNoColor[32];
     strcopy(rawNoColor, sizeof(rawNoColor), raw);
     String_ToLower(rawNoColor, rawNoColor, sizeof(rawNoColor));
 
