@@ -156,10 +156,13 @@ public Action CKTimer2(Handle timer)
 
 	if (GetConVarBool(g_hMapEnd))
 	{
-		Handle hTmp;
-		hTmp = FindConVar("mp_timelimit");
+		ConVar hTmp = FindConVar("mp_timelimit");
 		int iTimeLimit;
 		iTimeLimit = GetConVarInt(hTmp);
+		// Emergency reset timelimit if it's 0
+		if (iTimeLimit == 0) {
+		    hTmp.SetInt(30, true);
+		}
 		if (hTmp != null)
 			CloseHandle(hTmp);
 		if (iTimeLimit > 0)
