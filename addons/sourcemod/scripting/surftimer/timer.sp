@@ -369,45 +369,24 @@ public Action SetClanTag(Handle timer, any client)
 	}
 	SetPlayerRank(client);
 
-	if (GetConVarBool(g_hCountry))
-	{
-		char tag[154];
-		Format(tag, 154, "%s | %s", g_szCountryCode[client], g_pr_rankname[client]);
-		if (g_iCurrentStyle[client] > 0)
-		{
-			char szStyle[128];
-			Format(szStyle, sizeof(szStyle), g_szStyleAcronyms[g_iCurrentStyle[client]]);
-			StringToUpper(szStyle);
-			Format(szStyle, sizeof(szStyle), "%s-", szStyle);
-			ReplaceString(tag, sizeof(tag), "{style}", szStyle);
-		}
-		else
-			ReplaceString(tag, sizeof(tag), "{style}", "");
+    char tag[154] = "";
+    if (!StrEqual(g_pr_rankname[client], "")) {
+        Format(tag, 154, "[%s]", g_pr_rankname[client]);
+    }
 
-		CS_SetClientClanTag(client, tag);
-	}
-	else
-	{
-		if (GetConVarBool(g_hPointSystem))
-		{
-			char tag[154];
-			Format(tag, 154, "[%s]", g_pr_rankname[client]);
-			
-			// Replace {style} with style
-			if (g_iCurrentStyle[client] > 0)
-			{
-				char szStyle[128];
-				Format(szStyle, sizeof(szStyle), g_szStyleAcronyms[g_iCurrentStyle[client]]);
-				StringToUpper(szStyle);
-				Format(szStyle, sizeof(szStyle), "%s-", szStyle);
-				ReplaceString(tag, sizeof(tag), "{style}", szStyle);
-			}
-			else
-				ReplaceString(tag, sizeof(tag), "{style}", "");
+    // Replace {style} with style
+    if (g_iCurrentStyle[client] > 0)
+    {
+        char szStyle[128];
+        Format(szStyle, sizeof(szStyle), g_szStyleAcronyms[g_iCurrentStyle[client]]);
+        StringToUpper(szStyle);
+        Format(szStyle, sizeof(szStyle), "%s-", szStyle);
+        ReplaceString(tag, sizeof(tag), "{style}", szStyle);
+    }
+    else
+        ReplaceString(tag, sizeof(tag), "{style}", "");
 
-			CS_SetClientClanTag(client, tag);
-		}
-	}
+    CS_SetClientClanTag(client, tag);
 
 	// new rank
 	if (oldrank && GetConVarBool(g_hPointSystem))

@@ -578,11 +578,11 @@ public void FormatTitle(int client, char[] raw, char[] out, int size) {
                 }
             } else if (StrEqual(parts[0], "admin")) {
                 if (CheckCommandAccess(client, "", ADMFLAG_ROOT)) {
-                    colored = "{red}Admin";
+                    colored = "{red}ADMIN";
                 }
             } else if (StrEqual(parts[0], "mod")) {
                 if (CheckCommandAccess(client, "", ADMFLAG_KICK)) {
-                    colored = "{yellow}Mod";
+                    colored = "{yellow}MOD";
                 }
             }
         } else if (num > 0 && num < numParts) {
@@ -593,9 +593,13 @@ public void FormatTitle(int client, char[] raw, char[] out, int size) {
 }
 public void FormatTitleSlug(char[] raw, char[] out, int size) {
     strcopy(out, size, raw);
-    if (StrEqual(out, "rapper")) strcopy(out, size, "{yellow}Rapper");
-    if (StrEqual(out, "beat")) strcopy(out, size, "{yellow}Beatboxer");
-    if (StrEqual(out, "dj")) strcopy(out, size, "{yellow}DJ");
+    char[32] rawNoColor;
+    strcopy(rawNoColor, sizeof(rawNoColor), raw);
+    String_ToLower(rawNoColor, rawNoColor, sizeof(rawNoColor));
+
+    if (StrEqual(rawNoColor, "rapper")) strcopy(out, size, "{yellow}RAPPER");
+    if (StrEqual(rawNoColor, "beat")) strcopy(out, size, "{yellow}BEATBOXER");
+    if (StrEqual(rawNoColor, "dj")) strcopy(out, size, "{yellow}DJ");
     ReplaceString(out, size, "{red}", "{lightred}", false);
     ReplaceString(out, size, "{limegreen}", "{lime}", false);
     ReplaceString(out, size, "{white}", "{default}", false);
@@ -631,9 +635,9 @@ public void SQL_viewCustomTitlesCallback(Handle owner, Handle hndl, const char[]
 	FormatTitle(client, g_szCustomTitleRaw[client], formatted, sizeof(formatted));
 
 	if (!StrEqual(formatted, "")) {
-	    strcopy(g_pr_chat_coloredrank[client], sizeof(g_pr_chat_coloredrank), formatted);
-	    strcopy(g_pr_rankname[client], sizeof(g_pr_chat_coloredrank), formatted);
-        parseColorsFromString(g_pr_rankname[client], sizeof(g_pr_chat_coloredrank));
+	    strcopy(g_pr_chat_coloredrank[client], sizeof(g_pr_chat_coloredrank[]), formatted);
+	    strcopy(g_pr_rankname[client], sizeof(g_pr_rankname[]), formatted);
+        parseColorsFromString(g_pr_rankname[client], sizeof(g_pr_rankname[]));
         g_bDbCustomTitleInUse[client] = true;
 	} else {
 	    g_bDbCustomTitleInUse[client] = false;
