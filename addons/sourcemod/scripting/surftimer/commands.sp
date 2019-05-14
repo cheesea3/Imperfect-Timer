@@ -2317,54 +2317,35 @@ public void GotoMethod(int client, int target)
 		return;
 	char szTargetName[MAX_NAME_LENGTH];
 	GetClientName(target, szTargetName, MAX_NAME_LENGTH);
-	if (GetEntityFlags(target) & FL_ONGROUND)
-	{
-		Client_Stop(client, 0);
 
-		int ducked = GetEntProp(target, Prop_Send, "m_bDucked");
-		int ducking = GetEntProp(target, Prop_Send, "m_bDucking");
-		if (!(GetClientButtons(client) & IN_DUCK) && ducked == 0 && ducking == 0)
-		{
-			if (GetClientTeam(client) == 1 || GetClientTeam(client) == 0)
-			{
-				float position[3];
-				float angles[3];
-				GetClientAbsOrigin(target, position);
-				GetClientEyeAngles(target, angles);
+    Client_Stop(client, 0);
 
-				AddVectors(position, angles, g_fTeleLocation[client]);
-				g_fTeleLocation[client][0] = FloatDiv(g_fTeleLocation[client][0], 2.0);
-				g_fTeleLocation[client][1] = FloatDiv(g_fTeleLocation[client][1], 2.0);
-				g_fTeleLocation[client][2] = FloatDiv(g_fTeleLocation[client][2], 2.0);
+    if (GetClientTeam(client) == 1 || GetClientTeam(client) == 0)
+    {
+        float position[3];
+        float angles[3];
+        GetClientAbsOrigin(target, position);
+        GetClientEyeAngles(target, angles);
 
-				g_bRespawnPosition[client] = false;
-				g_specToStage[client] = true;
-				TeamChangeActual(client, 0);
-			}
-			else
-			{
-				float position[3];
-				float angles[3];
-				GetClientAbsOrigin(target, position);
-				GetClientEyeAngles(target, angles);
-				teleportEntitySafe(client, position, angles, view_as<float>( { 0.0, 0.0, -100.0 } ), true);
-				// TeleportEntity(client, position, angles, Float:{0.0,0.0,-100.0});
-				char szClientName[MAX_NAME_LENGTH];
-				GetClientName(client, szClientName, MAX_NAME_LENGTH);
-				CPrintToChat(target, "%t", "Goto5", g_szChatPrefix, szClientName);
-			}
-		}
-		else
-		{
-			CPrintToChat(client, "%t", "Goto6", g_szChatPrefix, szTargetName);
-			Client_GoTo(client, 0);
-		}
-	}
-	else
-	{
-		CPrintToChat(client, "%t", "Goto7", g_szChatPrefix, szTargetName);
-		Client_GoTo(client, 0);
-	}
+        AddVectors(position, angles, g_fTeleLocation[client]);
+        g_fTeleLocation[client][0] = FloatDiv(g_fTeleLocation[client][0], 2.0);
+        g_fTeleLocation[client][1] = FloatDiv(g_fTeleLocation[client][1], 2.0);
+        g_fTeleLocation[client][2] = FloatDiv(g_fTeleLocation[client][2], 2.0);
+
+        g_bRespawnPosition[client] = false;
+        g_specToStage[client] = true;
+        TeamChangeActual(client, 0);
+    } else {
+        float position[3];
+        float angles[3];
+        GetClientAbsOrigin(target, position);
+        GetClientEyeAngles(target, angles);
+        teleportEntitySafe(client, position, angles, view_as<float>( { 0.0, 0.0, -100.0 } ), true);
+        // TeleportEntity(client, position, angles, Float:{0.0,0.0,-100.0});
+        char szClientName[MAX_NAME_LENGTH];
+        GetClientName(client, szClientName, MAX_NAME_LENGTH);
+        CPrintToChat(target, "%t", "Goto5", g_szChatPrefix, szClientName);
+    }
 }
 
 public Action Client_GoTo(int client, int args)
