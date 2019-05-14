@@ -2928,7 +2928,9 @@ public void CreateNavFile()
 	if (!FileExists(szNav))
 	{
 		File_Copy(szSource, szNav);
-		//ForceChangeLevel(g_szMapName, ".nav file generated");
+		// If we don't restart the map, the server will lag to death
+		// when we try to create a replay bot
+	    ForceChangeLevel(g_szMapName, ".nav file generated");
 	}
 }
 
