@@ -688,42 +688,28 @@ public void SQL_UpdatePlayerColoursCallback(Handle owner, Handle hndl, const cha
 // fluffys end custom titles
 
 // WR Announcements
-public void db_selectAnnouncements()
-{
+void db_selectAnnouncements(any cb=0) {
 	char szQuery[1024];
 	Format(szQuery, 1024, "SELECT id FROM ck_announcements WHERE server != '%s' AND id > %d", g_sServerName, g_iLastID);
-	SQL_TQuery(g_hDb, SQL_SelectAnnouncementsCallback, szQuery, 1, DBPrio_Low);
+	SQL_TQuery(g_hDb, SQL_SelectAnnouncementsCallback, szQuery, cb, DBPrio_Low);
 }
-
-public void SQL_SelectAnnouncementsCallback(Handle owner, Handle hndl, const char[] error, any data)
-{
-	if (hndl == null)
-	{
+void SQL_SelectAnnouncementsCallback(Handle owner, Handle hndl, const char[] error, any cb) {
+	if (hndl == null) {
 		LogError("[surftimer] SQL Error (SQL_SelectAnnouncementsCallback): %s", error);
-
-		if (!g_bServerDataLoaded)
-			loadAllClientSettings();
+		RunCallback(cb);
 		return;
 	}
 
-	if (SQL_HasResultSet(hndl))
-	{
-		while (SQL_FetchRow(hndl))
-		{
+	if (SQL_HasResultSet(hndl)) {
+		while (SQL_FetchRow(hndl)) {
 			int id = SQL_FetchInt(hndl, 0);
 			if (id > g_iLastID)
 				g_iLastID = id;
 		}
 	}
+	g_bHasLatestID = true;
 
-	if (!g_bServerDataLoaded)
-	{
-		g_fServerLoading[1] = GetGameTime();
-		g_bHasLatestID = true;
-		float time = g_fServerLoading[1] - g_fServerLoading[0];
-		LogToFileEx(g_szLogFile, "[Surftimer] Finished loading server settings in %fs", time);
-		loadAllClientSettings();
-	} 
+    RunCallback(cb);
 }
 
 public void db_insertAnnouncement(char szName[32], char szMapName[128], char szTime[32])

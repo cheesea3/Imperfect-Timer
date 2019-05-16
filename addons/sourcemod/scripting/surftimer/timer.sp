@@ -30,12 +30,6 @@ public Action RefreshZoneSettings(Handle timer, any client)
 	return Plugin_Handled;
 }
 
-public Action RefreshZonesTimer(Handle timer)
-{
-	RefreshZones();
-	return Plugin_Handled;
-}
-
 public Action SetPlayerWeapons(Handle timer, any client)
 {
 	if ((GetClientTeam(client) > 1) && IsValidClient(client))

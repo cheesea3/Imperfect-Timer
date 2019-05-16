@@ -698,14 +698,8 @@ Handle g_hDb = null;
 // Database type
 int g_DbType;
 
-// Used to check if SQL changes are being made
-bool g_bInTransactionChain = false;
-
 // Used to track failed transactions when making database changes
 int g_failedTransactions[7];
-
-// Used to track if sql tables are being renamed
-bool g_bRenaming = false;
 
 // Used to track if a players settings have been loaded
 bool g_bSettingsLoaded[MAXPLAYERS + 1];
@@ -1320,6 +1314,9 @@ int g_iTicksOnGround[MAXPLAYERS + 1];
 bool g_bNewStage[MAXPLAYERS + 1];
 bool g_bLeftZone[MAXPLAYERS + 1];
 
+int g_mapLoadStep = 0;
+int g_mapLoadUid = 0;
+
 /*===================================
 =         Predefined Arrays         =
 ===================================*/
@@ -1459,7 +1456,6 @@ char RadioCMDS[][] = 													// Disable radio commands
 =              Includes              =
 ====================================*/
 
-
 #include "surftimer/convars.sp"
 #include "surftimer/misc.sp"
 #include "surftimer/sql.sp"
@@ -1475,6 +1471,7 @@ char RadioCMDS[][] = 													// Disable radio commands
 #include "surftimer/mapsettings.sp"
 #include "surftimer/cvote.sp"
 #include "surftimer/vip.sp"
+#include "surftimer/func.sp"
 
 /*====================================
 =               Events               =
@@ -1522,11 +1519,12 @@ public void OnPluginEnd()
 	// remove clan tags
 	for (int x = 1; x <= MaxClients; x++)
 	{
-		if (IsValidClient(x))
-		{
-			SetEntPropEnt(x, Prop_Send, "m_bSpotted", 1);
-			SetEntProp(x, Prop_Send, "m_iHideHUD", 0);
-			SetEntProp(x, Prop_Send, "m_iAccount", 1);
+		if (IsValidClient(x)) {
+		    if (IsValidEntity(x)) {
+			    SetEntPropEnt(x, Prop_Send, "m_bSpotted", 1);
+			    SetEntProp(x, Prop_Send, "m_iHideHUD", 0);
+			    SetEntProp(x, Prop_Send, "m_iAccount", 1);
+			}
 			CS_SetClientClanTag(x, "");
 			OnClientDisconnect(x);
 		}
@@ -1582,7 +1580,6 @@ public void OnMapStart()
 	g_hMaxVelocity = FindConVar("sv_maxvelocity");
 
 	// Load spawns
-	if (!g_bRenaming && !g_bInTransactionChain)
 	checkSpawnPoints();
 
 	db_viewMapSettings();
@@ -1590,13 +1587,8 @@ public void OnMapStart()
 
 	/// Start Loading Server Settings
 	ConVar cvHibernateWhenEmpty = FindConVar("sv_hibernate_when_empty");
-	
-	if (!g_bRenaming && !g_bInTransactionChain && (IsServerProcessing() || !cvHibernateWhenEmpty.BoolValue))
-	{
-		LogToFileEx(g_szLogFile, "[surftimer] Starting to load server settings");
-		g_fServerLoading[0] = GetGameTime();
-		db_selectMapZones();
-	}
+
+    LoadMapStart();
 
 	// Get Map Tag
 	ExplodeString(g_szMapName, "_", g_szMapPrefix, 2, 32);
@@ -1906,13 +1898,13 @@ public void OnClientPutInServer(int client)
 	FixPlayerName(client);
 
 	// Position Restoring
-	if (GetConVarBool(g_hcvarRestore) && !g_bRenaming && !g_bInTransactionChain)
-	db_selectLastRun(client);
+	if (GetConVarBool(g_hcvarRestore))
+	    db_selectLastRun(client);
 
 	if (g_bTierFound)
 		AnnounceTimer[client] = CreateTimer(20.0, AnnounceMap, client, TIMER_FLAG_NO_MAPCHANGE);
 
-	if (!g_bRenaming && !g_bInTransactionChain && g_bServerDataLoaded && !g_bSettingsLoaded[client] && !g_bLoadingSettings[client])
+	if (g_bServerDataLoaded && !g_bSettingsLoaded[client] && !g_bLoadingSettings[client])
 	{
 		// Start loading client settings
 		g_bLoadingSettings[client] = true;
@@ -2023,7 +2015,7 @@ public void OnClientDisconnect(int client)
 	}
 
 	// Database
-	if (IsValidClient(client) && !g_bRenaming)
+	if (IsValidClient(client))
 	{
 		if (!g_bIgnoreZone[client] && !g_bPracticeMode[client])
 			db_insertLastPosition(client, g_szMapName, g_Stage[g_iClientInZone[client][2]][client], g_iClientInZone[client][2]);

@@ -66,19 +66,14 @@ int IsInsideZone (float location[3], float extraSize = 0.0)
 
 public void loadAllClientSettings()
 {
-	for (int i = 1; i < MAXPLAYERS + 1; i++)
-	{
-		if (IsValidClient(i) && !IsFakeClient(i) && !g_bSettingsLoaded[i] && !g_bLoadingSettings[i])
-		{
+	for (int i = 1; i < MAXPLAYERS + 1; i++) {
+		if (IsValidClient(i) && !IsFakeClient(i) && !g_bSettingsLoaded[i] && !g_bLoadingSettings[i]) {
 			g_iSettingToLoad[i] = 0;
 			LoadClientSetting(i, 0);
 			g_bLoadingSettings[i] = true;
 			break;
 		}
 	}
-	
-	// RefreshZones();
-	g_bServerDataLoaded = true;
 }
 
 public void LoadClientSetting(int client, int setting)
@@ -734,8 +729,7 @@ public void parseColorsFromString(char[] ParseString, int size)
 	ReplaceString(ParseString, size, "{olive}", "", false);
 }
 
-public void checkSpawnPoints()
-{
+public void checkSpawnPoints() {
 	int tEnt, ctEnt;
 	float f_spawnLocation[3], f_spawnAngle[3];
 
@@ -3071,8 +3065,20 @@ public void CenterHudDead(int client)
 
 public void CenterHudAlive(int client)
 {
-	if (!IsValidClient(client))
-		return;
+    if (!IsValidClient(client) || !IsValidEntity(client) || client < 1 || client > MaxClients || g_bOverlay[client]) {
+        return;
+    }
+
+	if (StrEqual(g_szSteamID[client], "")) {
+        PrintHintText(client, "<font color='#FFFF00'>Failed to get STEAMID    </font>");
+        return;
+    } else if (!g_bServerDataLoaded) {
+        PrintHintText(client, "<font color='#FFFF00'>Loading map %i/18 ...    </font>", g_mapLoadStep);
+        return;
+    } else if(!g_bSettingsLoaded[client]) {
+        PrintHintText(client, "<font color='#FFFF00'>Loading player ...    </font>");
+        return;
+    }
 
 	if (g_bCentreHud[client])
 	{
@@ -3091,11 +3097,7 @@ public void CenterHudAlive(int client)
 			if (g_iCentreHudModule[client][i] == 1)
 			{
 				// Timer
-				if (StrEqual(g_szSteamID[client], "")) {
-				    Format(module[i], 128, "<font color='#FFFF00'>Failed to get STEAMID    </font>", pAika);
-				} else if(!g_bSettingsLoaded[client]) {
-				    Format(module[i], 128, "<font color='#FFFF00'>Loading settings...    </font>", pAika);
-				} else if (g_bTimerRunning[client])
+				if (g_bTimerRunning[client])
 				{
 					FormatTimeFloat(client, g_fCurrentRunTime[client], 3, pAika, 128);
 					if (g_bPause[client])
@@ -3330,11 +3332,8 @@ public void CenterHudAlive(int client)
 		// else
 		// 	Format(timerText, sizeof(timerText), "%s", timerColour);
 
-		if (IsValidEntity(client) && 1 <= client <= MaxClients && !g_bOverlay[client])
-		{
-			// PrintHintText(client, "<font face=''>%s%s\n%s%s\n%s%s</font>", module[0], module2, module[2], module4, module[4], module6);
-			PrintHintText(client, "<pre><font face='' class='fontSize-sm'>%15s\t %15s\n%15s\t %15s\n%15s\t %15s</font></pre>", module[0], module[1], module[2], module[3], module[4], module[5]);
-		}
+		// PrintHintText(client, "<font face=''>%s%s\n%s%s\n%s%s</font>", module[0], module2, module[2], module4, module[4], module6);
+		PrintHintText(client, "<pre><font face='' class='fontSize-sm'>%15s\t %15s\n%15s\t %15s\n%15s\t %15s</font></pre>", module[0], module[1], module[2], module[3], module[4], module[5]);
 	}
 }
 
