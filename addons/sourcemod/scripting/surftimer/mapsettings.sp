@@ -1,10 +1,3 @@
-public void setMapSettings()
-{
-	SetConVarFloat(g_hMaxVelocity, g_fMaxVelocity, true, true);
-	SetConVarFloat(g_hAnnounceRecord, g_fAnnounceRecord, true, true);
-	SetConVarBool(g_hGravityFix, g_bGravityFix, true, true);
-}
-
 public Action Admin_MapSettings(int client, int args)
 {
 	if (!IsPlayerZoner(client))
@@ -256,32 +249,6 @@ public Action Command_SetGravityFix(int client, int args)
 	db_updateMapSettings();
 
 	return Plugin_Handled;
-}
-
-public void db_viewMapSettings()
-{
-	char szQuery[2048];
-	Format(szQuery, 2048, "SELECT `mapname`, `maxvelocity`, `announcerecord`, `gravityfix` FROM `ck_maptier` WHERE `mapname` = '%s'", g_szMapName);
-	SQL_TQuery(g_hDb, sql_viewMapSettingsCallback, szQuery, DBPrio_Low);
-}
-
-public void sql_viewMapSettingsCallback(Handle owner, Handle hndl, const char[] error, any pack)
-{
-	if (hndl == null)
-	{
-		LogError("[surftimer] SQL Error (sql_viewMapSettingsCallback): %s", error);
-	}
-
-	if (SQL_HasResultSet(hndl) && SQL_GetRowCount(hndl) > 0)
-	{
-		while (SQL_FetchRow(hndl))
-		{
-			g_fMaxVelocity = SQL_FetchFloat(hndl, 1);
-			g_fAnnounceRecord = SQL_FetchFloat(hndl, 2);
-			g_bGravityFix = view_as<bool>(SQL_FetchInt(hndl, 3));
-		}
-		setMapSettings();
-	}
 }
 
 public void sql_insertMapSettingsCallback(Handle owner, Handle hndl, const char[] error, any pack)

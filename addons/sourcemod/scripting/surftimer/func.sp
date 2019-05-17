@@ -25,28 +25,29 @@ void LoadMapContinue(DataPack cb) {
         LoadMapStep();
     }
 }
-Action LoadMapStep(Handle timer=INVALID_HANDLE, any junk=0) {
+Action LoadMapStep() {
     Function step = INVALID_FUNCTION;
     switch(g_mapLoadStep) {
-        case 0: { step = db_selectMapZones; }
-        case 1: { step = db_GetMapRecord_Pro; }
-        case 2: { step = db_viewMapProRankCount; }
-        case 3: { step = db_viewFastestBonus; }
-        case 4: { step = db_viewBonusTotalCount; }
-        case 5: { step = db_selectMapTier; }
-        case 6: { step = db_viewRecordCheckpointInMap; }
-        case 7: { step = db_CalcAvgRunTime; }
-        case 8: { step = db_CalcAvgRunTimeBonus; }
-        case 9: { step = db_CalculatePlayerCount; }
-        case 10: { step = db_CalculatePlayersCountGreater0; }
-        case 11: { step = db_selectSpawnLocations; }
-        case 12: { step = db_ClearLatestRecords; }
-        case 13: { step = db_GetDynamicTimelimit; }
-        case 14: { step = db_GetTotalStages; }
-        case 15: { step = db_viewStageRecords; }
-        case 16: { step = db_viewTotalStageRecords; }
-        case 17: { step = db_selectCurrentMapImprovement; }
-        case 18: { step = db_selectAnnouncements; }
+        case 0: { step = db_viewMapSettings; }
+        case 1: { step = db_selectMapZones; }
+        case 2: { step = db_GetMapRecord_Pro; }
+        case 3: { step = db_viewMapProRankCount; }
+        case 4: { step = db_viewFastestBonus; }
+        case 5: { step = db_viewBonusTotalCount; }
+        case 6: { step = db_selectMapTier; }
+        case 7: { step = db_viewRecordCheckpointInMap; }
+        case 8: { step = db_CalcAvgRunTime; }
+        case 9: { step = db_CalcAvgRunTimeBonus; }
+        case 10: { step = db_CalculatePlayerCount; }
+        case 11: { step = db_CalculatePlayersCountGreater0; }
+        case 12: { step = db_selectSpawnLocations; }
+        case 13: { step = db_ClearLatestRecords; }
+        case 14: { step = db_GetDynamicTimelimit; }
+        case 15: { step = db_GetTotalStages; }
+        case 16: { step = db_viewStageRecords; }
+        case 17: { step = db_viewTotalStageRecords; }
+        case 18: { step = db_selectCurrentMapImprovement; }
+        case 19: { step = db_selectAnnouncements; }
     }
     if (step != INVALID_FUNCTION) {
         DataPack cb = CreateDataPack();

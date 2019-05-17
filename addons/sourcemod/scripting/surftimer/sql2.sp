@@ -688,29 +688,6 @@ public void SQL_UpdatePlayerColoursCallback(Handle owner, Handle hndl, const cha
 // fluffys end custom titles
 
 // WR Announcements
-void db_selectAnnouncements(any cb=0) {
-	char szQuery[1024];
-	Format(szQuery, 1024, "SELECT id FROM ck_announcements WHERE server != '%s' AND id > %d", g_sServerName, g_iLastID);
-	SQL_TQuery(g_hDb, SQL_SelectAnnouncementsCallback, szQuery, cb, DBPrio_Low);
-}
-void SQL_SelectAnnouncementsCallback(Handle owner, Handle hndl, const char[] error, any cb) {
-	if (hndl == null) {
-		LogError("[surftimer] SQL Error (SQL_SelectAnnouncementsCallback): %s", error);
-		RunCallback(cb);
-		return;
-	}
-
-	if (SQL_HasResultSet(hndl)) {
-		while (SQL_FetchRow(hndl)) {
-			int id = SQL_FetchInt(hndl, 0);
-			if (id > g_iLastID)
-				g_iLastID = id;
-		}
-	}
-	g_bHasLatestID = true;
-
-    RunCallback(cb);
-}
 
 public void db_insertAnnouncement(char szName[32], char szMapName[128], char szTime[32])
 {
