@@ -52,7 +52,7 @@ public Action PlayerRanksTimer(Handle timer)
 	{
 		if (!IsValidClient(i) || IsFakeClient(i))
 			continue;
-		db_GetPlayerRank(i, 0);
+		db_GetPlayerRank(i);
 	}
 	return Plugin_Continue;
 }

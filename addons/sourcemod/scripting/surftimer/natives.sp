@@ -45,10 +45,7 @@ public int Native_SafeTeleport(Handle plugin, int numParams)
 public int Native_IsClientVip(Handle plugin, int numParams)
 {
 	int client = GetNativeCell(1);
-	if (IsValidClient(client) && !IsFakeClient(client))
-		return g_bVip[client];
-	else
-		return false;
+	return IsPlayerVip(client);
 }
 
 public int Native_GetPlayerRank(Handle plugin, int numParams)

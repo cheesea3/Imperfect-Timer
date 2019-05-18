@@ -80,7 +80,6 @@ float g_fLastChatMessage[MAXPLAYERS + 1];						// Last message time
 int g_messages[MAXPLAYERS + 1];									// Spam message count
 ConVar g_henableChatProcessing = null;							// Is chat processing enabled
 ConVar g_hPrestigeRank = null;									// Rank to limit the server
-ConVar g_hPrestigeStyles = null;								// Determines if the rank limit applies to normal style or all styles
 ConVar g_hServerType = null;									// Set server to surf or bhop mode
 ConVar g_hOneJumpLimit = null;									// Only allows players to jump once inside a start or stage zone
 ConVar g_hServerID = null;										// Sets the servers id for cross-server announcements
@@ -275,19 +274,6 @@ void CreateConVars()
 	// Map Setting ConVars
 	g_hGravityFix = CreateConVar("ck_gravityfix_enable", "1", "Enables/Disables trigger_gravity fix", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 
-	// VIP ConVars
-	g_hAutoVipFlag = CreateConVar("ck_vip_flag", "a", "VIP status will be automatically granted to players with this flag. If the convar is invalid or not set, a (reservation) will be used by default.", FCVAR_NOTIFY);
-	GetConVarString(g_hAutoVipFlag, szFlag, 24);
-	validFlag = FindFlagByChar(szFlag[0], bufferFlag);
-	if (!validFlag)
-	{
-		LogError("Surftimer | Invalid flag for ck_vip_flag");
-		g_VipFlag = ADMFLAG_RESERVATION;
-	}
-	else
-	g_VipFlag = FlagToBit(bufferFlag);
-	HookConVarChange(g_hAutoVipFlag, OnSettingChanged);
-
 	// g_hCustomTitlesFlag = CreateConVar("ck_customtitles_flag", "a", "Which flag must players have to use Custom Titles. Invalid or not set, disables Custom Titles.", FCVAR_NOTIFY);
 	// GetConVarString(g_hCustomTitlesFlag, szFlag, 24);
 	// g_bCustomTitlesFlag = FindFlagByChar(szFlag[0], bufferFlag);
@@ -296,7 +282,6 @@ void CreateConVars()
 
 	// Prestige Server
 	g_hPrestigeRank = CreateConVar("ck_prestige_rank", "0", "Rank of players who can join the server, 0 to disable");
-	g_hPrestigeStyles = CreateConVar("ck_prestige_all_styles", "1", "If enabled, players must be the rank of ck_prestige_rank in ANY style");
 	// Surf / Bhop
 	g_hServerType = CreateConVar("ck_server_type", "0", "Change the timer to function for Surf or Bhop, 0 = surf, 1 = bhop (Note: Currently does nothing)");
 	HookConVarChange(g_hServerType, OnSettingChanged);

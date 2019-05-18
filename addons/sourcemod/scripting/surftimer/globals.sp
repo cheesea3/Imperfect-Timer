@@ -1,7 +1,17 @@
-// Testing Variables
-float g_fTick[MAXPLAYERS + 1][2];
-float g_fServerLoading[2];
-float g_fClientsLoading[MAXPLAYERS + 1][2];
+enum PlayerLoadState {
+    PLS_UNLOADED,
+    PLS_PENDING,
+    PLS_LOADING,
+    PLS_ERROR,
+    PLS_LOADED
+}
+
+enum MapLoadState {
+    MLS_LOADING,
+    MLS_ERROR,
+    MLS_LOADED
+}
+
 char g_szLogFile[PLATFORM_MAX_PATH];
 
 // PR Commands
@@ -167,11 +177,7 @@ float g_bInMaxSpeed[MAXPLAYERS + 1];
 int g_userJumps[MAXPLAYERS][UserJumps];
 
 /*----------  VIP Variables  ----------*/
-ConVar g_hAutoVipFlag = null;
-int g_VipFlag;
-bool g_bVip[MAXPLAYERS + 1];
 bool g_bCheckCustomTitle[MAXPLAYERS + 1];
-char g_szCustomJoinMsg[MAXPLAYERS + 1][256];
 
 // 1 = PB Sound, 2 = Top 10 Sound, 3 = WR sound
 // char g_szCustomSounds[MAXPLAYERS + 1][3][256];
@@ -185,7 +191,6 @@ int g_iCustomColours[MAXPLAYERS + 1][2];
 
 // int g_idbCustomTextColour[MAXPLAYERS + 1] = 0;
 bool g_bHasCustomTextColour[MAXPLAYERS + 1] = false;
-bool g_bCustomTitleAccess[MAXPLAYERS + 1] = false;
 bool g_bUpdatingColours[MAXPLAYERS + 1];
 // char g_szsText[MAXPLAYERS + 1];
 
@@ -283,7 +288,6 @@ int g_SpeedGradient[MAXPLAYERS + 1];
 int g_SpeedMode[MAXPLAYERS + 1];
 bool g_bCenterSpeedDisplay[MAXPLAYERS + 1];
 int g_iCenterSpeedEnt[MAXPLAYERS + 1];
-int g_iSettingToLoad[MAXPLAYERS + 1];
 // Handle g_hServerTier;
 // gain/loss speed colour in centre hud
 int g_iPreviousSpeed[MAXPLAYERS + 1];
@@ -447,15 +451,6 @@ int g_DbType;
 
 // Used to track failed transactions when making database changes
 int g_failedTransactions[7];
-
-// Used to track if a players settings have been loaded
-bool g_bSettingsLoaded[MAXPLAYERS + 1];
-
-// Used to track if players settings are being loaded
-bool g_bLoadingSettings[MAXPLAYERS + 1];
-
-// Are the servers settings loaded
-bool g_bServerDataLoaded;
 
 // SteamdID of #1 player in map, used to fetch checkpoint times
 char g_szRecordMapSteamID[MAX_NAME_LENGTH];
@@ -1061,8 +1056,6 @@ int g_iTicksOnGround[MAXPLAYERS + 1];
 bool g_bNewStage[MAXPLAYERS + 1];
 bool g_bLeftZone[MAXPLAYERS + 1];
 
-int g_mapLoadStep = 0;
-int g_mapLoadUid = 0;
 
 /*===================================
 =         Predefined Arrays         =

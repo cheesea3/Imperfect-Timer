@@ -276,76 +276,6 @@ public int PrMenuHandler(Menu menu, MenuAction action, int param1, int param2)
 
 // VIP
 
-// fluffys start vip & admins
-
-public void db_CheckVIPAdmin(int client, char[] szSteamID)
-{
-	char szQuery[1024];
-	Format(szQuery, 1024, "SELECT vip, admin, zoner FROM ck_vipadmins WHERE steamid = '%s';", szSteamID);
-	SQL_TQuery(g_hDb, SQL_CheckVIPAdminCallback, szQuery, client, DBPrio_Low);
-}
-
-public void SQL_CheckVIPAdminCallback(Handle owner, Handle hndl, const char[] error, any client)
-{
-	char szSteamId[32];
-	getSteamIDFromClient(client, szSteamId, 32);
-
-	if (hndl == null)
-	{
-		LogError("[surftimer] SQL Error (SQL_CheckVIPAdminCallback): %s", error);
-
-		if (!g_bSettingsLoaded[client])
-			LoadClientSetting(client, g_iSettingToLoad[client]);
-	}
-
-	g_bVip[client] = false;
-	g_bZoner[client] = false;
-
-	if (SQL_HasResultSet(hndl) && SQL_FetchRow(hndl))
-	{
-		g_bVip[client] = view_as<bool>(SQL_FetchInt(hndl, 0));
-		g_bZoner[client] = view_as<bool>(SQL_FetchInt(hndl, 2));
-	}
-
-	if (!g_bVip[client] || !g_bZoner[client]) // No VIP or Zoner from database, let's check flags
-	{
-		if (CheckCommandAccess(client, "", g_VipFlag))
-			g_bVip[client] = true;
-
-		if (CheckCommandAccess(client, "", g_ZonerFlag))
-			g_bZoner[client] = true;
-	}
-
-	if (g_bCheckCustomTitle[client])
-	{
-		db_viewCustomTitles(client, szSteamId);
-		g_bCheckCustomTitle[client] = false;
-	}
-
-	if (!g_bSettingsLoaded[client])
-	{
-		g_fTick[client][1] = GetGameTime();
-		float tick = g_fTick[client][1] - g_fTick[client][0];
-		LogToFileEx(g_szLogFile, "[Surftimer] %s: Finished db_CheckVIPAdmin in %fs", g_szSteamID[client], tick);
-		g_fTick[client][0] = GetGameTime();
-
-
-		LoadClientSetting(client, g_iSettingToLoad[client]);
-	}
-}
-
-public void SQL_InsertVipFromSourcebansCallback(Handle owner, Handle hndl, const char[] error, any client)
-{
-	if (hndl == null)
-	{
-		LogError("[surftimer] SQL Error (SQL_InsertVipFromSourcebansCallback): %s", error);
-	}
-
-	char szSteamId[32];
-	getSteamIDFromClient(client, szSteamId, 32);
-	db_CheckVIPAdmin(client, szSteamId);
-}
-
 public void db_checkCustomPlayerTitle(int client, char[] szSteamID, char[] arg)
 {
 	Handle pack = CreateDataPack();
@@ -482,7 +412,7 @@ public void SQL_insertCustomPlayerTitleCallback(Handle owner, Handle hndl, const
 
 	PrintToServer("Successfully inserted custom title.");
 
-	db_viewCustomTitles(client, szSteamID);
+	db_refreshCustomTitles(client);
 }
 
 public void db_updateCustomPlayerTitle(int client, char[] szSteamID, char[] arg)
@@ -505,7 +435,7 @@ public void SQL_updateCustomPlayerTitleCallback(Handle owner, Handle hndl, const
 	CloseHandle(pack);
 
 	PrintToServer("Successfully updated custom title.");
-	db_viewCustomTitles(client, szSteamID);
+	db_refreshCustomTitles(client);
 }
 
 public void db_updateCustomPlayerNameColour(int client, char[] szSteamID, char[] arg)
@@ -528,7 +458,7 @@ public void SQL_updateCustomPlayerNameColourCallback(Handle owner, Handle hndl, 
 	CloseHandle(pack);
 
 	PrintToServer("Successfully updated custom player colour");
-	db_viewCustomTitles(client, szSteamID);
+	db_refreshCustomTitles(client);
 }
 
 public void db_updateCustomPlayerTextColour(int client, char[] szSteamID, char[] arg)
@@ -551,114 +481,7 @@ public void SQL_updateCustomPlayerTextColourCallback(Handle owner, Handle hndl, 
 	CloseHandle(pack);
 
 	PrintToServer("Successfully updated custom player text colour");
-	db_viewCustomTitles(client, szSteamID);
-}
-
-public void db_viewCustomTitles(int client, char[] szSteamID)
-{
-	char szQuery[728];
-
-	Handle pack = CreateDataPack();
-	WritePackCell(pack, client);
-	WritePackString(pack, szSteamID);
-	Format(szQuery, 728, "SELECT `title`, `namecolour`, `textcolour`, `inuse`, `vip`, `zoner`, `joinmsg` FROM `ck_vipadmins` WHERE `steamid` = '%s'", szSteamID);
-	SQL_TQuery(g_hDb, SQL_viewCustomTitlesCallback, szQuery, pack, DBPrio_Low);
-}
-
-public void FormatTitle(int client, char[] raw, char[] out, int size) {
-    char parts[32][32];
-    char colored[32] = "";
-    int numParts = ExplodeString(raw, "`", parts, sizeof(parts), sizeof(parts[]));
-    if (numParts >= 1) {
-        int num = StringToInt(parts[0]);
-        if (num == 0) {
-            if (StrEqual(parts[0], "vip")) {
-                if (IsPlayerVip(client, true, false)) {
-                    colored = "{green}VIP";
-                }
-            } else if (StrEqual(parts[0], "admin")) {
-                if (CheckCommandAccess(client, "", ADMFLAG_ROOT)) {
-                    colored = "{red}ADMIN";
-                }
-            } else if (StrEqual(parts[0], "mod")) {
-                if (CheckCommandAccess(client, "", ADMFLAG_KICK)) {
-                    colored = "{yellow}MOD";
-                }
-            }
-        } else if (num > 0 && num < numParts) {
-            strcopy(colored, sizeof(colored), parts[num]);
-        }
-    }
-    FormatTitleSlug(colored, out, size);
-}
-public void FormatTitleSlug(char[] raw, char[] out, int size) {
-    strcopy(out, size, raw);
-    char rawNoColor[32];
-    strcopy(rawNoColor, sizeof(rawNoColor), raw);
-    String_ToLower(rawNoColor, rawNoColor, sizeof(rawNoColor));
-
-    if (StrEqual(rawNoColor, "rapper")) strcopy(out, size, "{yellow}RAPPER");
-    if (StrEqual(rawNoColor, "beat")) strcopy(out, size, "{yellow}BEATBOXER");
-    if (StrEqual(rawNoColor, "dj")) strcopy(out, size, "{yellow}DJ");
-    ReplaceString(out, size, "{red}", "{lightred}", false);
-    ReplaceString(out, size, "{limegreen}", "{lime}", false);
-    ReplaceString(out, size, "{white}", "{default}", false);
-}
-
-public void SQL_viewCustomTitlesCallback(Handle owner, Handle hndl, const char[] error, any pack) 
-{
-	ResetPack(pack);
-	int client = ReadPackCell(pack);
-	char szSteamID[32];
-	ReadPackString(pack, szSteamID, 32);
-	CloseHandle(pack);
-
-	if (hndl == null)
-	{
-		LogError("[surftimer] SQL Error (SQL_viewCustomTitlesCallback): %s ", error);
-		if (!g_bSettingsLoaded[client])
-			LoadClientSetting(client, g_iSettingToLoad[client]);
-		return;
-	}
-
-	if (SQL_HasResultSet(hndl) && SQL_FetchRow(hndl)) {
-		SQL_FetchString(hndl, 0, g_szCustomTitleRaw[client], sizeof(g_szCustomTitleRaw[]));
-        g_iCustomColours[client][0] = SQL_FetchInt(hndl, 1);
-        g_iCustomColours[client][1] = SQL_FetchInt(hndl, 2);
-	} else {
-	    g_szCustomTitleRaw[client] = "";
-	    g_iCustomColours[client][0] = 0;
-	    g_iCustomColours[client][1] = 0;
-	}
-
-    char formatted[32];
-	FormatTitle(client, g_szCustomTitleRaw[client], formatted, sizeof(formatted));
-
-	if (!StrEqual(formatted, "")) {
-	    strcopy(g_pr_chat_coloredrank[client], sizeof(g_pr_chat_coloredrank[]), formatted);
-	    strcopy(g_pr_rankname[client], sizeof(g_pr_rankname[]), formatted);
-        parseColorsFromString(g_pr_rankname[client], sizeof(g_pr_rankname[]));
-        g_bDbCustomTitleInUse[client] = true;
-	} else {
-	    g_bDbCustomTitleInUse[client] = false;
-	}
-
-    g_szCustomJoinMsg[client] = "none";
-
-	if (g_bUpdatingColours[client])
-		CustomTitleMenu(client);
-
-	g_bUpdatingColours[client] = false;
-
-	if (!g_bSettingsLoaded[client])
-	{
-		g_fTick[client][1] = GetGameTime();
-		float tick = g_fTick[client][1] - g_fTick[client][0];
-		LogToFileEx(g_szLogFile, "[Surftimer] %s: Finished db_viewCustomTitles in %fs", g_szSteamID[client], tick);
-
-		g_fTick[client][0] = GetGameTime();
-		LoadClientSetting(client, g_iSettingToLoad[client]);
-	}
+	db_refreshCustomTitles(client);
 }
 
 public void db_updateColours(int client, char szSteamId[32], int newColour, int type)
@@ -682,7 +505,7 @@ public void SQL_UpdatePlayerColoursCallback(Handle owner, Handle hndl, const cha
 	}
 
 	g_bUpdatingColours[client] = true;
-	db_viewCustomTitles(client, g_szSteamID[client]);
+	db_refreshCustomTitles(client);
 }
 
 // fluffys end custom titles
@@ -736,73 +559,6 @@ public void SQL_CheckAnnouncementsCallback(Handle owner, Handle hndl, const char
 		}
 	}
 }
-
-public void db_setJoinMsg(int client, char[] szArg)
-{
-	char szQuery[512];
-	Format(szQuery, sizeof(szQuery), "UPDATE ck_vipadmins SET joinmsg = '%s' WHERE steamid = '%s';", szArg, g_szSteamID[client]);
-	Format(g_szCustomJoinMsg[client], sizeof(g_szCustomJoinMsg), "%s", szArg);
-	SQL_TQuery(g_hDb, SQL_SetJoinMsgCallback, szQuery, client, DBPrio_Low);
-}
-
-public void SQL_SetJoinMsgCallback(Handle owner, Handle hndl, const char[] error, any client)
-{
-	if (hndl == null)
-	{
-		LogError("[surftimer] SQL Error (SQL_SetJoinMsgCallback): %s", error);
-		return;
-	}
-
-	if (StrEqual(g_szCustomJoinMsg[client], "none"))
-		CPrintToChat(client, "%t", "SQLTwo5", g_szChatPrefix);
-	else
-		CPrintToChat(client, "%t", "SQLTwo6", g_szChatPrefix, g_szCustomJoinMsg[client]);
-}
-
-// public void db_precacheCustomSounds()
-// {
-// 	char szQuery[512];
-// 	Format(szQuery, sizeof(szQuery), "SELECT pbsound, topsound, wrsound FROM ck_vipadmins");
-// 	SQL_TQuery(g_hDb, SQL_PrecacheCustomSoundsCallback szQuery, 1, DBPrio_Low);
-// }
-
-// public void SQL_SetJoinMsgCallback(Handle owner, Handle hndl, const char[] error, any data)
-// {
-// 	if (hndl == null)
-// 	{
-// 		LogError("[surftimer] SQL Error (SQL_PrecacheCustomSoundsCallback): %s", error);
-// 		return;
-// 	}
-
-// 	if (SQL_HasResultSet(hndl))
-// 	{
-// 		char pbsound[256], topsound[256], wrsound[256];
-// 		while (SQL_FetchRow(hndl))
-// 		{
-// 			SQL_FetchString(hndl, 0, pbsound, sizeof(pbsound));
-// 			SQL_FetchString(hndl, 1, topsound, sizeof(topsound));
-// 			SQL_FetchString(hndl, 2, wrsound, sizeof(wrsound));
-
-// 			if (!StrEqual(pbsound, "none"))
-// 			{
-// 				AddFileToDownloadsTable(pbsound);
-// 				FakePrecacheSound(pbsound);
-// 			}
-
-// 			if (!StrEqual(topsound, "none"))
-// 			{
-// 				AddFileToDownloadsTable(topsound);
-// 				FakePrecacheSound(topsound);
-// 			}
-
-// 			if (!StrEqual(wrsound, "none"))
-// 			{
-// 				AddFileToDownloadsTable(wrsound);
-// 				FakePrecacheSound(wrsound);
-// 			}
-// 		}
-// 	}
-// }
 
 public void db_selectCPR(int client, int rank, const char szMapName[128], const char szSteamId[32])
 {

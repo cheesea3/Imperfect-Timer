@@ -37,6 +37,9 @@
 =            Definitions            =
 ===================================*/
 
+#define MAX_STEAMID_LENGTH 32
+#define MAX_MAPNAME_LENGTH 128
+
 // Require New Syntax & Semicolons
 #pragma newdecls required
 #pragma semicolon 1
@@ -258,7 +261,10 @@ public Plugin myinfo =
 #include "surftimer/db/queries.sp"
 #include "surftimer/sql.sp"
 #include "surftimer/sql2.sp"
-#include "surftimer/db/sql_map.sp"
+#include "surftimer/db/map_loader.sp"
+#include "surftimer/db/map_loader_steps.sp"
+#include "surftimer/db/player_loader.sp"
+#include "surftimer/db/player_loader_steps.sp"
 
 #include "surftimer/admin.sp"
 #include "surftimer/commands.sp"
@@ -270,7 +276,6 @@ public Plugin myinfo =
 #include "surftimer/surfzones.sp"
 #include "surftimer/mapsettings.sp"
 #include "surftimer/cvote.sp"
-#include "surftimer/vip.sp"
 #include "surftimer/func.sp"
 #include "surftimer/natives.sp"
 
@@ -521,7 +526,6 @@ public void OnMapStart()
 public void OnMapEnd()
 {
 	// ServerCommand("sm_updater_force");
-	g_bServerDataLoaded = false;
 	g_bHasLatestID = false;
 	for (int i = 0; i < MAXZONEGROUPS; i++)
 		Format(g_sTierString[i], 512, "");
@@ -699,12 +703,8 @@ public void OnClientPutInServer(int client)
 	if (g_bTierFound)
 		AnnounceTimer[client] = CreateTimer(20.0, AnnounceMap, client, TIMER_FLAG_NO_MAPCHANGE);
 
-	if (g_bServerDataLoaded && !g_bSettingsLoaded[client] && !g_bLoadingSettings[client])
-	{
-		// Start loading client settings
-		g_bLoadingSettings[client] = true;
-		g_iSettingToLoad[client] = 0;
-		LoadClientSetting(client, g_iSettingToLoad[client]);
+	if (!IsFakeClient(client)) {
+	    LoadPlayerStart(client);
 	}
 }
 
@@ -764,6 +764,8 @@ public void OnClientDisconnect(int client)
 		CloseHandle(g_hRecordingAdditionalTeleport[client]);
 		g_hRecordingAdditionalTeleport[client] = null;
 	}
+
+	LoadPlayerStop(client);
 
 	StopRecording(client);
 
@@ -1271,20 +1273,6 @@ public void OnSettingChanged(Handle convar, const char[] oldValue, const char[] 
 	{
 		GetConVarString(g_hHostName, g_sServerName, sizeof(g_sServerName));
 	}
-	else if (convar == g_hAutoVipFlag)
-	{
-		AdminFlag flag;
-		bool validFlag;
-		validFlag = FindFlagByChar(newValue[0], flag);
-
-		if (!validFlag)
-		{
-			LogError("SurfTimer | Invalid flag for ck_vip_flag");
-			g_VipFlag = ADMFLAG_RESERVATION;
-		}
-		else
-			g_VipFlag = FlagToBit(flag);
-	}
 	else if (convar == g_hSoundPathWR)
 	{
 		GetConVarString(g_hSoundPathWR, g_szSoundPathWR, sizeof(g_szSoundPathWR));
@@ -1317,8 +1305,6 @@ public void OnSettingChanged(Handle convar, const char[] oldValue, const char[] 
 
 public void OnPluginStart()
 {
-	g_bServerDataLoaded = false;
-
 	// Language File
 	LoadTranslations("surftimer.phrases");
 

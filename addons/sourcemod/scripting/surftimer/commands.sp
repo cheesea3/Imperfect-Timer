@@ -122,12 +122,6 @@ void CreateCommands()
 	RegConsoleCmd("sm_ve", Command_VoteExtend, "[surftimer] [vip] Vote to extend the map");
 	RegConsoleCmd("sm_colours", Command_ListColours, "[surftimer] Lists available colours for sm_mytitle and sm_namecolour");
 	//RegConsoleCmd("sm_toggletitle", Command_ToggleTitle, "[surftimer] [vip] VIPs can toggle their title.");
-	//RegConsoleCmd("sm_joinmsg", Command_JoinMsg, "[surftimer] [vip] Allows a vip to set their join msg");
-
-	// Automatic Donate Commands
-	RegAdminCmd("sm_givevip", VIP_GiveVip, ADMFLAG_ROOT, "[surftimer] Give a player VIP");
-	RegAdminCmd("sm_removevip", VIP_RemoveVip, ADMFLAG_ROOT, "[surftimer] Remove a players VIP");
-	RegAdminCmd("sm_addcredits", VIP_GiveCredits, ADMFLAG_ROOT, "[surftimer] Give a player credits");
 
 	// WRCPs
 	RegConsoleCmd("sm_wrcp", Client_Wrcp, "[surftimer] displays stage times for map");
@@ -1957,6 +1951,8 @@ public Action Client_Help(int client, int args)
 	Menu menu = CreateMenu(HelpMenuHandler);
 	SetMenuTitle(menu, "Help Menu\n \n");
 	Handle cmdIter = GetCommandIterator();
+	bool isVip = IsPlayerVip(client);
+	bool isZoner = IsPlayerZoner(client);
 	char name[64];
 	char desc[255];
 	int flags;
@@ -1967,12 +1963,12 @@ public Action Client_Help(int client, int args)
 		{
 			if ((StrContains(desc, "[zoner]", false) != -1))
 			{
-				if (!g_bZoner[client])
+				if (!isZoner)
 					continue;
 			}
 			else if ((StrContains(desc, "[vip]", false) != -1))
 			{
-				if (!g_bVip[client])
+				if (!isVip)
 					continue;
 			}
 
@@ -3116,7 +3112,7 @@ public void GiveTitle(int client, int target, char[] title) {
         CReplyToCommand(client, "Target player not found");
         return;
     }
-    if (!g_bSettingsLoaded[target]) {
+    if (!IsPlayerLoaded(target)) {
         CReplyToCommand(client, "Player not yet loaded");
         return;
     }
@@ -3151,7 +3147,7 @@ public Action Command_RemoveTitle(int client, int args) {
 	return Plugin_Handled;
 }
 public void RemoveTitle(int client, int target, char[] title) {
-    if (!g_bSettingsLoaded[target]) {
+    if (!IsPlayerLoaded(target)) {
         CReplyToCommand(client, "Player not yet loaded");
         return;
     }
@@ -3191,7 +3187,7 @@ public Action Command_ListTitles(int client, int args) {
 	return Plugin_Handled;
 }
 public void ListTitles(int client, int target) {
-    if (!g_bSettingsLoaded[target]) {
+    if (!IsPlayerLoaded(target)) {
         CReplyToCommand(client, "Player not yet loaded");
         return;
     }
@@ -3228,7 +3224,7 @@ public Action Command_NextTitle(int client, int args) {
 	return Plugin_Handled;
 }
 public void NextTitle(int client, int target) {
-    if (!g_bSettingsLoaded[target]) {
+    if (!IsPlayerLoaded(target)) {
         CReplyToCommand(client, "Player not yet loaded");
         return;
     }
@@ -3276,24 +3272,6 @@ public void SaveRawTitle(int target, char[] raw) {
 	char authSteamId[32];
 	GetClientAuthId(target, AuthId_Steam2, authSteamId, sizeof(authSteamId), true);
 	db_checkCustomPlayerTitle(target, authSteamId, raw);
-}
-
-public Action Command_JoinMsg(int client, int args)
-{
-	if (!IsValidClient(client) || !IsPlayerVip(client))
-		return Plugin_Handled;
-
-	if (args == 0)
-	{
-		CReplyToCommand(client, "%t", "Commands73", g_szChatPrefix);
-		return Plugin_Handled;
-	}
-
-	char szArg[256];
-	GetCmdArg(1, szArg, sizeof(szArg));
-	db_setJoinMsg(client, szArg);
-
-	return Plugin_Handled;
 }
 
 public Action Command_SetDbNameColour(int client, int args)
@@ -4713,12 +4691,9 @@ public Action Command_CPR(int client, int args)
 	return Plugin_Handled;
 }
 
-public Action Command_PlayRecord(int client, int args)
-{
-	if (GetConVarBool(g_hPlayReplayVipOnly))
-	{
-		if (!g_bVip[client])
-		{
+public Action Command_PlayRecord(int client, int args) {
+	if (GetConVarBool(g_hPlayReplayVipOnly)) {
+		if (!IsPlayerVip(client)) {
 			CReplyToCommand(client, "%t", "Misc43", g_szChatPrefix);
 			return Plugin_Handled;
 		}
@@ -4728,8 +4703,7 @@ public Action Command_PlayRecord(int client, int args)
 	return Plugin_Handled;
 }
 
-public void PlayRecordMenu(int client)
-{
+public void PlayRecordMenu(int client) {
 	Menu menu = CreateMenu(PlayRecordTypeMenuHandler);
 	SetMenuTitle(menu, "Play Record: Select a type");
 

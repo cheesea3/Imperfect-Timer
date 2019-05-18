@@ -5,7 +5,7 @@ public void CL_OnStartTimerPress(int client)
 	{
 		if (IsValidClient(client))
 		{
-			if (!g_bServerDataLoaded)
+			if (!IsMapLoaded())
 			{
 				if (GetGameTime() - g_fErrorMessage[client] > 1.0)
 				{
@@ -15,17 +15,7 @@ public void CL_OnStartTimerPress(int client)
 				}
 				return;
 			}
-			else if (g_bLoadingSettings[client])
-			{
-				if (GetGameTime() - g_fErrorMessage[client] > 1.0)
-				{
-					CPrintToChat(client, "%t", "BPress2", g_szChatPrefix);
-					ClientCommand(client, "play buttons\\button10.wav");
-					g_fErrorMessage[client] = GetGameTime();
-				}
-				return;
-			}
-			else if (!g_bSettingsLoaded[client])
+			else if (!IsPlayerLoaded(client))
 			{
 				if (GetGameTime() - g_fErrorMessage[client] > 1.0)
 				{
