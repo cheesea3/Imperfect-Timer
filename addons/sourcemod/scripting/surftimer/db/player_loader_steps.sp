@@ -78,8 +78,6 @@ void db_refreshPlayerMapRecordsCb(Handle hndl, const char[] error, int client, a
 		    bool isStage = view_as<bool>(SQL_FetchInt(hndl, 2));
 		    float time = SQL_FetchFloat(hndl, 3);
 			int rank = SQL_FetchInt(hndl, 4);
-			bool print = g_printRecord[client][zgroup][style];
-			g_printRecord[client][zgroup][style] = false;
 
             if (isStage) {
                 g_fWrcpRecord[client][zgroup][style] = time;
@@ -89,6 +87,8 @@ void db_refreshPlayerMapRecordsCb(Handle hndl, const char[] error, int client, a
                     g_StyleStageRank[style][client][zgroup] = rank;
                 }
             } else {
+                bool print = g_printRecord[client][zgroup][style];
+                g_printRecord[client][zgroup][style] = false;
                 if (zgroup == 0) {
                     if (style == 0) {
                         g_fPersonalRecord[client] = time;
