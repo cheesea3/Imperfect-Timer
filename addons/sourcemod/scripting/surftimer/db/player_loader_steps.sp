@@ -106,7 +106,6 @@ void db_refreshPlayerMapRecordsCb(Handle hndl, const char[] error, int client, a
                         g_MapRankBonus[zgroup][client] = rank;
                         if (print) {
                             PrintChatBonus(client, zgroup);
-                            db_viewBonusTotalCount();
                         }
                     } else {
                         g_fStylePersonalRecordBonus[style][zgroup][client] = time;
@@ -114,7 +113,6 @@ void db_refreshPlayerMapRecordsCb(Handle hndl, const char[] error, int client, a
                         g_StyleMapRankBonus[style][zgroup][client] = rank;
                         if (print) {
                             PrintChatBonusStyle(client, zgroup, style);
-                            db_viewBonusTotalCount();
                         }
                     }
                 }

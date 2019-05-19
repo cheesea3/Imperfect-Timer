@@ -249,9 +249,6 @@ public Action Event_OnPlayerSpawn(Handle event, const char[] name, bool dontBroa
     // Hide Radar
     CreateTimer(0.0, HideHud, client, TIMER_FLAG_NO_MAPCHANGE);
 
-    // Set Clantag
-    CreateTimer(1.5, SetClanTag, client, TIMER_FLAG_NO_MAPCHANGE);
-
     // Set Speclist
     Format(g_szPlayerPanelText[client], 512, "");
 

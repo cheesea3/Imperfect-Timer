@@ -152,9 +152,6 @@ public Action StartTouchTrigger(int caller, int activator)
 	if (!IsValidClient(client)) {
 		return Plugin_Handled;
     }
-	if (!IsPlayerLoaded(client)) {
-	    return Plugin_Handled;
-	}
 	
 	// g_bLeftZone[activator] = false;
 
@@ -360,9 +357,6 @@ public Action EndTouchTrigger(int caller, int activator)
 	if (!IsValidClient(client)) {
 		return Plugin_Handled;
     }
-	if (!IsPlayerLoaded(client)) {
-	    return Plugin_Handled;
-	}
 
 	// For new speed limiter
 	g_bLeftZone[activator] = true;

@@ -219,6 +219,8 @@ public Action CKTimer2(Handle timer)
 			StopRecording(i);
 		}
 
+		SetClanTag(i);
+
 		// Scoreboard
 		if (!g_bPause[i])
 		{
@@ -241,9 +243,6 @@ public Action CKTimer2(Handle timer)
 				CS_SetClientContributionScore(i, -99998);
 			else
 				CS_SetClientContributionScore(i, -g_PlayerRank[i][0]);
-
-			if (!IsFakeClient(i) && !g_pr_Calculating[i])
-				CreateTimer(0.0, SetClanTag, i, TIMER_FLAG_NO_MAPCHANGE);
 		}
 
 		if (IsPlayerAlive(i))
@@ -341,56 +340,43 @@ public Action StyleBonusReplayTimer(Handle timer, Handle pack)
 	return Plugin_Handled;
 }
 
-public Action SetClanTag(Handle timer, any client)
-{
-	if (!IsValidClient(client) || IsFakeClient(client) || g_pr_Calculating[client])
-		return Plugin_Handled;
+static char oldTags[MAXPLAYERS][128];
+void SetClanTag(int client) {
+	if (!IsValidClient(client) || IsFakeClient(client))
+		return;
 
-	/*char buffer[MAX_NAME_LENGTH];
-	if (CS_GetClientClanTag(client, buffer,MAX_NAME_LENGTH) > 0)
-		return Plugin_Handled;
-	*/
-	if (!GetConVarBool(g_hCountry) && !GetConVarBool(g_hPointSystem))
-	{
-		CS_SetClientClanTag(client, "");
-		return Plugin_Handled;
-	}
-
-	char old_pr_rankname[128];
-	bool oldrank;
-	oldrank = false;
-	if (!StrEqual(g_pr_rankname[client], "", false))
-	{
-		oldrank = true;
-		Format(old_pr_rankname, 128, "%s", g_pr_rankname[client]);
-	}
 	SetPlayerRank(client);
 
-    char tag[154] = "";
-    if (!StrEqual(g_pr_rankname[client], "")) {
-        Format(tag, 154, "[%s]", g_pr_rankname[client]);
-    }
-
-    // Replace {style} with style
-    if (g_iCurrentStyle[client] > 0)
-    {
-        char szStyle[128];
-        Format(szStyle, sizeof(szStyle), g_szStyleAcronyms[g_iCurrentStyle[client]]);
-        StringToUpper(szStyle);
-        Format(szStyle, sizeof(szStyle), "%s-", szStyle);
-        ReplaceString(tag, sizeof(tag), "{style}", szStyle);
-    }
-    else
+    char tag[128] = "";
+    bool announce = false;
+    PlayerLoadState playerState = GetPlayerLoadState(client);
+    if (playerState == PLS_PENDING) {
+        strcopy(tag, sizeof(tag), "WAITING");
+    } else if (playerState == PLS_LOADING) {
+        Format(tag, sizeof(tag), "LOAD %i/%i", GetPlayerLoadStep(client), GetPlayerLoadStepMax(client));
+    } else if (playerState != PLS_LOADED) {
+        Format(tag, sizeof(tag), "ERROR %i/%i", GetPlayerLoadStep(client), GetPlayerLoadStepMax(client));
+    } else if (!StrEqual(g_pr_rankname[client], "")) {
+        strcopy(tag, sizeof(tag), g_pr_rankname[client]);
         ReplaceString(tag, sizeof(tag), "{style}", "");
+        announce = true;
+    }
 
-    CS_SetClientClanTag(client, tag);
+    bool changed = false;
+    if (!StrEqual(oldTags[client], tag)) {
+        strcopy(oldTags[client], sizeof(oldTags[]), tag);
+        changed = true;
+    }
 
-	// new rank
-	if (oldrank && GetConVarBool(g_hPointSystem))
-		if (!StrEqual(g_pr_rankname[client], old_pr_rankname, false) && IsValidClient(client))
-			CPrintToChat(client, "%t", "SkillGroup", g_szChatPrefix, g_pr_chat_coloredrank[client]);
-
-	return Plugin_Handled;
+    if (!StrEqual(tag, "")) {
+        if (changed && announce) {
+            CPrintToChat(client, "%t", "SkillGroup", g_szChatPrefix, g_pr_chat_coloredrank[client]);
+        }
+        Format(tag, 154, "[%s]", tag);
+        CS_SetClientClanTag(client, tag);
+    } else {
+        CS_SetClientClanTag(client, "");
+    }
 }
 
 public Action Timer_RetryPlayers(Handle hTimer) {

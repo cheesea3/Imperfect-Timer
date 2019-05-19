@@ -81,7 +81,7 @@ int GetMapLoadStep() {
     return g_mapLoadStep;
 }
 int GetMapLoadStepMax() {
-    return 19;
+    return 20;
 }
 bool IsMapLoaded() {
     return g_mapLoadState == MLS_LOADED;

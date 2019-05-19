@@ -2296,8 +2296,7 @@ public void SetPlayerRank(int client)
 	int index = GetSkillgroupIndex(rank, points);
 	GetArrayArray(g_hSkillGroups, index, RankValue[0]);
 
-    if (!g_bDbCustomTitleInUse[client])
-	{
+    if (!g_bDbCustomTitleInUse[client]) {
 		// Player is not using a title
 		if (GetConVarBool(g_hPointSystem))
 		{
@@ -2309,13 +2308,6 @@ public void SetPlayerRank(int client)
 			Format(g_pr_rankname[client], 128, RankValue[RankName]);
 			ReplaceString(g_pr_rankname[client], 128, "{style}", "");
 			Format(g_pr_namecolour[client], 32, RankValue[NameColour]);
-		}
-	}
-	else
-	{
-		// Player is using a title
-		if (GetConVarBool(g_hPointSystem))
-		{
 		}
 	}
 }
@@ -3012,25 +3004,25 @@ public void CenterHudAlive(int client)
 
     MapLoadState mapState = GetMapLoadState();
     if (mapState == MLS_LOADING) {
-        PrintHintText(client, "<font color='#FFFF00'>Loading map %i/%i ...</font>", GetMapLoadStep(), GetMapLoadStepMax());
+        PrintHintText(client, "<font color='#FFFF00'>Loading map ... %i/%i</font>", GetMapLoadStep(), GetMapLoadStepMax());
         return;
     }
     if (mapState != MLS_LOADED) {
-        PrintHintText(client, "<font color='#FFFF00'>Loading map ERROR %i/%i ...</font>", GetMapLoadStep(), GetMapLoadStepMax());
+        PrintHintText(client, "<font color='#FFFF00'>Map Load Error %i/%i</font>", GetMapLoadStep(), GetMapLoadStepMax());
         return;
     }
 
     PlayerLoadState playerState = GetPlayerLoadState(client);
     if (playerState == PLS_PENDING) {
-        PrintHintText(client, "<font color='#FFFF00'>Waiting in player load queue ...</font>");
+        PrintHintText(client, "<font color='#FFFF00'>Waiting in account queue ...</font>");
         return;
     }
     if (playerState == PLS_LOADING) {
-        PrintHintText(client, "<font color='#FFFF00'>Loading player %i/%i ...</font>", GetPlayerLoadStep(client), GetPlayerLoadStepMax(client));
+        PrintHintText(client, "<font color='#FFFF00'>Loading your account ... %i/%i</font>", GetPlayerLoadStep(client), GetPlayerLoadStepMax(client));
         return;
     }
     if (playerState != PLS_LOADED) {
-        PrintHintText(client, "<font color='#FFFF00'>Loading player ERROR %i/%i ...</font>", GetPlayerLoadStep(client), GetPlayerLoadStepMax(client));
+        PrintHintText(client, "<font color='#FFFF00'>Account Load Error %i/%i</font>", GetPlayerLoadStep(client), GetPlayerLoadStepMax(client));
         return;
     }
 

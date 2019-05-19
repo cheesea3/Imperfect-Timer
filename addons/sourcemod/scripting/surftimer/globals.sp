@@ -1179,8 +1179,9 @@ char EntityList[][] = 													// Disable entities that often break maps
 	"logic_timer",
 	"team_round_timer",
 	"logic_relay",
-	"player_weapon_strip",
 	"player_weaponstrip",
+	"trigger_weapon_strip",
+	"game_player_equip"
 };
 
 char RadioCMDS[][] = 													// Disable radio commands

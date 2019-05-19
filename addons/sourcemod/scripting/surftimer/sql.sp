@@ -1222,7 +1222,6 @@ public void sql_updatePlayerRankPointsCallback(Handle owner, Handle hndl, const 
 		}
 		g_pr_Calculating[data] = false;
 		db_GetPlayerRank(data);
-		CreateTimer(1.0, SetClanTag, data, TIMER_FLAG_NO_MAPCHANGE);
 	}
 }
 
@@ -2331,6 +2330,7 @@ public void SQL_updateBonusCallback(Handle owner, Handle hndl, const char[] erro
 		return;
 	}
 
+    db_viewBonusTotalCount();
 	RefreshAndPrintRecord(client, zgroup, 0);
 	CalculatePlayerRank(client, 0);
 }
@@ -4091,6 +4091,7 @@ public void SQL_insertBonusStyleCallback(Handle owner, Handle hndl, const char[]
 	int style = ReadPackCell(data);
 	CloseHandle(data);
 
+    db_viewBonusTotalCount();
 	RefreshAndPrintRecord(client, zgroup, style);
 	/*Change to update profile timer, if giving multiplier count or extra points for bonuses
 	CalculatePlayerRank(client);*/
@@ -4124,6 +4125,7 @@ public void SQL_updateBonusStyleCallback(Handle owner, Handle hndl, const char[]
 	int style = ReadPackCell(data);
 	CloseHandle(data);
 
+    db_viewBonusTotalCount();
 	RefreshAndPrintRecord(client, zgroup, style);
 }
 

@@ -454,10 +454,9 @@ public void SQL_selectFastestBonusCallback(Handle owner, Handle hndl, const char
 
 // 5
 
-void db_viewBonusTotalCount(any cb=0)
-{
+void db_viewBonusTotalCount(any cb=0) {
 	char szQuery[1024];
-	// SELECT zonegroup, style, count(1) FROM ck_bonus WHERE mapname = '%s' GROUP BY zonegroup, style;
+	// SELECT zonegroup, style, count(*) FROM ck_bonus WHERE mapname = '%s' GROUP BY zonegroup, style;
 	Format(szQuery, 1024, sql_selectBonusCount, g_szMapName);
 	SQL_TQuery(g_hDb, SQL_selectBonusTotalCountCallback, szQuery, cb, DBPrio_High);
 }

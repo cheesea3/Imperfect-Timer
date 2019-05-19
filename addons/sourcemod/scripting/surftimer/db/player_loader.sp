@@ -62,10 +62,12 @@ void LoadPlayerContinue(DataPack cb, bool error) {
     float time = GetGameTime() - g_playerLoadTick[client];
     LogToFileEx(g_szLogFile, "[Surftimer] %s<%s>: Finished load step %i in %fs", szName, g_szSteamID[client], g_playerLoadStep[client], time);
     g_playerLoadStep[client]++;
+    SetClanTag(client);
+
     LoadPlayerStep(client);
 }
 void LoadPlayerStep(int client) {
-    CreateTimer(5.0, LoadPlayerStep2, client, TIMER_FLAG_NO_MAPCHANGE);
+    CreateTimer(0.0, LoadPlayerStep2, client, TIMER_FLAG_NO_MAPCHANGE);
 }
 Action LoadPlayerStep2(Handle timer, int client) {
     Function step = INVALID_FUNCTION;
@@ -171,7 +173,7 @@ int GetPlayerLoadStep(int client) {
     return g_playerLoadStep[client];
 }
 int GetPlayerLoadStepMax(int client) {
-    return 5;
+    return 6;
 }
 bool IsPlayerLoaded(int client) {
     return g_playerLoadState[client] == PLS_LOADED;

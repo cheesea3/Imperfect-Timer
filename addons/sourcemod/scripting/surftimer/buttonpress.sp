@@ -1,6 +1,5 @@
 // Start Timer
-public void CL_OnStartTimerPress(int client)
-{
+public void CL_OnStartTimerPress(int client) {
 	if (!IsFakeClient(client))
 	{
 		if (IsValidClient(client))
@@ -158,7 +157,7 @@ public void CL_OnEndTimerPress(int client)
 			CPrintToChat(client, "%t", "BPress4", g_szChatPrefix, szName, g_szFinalTime[client]);
 		else
 			CPrintToChat(client, "%t", "BPress5", g_szChatPrefix, szName, g_szFinalTime[client]);
-		
+
 		/* Start function call */
 		Call_StartForward(g_PracticeFinishForward);
 
@@ -371,7 +370,7 @@ public void CL_OnEndTimerPress(int client)
 						WritePackCell(pack, GetClientUserId(client));
 						WritePackCell(pack, style);
 					}
-					
+
 					// Insert latest record
 					// db_InsertLatestRecords(g_szSteamID[client], szName, g_fFinalTime[client]);
 				}
@@ -407,10 +406,10 @@ public void CL_OnEndTimerPress(int client)
 				/*g_pr_finishedmaps[client]++;
 				g_MapTimesCount++;*/
 				FormatTimeFloat(1, g_fPersonalStyleRecord[style][client], 3, g_szPersonalStyleRecord[style][client], 64);
-				
+
 				g_bStyleMapFirstRecord[style][client] = true;
 				g_pr_showmsg[client] = true;
-				
+
 				db_selectStyleRecord(client, style);
 			}
 			else if (diff > 0.0)
@@ -612,7 +611,7 @@ public void CL_OnEndTimerPress(int client)
 
 
 			g_StyletmpBonusCount[style][zGroup] = g_iStyleBonusCount[style][zGroup];
-			
+
 			// If the server already has a record
 			if (g_iStyleBonusCount[style][zGroup] > 0)
 			{
@@ -706,6 +705,9 @@ public void CL_OnEndTimerPress(int client)
 // Start Timer
 public void CL_OnStartWrcpTimerPress(int client)
 {
+	if (!IsPlayerLoaded(client)) {
+	    return;
+	}
 	if (!g_bSpectate[client] && !g_bNoClip[client] && ((GetGameTime() - g_fLastTimeNoClipUsed[client]) > 2.0))
 	{
 		int zGroup = g_iClientInZone[client][2];

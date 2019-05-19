@@ -980,24 +980,6 @@ public void OnSettingChanged(Handle convar, const char[] oldValue, const char[] 
 				}
 		}
 	}
-	else if (convar == g_hPointSystem)
-	{
-		if (GetConVarBool(g_hPointSystem))
-		{
-			for (int i = 1; i <= MaxClients; i++)
-				if (IsValidClient(i))
-					CreateTimer(0.0, SetClanTag, i, TIMER_FLAG_NO_MAPCHANGE);
-		}
-		else
-		{
-			for (int i = 1; i <= MaxClients; i++)
-				if (IsValidClient(i))
-				{
-					Format(g_pr_rankname[i], 128, "");
-					CreateTimer(0.0, SetClanTag, i, TIMER_FLAG_NO_MAPCHANGE);
-				}
-		}
-	}
 	else if (convar == g_hCvarNoBlock)
 	{
 		if (GetConVarBool(g_hCvarNoBlock))
@@ -1043,28 +1025,6 @@ public void OnSettingChanged(Handle convar, const char[] oldValue, const char[] 
 	else if (convar == g_hAutoBhopConVar)
 	{
 		g_bAutoBhop = view_as<bool>(StringToInt(newValue[0]));
-	}
-	else if (convar == g_hCountry)
-	{
-		if (GetConVarBool(g_hCountry))
-		{
-			for (int i = 1; i <= MaxClients; i++)
-			{
-				if (IsValidClient(i))
-				{
-					GetCountry(i);
-					if (GetConVarBool(g_hPointSystem))
-						CreateTimer(0.5, SetClanTag, i, TIMER_FLAG_NO_MAPCHANGE);
-				}
-			}
-		}
-		else
-		{
-			if (GetConVarBool(g_hPointSystem))
-				for (int i = 1; i <= MaxClients; i++)
-					if (IsValidClient(i))
-						CreateTimer(0.5, SetClanTag, i, TIMER_FLAG_NO_MAPCHANGE);
-		}
 	}
 	else if (convar == g_hInfoBot)
 	{
