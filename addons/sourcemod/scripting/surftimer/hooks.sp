@@ -85,15 +85,6 @@ public Action Event_OnPlayerSpawn(Handle event, const char[] name, bool dontBroa
 	    return Plugin_Continue;
 	}
 
-    // Sometimes these get stuck because of our csgo panorama "retry" before map change fix
-    ClientCommand(client, "-duck");
-    ClientCommand(client, "-speed");
-    ClientCommand(client, "-jump");
-    ClientCommand(client, "-moveleft");
-    ClientCommand(client, "-moveright");
-    ClientCommand(client, "-forward");
-    ClientCommand(client, "-back");
-
     g_SpecTarget[client] = -1;
     g_bPause[client] = false;
     g_bFirstTimerStart[client] = true;
@@ -1252,6 +1243,11 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 	// Strafe Sync taken from shavit's bhop timer
 	g_fAngleCache[client] = angles[1];
 
+    if (g_resetButtons[client]) {
+        buttons = 0;
+        g_resetButtons[client] = false;
+        return Plugin_Changed;
+    }
 	return Plugin_Continue;
 }
 

@@ -636,14 +636,18 @@ public void OnAutoConfigsBuffered()
 		SetFailState("<Surftimer> %s not found.", szPath2);
 }
 
-public void OnClientPutInServer(int client)
-{
-	if (!IsValidClient(client))
-	return;
+public void OnClientPutInServer(int client) {
+	if (!IsValidClient(client)) {
+	    return;
+	}
 
 	// Defaults
 	SetClientDefaults(client);
 	//Command_Restart(client, 1);
+
+    // Sometimes, player buttons get stuck because of our csgo panorama "retry" before map change fix
+    // Reset all buttons to unpressed on next tick
+	g_resetButtons[client] = true;
 
 	// SDKHooks
 	SDKHook(client, SDKHook_SetTransmit, Hook_SetTransmit);
