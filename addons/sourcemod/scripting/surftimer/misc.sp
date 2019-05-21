@@ -1164,6 +1164,7 @@ public bool Base_TraceFilter(int entity, int contentsMask, any data)
 
 public void SetClientDefaults(int client)
 {
+    g_bInMaxSpeed[client] = 0.0;
     g_bLoadedModules[client] = false;
 
 	float GameTime = GetGameTime();

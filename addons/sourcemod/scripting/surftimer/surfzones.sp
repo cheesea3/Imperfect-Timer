@@ -209,6 +209,7 @@ public Action StartTouchTrigger(int caller, int activator)
         g_KeyCount[client] = 0;
         g_bInJump[client] = false;
         g_bInDuck[client] = false;
+        g_bInMaxSpeed[client] = 0.0;
         g_iCurrentCheckpoint[client] = 0;
         g_Stage[g_iClientInZone[client][2]][client] = 1;
         g_bInStartZone[client] = true;
