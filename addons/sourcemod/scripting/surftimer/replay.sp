@@ -850,11 +850,7 @@ public void LoadWrcpReplay()
 	}
 }
 
-public void StopPlayerMimic(int client)
-{
-	if (!IsValidClient(client))
-		return;
-
+public void StopPlayerMimic(int client) {
 	g_BotMimicTick[client] = 0;
 	g_CurrentAdditionalTeleportIndex[client] = 0;
 	g_BotMimicRecordTickCount[client] = 0;

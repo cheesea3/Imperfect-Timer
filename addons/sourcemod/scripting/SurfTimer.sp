@@ -772,6 +772,7 @@ public void OnClientDisconnect(int client)
 	LoadPlayerStop(client);
 
 	StopRecording(client);
+	StopPlayerMimic(client);
 
 	db_savePlayTime(client);
 
@@ -796,37 +797,17 @@ public void OnClientDisconnect(int client)
 	SDKUnhook(client, SDKHook_PostThink, OnPlayerThink);
 	SDKUnhook(client, SDKHook_PostThinkPost, OnPlayerThink);
 
-	if (client == g_RecordBot)
-	{
-		StopPlayerMimic(client);
-		g_RecordBot = -1;
-		return;
-	}
-	if (client == g_BonusBot)
-	{
-		StopPlayerMimic(client);
-		g_BonusBot = -1;
-		return;
-	}
-	if (client == g_WrcpBot)
-	{
-		StopPlayerMimic(client);
-		g_WrcpBot = -1;
-		return;
-	}
+	if (client == g_RecordBot) g_RecordBot = -1;
+	if (client == g_BonusBot) g_BonusBot = -1;
+	if (client == g_WrcpBot) g_WrcpBot = -1;
 
 	// Database
-	if (IsValidClient(client))
-	{
+	if (IsValidClient(client)) {
 		if (!g_bIgnoreZone[client] && !g_bPracticeMode[client])
 			db_insertLastPosition(client, g_szMapName, g_Stage[g_iClientInZone[client][2]][client], g_iClientInZone[client][2]);
 
 		db_updatePlayerOptions(client);
 	}
-
-	// Stop recording
-	if (g_hRecording[client] != null)
-		StopRecording(client);
 
 	// Stop Showing Triggers
 	if (g_bShowTriggers[client])
