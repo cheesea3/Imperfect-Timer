@@ -386,6 +386,14 @@ public Action EndTouchTrigger(int caller, int activator)
 	int iZoneTypeId = g_mapZones[id][zoneTypeId];
 	int iZoneGroup = g_mapZones[id][zoneGroup];
 
+	if (iZoneType == ZONETYPE_ANTIJUMP) {
+        g_bInJump[client] = false;
+    } else if (iZoneType == ZONETYPE_ANTIDUCK) {
+        g_bInDuck[client] = false;
+    } else if (iZoneType == ZONETYPE_MAXSPEED) {
+        g_bInMaxSpeed[client] = 0.0;
+    }
+
 	if (iZoneGroup != g_iClientInZone[activator][2]
 	    || iZoneType == ZONETYPE_TELETOSTART
 	    || iZoneType == ZONETYPE_CHECKER
@@ -462,12 +470,6 @@ public Action EndTouchTrigger(int caller, int activator)
         if (!g_bPracticeMode[client] && g_bTimerEnabled[client])
             CL_OnStartWrcpTimerPress(client);
 
-    } else if (iZoneType == ZONETYPE_ANTIJUMP) {
-        g_bInJump[client] = false;
-    } else if (iZoneType == ZONETYPE_ANTIDUCK) {
-        g_bInDuck[client] = false;
-    } else if (iZoneType == ZONETYPE_MAXSPEED) {
-        g_bInMaxSpeed[client] = 0.0;
     }
 
     // Set client location
