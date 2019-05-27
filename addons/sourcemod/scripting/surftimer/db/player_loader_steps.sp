@@ -149,15 +149,26 @@ void db_refreshPlayerPointsCallback(Handle hndl, const char[] error, int client,
 	g_iPlayTimeSpec[client] = 0;
 	g_iTotalConnections[client] = 0;
 
+	int normalPoints = 0;
+
     while (SQL_FetchRow(hndl)) {
         int style = SQL_FetchInt(hndl, 10);
-        g_pr_points[client][style] = SQL_FetchInt(hndl, 2);
-        g_pr_finishedmaps[client][style] = SQL_FetchInt(hndl, 3);
+        int points = SQL_FetchInt(hndl, 2);
+        int finishedMaps = SQL_FetchInt(hndl, 3);
+
+        g_pr_points[client][style] = points;
+        g_pr_finishedmaps[client][style] = finishedMaps;
         if (style == 0) {
+            normalPoints = points;
             g_iPlayTimeAlive[client] = SQL_FetchInt(hndl, 6);
             g_iPlayTimeSpec[client] = SQL_FetchInt(hndl, 7);
             g_iTotalConnections[client] = SQL_FetchInt(hndl, 8);
         }
+    }
+
+    int minRank = g_hPrestigeRank.IntValue;
+    if (minRank == -1 && normalPoints == 0) {
+        KickClient(client, "Visit our beginner server at 74.91.112.208");
     }
 
     g_iTotalConnections[client]++;
@@ -187,13 +198,15 @@ void sql_getPlayerRankCallback(Handle hndl, const char[] error, int client, any 
 		return;
 	}
 
+	int normalRank = 0;
+
 	while (SQL_FetchRow(hndl)) {
 	    int style = SQL_FetchInt(hndl, 0);
 	    int rank = SQL_FetchInt(hndl, 1);
 
 		g_PlayerRank[client][style] = rank;
-		if (style == 0 && GetConVarInt(g_hPrestigeRank) > 0 && rank > GetConVarInt(g_hPrestigeRank)) {
-            KickClient(client, "You must be at least rank %i to join this server", GetConVarInt(g_hPrestigeRank));
+		if (style == 0) {
+		    normalRank = rank;
 		}
 
 		// Sort players by rank in scoreboard
@@ -204,6 +217,11 @@ void sql_getPlayerRankCallback(Handle hndl, const char[] error, int client, any 
 				CS_SetClientContributionScore(client, -rank);
 		}
 	}
+
+    int minRank = g_hPrestigeRank.IntValue;
+    if (minRank > 0 && (normalRank == 0 || normalRank > minRank)) {
+        KickClient(client, "You must be at least rank %i to join this server", minRank);
+    }
 
 	RunCallback(cb);
 }
