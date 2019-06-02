@@ -222,9 +222,7 @@ enum MapZone
 	String:targetName[128],
 	oneJumpLimit,
 	Float:preSpeed,
-	zoneGroup,
-	Vis,
-	Team
+	zoneGroup
 }
 
 enum SkillGroup

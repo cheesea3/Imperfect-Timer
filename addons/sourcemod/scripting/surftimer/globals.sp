@@ -366,12 +366,6 @@ float g_AvaliableScales[5] = { 1.0, 5.0, 10.0, 50.0, 100.0 };
 // Currently selected zonegroup
 int g_CurrentSelectedZoneGroup[MAXPLAYERS + 1];
 
-// Current zone team TODO: Remove
-int g_CurrentZoneTeam[MAXPLAYERS + 1];
-
-// Current zone visibility per team TODO: Remove
-int g_CurrentZoneVis[MAXPLAYERS + 1];
-
 // Currenyly selected zone's type
 int g_CurrentZoneType[MAXPLAYERS + 1];
 
@@ -394,10 +388,7 @@ int g_CurrentZoneTypeId[MAXPLAYERS + 1];
 bool g_ClientRenamingZone[MAXPLAYERS + 1];
 
 // Zone team colors TODO: remove
-int beamColorT[] = { 255, 0, 0, 255 };
-int beamColorCT[] = { 0, 0, 255, 255 };
 int beamColorN[] = { 255, 255, 0, 255 };
-int beamColorM[] = { 0, 255, 0, 255 };
 
 // Zone Default Names
 char g_szZoneDefaultNames[ZONEAMOUNT][128] = { "Stop", "Start", "End", "Stage", "Checkpoint", "SpeedStart", "TeleToStart", "Validator", "Checker", "AntiJump", "AntiDuck", "MaxSpeed" };

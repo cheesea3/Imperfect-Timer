@@ -2384,7 +2384,7 @@ public void db_checkAndFixZoneIdsCallback(Handle owner, Handle hndl, const char[
 	{
 		bool IDError = false;
 		float x1[128], y1[128], z1[128], x2[128], y2[128], z2[128];
-		int checker = 0, i, zonetype[128], zonetypeid[128], vis[128], team[128], zoneGrp[128];
+		int checker = 0, i, zonetype[128], zonetypeid[128], zoneGrp[128];
 		char zName[128][128];
 		char hookname[128][128], targetname[128][128];
 		int onejumplimit[128];
@@ -2401,8 +2401,6 @@ public void db_checkAndFixZoneIdsCallback(Handle owner, Handle hndl, const char[
 			x2[checker] = SQL_FetchFloat(hndl, 7);
 			y2[checker] = SQL_FetchFloat(hndl, 8);
 			z2[checker] = SQL_FetchFloat(hndl, 9);
-			vis[checker] = SQL_FetchInt(hndl, 10);
-			team[checker] = SQL_FetchInt(hndl, 11);
 			zoneGrp[checker] = SQL_FetchInt(hndl, 12);
 			SQL_FetchString(hndl, 13, zName[checker], 128);
 			SQL_FetchString(hndl, 14, hookname[checker], 128);
@@ -2425,7 +2423,7 @@ public void db_checkAndFixZoneIdsCallback(Handle owner, Handle hndl, const char[
 
 			for (int k = 0; k < checker; k++)
 			{
-				db_insertZoneCheap(k, zonetype[k], zonetypeid[k], x1[k], y1[k], z1[k], x2[k], y2[k], z2[k], vis[k], team[k], zoneGrp[k], zName[k], -10, hookname[k], targetname[k], onejumplimit[k], prespeed[k]);
+				db_insertZoneCheap(k, zonetype[k], zonetypeid[k], x1[k], y1[k], z1[k], x2[k], y2[k], z2[k], 0, 0, zoneGrp[k], zName[k], -10, hookname[k], targetname[k], onejumplimit[k], prespeed[k]);
 			}
 		}
 	}
@@ -2529,7 +2527,7 @@ public void SQL_saveZonesCallBack(Handle owner, Handle hndl, const char[] error,
 
 		if (g_mapZones[i][PointA][0] != -1.0 && g_mapZones[i][PointA][1] != -1.0 && g_mapZones[i][PointA][2] != -1.0)
 		{
-			db_insertZoneCheap(g_mapZones[i][zoneId], g_mapZones[i][zoneType], g_mapZones[i][zoneTypeId], g_mapZones[i][PointA][0], g_mapZones[i][PointA][1], g_mapZones[i][PointA][2], g_mapZones[i][PointB][0], g_mapZones[i][PointB][1], g_mapZones[i][PointB][2], g_mapZones[i][Vis], g_mapZones[i][Team], g_mapZones[i][zoneGroup], szzone, i, hookname, targetname, g_mapZones[i][oneJumpLimit], g_mapZones[i][preSpeed]);
+			db_insertZoneCheap(g_mapZones[i][zoneId], g_mapZones[i][zoneType], g_mapZones[i][zoneTypeId], g_mapZones[i][PointA][0], g_mapZones[i][PointA][1], g_mapZones[i][PointA][2], g_mapZones[i][PointB][0], g_mapZones[i][PointB][1], g_mapZones[i][PointB][2], 0, 0, g_mapZones[i][zoneGroup], szzone, i, hookname, targetname, g_mapZones[i][oneJumpLimit], g_mapZones[i][preSpeed]);
 		}
 	}
 }

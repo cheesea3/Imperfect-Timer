@@ -60,8 +60,6 @@ public void SQL_selectMapZonesCallback(Handle owner, Handle hndl, const char[] e
 			g_mapZones[i][zoneTypeId] = -1;
 			g_mapZones[i][zoneName] = 0;
 			g_mapZones[i][hookName] = 0;
-			g_mapZones[i][Vis] = 0;
-			g_mapZones[i][Team] = 0;
 			g_mapZones[i][zoneGroup] = 0;
 			g_mapZones[i][targetName] = 0;
 			g_mapZones[i][oneJumpLimit] = 1;
@@ -89,8 +87,6 @@ public void SQL_selectMapZonesCallback(Handle owner, Handle hndl, const char[] e
 			g_mapZones[g_mapZonesCount][PointB][0] = SQL_FetchFloat(hndl, 6);
 			g_mapZones[g_mapZonesCount][PointB][1] = SQL_FetchFloat(hndl, 7);
 			g_mapZones[g_mapZonesCount][PointB][2] = SQL_FetchFloat(hndl, 8);
-			g_mapZones[g_mapZonesCount][Vis] = SQL_FetchInt(hndl, 9);
-			g_mapZones[g_mapZonesCount][Team] = SQL_FetchInt(hndl, 10);
 			g_mapZones[g_mapZonesCount][zoneGroup] = SQL_FetchInt(hndl, 11);
 
 			// Total amount of checkpoints

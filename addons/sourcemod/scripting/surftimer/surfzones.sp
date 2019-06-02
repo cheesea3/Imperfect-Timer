@@ -494,38 +494,12 @@ public void InitZoneVariables()
 		g_mapZones[i][zoneTypeId] = -1;
 		g_mapZones[i][zoneGroup] = -1;
 		g_mapZones[i][zoneName] = 0;
-		g_mapZones[i][Vis] = 0;
-		g_mapZones[i][Team] = 0;
-	}
-}
-
-public void getZoneTeamColor(int team, int color[4])
-{
-	switch (team)
-	{
-		case 1:
-		{
-			color = beamColorM;
-		}
-		case 2:
-		{
-			color = beamColorT;
-		}
-		case 3:
-		{
-			color = beamColorCT;
-		}
-		default:
-		{
-			color = beamColorN;
-		}
 	}
 }
 
 public void DrawBeamBox(int client)
 {
-	int zColor[4];
-	getZoneTeamColor(g_CurrentZoneTeam[client], zColor);
+	int zColor[4] = beamColorN;
 	TE_SendBeamBoxToClient(client, g_Positions[client][1], g_Positions[client][0], g_BeamSprite, g_HaloSprite, 0, 30, 1.0, 1.0, 1.0, 2, 0.0, zColor, 0, true);
 	CreateTimer(1.0, BeamBox, client, TIMER_REPEAT);
 }
@@ -536,8 +510,7 @@ public Action BeamBox(Handle timer, any client)
 	{
 		if (g_Editing[client] == 2)
 		{
-			int zColor[4];
-			getZoneTeamColor(g_CurrentZoneTeam[client], zColor);
+			int zColor[4] = beamColorN;
 			TE_SendBeamBoxToClient(client, g_Positions[client][1], g_Positions[client][0], g_BeamSprite, g_HaloSprite, 0, 30, 1.0, 1.0, 1.0, 2, 0.0, zColor, 0, true);
 			return Plugin_Continue;
 		}
@@ -560,21 +533,17 @@ public Action ThrottledBeamBoxAll(Handle timer, int i) {
     int iZoneType = g_mapZones[i][zoneType];
     int iZoneGroup = g_mapZones[i][zoneGroup];
 
-    if (0 < g_mapZones[i][Vis] < 4) {
-        draw = true;
-    } else {
-        switch(iZoneType) {
-            case ZONETYPE_START,
-                 ZONETYPE_SPEEDSTART,
-                 ZONETYPE_END: {
-                draw = zonesToDisplay >= 1;
-            }
-            case ZONETYPE_STAGE: {
-                draw = zonesToDisplay >= 2;
-            }
-            default: {
-                draw = zonesToDisplay >= 3;
-            }
+    switch(iZoneType) {
+        case ZONETYPE_START,
+             ZONETYPE_SPEEDSTART,
+             ZONETYPE_END: {
+            draw = zonesToDisplay >= 1;
+        }
+        case ZONETYPE_STAGE: {
+            draw = zonesToDisplay >= 2;
+        }
+        default: {
+            draw = zonesToDisplay >= 3;
         }
     }
 
@@ -656,8 +625,7 @@ public void BeamBox_OnPlayerRunCmd(int client)
 	if (g_Editing[client] == 1 || g_Editing[client] == 3 || g_Editing[client] == 10 || g_Editing[client] == 11)
 	{
 		float pos[3], ang[3];
-		int zColor[4];
-		getZoneTeamColor(g_CurrentZoneTeam[client], zColor);
+		int zColor[4] = beamColorN;
 		if (g_Editing[client] == 1)
 		{
 			GetClientEyePosition(client, pos);
@@ -690,8 +658,7 @@ public void BeamBox_OnPlayerRunCmd(int client)
 	{
 		// come back
 		float position[3], fMins[3], fMaxs[3];
-		int zColor[4];
-		getZoneTeamColor(g_CurrentZoneTeam[client], zColor);
+		int zColor[4] = beamColorN;
 
 		int iEnt = GetArrayCell(g_hTriggerMultiple, g_iSelectedTrigger[client]);
 		if (IsValidEntity(iEnt))
@@ -1044,7 +1011,7 @@ public int Handler_listBonusZones(Handle tMenu, MenuAction action, int client, i
 			g_Editing[client] = 2;
 			if (g_ClientSelectedZone[client] != -1)
 			{
-				GetClientSelectedZone(client, g_CurrentZoneTeam[client], g_CurrentZoneVis[client]);
+				GetClientSelectedZone(client);
 			}
 			EditorMenu(client);
 		}
@@ -1542,7 +1509,7 @@ public int MenuHandler_ZoneModify(Handle tMenu, MenuAction action, int client, i
 			g_Editing[client] = 2;
 			if (g_ClientSelectedZone[client] != -1)
 			{
-				GetClientSelectedZone(client, g_CurrentZoneTeam[client], g_CurrentZoneVis[client]);
+				GetClientSelectedZone(client);
 			}
 			EditorMenu(client);
 		}
@@ -1604,25 +1571,6 @@ public void EditorMenu(int client)
 		editMenu.AddItem("", "Delete Zone");
 		editMenu.AddItem("", "Save Zone");
 
-		switch (g_CurrentZoneTeam[client])
-		{
-			case 0:
-			{
-				editMenu.AddItem("", "Set Zone Yellow");
-			}
-			case 1:
-			{
-				editMenu.AddItem("", "Set Zone Green");
-			}
-			case 2:
-			{
-				editMenu.AddItem("", "Set Zone Red");
-			}
-			case 3:
-			{
-				editMenu.AddItem("", "Set Zone Blue");
-			}
-		}
 		editMenu.AddItem("", "Go to Zone");
 		editMenu.AddItem("", "Strech Zone");
 
@@ -1710,9 +1658,9 @@ public int MenuHandler_Editor(Handle tMenu, MenuAction action, int client, int i
 					if (g_ClientSelectedZone[client] != -1)
 					{
 						if (!g_bEditZoneType[client])
-							db_updateZone(g_mapZones[g_ClientSelectedZone[client]][zoneId], g_mapZones[g_ClientSelectedZone[client]][zoneType], g_mapZones[g_ClientSelectedZone[client]][zoneTypeId], g_Positions[client][0], g_Positions[client][1], g_CurrentZoneVis[client], g_CurrentZoneTeam[client], g_CurrentSelectedZoneGroup[client], g_mapZones[g_ClientSelectedZone[client]][oneJumpLimit], g_mapZones[g_ClientSelectedZone[client]][preSpeed], g_mapZones[g_ClientSelectedZone[client]][hookName], g_mapZones[g_ClientSelectedZone[client]][targetName]);
+							db_updateZone(g_mapZones[g_ClientSelectedZone[client]][zoneId], g_mapZones[g_ClientSelectedZone[client]][zoneType], g_mapZones[g_ClientSelectedZone[client]][zoneTypeId], g_Positions[client][0], g_Positions[client][1], 0, 0, g_CurrentSelectedZoneGroup[client], g_mapZones[g_ClientSelectedZone[client]][oneJumpLimit], g_mapZones[g_ClientSelectedZone[client]][preSpeed], g_mapZones[g_ClientSelectedZone[client]][hookName], g_mapZones[g_ClientSelectedZone[client]][targetName]);
 						else
-							db_updateZone(g_mapZones[g_ClientSelectedZone[client]][zoneId], g_CurrentZoneType[client], g_CurrentZoneTypeId[client], g_Positions[client][0], g_Positions[client][1], g_CurrentZoneVis[client], g_CurrentZoneTeam[client], g_CurrentSelectedZoneGroup[client], g_mapZones[g_ClientSelectedZone[client]][oneJumpLimit], g_mapZones[g_ClientSelectedZone[client]][preSpeed], g_mapZones[g_ClientSelectedZone[client]][hookName], g_mapZones[g_ClientSelectedZone[client]][targetName]);
+							db_updateZone(g_mapZones[g_ClientSelectedZone[client]][zoneId], g_CurrentZoneType[client], g_CurrentZoneTypeId[client], g_Positions[client][0], g_Positions[client][1], 0, 0, g_CurrentSelectedZoneGroup[client], g_mapZones[g_ClientSelectedZone[client]][oneJumpLimit], g_mapZones[g_ClientSelectedZone[client]][preSpeed], g_mapZones[g_ClientSelectedZone[client]][hookName], g_mapZones[g_ClientSelectedZone[client]][targetName]);
 						g_bEditZoneType[client] = false;
 					}
 					else
@@ -1726,14 +1674,6 @@ public int MenuHandler_Editor(Handle tMenu, MenuAction action, int client, int i
 				}
 				case 5:
 				{
-					// Set team
-					++g_CurrentZoneTeam[client];
-					if (g_CurrentZoneTeam[client] == 4)
-						g_CurrentZoneTeam[client] = 0;
-					EditorMenu(client);
-				}
-				case 6:
-				{
 					// Teleport
 					float ZonePos[3];
 					surftimer_StopTimer(client);
@@ -1745,22 +1685,22 @@ public int MenuHandler_Editor(Handle tMenu, MenuAction action, int client, int i
 					TeleportEntity(client, ZonePos, NULL_VECTOR, NULL_VECTOR);
 					EditorMenu(client);
 				}
-				case 7:
+				case 6:
 				{
 					// Scaling
 					ScaleMenu(client);
 				}
-				case 8:
+				case 7:
 				{
 					ChangeZonesHook(client);
 				}
-				case 9:
+				case 8:
 				{
 					// Set Target Name
 					g_iWaitingForResponse[client] = 5;
 					CPrintToChat(client, "%t", "SurfZones9", g_szChatPrefix);
 				}
-				case 10:
+				case 9:
 				{
 					// One jump limit
 					if (g_mapZones[g_ClientSelectedZone[client]][oneJumpLimit] == 1)
@@ -1770,7 +1710,7 @@ public int MenuHandler_Editor(Handle tMenu, MenuAction action, int client, int i
 					
 					EditorMenu(client);
 				}
-				case 11:
+				case 10:
 				{
 					// prespeed
 					PrespeedMenu(client);
@@ -1792,8 +1732,6 @@ public int MenuHandler_Editor(Handle tMenu, MenuAction action, int client, int i
 public void resetSelection(int client)
 {
 	g_CurrentSelectedZoneGroup[client] = -1;
-	g_CurrentZoneTeam[client] = 0;
-	g_CurrentZoneVis[client] = 0;
 	g_ClientSelectedZone[client] = -1;
 	g_Editing[client] = 0;
 	g_CurrentZoneTypeId[client] = -1;
@@ -2082,15 +2020,13 @@ public int ZoneHookHandler(Handle menu, MenuAction action, int param1, int param
 	}
 }
 
-public void GetClientSelectedZone(int client, int &team, int &vis)
+public void GetClientSelectedZone(int client)
 {
 	if (g_ClientSelectedZone[client] != -1)
 	{
 		Format(g_CurrentZoneName[client], 32, "%s", g_mapZones[g_ClientSelectedZone[client]][zoneName]);
 		Array_Copy(g_mapZones[g_ClientSelectedZone[client]][PointA], g_Positions[client][0], 3);
 		Array_Copy(g_mapZones[g_ClientSelectedZone[client]][PointB], g_Positions[client][1], 3);
-		team = g_mapZones[g_ClientSelectedZone[client]][Team];
-		vis = g_mapZones[g_ClientSelectedZone[client]][Vis];
 	}
 }
 
@@ -2123,8 +2059,6 @@ public int MenuHandler_ClearZones(Handle tMenu, MenuAction action, int client, i
 					g_mapZones[i][zoneType] = -1;
 					g_mapZones[i][zoneTypeId] = -1;
 					g_mapZones[i][zoneName] = 0;
-					g_mapZones[i][Vis] = 0;
-					g_mapZones[i][Team] = 0;
 				}
 				g_mapZonesCount = 0;
 				db_deleteMapZones();
@@ -2194,7 +2128,5 @@ void resetZone(int zoneIndex)
 	g_mapZones[zoneIndex][zoneType] = -1;
 	g_mapZones[zoneIndex][zoneTypeId] = -1;
 	g_mapZones[zoneIndex][zoneName] = 0;
-	g_mapZones[zoneIndex][Vis] = 0;
-	g_mapZones[zoneIndex][Team] = 0;
 	g_mapZones[zoneIndex][zoneGroup] = 0;
 }
