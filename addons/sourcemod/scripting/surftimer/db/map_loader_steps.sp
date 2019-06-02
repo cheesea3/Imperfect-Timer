@@ -237,7 +237,7 @@ public void SQL_selectMapZonesCallback(Handle owner, Handle hndl, const char[] e
 			PrintToServer("[Surftimer] Found an error in zoneid : %i", i);
 			Format(szQuery, 258, "UPDATE `ck_zones` SET zoneid = zoneid-1 WHERE mapname = '%s' AND zoneid > %i", g_szMapName, i);
 			PrintToServer("Query: %s", szQuery);
-			SQL_TQuery(g_hDb, sql_zoneFixCallback, szQuery, -1, DBPrio_Low);
+			SQL_TQuery(g_hDb, sql_zoneFixCallback, szQuery);
 			return;
 		}
 
@@ -247,7 +247,7 @@ public void SQL_selectMapZonesCallback(Handle owner, Handle hndl, const char[] e
 		{
 			PrintToServer("[Surftimer] Found an error in zonegroup %i (ZoneGroups total: %i)", i, g_mapZoneGroupCount);
 			Format(szQuery, 258, "UPDATE `ck_zones` SET `zonegroup` = zonegroup-1 WHERE `mapname` = '%s' AND `zonegroup` > %i", g_szMapName, i);
-			SQL_TQuery(g_hDb, sql_zoneFixCallback, szQuery, zoneGroupChecker[i], DBPrio_Low);
+			SQL_TQuery(g_hDb, sql_zoneFixCallback, szQuery, zoneGroupChecker[i]);
 			return;
 		}
 
@@ -261,7 +261,7 @@ public void SQL_selectMapZonesCallback(Handle owner, Handle hndl, const char[] e
 			{
 				PrintToServer("[Surftimer] ZoneTypeID missing! [ZoneGroup: %i ZoneType: %i, ZonetypeId: %i]", i, k, x);
 				Format(szQuery, 258, "UPDATE `ck_zones` SET zonetypeid = zonetypeid-1 WHERE mapname = '%s' AND zonetype = %i AND zonetypeid > %i AND zonegroup = %i;", g_szMapName, k, x, i);
-				SQL_TQuery(g_hDb, sql_zoneFixCallback, szQuery, -1, DBPrio_Low);
+				SQL_TQuery(g_hDb, sql_zoneFixCallback, szQuery);
 				return;
 			}
 			else if (zoneTypeIdChecker[i][k][x] > 1)
@@ -491,8 +491,6 @@ void SQL_selectBonusTotalCountCallback(Handle owner, Handle hndl, const char[] e
 // 6
 
 void db_selectMapTier(any cb=0) {
-	g_bTierEntryFound = false;
-
 	char szQuery[1024];
 	Format(szQuery, 1024, sql_selectMapTier, g_szMapName);
 	SQL_TQuery(g_hDb, SQL_selectMapTierCallback, szQuery, cb, DBPrio_High);
@@ -505,13 +503,11 @@ public void SQL_selectMapTierCallback(Handle owner, Handle hndl, const char[] er
 	}
 
 	g_bRankedMap = false;
-	g_bTierEntryFound = false;
     g_bTierFound = false;
     g_iMapTier = 0;
 
 	if (SQL_HasResultSet(hndl) && SQL_FetchRow(hndl))
 	{
-		g_bTierEntryFound = true;
 		int tier;
 
 		// Format tier string
@@ -752,9 +748,9 @@ void db_selectSpawnLocationsCallback(Handle owner, Handle hndl, const char[] err
 
 void db_ClearLatestRecords(any cb=0) {
 	if (g_DbType == MYSQL)
-		SQL_TQuery(g_hDb, SQL_CheckCallback, "DELETE FROM ck_latestrecords WHERE date < NOW() - INTERVAL 1 WEEK", DBPrio_Low);
+		SQL_TQuery(g_hDb, SQL_CheckCallback, "DELETE FROM ck_latestrecords WHERE date < NOW() - INTERVAL 1 WEEK");
 	else
-		SQL_TQuery(g_hDb, SQL_CheckCallback, "DELETE FROM ck_latestrecords WHERE date <= date('now','-7 day')", DBPrio_Low);
+		SQL_TQuery(g_hDb, SQL_CheckCallback, "DELETE FROM ck_latestrecords WHERE date <= date('now','-7 day')");
 
     RunCallback(cb);
 }

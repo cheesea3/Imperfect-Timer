@@ -126,9 +126,6 @@ int g_Advert;
 // The string for each zonegroup
 char g_sTierString[512];
 
-// Tier data found?
-bool g_bTierEntryFound;
-
 // Tier data found in ZGrp
 bool g_bTierFound;
 
@@ -175,26 +172,12 @@ bool g_bInStageZone[MAXPLAYERS + 1];
 /*----------  MaxSpeed Variables  ----------*/
 float g_bInMaxSpeed[MAXPLAYERS + 1];
 
-/*----------  Bhop Limiter  ----------*/
-int g_userJumps[MAXPLAYERS][UserJumps];
-
-/*----------  VIP Variables  ----------*/
-bool g_bCheckCustomTitle[MAXPLAYERS + 1];
-
-// 1 = PB Sound, 2 = Top 10 Sound, 3 = WR sound
-// char g_szCustomSounds[MAXPLAYERS + 1][3][256];
-
 /*----------  Custom Titles  ----------*/
-char g_szCustomTitleRaw[MAXPLAYERS + 1][1024];
+char g_szCustomTitleRaw[MAXPLAYERS + 1][MAX_RAWTITLE_LENGTH];
 bool g_bDbCustomTitleInUse[MAXPLAYERS + 1] = false;
-
 // 0 = name, 1 = text;
 int g_iCustomColours[MAXPLAYERS + 1][2];
-
-// int g_idbCustomTextColour[MAXPLAYERS + 1] = 0;
-bool g_bHasCustomTextColour[MAXPLAYERS + 1] = false;
 bool g_bUpdatingColours[MAXPLAYERS + 1];
-// char g_szsText[MAXPLAYERS + 1];
 
 /*----------  WRCP Variables  ----------*/
 

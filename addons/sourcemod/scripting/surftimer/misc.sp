@@ -1162,8 +1162,7 @@ public bool Base_TraceFilter(int entity, int contentsMask, any data)
 	return (true);
 }
 
-public void SetClientDefaults(int client)
-{
+public void SetClientDefaults(int client) {
     g_bInMaxSpeed[client] = 0.0;
     g_bLoadedModules[client] = false;
 
@@ -1283,11 +1282,8 @@ public void SetClientDefaults(int client)
 	// Show Zones
 	g_bShowZones[client] = false;
 
-	// Text Colour
-	g_bHasCustomTextColour[client] = false;
-
 	// VIP
-	g_bCheckCustomTitle[client] = false;
+	g_bDbCustomTitleInUse[client] = false;
 
 	// WRCP Replays
 	g_bSavingWrcpReplay[client] = false;

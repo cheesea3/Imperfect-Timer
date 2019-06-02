@@ -114,8 +114,7 @@ public void ChangeMapTier(int client)
 	DisplayMenu(menu, client, MENU_TIME_FOREVER);
 }
 
-public int ChangeMapTierHandler(Handle menu, MenuAction action, int client, int tier)
-{
+public int ChangeMapTierHandler(Handle menu, MenuAction action, int client, int tier) {
 	if (action == MenuAction_Select)
 	{
 		tier += 1;
@@ -127,6 +126,42 @@ public int ChangeMapTierHandler(Handle menu, MenuAction action, int client, int 
 		MapSettingsMenu(client);
 	else if (action == MenuAction_End)
 		delete menu;
+}
+public void db_insertMapTier(int tier) {
+    char mapNameEx[MAX_MAPNAME_LENGTH*2+1];
+    SQL_EscapeString(g_hDb, g_szMapName, mapNameEx, sizeof(mapNameEx));
+
+	char szQuery[256];
+	Format(szQuery, sizeof(szQuery), " \
+	    INSERT INTO ck_maptier \
+	    SET mapname='%s', tier='%i' \
+	    ON DUPLICATE KEY UPDATE tier='%i' \
+	", mapNameEx, tier, tier);
+    SQL_TQuery(g_hDb, db_insertMapTierCallback, szQuery);
+}
+public void db_insertMapTierCallback(Handle owner, Handle hndl, const char[] error, any data) {
+	if (hndl == null) {
+		LogError("[Surftimer] SQL Error (db_insertMapTierCallback): %s", error);
+		return;
+	}
+	db_selectMapTier();
+}
+
+public void db_updateMapRankedStatus()
+{
+    char mapNameEx[MAX_MAPNAME_LENGTH*2+1];
+    SQL_EscapeString(g_hDb, g_szMapName, mapNameEx, sizeof(mapNameEx));
+
+    g_bRankedMap = !g_bRankedMap;
+    int rankedInt = g_bRankedMap ? 1 : 0;
+
+	char szQuery[256];
+	Format(szQuery, sizeof(szQuery), " \
+	    INSERT INTO ck_maptier \
+	    SET mapname='%s', ranked='%i' \
+	    ON DUPLICATE KEY UPDATE ranked='%i' \
+    ", mapNameEx, rankedInt, rankedInt);
+	SQL_TQuery(g_hDb, SQL_CheckCallback, szQuery);
 }
 
 public void MaxVelocityMenu(int client)
@@ -265,14 +300,14 @@ public void db_updateMapSettings()
 {
 	char szQuery[512];
 	Format(szQuery, 512, "UPDATE `ck_maptier` SET `maxvelocity` = '%f', `announcerecord` = '%f', `gravityfix` = %i WHERE `mapname` = '%s';", g_fMaxVelocity, g_fAnnounceRecord, view_as<int>(g_bGravityFix), g_szMapName);
-	SQL_TQuery(g_hDb, sql_insertMapSettingsCallback, szQuery, DBPrio_Low);
+	SQL_TQuery(g_hDb, sql_insertMapSettingsCallback, szQuery);
 }
 
 public void db_unlimitAllStages(char[] szMapName)
 {
 	char szQuery[256];
 	Format(szQuery, 256, "UPDATE ck_zones SET prespeed = 0.0 WHERE mapname = '%s' AND zonetype = 3;", g_szMapName);
-	SQL_TQuery(g_hDb, SQL_UnlimitAllStagesCallback, szQuery, DBPrio_Low);
+	SQL_TQuery(g_hDb, SQL_UnlimitAllStagesCallback, szQuery);
 }
 
 

@@ -39,6 +39,9 @@
 
 #define MAX_STEAMID_LENGTH 32
 #define MAX_MAPNAME_LENGTH 128
+#define MAX_TITLE_LENGTH 128
+#define MAX_TITLES 32
+#define MAX_RAWTITLE_LENGTH 1024
 
 // Require New Syntax & Semicolons
 #pragma newdecls required
@@ -267,14 +270,15 @@ public Plugin myinfo =
 #include "surftimer/db/player_loader_steps.sp"
 
 #include "surftimer/admin.sp"
-#include "surftimer/commands.sp"
+#include "surftimer/commands/commands.sp"
+#include "surftimer/commands/mapsettings.sp"
+#include "surftimer/commands/titles.sp"
 #include "surftimer/hooks.sp"
 #include "surftimer/buttonpress.sp"
 #include "surftimer/sqltime.sp"
 #include "surftimer/timer.sp"
 #include "surftimer/replay.sp"
 #include "surftimer/surfzones.sp"
-#include "surftimer/mapsettings.sp"
 #include "surftimer/cvote.sp"
 #include "surftimer/func.sp"
 #include "surftimer/natives.sp"
@@ -670,11 +674,6 @@ public void OnClientPutInServer(int client) {
 	g_bToggleMapFinish[client] = true;
 	g_bRepeat[client] = false;
 	g_bNotTeleporting[client] = false;
-
-	g_userJumps[client][LastJumpTimes][3] = 0;
-	g_userJumps[client][LastJumpTimes][2] = 0;
-	g_userJumps[client][LastJumpTimes][1] = 0;
-	g_userJumps[client][LastJumpTimes][0] = 0;
 
 	if (IsFakeClient(client))
 	{
