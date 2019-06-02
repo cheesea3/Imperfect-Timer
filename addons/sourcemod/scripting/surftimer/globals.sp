@@ -387,8 +387,9 @@ int g_CurrentZoneTypeId[MAXPLAYERS + 1];
 // Is client renaming zone?
 bool g_ClientRenamingZone[MAXPLAYERS + 1];
 
-// Zone team colors TODO: remove
-int beamColorN[] = { 255, 255, 0, 255 };
+// Zone team colors
+int beamColorEdit[] = { 255, 255, 0, 255 };
+int beamColorOther[] = { 255, 255, 255, 128 };
 
 // Zone Default Names
 char g_szZoneDefaultNames[ZONEAMOUNT][128] = { "Stop", "Start", "End", "Stage", "Checkpoint", "SpeedStart", "TeleToStart", "Validator", "Checker", "AntiJump", "AntiDuck", "MaxSpeed" };

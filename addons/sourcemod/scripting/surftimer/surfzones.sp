@@ -497,21 +497,15 @@ public void InitZoneVariables()
 	}
 }
 
-public void DrawBeamBox(int client)
-{
-	int zColor[4] = beamColorN;
-	TE_SendBeamBoxToClient(client, g_Positions[client][1], g_Positions[client][0], g_BeamSprite, g_HaloSprite, 0, 30, 1.0, 1.0, 1.0, 2, 0.0, zColor, 0, true);
-	CreateTimer(1.0, BeamBox, client, TIMER_REPEAT);
+public void DrawBeamBox(int client) {
+	BeamBox(INVALID_HANDLE, client);
+	CreateTimer(1.0, BeamBox, client, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 }
 
-public Action BeamBox(Handle timer, any client)
-{
-	if (IsClientInGame(client))
-	{
-		if (g_Editing[client] == 2)
-		{
-			int zColor[4] = beamColorN;
-			TE_SendBeamBoxToClient(client, g_Positions[client][1], g_Positions[client][0], g_BeamSprite, g_HaloSprite, 0, 30, 1.0, 1.0, 1.0, 2, 0.0, zColor, 0, true);
+public Action BeamBox(Handle timer, int client) {
+	if (IsClientInGame(client)) {
+		if (g_Editing[client] == 2) {
+			TE_SendBeamBoxToClient(client, g_Positions[client][1], g_Positions[client][0], g_BeamSprite, g_HaloSprite, 0, 30, 1.0, 1.0, 1.0, 2, 0.0, beamColorEdit, 0, true);
 			return Plugin_Continue;
 		}
 	}
@@ -529,7 +523,7 @@ public Action ThrottledBeamBoxAll(Handle timer, int i) {
 
 	int zonesToDisplay = GetConVarInt(g_hZonesToDisplay);
 
-    bool draw = false;
+    bool drawForEveryone = false;
     int iZoneType = g_mapZones[i][zoneType];
     int iZoneGroup = g_mapZones[i][zoneGroup];
 
@@ -537,41 +531,53 @@ public Action ThrottledBeamBoxAll(Handle timer, int i) {
         case ZONETYPE_START,
              ZONETYPE_SPEEDSTART,
              ZONETYPE_END: {
-            draw = zonesToDisplay >= 1;
+            drawForEveryone = zonesToDisplay >= 1;
         }
         case ZONETYPE_STAGE: {
-            draw = zonesToDisplay >= 2;
+            drawForEveryone = zonesToDisplay >= 2;
         }
         default: {
-            draw = zonesToDisplay >= 3;
+            drawForEveryone = zonesToDisplay >= 3;
         }
     }
 
-    if (draw) {
-        int zColor[4];
-        getZoneDisplayColor(iZoneType, zColor, iZoneGroup);
-        for (int p = 1; p <= MaxClients; p++) {
-            if (!IsValidClient(p) || IsFakeClient(p)) {
-                continue;
-            }
-            bool full = false;
-            if (g_bShowZones[p] || GetConVarInt(g_hZoneDisplayType) >= 2) {
-                full = true;
-            } else if (GetConVarInt(g_hZoneDisplayType) == 0) {
-                continue;
-            }
-            if (g_ClientSelectedZone[p] == i) {
-                continue;
-            }
+    int zColor[4];
+    getZoneDisplayColor(iZoneType, zColor, iZoneGroup);
 
-            float buffer_a[3], buffer_b[3];
-            for (int x = 0; x < 3; x++)
-            {
-                buffer_a[x] = g_mapZones[i][PointA][x];
-                buffer_b[x] = g_mapZones[i][PointB][x];
-            }
-            TE_SendBeamBoxToClient(p, buffer_a, buffer_b, g_BeamSprite, g_HaloSprite, 0, 30, ZONE_REFRESH_TIME, 1.0, 1.0, 2, 0.0, zColor, 0, full);
+    for (int p = 1; p <= MaxClients; p++) {
+        if (!IsValidClient(p) || IsFakeClient(p)) {
+            continue;
         }
+        if (g_ClientSelectedZone[p] == i) {
+            continue;
+        }
+
+        bool full = false;
+        bool draw = drawForEveryone;
+        if (g_bShowZones[p]) {
+            // Player has /showzones enabled
+            full = true;
+            draw = true;
+        } else if (GetConVarInt(g_hZoneDisplayType) >= 2) {
+            // Draw full box
+            full = true;
+        } else if (GetConVarInt(g_hZoneDisplayType) >= 1) {
+            // Draw bottom only
+        } else if (GetConVarInt(g_hZoneDisplayType) == 0) {
+            draw = false;
+        }
+
+        if (!draw) {
+            continue;
+        }
+
+        float buffer_a[3], buffer_b[3];
+        for (int x = 0; x < 3; x++)
+        {
+            buffer_a[x] = g_mapZones[i][PointA][x];
+            buffer_b[x] = g_mapZones[i][PointB][x];
+        }
+        TE_SendBeamBoxToClient(p, buffer_a, buffer_b, g_BeamSprite, g_HaloSprite, 0, 30, ZONE_REFRESH_TIME, 1.0, 1.0, 2, 0.0, zColor, 0, full);
     }
 
     CreateTimer(0.1, ThrottledBeamBoxAll, i + 1);
@@ -579,44 +585,43 @@ public Action ThrottledBeamBoxAll(Handle timer, int i) {
 
 public void getZoneDisplayColor(int type, int zColor[4], int zGrp)
 {
-	// Types: Start(1), End(2), Stage(3), Checkpoint(4), Speed(5), TeleToStart(6), Validator(7), Chekcer(8), Stop(0)
 	switch (type)
 	{
-		case 1: {
+		case ZONETYPE_START: {
 
 			if (zGrp > 0)
 				zColor = g_iZoneColors[3];
 			else
 				zColor = g_iZoneColors[1];
 		}
-		case 2: {
+		case ZONETYPE_END: {
 			if (zGrp > 0)
 				zColor = g_iZoneColors[4];
 			else
 				zColor = g_iZoneColors[2];
 		}
-		case 3: {
+		case ZONETYPE_STAGE: {
 			zColor = g_iZoneColors[5];
 		}
-		case 4: {
+		case ZONETYPE_CHECKPOINT: {
 			zColor = g_iZoneColors[6];
 		}
-		case 5: {
+		case ZONETYPE_SPEEDSTART: {
 			zColor = g_iZoneColors[7];
 		}
-		case 6: {
+		case ZONETYPE_TELETOSTART: {
 			zColor = g_iZoneColors[8];
 		}
-		case 7: {
+		case ZONETYPE_VALIDATOR: {
 			zColor = g_iZoneColors[9];
 		}
-		case 8: {
+		case ZONETYPE_CHECKER: {
 			zColor = g_iZoneColors[10];
 		}
-		case 0: {
+		case ZONETYPE_STOP: {
 			zColor = g_iZoneColors[0];
 		}
-		default:zColor = beamColorT;
+		default:zColor = beamColorOther;
 	}
 }
 
@@ -625,7 +630,6 @@ public void BeamBox_OnPlayerRunCmd(int client)
 	if (g_Editing[client] == 1 || g_Editing[client] == 3 || g_Editing[client] == 10 || g_Editing[client] == 11)
 	{
 		float pos[3], ang[3];
-		int zColor[4] = beamColorN;
 		if (g_Editing[client] == 1)
 		{
 			GetClientEyePosition(client, pos);
@@ -639,26 +643,21 @@ public void BeamBox_OnPlayerRunCmd(int client)
 			GetClientEyePosition(client, pos);
 			GetClientEyeAngles(client, ang);
 			TR_TraceRayFilter(pos, ang, MASK_PLAYERSOLID, RayType_Infinite, TraceRayDontHitSelf, client);
-			if (g_Editing[client] == 10)
-			{
+			if (g_Editing[client] == 10) {
 				TR_GetEndPosition(g_fBonusStartPos[client][1]);
-				TE_SendBeamBoxToClient(client, g_fBonusStartPos[client][1], g_fBonusStartPos[client][0], g_BeamSprite, g_HaloSprite, 0, 30, 0.1, 1.0, 1.0, 2, 0.0, zColor, 0, true);
-			}
-			else
-			{
+				TE_SendBeamBoxToClient(client, g_fBonusStartPos[client][1], g_fBonusStartPos[client][0], g_BeamSprite, g_HaloSprite, 0, 30, 0.1, 1.0, 1.0, 2, 0.0, beamColorEdit, 0, true);
+			} else {
 				TR_GetEndPosition(g_fBonusEndPos[client][1]);
-				TE_SendBeamBoxToClient(client, g_fBonusEndPos[client][1], g_fBonusEndPos[client][0], g_BeamSprite, g_HaloSprite, 0, 30, 0.1, 1.0, 1.0, 2, 0.0, zColor, 0, true);
+				TE_SendBeamBoxToClient(client, g_fBonusEndPos[client][1], g_fBonusEndPos[client][0], g_BeamSprite, g_HaloSprite, 0, 30, 0.1, 1.0, 1.0, 2, 0.0, beamColorEdit, 0, true);
 			}
+		} else {
+			TE_SendBeamBoxToClient(client, g_Positions[client][1], g_Positions[client][0], g_BeamSprite, g_HaloSprite, 0, 30, 0.1, 1.0, 1.0, 2, 0.0, beamColorEdit, 0, true);
 		}
-		else
-			TE_SendBeamBoxToClient(client, g_Positions[client][1], g_Positions[client][0], g_BeamSprite, g_HaloSprite, 0, 30, 0.1, 1.0, 1.0, 2, 0.0, zColor, 0, true);
 	}
 
-	if (g_iSelectedTrigger[client] > -1)
-	{
+	if (g_iSelectedTrigger[client] > -1) {
 		// come back
 		float position[3], fMins[3], fMaxs[3];
-		int zColor[4] = beamColorN;
 
 		int iEnt = GetArrayCell(g_hTriggerMultiple, g_iSelectedTrigger[client]);
 		if (IsValidEntity(iEnt))
