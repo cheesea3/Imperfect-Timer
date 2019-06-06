@@ -16,6 +16,8 @@ public void db_setupDatabase()
 		return;
 	}
 
+	SQL_SetCharset(g_hDb, "utf8mb4");
+
 	char szIdent[8];
 	SQL_ReadDriver(g_hDb, szIdent, 8);
 
@@ -38,8 +40,6 @@ public void db_setupDatabase()
 
 	// If updating from a previous version
 	SQL_LockDatabase(g_hDb);
-	SQL_FastQuery(g_hDb, "SET NAMES 'utf8'");
-	SQL_FastQuery(g_hDb, "SET name 'utf8'");
 
 	// If tables haven't been created yet.
 	if (!SQL_FastQuery(g_hDb, "SELECT steamid FROM ck_playerrank LIMIT 1"))
@@ -48,33 +48,28 @@ public void db_setupDatabase()
 		db_createTables();
 		return;
 	}
-	else
-	{
-		// Check for db upgrades
-		if (!SQL_FastQuery(g_hDb, "SELECT prespeed FROM ck_zones LIMIT 1"))
-		{
-			db_upgradeDatabase(0);
-			return;
-		}
-		else if(!SQL_FastQuery(g_hDb, "SELECT ranked FROM ck_maptier LIMIT 1") || !SQL_FastQuery(g_hDb, "SELECT style FROM ck_playerrank LIMIT 1;"))
-		{
-			db_upgradeDatabase(1);
-			return;
-		}
-		else if (!SQL_FastQuery(g_hDb, "SELECT wrcppoints FROM ck_playerrank LIMIT 1"))
-		{
-			db_upgradeDatabase(2);
-		}
-		else if (!SQL_FastQuery(g_hDb, "SELECT teleside FROM ck_playeroptions LIMIT 1"))
-		{
-			db_upgradeDatabase(3);
-		}
-	}
+
+    // Check for db upgrades
+    if (!SQL_FastQuery(g_hDb, "SELECT prespeed FROM ck_zones LIMIT 1"))
+    {
+        db_upgradeDatabase(0);
+        return;
+    }
+    else if(!SQL_FastQuery(g_hDb, "SELECT ranked FROM ck_maptier LIMIT 1") || !SQL_FastQuery(g_hDb, "SELECT style FROM ck_playerrank LIMIT 1;"))
+    {
+        db_upgradeDatabase(1);
+        return;
+    }
+    else if (!SQL_FastQuery(g_hDb, "SELECT wrcppoints FROM ck_playerrank LIMIT 1"))
+    {
+        db_upgradeDatabase(2);
+    }
+    else if (!SQL_FastQuery(g_hDb, "SELECT teleside FROM ck_playeroptions LIMIT 1"))
+    {
+        db_upgradeDatabase(3);
+    }
 
 	SQL_UnlockDatabase(g_hDb);
-
-	for (int i = 0; i < sizeof(g_failedTransactions); i++)
-		g_failedTransactions[i] = 0;
 }
 
 public void db_createTables()

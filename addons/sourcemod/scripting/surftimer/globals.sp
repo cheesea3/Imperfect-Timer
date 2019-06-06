@@ -426,9 +426,6 @@ Handle g_hDb = null;
 // Database type
 int g_DbType;
 
-// Used to track failed transactions when making database changes
-int g_failedTransactions[7];
-
 // SteamdID of #1 player in map, used to fetch checkpoint times
 char g_szRecordMapSteamID[MAX_NAME_LENGTH];
 
