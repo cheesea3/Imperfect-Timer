@@ -438,11 +438,9 @@ public Action EndTouchTrigger(int caller, int activator)
                         CL_OnStartWrcpTimerPress(client); // fluffys only start stage timer if not in prac mode
 
                     if (g_bTimerEnabled[client])
-					{
                         CL_OnStartTimerPress(client);
-						CPrintToChat(client, "Start speed: %i u/s", RoundToNearest(g_fLastSpeed[client]));
-					}
 
+					CPrintToChat(client, "Start speed: %i u/s", RoundToNearest(g_fLastSpeed[client]));
                 }
 
                 // fluffys
@@ -473,7 +471,10 @@ public Action EndTouchTrigger(int caller, int activator)
         g_bInStageZone[client] = false;
 
         if (!g_bPracticeMode[client] && g_bTimerEnabled[client])
+		{
             CL_OnStartWrcpTimerPress(client);
+			CPrintToChat(client, "Start speed: %i u/s", RoundToNearest(g_fLastSpeed[client]));
+		}
 
     }
 
