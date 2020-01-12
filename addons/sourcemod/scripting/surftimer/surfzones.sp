@@ -152,7 +152,7 @@ public Action StartTouchTrigger(int caller, int activator)
 	if (!IsValidClient(client)) {
 		return Plugin_Handled;
     }
-	
+
 	// g_bLeftZone[activator] = false;
 
 	char sTargetName[256];
@@ -415,6 +415,7 @@ public Action EndTouchTrigger(int caller, int activator)
         if (g_bPracticeMode[client] && !g_bTimerRunning[client]) // If on practice mode, but timer isn't on - start timer
         {
             CL_OnStartTimerPress(client);
+			CPrintToChat(client, "Start speed: %i u/s", RoundToNearest(g_fLastSpeed[client]));
         }
         else
         {
@@ -437,7 +438,11 @@ public Action EndTouchTrigger(int caller, int activator)
                         CL_OnStartWrcpTimerPress(client); // fluffys only start stage timer if not in prac mode
 
                     if (g_bTimerEnabled[client])
+					{
                         CL_OnStartTimerPress(client);
+						CPrintToChat(client, "Start speed: %i u/s", RoundToNearest(g_fLastSpeed[client]));
+					}
+
                 }
 
                 // fluffys
@@ -1583,13 +1588,13 @@ public void EditorMenu(int client)
 			// Targetname
 			Format(szMenuItem, sizeof(szMenuItem), "Target Name: %s", g_mapZones[g_ClientSelectedZone[client]][targetName]);
 			editMenu.AddItem("", szMenuItem);
-			
+
 			// One jump limit
 			if (g_mapZones[g_ClientSelectedZone[client]][oneJumpLimit] == 1)
 				editMenu.AddItem("", "Disable One Jump Limit");
 			else
 				editMenu.AddItem("", "Enable One Jump Limit");
-			
+
 			// Prespeed
 			Format(szMenuItem, sizeof(szMenuItem), "Prespeed: %f", g_mapZones[g_ClientSelectedZone[client]][preSpeed]);
 			editMenu.AddItem("", szMenuItem);
@@ -1706,7 +1711,7 @@ public int MenuHandler_Editor(Handle tMenu, MenuAction action, int client, int i
 						g_mapZones[g_ClientSelectedZone[client]][oneJumpLimit] = 0;
 					else
 						g_mapZones[g_ClientSelectedZone[client]][oneJumpLimit] = 1;
-					
+
 					EditorMenu(client);
 				}
 				case 10:
@@ -1961,7 +1966,7 @@ public int ZoneHookHandler(Handle menu, MenuAction action, int param1, int param
 				GetEntPropVector(iEnt, Prop_Send, "m_vecOrigin", position);
 				GetEntPropVector(iEnt, Prop_Send, "m_vecMins", fMins);
 				GetEntPropVector(iEnt, Prop_Send, "m_vecMaxs", fMaxs);
-					
+
 
 				g_mapZones[g_ClientSelectedZone[param1]][CenterPoint][0] = position[0];
 				g_mapZones[g_ClientSelectedZone[param1]][CenterPoint][1] = position[1];
