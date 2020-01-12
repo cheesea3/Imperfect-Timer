@@ -1,4 +1,4 @@
-/* 
+/*
 	Surftimer Commands
 	TODO: Cleanup and sort commands
 */
@@ -130,12 +130,12 @@ void CreateCommands()
 	// QOL Commands
 	RegConsoleCmd("sm_gb", Command_GoBack, "[surftimer] Go back a stage");
 	RegConsoleCmd("sm_goback", Command_GoBack, "[surftimer] Go back a stage");
-	RegConsoleCmd("sm_mtop", Client_MapTop, "[surftimer] displays local map top for a given map");
-	RegConsoleCmd("sm_p", Client_Profile, "[surftimer] opens a player profile");
-	RegConsoleCmd("sm_timer", Client_OptionMenu, "[surftimer] opens options menu");
+	RegConsoleCmd("sm_mtop", Client_MapTop, "[surftimer] Displays local map top for a given map");
+	RegConsoleCmd("sm_p", Client_Profile, "[surftimer] Opens a player profile");
+	RegConsoleCmd("sm_timer", Client_OptionMenu, "[surftimer] Opens options menu");
 	RegConsoleCmd("sm_toggletimer", Client_ToggleTimer, "[surftimer] toggles timer on and off");
-	RegConsoleCmd("sm_surftimer", Client_OptionMenu, "[surftimer] opens options menu");
-	RegConsoleCmd("sm_bhoptimer", Client_OptionMenu, "[surftimer] opens options menu");
+	RegConsoleCmd("sm_surftimer", Client_OptionMenu, "[surftimer] Opens options menu");
+	RegConsoleCmd("sm_bhoptimer", Client_OptionMenu, "[surftimer] Opens options menu");
 	RegConsoleCmd("sm_knife", Command_GiveKnife, "[surftimer] Give players a knife");
 
 	// New Commands
@@ -146,15 +146,29 @@ void CreateCommands()
 	RegConsoleCmd("sm_tmf", Command_ToggleMapFinish, "[surftimer] Toggles whether a player will finish a map when entering the end zone.");
 	RegConsoleCmd("sm_repeat", Command_Repeat, "[surftimer] Toggles whether a player will keep repeating the same stage.");
 	RegConsoleCmd("sm_rank", Command_SelectRank, "[surftimer] Displays a players server rank in the chat");
-	RegConsoleCmd("sm_mi", Command_MapImprovement, "[surftimer] opens map improvement points panel for map");
+	RegConsoleCmd("sm_mi", Command_MapImprovement, "[surftimer] Opens map improvement points panel for map");
 	RegConsoleCmd("sm_specbot", Command_SpecBot, "[surftimer] Spectate the map bot");
 	RegConsoleCmd("sm_specbotbonus", Command_SpecBonusBot, "[surftimer] Spectate the bonus bot");
 	RegConsoleCmd("sm_specbotb", Command_SpecBonusBot, "[surftimer] Spectate the bonus bot");
 	RegConsoleCmd("sm_showzones", Command_ShowZones, "[surftimer] Clients can toggle whether zones are visible for them");
 
 	// Styles
-	RegConsoleCmd("sm_style", Client_SelectStyle, "[surftimer] open style select menu.");
-	RegConsoleCmd("sm_styles", Client_SelectStyle, "[surftimer] open style select menu.");
+	RegConsoleCmd("sm_style", Client_SelectStyle, "[surftimer] Open style select menu");
+	RegConsoleCmd("sm_styles", Client_SelectStyle, "[surftimer] Open style select menu");
+	RegConsoleCmd("sm_normal", Client_SetStyleNormal, "[surftimer] Switch to the normal surf style");
+	RegConsoleCmd("sm_nrm", Client_SetStyleNormal, "[surftimer] Switch to the normal surf style");
+	RegConsoleCmd("sm_sideways", Client_SetStyleSideways, "[surftimer] Switch to the sideways surf style");
+	RegConsoleCmd("sm_sw", Client_SetStyleSideways, "[surftimer] Switch to the sideways surf style");
+	RegConsoleCmd("sm_halfsideways", Client_SetStyleHalfSideways, "[surftimer] Switch to the half-sideways surf style");
+	RegConsoleCmd("sm_hsw", Client_SetStyleHalfSideways, "[surftimer] Switch to the half-sideways surf style");
+	RegConsoleCmd("sm_backwards", Client_SetStyleBackwards, "[surftimer] Switch to the backwards surf style");
+	RegConsoleCmd("sm_bw", Client_SetStyleBackwards, "[surftimer] Switch to the backwards surf style");
+	RegConsoleCmd("sm_fastforward", Client_SetStyleFastForward, "[surftimer] Switch to the fast forwards surf style");
+	RegConsoleCmd("sm_ff", Client_SetStyleFastForward, "[surftimer] Switch to the fast forwards surf style");
+	RegConsoleCmd("sm_slowmo", Client_SetStyleSlomo, "[surftimer] Switch to the slow motion surf style");
+	RegConsoleCmd("sm_slw", Client_SetStyleSlomo, "[surftimer] Switch to the slow motion surf style");
+	RegConsoleCmd("sm_lowgravity", Client_SetStyleLowGrav, "[surftimer] Switch to the low gravity surf style");
+	RegConsoleCmd("sm_lg", Client_SetStyleLowGrav, "[surftimer] Switch to the low gravity surf style");
 
 	// style btop if i ever get around to it
 	/*RegConsoleCmd("sm_btopsw", Client_SWBonusTop, "[surftimer] displays a local bonus top (sw) for a given map");
@@ -205,7 +219,7 @@ public Action Command_DeleteRecords(int client, int args)
 	}
 	else
 		Format(g_EditingMap[client], 256, g_szMapName);
-	
+
 	ShowMainDeleteMenu(client);
 	return Plugin_Handled;
 }
@@ -214,11 +228,11 @@ public void ShowMainDeleteMenu(int client)
 {
 	Menu editing = new Menu(ShowMainDeleteMenuHandler);
 	editing.SetTitle("%s Records Editing Menu - %s\n► Select the type of the record you would like to delete\n ", g_szMenuPrefix, g_EditingMap[client]);
-	
+
 	editing.AddItem("0", "Map Record");
 	editing.AddItem("1", "Stage Record");
 	editing.AddItem("2", "Bonus Record");
-	
+
 	editing.Display(client, MENU_TIME_FOREVER);
 }
 
@@ -229,9 +243,9 @@ public int ShowMainDeleteMenuHandler(Menu menu, MenuAction action, int client, i
 		g_SelectedEditOption[client] = key;
 		g_SelectedStyle[client] = 0;
 		g_SelectedType[client] = 1;
-		
+
 		char szQuery[512];
-		
+
 		switch(key)
 		{
 			case 0:
@@ -251,7 +265,7 @@ public int ShowMainDeleteMenuHandler(Menu menu, MenuAction action, int client, i
 				FormatEx(szQuery, 512, sql_MainEditQuery, "runtime", "ck_bonus", g_EditingMap[client], g_SelectedStyle[client], stageQuery, "runtime");
 			}
 		}
-		
+
 		PrintToServer(szQuery);
 		SQL_TQuery(g_hDb, sql_DeleteMenuView, szQuery, GetClientSerial(client));
 	}
@@ -508,7 +522,7 @@ public Action Command_createPlayerCheckpoint(int client, int args)
 {
 	if (!IsValidClient(client))
 		return Plugin_Handled;
-	
+
 	if (g_iClientInZone[client][0] == 1 || g_iClientInZone[client][0] == 5)
 	{
 		CPrintToChat(client, "%t", "PracticeInStartZone", g_szChatPrefix);
@@ -546,7 +560,7 @@ public Action Command_goToPlayerCheckpoint(int client, int args)
 {
 	if (!IsValidClient(client))
 		return Plugin_Handled;
-	
+
 	if (g_iSaveLocCount > 0)
 	{
 		if (args == 0)
@@ -1892,7 +1906,7 @@ void SpeedMode(int client, bool menu = false)
 		g_SpeedMode[client]++;
 	else
 		g_SpeedMode[client] = 0;
-	
+
 	if (menu)
 		MiscellaneousOptions(client);
 }
@@ -1900,7 +1914,7 @@ void SpeedMode(int client, bool menu = false)
 void CenterSpeedDisplay(int client, bool menu = false)
 {
 	g_bCenterSpeedDisplay[client] = !g_bCenterSpeedDisplay[client];
-	
+
 	if (g_bCenterSpeedDisplay[client])
 	{
 		SetHudTextParams(-1.0, 0.30, 1.0, 255, 255, 255, 255, 0, 0.25, 0.0, 0.0);
@@ -1917,7 +1931,7 @@ void TeleSide(int client, bool menu = false)
 		g_iTeleSide[client]++;
 	else
 		g_iTeleSide[client] = 0;
-	
+
 	if (menu)
 		MiscellaneousOptions(client);
 }
@@ -2038,7 +2052,7 @@ public void displayRanksMenu(int client)
 			Format(ChatLine, 512, "Rank %i-%i: %s", RankValue[RankBot], RankValue[RankTop], RankValue[RankName]);
 		else
 			Format(ChatLine, 512, "Rank %i: %s", RankValue[RankReq], RankValue[RankName]);
-		
+
 		AddMenuItem(menu, "", ChatLine, ITEMDRAW_DISABLED);
 	}
 	SetMenuOptionFlags(menu, MENUFLAG_BUTTON_EXIT);
@@ -2090,7 +2104,7 @@ public Action Client_Profile(int client, int args)
 		}
 	}
 
-	// Select which style 
+	// Select which style
 	ProfileMenuStyleSelect(client, style, szName);
 	return Plugin_Handled;
 }
@@ -2196,7 +2210,7 @@ public int ProfilePlayerSelectMenuHandler(Handle menu, MenuAction action, int pa
 				{
 					GetClientAuthId(i, AuthId_Steam2, szSteamId, 32, true);
 					db_viewPlayerProfileBySteamid(param1, g_ProfileStyleSelect[param1], szSteamId);
-					break;	
+					break;
 				}
 			}
 		}
@@ -2666,7 +2680,7 @@ public void CentreHudOptions(int client, int item)
 		item = 0;
 	else if (item < 12)
 		item = 6;
-		
+
 	DisplayMenuAtItem(menu, client, item, MENU_TIME_FOREVER);
 }
 
@@ -2711,7 +2725,7 @@ public int CentreHudOptionsHandler(Menu menu, MenuAction action, int param1, int
 				module = 0;
 
 			CentreHudModulesMenu(param1, module, szTitle);
-		}	
+		}
 	}
 	else if (action == MenuAction_Cancel)
 		OptionMenu(param1);
@@ -2877,7 +2891,7 @@ public void SideHudModulesMenu(int client, int module, char[] szTitle)
 	SetMenuTitle(menu, szTitle2);
 
 	// Format(szPanel, sizeof(szPanel), "Timeleft: %s\n \n%s \nby %s\n \n%s\n%s\n \n%s\nWRCP: %s\nby %s\n \nSpecs (6)\nfluffys\nGrandpa Goose\nJakeey802\nant\nsoda\n...", szTimeleft, szWR, g_szRecordPlayer, szPB, szRank, szStage, szWrcpTime, g_szStageRecordPlayer[stage]);
-	
+
 	// Toggle Module
 	if (g_iSideHudModule[client][module] == 0)
 		AddMenuItem(menu, szTitle, "[OFF] Toggle Module\n \n");
@@ -2973,7 +2987,7 @@ public void MiscellaneousOptions(int client)
 		AddMenuItem(menu, "", "[ON] Timer Sounds");
 	else
 		AddMenuItem(menu, "", "[OFF] Timer Sounds");
-	
+
 	// Tele Side
 	if (g_iTeleSide[client] == 0)
 		AddMenuItem(menu, "", "[LEFT] Start Side");
@@ -2989,7 +3003,7 @@ public void MiscellaneousOptions(int client)
 		AddMenuItem(menu, "", "[RAINBOW] Speed Gradient");
 	else
 		AddMenuItem(menu, "", "[MOMENTUM] Speed Gradient");
-	
+
 	// Speed Mode
 	if (g_SpeedMode[client] == 0)
 		AddMenuItem(menu, "", "[XY] Speed Mode");
@@ -3015,7 +3029,7 @@ public void MiscellaneousOptions(int client)
 		AddMenuItem(menu, "", "[OFF] Hide Weapon");
 	else
 		AddMenuItem(menu, "", "[ON] Hide Weapon");
-	
+
 
 	SetMenuExitBackButton(menu, true);
 	DisplayMenu(menu, client, MENU_TIME_FOREVER);
@@ -3431,6 +3445,117 @@ public Action Command_GoBack(int client, int args)
 }
 
 // Styles
+public Action Client_SetStyleNormal(int client, int args)
+{
+	if (g_iCurrentStyle[client] != 0)
+	{
+		g_iCurrentStyle[client] = 0;
+		g_iInitalStyle[client] = 0;
+		Format(g_szInitalStyle[client], 128, "Normal");
+		Format(g_szStyleHud[client], 32, "");
+		g_bRankedStyle[client] = true;
+		g_bFunStyle[client] = false;
+		Command_Restart(client, 1);
+	}
+	return Plugin_Handled;
+}
+
+public Action Client_SetStyleSideways(int client, int args)
+{
+	if (g_iCurrentStyle[client] != 1)
+	{
+		g_iCurrentStyle[client] = 1;
+		g_iInitalStyle[client] = 1;
+		Format(g_szInitalStyle[client], 128, "Sideways");
+		Format(g_szStyleHud[client], 32, "[SW]");
+		g_bRankedStyle[client] = true;
+		g_bFunStyle[client] = false;
+		Command_Restart(client, 1);
+	}
+
+	return Plugin_Handled;
+}
+
+public Action Client_SetStyleHalfSideways(int client, int args)
+{
+	if (g_iCurrentStyle[client] != 2)
+	{
+		g_iCurrentStyle[client] = 2;
+		g_iInitalStyle[client] = 2;
+		Format(g_szInitalStyle[client], 128, "Half-Sideways");
+		Format(g_szStyleHud[client], 32, "[HSW]");
+		g_bRankedStyle[client] = true;
+		g_bFunStyle[client] = false;
+		Command_Restart(client, 1);
+	}
+
+	return Plugin_Handled;
+}
+
+public Action Client_SetStyleBackwards(int client, int args)
+{
+	if (g_iCurrentStyle[client] != 3)
+	{
+		g_iCurrentStyle[client] = 3;
+		g_iInitalStyle[client] = 3;
+		Format(g_szInitalStyle[client], 128, "Backwards");
+		Format(g_szStyleHud[client], 32, "[BW]");
+		g_bRankedStyle[client] = true;
+		g_bFunStyle[client] = false;
+		Command_Restart(client, 1);
+	}
+
+	return Plugin_Handled;
+}
+
+public Action Client_SetStyleLowGrav(int client, int args)
+{
+	if (g_iCurrentStyle[client] != 4)
+	{
+		g_iCurrentStyle[client] = 4;
+		g_iInitalStyle[client] = 4;
+		Format(g_szInitalStyle[client], 128, "Low Gravity");
+		Format(g_szStyleHud[client], 32, "[LG]");
+		g_bRankedStyle[client] = false;
+		g_bFunStyle[client] = true;
+		Command_Restart(client, 1);
+	}
+
+	return Plugin_Handled;
+}
+
+public Action Client_SetStyleSlomo(int client, int args)
+{
+	if (g_iCurrentStyle[client] != 5)
+	{
+		g_iCurrentStyle[client] = 5;
+		g_iInitalStyle[client] = 5;
+		Format(g_szInitalStyle[client], 128, "Slow Motion");
+		Format(g_szStyleHud[client], 32, "[SLW]");
+		SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", 0.5);
+		g_bRankedStyle[client] = false;
+		g_bFunStyle[client] = true;
+	}
+
+	return Plugin_Handled;
+}
+
+public Action Client_SetStyleFastForward(int client, int args)
+{
+	if (g_iCurrentStyle[client] != 6)
+	{
+		g_iCurrentStyle[client] = 6;
+		g_iInitalStyle[client] = 6;
+		Format(g_szInitalStyle[client], 128, "Fast Forward");
+		Format(g_szStyleHud[client], 32, "[FF]");
+		SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", 1.5);
+		g_bRankedStyle[client] = false;
+		g_bFunStyle[client] = true;
+	}
+
+	return Plugin_Handled;
+}
+
 public Action Client_SelectStyle(int client, int args)
 {
 	styleSelectMenu(client);
@@ -3521,7 +3646,7 @@ public int StyleSelectMenuHandler(Menu menu, MenuAction action, int param1, int 
 		{
 			g_iCurrentStyle[param1] = 4;
 			g_iInitalStyle[param1] = 4;
-			Format(g_szInitalStyle[param1], 128, "Low-Gravity");
+			Format(g_szInitalStyle[param1], 128, "Low Gravity");
 			Format(g_szStyleHud[param1], 32, "[LG]");
 			SetEntityGravity(param1, 0.5);
 			g_bRankedStyle[param1] = false;
@@ -3532,7 +3657,7 @@ public int StyleSelectMenuHandler(Menu menu, MenuAction action, int param1, int 
 			g_iCurrentStyle[param1] = 5;
 			g_iInitalStyle[param1] = 5;
 			Format(g_szInitalStyle[param1], 128, "Slow Motion");
-			Format(g_szStyleHud[param1], 32, "[SM]");
+			Format(g_szStyleHud[param1], 32, "[SLW]");
 			SetEntPropFloat(param1, Prop_Data, "m_flLaggedMovementValue", 0.5);
 			g_bRankedStyle[param1] = false;
 			g_bFunStyle[param1] = true;
@@ -3789,9 +3914,9 @@ public Action Command_ToggleTriggers(int client, int args)
 
 	g_bShowTriggers[client] = !g_bShowTriggers[client];
 
-	if (g_bShowTriggers[client]) 
+	if (g_bShowTriggers[client])
 		++g_iTriggerTransmitCount;
-	else 
+	else
 		--g_iTriggerTransmitCount;
 
 	CPrintToChat(client, "%t", "Commands47", g_szChatPrefix);
@@ -3824,7 +3949,7 @@ void TransmitTriggers(bool transmit)
 
 		// Is this entity's model a VBSP model?
 		GetEntPropString(entity, Prop_Data, "m_ModelName", sBuffer, 2);
-		if (sBuffer[0] != '*') 
+		if (sBuffer[0] != '*')
 		{
 			// The entity must have been created by a plugin and assigned some random model.
 			// Skipping in order to avoid console spam.
@@ -3836,12 +3961,12 @@ void TransmitTriggers(bool transmit)
 		int edictFlags = GetEdictFlags(entity);
 
 		// Determine whether to transmit or not
-		if (transmit) 
+		if (transmit)
 		{
 			effectFlags &= ~EF_NODRAW;
 			edictFlags &= ~FL_EDICT_DONTSEND;
-		} 
-		else 
+		}
+		else
 		{
 			effectFlags |= EF_NODRAW;
 			edictFlags |= FL_EDICT_DONTSEND;
@@ -4165,7 +4290,7 @@ public int HookZonesMenuHandler(Menu menu, MenuAction action, int param1, int pa
 			SetMenuOptionFlags(menu2, MENUFLAG_BUTTON_EXIT);
 			DisplayMenu(menu2, param1, MENU_TIME_FOREVER);
 		}
-		case MenuAction_Cancel: 
+		case MenuAction_Cancel:
 		{
 			if (IsValidClient(param1))
 				g_iSelectedTrigger[param1] = -1;
@@ -4302,7 +4427,7 @@ public int HookZoneTypeHandler(Menu menu, MenuAction action, int param1, int par
 	switch (action)
 	{
 		case MenuAction_Select:
-		{	
+		{
 			char szTriggerIndex[128];
 			GetMenuItem(menu, param2, szTriggerIndex, sizeof(szTriggerIndex));
 			int index = StringToInt(szTriggerIndex);
@@ -4383,7 +4508,7 @@ public Action Command_Startpos(int client, int args)
 
 	if (g_bTimerEnabled[client])
 		Startpos(client);
-	else 
+	else
 		CReplyToCommand(client, "%t", "Commands82", g_szChatPrefix);
 
 	return Plugin_Handled;
@@ -4555,7 +4680,7 @@ public void PlayRecordMenu(int client) {
 				AddMenuItem(menu, "", "Stage Replay");
 				break;
 			}
-			
+
 			if (i == g_TotalStages)
 				AddMenuItem(menu, "", "Stage Replay", ITEMDRAW_DISABLED);
 		}
