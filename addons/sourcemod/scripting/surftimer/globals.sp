@@ -762,6 +762,10 @@ char g_BlockedChatText[256][256];
 // Last time an overlay was displayed
 float g_fLastOverlay[MAXPLAYERS + 1];
 
+// Incorrect stage time fix by samatazz, need to find a cleaner alternative
+// https://github.com/samatazz/Surftimer/commit/cee156ee35d905422d44154053614c7f3c9199a9
+bool g_wrcpGlitchStopper[MAXPLAYERS + 1];
+
 /*----------  Player location restoring  ----------*/
 
 // Clients location was restored this run
