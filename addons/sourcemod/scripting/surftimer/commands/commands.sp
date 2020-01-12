@@ -3536,6 +3536,7 @@ public Action Client_SetStyleSlomo(int client, int args)
 		SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", 0.5);
 		g_bRankedStyle[client] = false;
 		g_bFunStyle[client] = true;
+		Command_Restart(client, 1);
 	}
 
 	return Plugin_Handled;
@@ -3552,6 +3553,7 @@ public Action Client_SetStyleFastForward(int client, int args)
 		SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", 1.5);
 		g_bRankedStyle[client] = false;
 		g_bFunStyle[client] = true;
+		Command_Restart(client, 1);
 	}
 
 	return Plugin_Handled;
