@@ -1466,7 +1466,7 @@ public void MapTopMenuSelectStyle(int client, char szMapName[128])
 	AddMenuItem(menu, szMapName, "Sideways");
 	AddMenuItem(menu, szMapName, "Half-Sideways");
 	AddMenuItem(menu, szMapName, "Backwards");
-	AddMenuItem(menu, szMapName, "Low-Gravity");
+	AddMenuItem(menu, szMapName, "Low Gravity");
 	AddMenuItem(menu, szMapName, "Slow Motion");
 	AddMenuItem(menu, szMapName, "Fast Forward");
 	SetMenuExitButton(menu, true);
@@ -1490,6 +1490,7 @@ public int MapTopMenuSelectStyleHandler(Handle menu, MenuAction action, int para
 		// 	g_ProfileStyleSelect[param1] = param2;
 		// 	db_selectStyleMapTopSurfers(param1, szMapName, param2);
 		// }
+		SelectMapTop(param1, param2);
 	}
 	else if (action == MenuAction_End)
 		delete menu;
