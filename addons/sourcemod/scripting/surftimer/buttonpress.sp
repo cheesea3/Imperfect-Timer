@@ -318,49 +318,68 @@ public void CL_OnEndTimerPress(int client)
 		}
 		else if (style != 0)
 		{
-			// Make a new record bot?
-			if (GetConVarBool(g_hReplaceReplayTime) && (g_fFinalTime[client] < g_fReplayTimes[0][style] || g_fReplayTimes[0][style] == 0.0))
+			// Third person angle surfing check. Do not record these times
+			if ((style > 0 && style < 4 && !Client_IsInThirdPersonMode(client)) || style > 3)
 			{
-				if (GetConVarBool(g_hReplayBot) && !g_bPositionRestored[client])
+				// Make a new record bot?
+				if (GetConVarBool(g_hReplaceReplayTime) && (g_fFinalTime[client] < g_fReplayTimes[0][style] || g_fReplayTimes[0][style] == 0.0))
 				{
-					g_fReplayTimes[0][style] = g_fFinalTime[client];
-					g_bNewReplay[client] = true;
-					Handle pack;
-					CreateDataTimer(3.0, StyleReplayTimer, pack);
-					WritePackCell(pack, GetClientUserId(client));
-					WritePackCell(pack, style);
+					if (GetConVarBool(g_hReplayBot) && !g_bPositionRestored[client])
+					{
+						g_fReplayTimes[0][style] = g_fFinalTime[client];
+						g_bNewReplay[client] = true;
+						Handle pack;
+						CreateDataTimer(3.0, StyleReplayTimer, pack);
+						WritePackCell(pack, GetClientUserId(client));
+						WritePackCell(pack, style);
+					}
 				}
-			}
 
-			// Styles
-			char szDiff[54];
-			float diff;
+				// Styles
+				char szDiff[54];
+				float diff;
 
-			// Record bools init
-			g_bStyleMapFirstRecord[style][client] = false;
-			g_bStyleMapPBRecord[style][client] = false;
-			g_bStyleMapSRVRecord[style][client] = false;
+				// Record bools init
+				g_bStyleMapFirstRecord[style][client] = false;
+				g_bStyleMapPBRecord[style][client] = false;
+				g_bStyleMapSRVRecord[style][client] = false;
 
-			g_OldStyleMapRank[style][client] = g_StyleMapRank[style][client];
+				g_OldStyleMapRank[style][client] = g_StyleMapRank[style][client];
 
-			diff = g_fPersonalStyleRecord[style][client] - g_fFinalTime[client];
-			FormatTimeFloat(client, diff, 3, szDiff, sizeof(szDiff));
-			if (diff > 0.0)
-				Format(g_szTimeDifference[client], sizeof(szDiff), "-%s", szDiff);
-			else
-				Format(g_szTimeDifference[client], sizeof(szDiff), "+%s", szDiff);
+				diff = g_fPersonalStyleRecord[style][client] - g_fFinalTime[client];
+				FormatTimeFloat(client, diff, 3, szDiff, sizeof(szDiff));
+				if (diff > 0.0)
+					Format(g_szTimeDifference[client], sizeof(szDiff), "-%s", szDiff);
+				else
+					Format(g_szTimeDifference[client], sizeof(szDiff), "+%s", szDiff);
 
-			// If the server already has a record
-			if (g_StyleMapTimesCount[style] > 0)
-			{
-				if (g_fFinalTime[client] < g_fRecordStyleMapTime[style])
+				// If the server already has a record
+				if (g_StyleMapTimesCount[style] > 0)
 				{
-					// New fastest time in map
-					g_bStyleMapSRVRecord[style][client] = true;
-					g_fRecordStyleMapTime[style] = g_fFinalTime[client];
-					Format(g_szRecordStylePlayer[style], MAX_NAME_LENGTH, "%s", szName);
-					FormatTimeFloat(1, g_fRecordStyleMapTime[style], 3, g_szRecordStyleMapTime[style], 64);
+					if (g_fFinalTime[client] < g_fRecordStyleMapTime[style])
+					{
+						// New fastest time in map
+						g_bStyleMapSRVRecord[style][client] = true;
+						g_fRecordStyleMapTime[style] = g_fFinalTime[client];
+						Format(g_szRecordStylePlayer[style], MAX_NAME_LENGTH, "%s", szName);
+						FormatTimeFloat(1, g_fRecordStyleMapTime[style], 3, g_szRecordStyleMapTime[style], 64);
 
+						if (GetConVarBool(g_hReplayBot) && !g_bPositionRestored[client] && !g_bNewReplay[client])
+						{
+							g_bNewReplay[client] = true;
+							g_fReplayTimes[0][style] = g_fFinalTime[client];
+							Handle pack;
+							CreateDataTimer(3.0, StyleReplayTimer, pack);
+							WritePackCell(pack, GetClientUserId(client));
+							WritePackCell(pack, style);
+						}
+
+						// Insert latest record
+						// db_InsertLatestRecords(g_szSteamID[client], szName, g_fFinalTime[client]);
+					}
+				}
+				else
+				{
 					if (GetConVarBool(g_hReplayBot) && !g_bPositionRestored[client] && !g_bNewReplay[client])
 					{
 						g_bNewReplay[client] = true;
@@ -371,72 +390,57 @@ public void CL_OnEndTimerPress(int client)
 						WritePackCell(pack, style);
 					}
 
+					// Has to be the new record, since it is the first completion
+					g_bStyleMapSRVRecord[style][client] = true;
+					g_fRecordStyleMapTime[style] = g_fFinalTime[client];
+					Format(g_szRecordStylePlayer[style], MAX_NAME_LENGTH, "%s", szName);
+					FormatTimeFloat(1, g_fRecordStyleMapTime[style], 3, g_szRecordStyleMapTime[style], 64);
+
 					// Insert latest record
 					// db_InsertLatestRecords(g_szSteamID[client], szName, g_fFinalTime[client]);
 				}
-			}
-			else
-			{
-				if (GetConVarBool(g_hReplayBot) && !g_bPositionRestored[client] && !g_bNewReplay[client])
+
+
+				// Check for personal record
+				if (g_fPersonalStyleRecord[style][client] == 0.0)
 				{
-					g_bNewReplay[client] = true;
-					g_fReplayTimes[0][style] = g_fFinalTime[client];
-					Handle pack;
-					CreateDataTimer(3.0, StyleReplayTimer, pack);
-					WritePackCell(pack, GetClientUserId(client));
-					WritePackCell(pack, style);
+					// Clients first record
+					g_fPersonalStyleRecord[style][client] = g_fFinalTime[client];
+					/*g_pr_finishedmaps[client]++;
+					g_MapTimesCount++;*/
+					FormatTimeFloat(1, g_fPersonalStyleRecord[style][client], 3, g_szPersonalStyleRecord[style][client], 64);
+
+					g_bStyleMapFirstRecord[style][client] = true;
+					g_pr_showmsg[client] = true;
+
+					db_selectStyleRecord(client, style);
+				}
+				else if (diff > 0.0)
+				{
+					// Client's new record
+					g_fPersonalStyleRecord[style][client] = g_fFinalTime[client];
+					FormatTimeFloat(1, g_fPersonalStyleRecord[style][client], 3, g_szPersonalStyleRecord[style][client], 64);
+
+					g_bStyleMapPBRecord[style][client] = true;
+					g_pr_showmsg[client] = true;
+
+					db_selectStyleRecord(client, style);
 				}
 
-				// Has to be the new record, since it is the first completion
-				g_bStyleMapSRVRecord[style][client] = true;
-				g_fRecordStyleMapTime[style] = g_fFinalTime[client];
-				Format(g_szRecordStylePlayer[style], MAX_NAME_LENGTH, "%s", szName);
-				FormatTimeFloat(1, g_fRecordStyleMapTime[style], 3, g_szRecordStyleMapTime[style], 64);
-
-				// Insert latest record
-				// db_InsertLatestRecords(g_szSteamID[client], szName, g_fFinalTime[client]);
-			}
-
-
-			// Check for personal record
-			if (g_fPersonalStyleRecord[style][client] == 0.0)
-			{
-				// Clients first record
-				g_fPersonalStyleRecord[style][client] = g_fFinalTime[client];
-				/*g_pr_finishedmaps[client]++;
-				g_MapTimesCount++;*/
-				FormatTimeFloat(1, g_fPersonalStyleRecord[style][client], 3, g_szPersonalStyleRecord[style][client], 64);
-
-				g_bStyleMapFirstRecord[style][client] = true;
-				g_pr_showmsg[client] = true;
-
-				db_selectStyleRecord(client, style);
-			}
-			else if (diff > 0.0)
-			{
-				// Client's new record
-				g_fPersonalStyleRecord[style][client] = g_fFinalTime[client];
-				FormatTimeFloat(1, g_fPersonalStyleRecord[style][client], 3, g_szPersonalStyleRecord[style][client], 64);
-
-				g_bStyleMapPBRecord[style][client] = true;
-				g_pr_showmsg[client] = true;
-
-				db_selectStyleRecord(client, style);
-			}
-
-			if (!g_bStyleMapSRVRecord[style][client] && !g_bStyleMapFirstRecord[style][client] && !g_bStyleMapPBRecord[style][client])
-			{
-				int count = g_StyleMapTimesCount[style];
-
-				for (int i = 1; i <= GetMaxClients(); i++)
+				if (!g_bStyleMapSRVRecord[style][client] && !g_bStyleMapFirstRecord[style][client] && !g_bStyleMapPBRecord[style][client])
 				{
-					if (IsValidClient(i) && !IsFakeClient(i))
+					int count = g_StyleMapTimesCount[style];
+
+					for (int i = 1; i <= GetMaxClients(); i++)
 					{
-						CPrintToChat(i, "%t", "BPress6", g_szChatPrefix, szName, g_szStyleRecordPrint[style], g_szFinalTime[client], g_szTimeDifference[client], g_StyleMapRank[style][client], count, g_szRecordStyleMapTime[style]);
+						if (IsValidClient(i) && !IsFakeClient(i))
+						{
+							CPrintToChat(i, "%t", "BPress6", g_szChatPrefix, szName, g_szStyleRecordPrint[style], g_szFinalTime[client], g_szTimeDifference[client], g_StyleMapRank[style][client], count, g_szRecordStyleMapTime[style]);
+						}
 					}
 				}
+				CS_SetClientAssists(client, 100);
 			}
-			CS_SetClientAssists(client, 100);
 		}
 	}
 	else
@@ -576,54 +580,71 @@ public void CL_OnEndTimerPress(int client)
 		}
 		else if (style != 0)
 		{
-			if (GetConVarBool(g_hReplaceReplayTime) && (g_fFinalTime[client] < g_fReplayTimes[zGroup][style] || g_fReplayTimes[zGroup][style] == 0.0))
+			// Third person angle surfing check. Do not record these times
+			if ((style > 0 && style < 4 && !Client_IsInThirdPersonMode(client)) || style > 3)
 			{
-				if (GetConVarBool(g_hBonusBot) && !g_bPositionRestored[client])
+				if (GetConVarBool(g_hReplaceReplayTime) && (g_fFinalTime[client] < g_fReplayTimes[zGroup][style] || g_fReplayTimes[zGroup][style] == 0.0))
 				{
-					g_fReplayTimes[zGroup][style] = g_fFinalTime[client];
-					g_bNewBonus[client] = true;
-					Handle pack;
-					CreateDataTimer(3.0, StyleBonusReplayTimer, pack);
-					WritePackCell(pack, GetClientUserId(client));
-					WritePackCell(pack, zGroup);
-					WritePackCell(pack, style);
+					if (GetConVarBool(g_hBonusBot) && !g_bPositionRestored[client])
+					{
+						g_fReplayTimes[zGroup][style] = g_fFinalTime[client];
+						g_bNewBonus[client] = true;
+						Handle pack;
+						CreateDataTimer(3.0, StyleBonusReplayTimer, pack);
+						WritePackCell(pack, GetClientUserId(client));
+						WritePackCell(pack, zGroup);
+						WritePackCell(pack, style);
+					}
 				}
-			}
 
-			// styles for bonus
-			char szDiff[54];
-			float diff;
+				// styles for bonus
+				char szDiff[54];
+				float diff;
 
-			// Record bools init
-			g_bBonusFirstRecord[client] = false;
-			g_bBonusPBRecord[client] = false;
-			g_bBonusSRVRecord[client] = false;
+				// Record bools init
+				g_bBonusFirstRecord[client] = false;
+				g_bBonusPBRecord[client] = false;
+				g_bBonusSRVRecord[client] = false;
 
-			g_StyleOldMapRankBonus[style][zGroup][client] = g_StyleMapRankBonus[style][zGroup][client];
+				g_StyleOldMapRankBonus[style][zGroup][client] = g_StyleMapRankBonus[style][zGroup][client];
 
-			diff = g_fStylePersonalRecordBonus[style][zGroup][client] - g_fFinalTime[client];
-			FormatTimeFloat(client, diff, 3, szDiff, sizeof(szDiff));
+				diff = g_fStylePersonalRecordBonus[style][zGroup][client] - g_fFinalTime[client];
+				FormatTimeFloat(client, diff, 3, szDiff, sizeof(szDiff));
 
-			if (diff > 0.0)
-				Format(g_szBonusTimeDifference[client], sizeof(szDiff), "-%s", szDiff);
-			else
-				Format(g_szBonusTimeDifference[client], sizeof(szDiff), "+%s", szDiff);
+				if (diff > 0.0)
+					Format(g_szBonusTimeDifference[client], sizeof(szDiff), "-%s", szDiff);
+				else
+					Format(g_szBonusTimeDifference[client], sizeof(szDiff), "+%s", szDiff);
 
 
-			g_StyletmpBonusCount[style][zGroup] = g_iStyleBonusCount[style][zGroup];
+				g_StyletmpBonusCount[style][zGroup] = g_iStyleBonusCount[style][zGroup];
 
-			// If the server already has a record
-			if (g_iStyleBonusCount[style][zGroup] > 0)
-			{
-				if (g_fFinalTime[client] < g_fStyleBonusFastest[style][zGroup])
+				// If the server already has a record
+				if (g_iStyleBonusCount[style][zGroup] > 0)
 				{
-					// New fastest time in current bonus
-					g_fStyleOldBonusRecordTime[style][zGroup] = g_fStyleBonusFastest[style][zGroup];
-					g_fStyleBonusFastest[style][zGroup] = g_fFinalTime[client];
-					Format(g_szStyleBonusFastest[style][zGroup], MAX_NAME_LENGTH, "%s", szName); // fluffys come back stopped here
-					FormatTimeFloat(1, g_fStyleBonusFastest[style][zGroup], 3, g_szStyleBonusFastestTime[style][zGroup], 64);
+					if (g_fFinalTime[client] < g_fStyleBonusFastest[style][zGroup])
+					{
+						// New fastest time in current bonus
+						g_fStyleOldBonusRecordTime[style][zGroup] = g_fStyleBonusFastest[style][zGroup];
+						g_fStyleBonusFastest[style][zGroup] = g_fFinalTime[client];
+						Format(g_szStyleBonusFastest[style][zGroup], MAX_NAME_LENGTH, "%s", szName); // fluffys come back stopped here
+						FormatTimeFloat(1, g_fStyleBonusFastest[style][zGroup], 3, g_szStyleBonusFastestTime[style][zGroup], 64);
 
-					g_bBonusSRVRecord[client] = true;
+						g_bBonusSRVRecord[client] = true;
+						if (GetConVarBool(g_hBonusBot) && !g_bPositionRestored[client] && !g_bNewBonus[client])
+						{
+							g_bNewBonus[client] = true;
+							g_fReplayTimes[zGroup][style] = g_fFinalTime[client];
+							Handle pack;
+							CreateDataTimer(3.0, StyleBonusReplayTimer, pack);
+							WritePackCell(pack, GetClientUserId(client));
+							WritePackCell(pack, zGroup);
+							WritePackCell(pack, style);
+						}
+					}
+				}
+				else
+				{
 					if (GetConVarBool(g_hBonusBot) && !g_bPositionRestored[client] && !g_bNewBonus[client])
 					{
 						g_bNewBonus[client] = true;
@@ -634,57 +655,44 @@ public void CL_OnEndTimerPress(int client)
 						WritePackCell(pack, zGroup);
 						WritePackCell(pack, style);
 					}
+
+					// Has to be the new record, since it is the first completion
+					g_fStyleOldBonusRecordTime[style][zGroup] = g_fStyleBonusFastest[style][zGroup];
+					g_fStyleBonusFastest[style][zGroup] = g_fFinalTime[client];
+					Format(g_szStyleBonusFastest[style][zGroup], MAX_NAME_LENGTH, "%s", szName);
+					FormatTimeFloat(1, g_fStyleBonusFastest[style][zGroup], 3, g_szStyleBonusFastestTime[style][zGroup], 64);
+
+					g_bBonusSRVRecord[client] = true;
+
+					g_fStyleOldBonusRecordTime[style][zGroup] = g_fStyleBonusFastest[style][zGroup];
 				}
-			}
-			else
-			{
-				if (GetConVarBool(g_hBonusBot) && !g_bPositionRestored[client] && !g_bNewBonus[client])
+
+				// Clients first record
+				if (g_fStylePersonalRecordBonus[style][zGroup][client] == 0.0)
 				{
-					g_bNewBonus[client] = true;
-					g_fReplayTimes[zGroup][style] = g_fFinalTime[client];
-					Handle pack;
-					CreateDataTimer(3.0, StyleBonusReplayTimer, pack);
-					WritePackCell(pack, GetClientUserId(client));
-					WritePackCell(pack, zGroup);
-					WritePackCell(pack, style);
+					g_fStylePersonalRecordBonus[style][zGroup][client] = g_fFinalTime[client];
+					FormatTimeFloat(1, g_fStylePersonalRecordBonus[style][zGroup][client], 3, g_szStylePersonalRecordBonus[style][zGroup][client], 64);
+
+					g_bBonusFirstRecord[client] = true;
+					g_pr_showmsg[client] = true;
+					db_insertBonusStyle(client, g_szSteamID[client], szName, g_fFinalTime[client], zGroup, style);
+				}
+				else if (diff > 0.0)
+				{
+					// client's new record
+					g_fStylePersonalRecordBonus[style][zGroup][client] = g_fFinalTime[client];
+					FormatTimeFloat(1, g_fStylePersonalRecordBonus[style][zGroup][client], 3, g_szStylePersonalRecordBonus[style][zGroup][client], 64);
+
+					g_bBonusPBRecord[client] = true;
+					g_pr_showmsg[client] = true;
+					db_updateBonusStyle(client, g_szSteamID[client], szName, g_fFinalTime[client], zGroup, style);
 				}
 
-				// Has to be the new record, since it is the first completion
-				g_fStyleOldBonusRecordTime[style][zGroup] = g_fStyleBonusFastest[style][zGroup];
-				g_fStyleBonusFastest[style][zGroup] = g_fFinalTime[client];
-				Format(g_szStyleBonusFastest[style][zGroup], MAX_NAME_LENGTH, "%s", szName);
-				FormatTimeFloat(1, g_fStyleBonusFastest[style][zGroup], 3, g_szStyleBonusFastestTime[style][zGroup], 64);
 
-				g_bBonusSRVRecord[client] = true;
-
-				g_fStyleOldBonusRecordTime[style][zGroup] = g_fStyleBonusFastest[style][zGroup];
-			}
-
-			// Clients first record
-			if (g_fStylePersonalRecordBonus[style][zGroup][client] == 0.0)
-			{
-				g_fStylePersonalRecordBonus[style][zGroup][client] = g_fFinalTime[client];
-				FormatTimeFloat(1, g_fStylePersonalRecordBonus[style][zGroup][client], 3, g_szStylePersonalRecordBonus[style][zGroup][client], 64);
-
-				g_bBonusFirstRecord[client] = true;
-				g_pr_showmsg[client] = true;
-				db_insertBonusStyle(client, g_szSteamID[client], szName, g_fFinalTime[client], zGroup, style);
-			}
-			else if (diff > 0.0)
-			{
-				// client's new record
-				g_fStylePersonalRecordBonus[style][zGroup][client] = g_fFinalTime[client];
-				FormatTimeFloat(1, g_fStylePersonalRecordBonus[style][zGroup][client], 3, g_szStylePersonalRecordBonus[style][zGroup][client], 64);
-
-				g_bBonusPBRecord[client] = true;
-				g_pr_showmsg[client] = true;
-				db_updateBonusStyle(client, g_szSteamID[client], szName, g_fFinalTime[client], zGroup, style);
-			}
-
-
-			if (!g_bBonusSRVRecord[client] && !g_bBonusFirstRecord[client] && !g_bBonusPBRecord[client])
-			{
-				db_currentBonusStyleRunRank(client, zGroup, style);
+				if (!g_bBonusSRVRecord[client] && !g_bBonusFirstRecord[client] && !g_bBonusPBRecord[client])
+				{
+					db_currentBonusStyleRunRank(client, zGroup, style);
+				}
 			}
 		}
 	}
@@ -856,7 +864,13 @@ public void CL_OnEndWrcpTimerPress(int client, float time2)
 		Format(sz_srDiff, 128, "");*/
 
 		FormatTimeFloat(client, g_fFinalWrcpTime[client], 3, g_szFinalWrcpTime[client], 32);
-		db_selectWrcpRecord(client, style, stage);
+
+		// Third person angle surfing check. Do not record these times
+		if ((style > 0 && style < 4 && !Client_IsInThirdPersonMode(client)) || style > 3)
+		{
+			db_selectWrcpRecord(client, style, stage);
+		}
+
 		g_bWrcpTimeractivated[client] = false;
 	}
 }
