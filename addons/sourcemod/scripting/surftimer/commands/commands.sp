@@ -151,6 +151,7 @@ void CreateCommands()
 	RegConsoleCmd("sm_specbotbonus", Command_SpecBonusBot, "[surftimer] Spectate the bonus bot");
 	RegConsoleCmd("sm_specbotb", Command_SpecBonusBot, "[surftimer] Spectate the bonus bot");
 	RegConsoleCmd("sm_showzones", Command_ShowZones, "[surftimer] Clients can toggle whether zones are visible for them");
+	RegConsoleCmd("sm_showspeed", Command_ShowSpeed, "[surftimer] Toggle the centre speed display");
 
 	// Styles
 	RegConsoleCmd("sm_style", Client_SelectStyle, "[surftimer] Open style select menu");
@@ -3507,8 +3508,10 @@ public Action Client_SetStyleNormal(int client, int args)
 		Format(g_szStyleHud[client], 32, "");
 		g_bRankedStyle[client] = true;
 		g_bFunStyle[client] = false;
+		CReplyToCommand(client, "%t", "CommandsNormal", g_szChatPrefix);
 		Command_Restart(client, 1);
 	}
+
 	return Plugin_Handled;
 }
 
@@ -3522,6 +3525,7 @@ public Action Client_SetStyleSideways(int client, int args)
 		Format(g_szStyleHud[client], 32, "[SW]");
 		g_bRankedStyle[client] = true;
 		g_bFunStyle[client] = false;
+		CReplyToCommand(client, "%t", "CommandsSideways", g_szChatPrefix);
 		Command_Restart(client, 1);
 	}
 
@@ -3538,6 +3542,7 @@ public Action Client_SetStyleHalfSideways(int client, int args)
 		Format(g_szStyleHud[client], 32, "[HSW]");
 		g_bRankedStyle[client] = true;
 		g_bFunStyle[client] = false;
+		CReplyToCommand(client, "%t", "CommandsHalfSideways", g_szChatPrefix);
 		Command_Restart(client, 1);
 	}
 
@@ -3554,6 +3559,7 @@ public Action Client_SetStyleBackwards(int client, int args)
 		Format(g_szStyleHud[client], 32, "[BW]");
 		g_bRankedStyle[client] = true;
 		g_bFunStyle[client] = false;
+		CReplyToCommand(client, "%t", "CommandsBackwards", g_szChatPrefix);
 		Command_Restart(client, 1);
 	}
 
@@ -3570,6 +3576,7 @@ public Action Client_SetStyleLowGrav(int client, int args)
 		Format(g_szStyleHud[client], 32, "[LG]");
 		g_bRankedStyle[client] = false;
 		g_bFunStyle[client] = true;
+		CReplyToCommand(client, "%t", "CommandsLowGravity", g_szChatPrefix);
 		Command_Restart(client, 1);
 	}
 
@@ -3587,6 +3594,7 @@ public Action Client_SetStyleSlomo(int client, int args)
 		SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", 0.5);
 		g_bRankedStyle[client] = false;
 		g_bFunStyle[client] = true;
+		CReplyToCommand(client, "%t", "CommandsSlowMotion", g_szChatPrefix);
 		Command_Restart(client, 1);
 	}
 
@@ -3604,6 +3612,7 @@ public Action Client_SetStyleFastForward(int client, int args)
 		SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", 1.5);
 		g_bRankedStyle[client] = false;
 		g_bFunStyle[client] = true;
+		CReplyToCommand(client, "%t", "CommandsFastForward", g_szChatPrefix);
 		Command_Restart(client, 1);
 	}
 
@@ -4948,4 +4957,10 @@ public int PlayRecordMenuHandler(Handle menu, MenuAction action, int param1, int
 		PlayRecordMenu(param1);
 	else if (action == MenuAction_End)
 		delete menu;
+}
+
+public Action Command_ShowSpeed(int client, int args)
+{
+	CenterSpeedDisplay(client);
+	return Plugin_Handled;
 }

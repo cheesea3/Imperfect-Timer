@@ -725,6 +725,41 @@
 		"#format"	"{1:s}"
 		"en"		"{1} This is a linear map."
 	}
+	"CommandsSideways"
+	{
+		"#format"	"{1:s}"
+		"en"		"{1} Style set to {green}Sideways"
+	}
+	"CommandsNormal"
+	{
+		"#format"	"{1:s}"
+		"en"		"{1} Style set to {green}Normal"
+	}
+	"CommandsHalfSideways"
+	{
+		"#format"	"{1:s}"
+		"en"		"{1} Style set to {green}Half Sideways"
+	}
+	"CommandsBackwards"
+	{
+		"#format"	"{1:s}"
+		"en"		"{1} Style set to {green}Backwards"
+	}
+	"CommandsSlowMotion"
+	{
+		"#format"	"{1:s}"
+		"en"		"{1} Style set to {green}Slow Motion"
+	}
+	"CommandsFastForward"
+	{
+		"#format"	"{1:s}"
+		"en"		"{1} Style set to {green}Fast Forward"
+	}
+	"CommandsFastLowGravity"
+	{
+		"#format"	"{1:s}"
+		"en"		"{1} Style set to {green}Low Gravity"
+	}
 	"BotInUse"
 	{
 		"#format"	"{1:s},{2:s}"
