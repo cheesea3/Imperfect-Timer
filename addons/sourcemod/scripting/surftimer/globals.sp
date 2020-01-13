@@ -766,6 +766,9 @@ float g_fLastOverlay[MAXPLAYERS + 1];
 // https://github.com/samatazz/Surftimer/commit/cee156ee35d905422d44154053614c7f3c9199a9
 bool g_wrcpGlitchStopper[MAXPLAYERS + 1];
 
+// Checks for vmutes on a player
+bool g_bIsVmuted[MAXPLAYERS + 1];
+
 /*----------  Player location restoring  ----------*/
 
 // Clients location was restored this run

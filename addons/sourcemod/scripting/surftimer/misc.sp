@@ -1264,6 +1264,7 @@ public void SetClientDefaults(int client) {
 	// g_fLastPlayerCheckpoint[client] = GameTime;
 	g_bCreatedTeleport[client] = false;
 	g_bPracticeMode[client] = false;
+	g_bIsVmuted[client] = false;
 
 	// Client Options
 	g_bHide[client] = false;

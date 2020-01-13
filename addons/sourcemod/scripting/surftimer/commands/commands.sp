@@ -108,9 +108,9 @@ void CreateCommands()
 
 	// VIP Commands
 	RegAdminCmd("sm_fixbot", Admin_FixBot, ADMFLAG_ROOT, "[surftimer] Toggles replay bots off and on");
-
 	RegConsoleCmd("sm_vip", Command_Vip, "[surftimer] [vip] Displays the VIP menu to client");
 	RegConsoleCmd("sm_vmute", Command_Vmute, "[surftimer] [vip] Toggle vmute on a player");
+	RegAdminCmd("sm_imute", Command_Imute, ADMFLAG_CUSTOM2, "[surftimer] [IG] Mute a player for 30 minutes for mic spam/interrupting");
 	RegAdminCmd("sm_givetitle", Command_GiveTitle, ADMFLAG_ROOT, "[surftimer] Grants a title to a player");
 	RegAdminCmd("sm_removetitle", Command_RemoveTitle, ADMFLAG_ROOT, "[surftimer] Removes a title from a player");
 	RegAdminCmd("sm_listtitles", Command_ListTitles, ADMFLAG_ROOT, "[surftimer] Lists titles for a player");
@@ -3086,7 +3086,8 @@ public Action Command_Vmute(int client, int args)
 	GetCmdArg(1, target, sizeof(target));
 
 	int targetId = FindTarget(client, target, true, false);
-    if (targetId < 0) {
+    if (targetId < 0)
+	{
         CReplyToCommand(client, "Target player not found");
         return Plugin_Handled;
     }
@@ -3095,14 +3096,64 @@ public Action Command_Vmute(int client, int args)
     GetClientName(targetId, targetNamed, sizeof(targetNamed));
 
     bType isMuted = SourceComms_GetClientMuteType(targetId);
-    if (isMuted == bNot) {
+    if (isMuted == bNot)
+	{
         SourceComms_SetClientMute(targetId, true, 30, true, reason);
+		g_bIsVmuted[targetId] = true;
         CPrintToChatAll("VIP %s muted %s for 30 minutes", clientName, targetNamed);
-    } else if (isMuted == bPerm) {
-        CReplyToCommand(client, "Cannot unmute a permanately muted player using vmute.");
-    } else {
+    }
+	else if (isMuted == bPerm)
+	{
+        CReplyToCommand(client, "Cannot unmute a permanently muted player using vmute.");
+    }
+	else if (isMuted == bTime && !g_bIsVmuted[targetId])
+	{
+		CReplyToCommand(client, "Cannot remove a staff mute.");
+	}
+	else
+	{
         SourceComms_SetClientMute(targetId, false, -1, false, reason);
+		g_bIsVmuted[targetId] = false;
         CPrintToChatAll("VIP %s unmuted %s temporarily", clientName, targetNamed);
+    }
+
+    return Plugin_Handled;
+}
+
+public Action Command_Imute(int client, int args)
+{
+	if (!IsValidClient(client))
+		return Plugin_Handled;
+
+	if (args < 1)
+	{
+		CReplyToCommand(client, "Usage: <name> - mutes the given player for 30 minutes for mic spam/interrupting");
+		return Plugin_Handled;
+	}
+
+	char clientName[MAX_NAME_LENGTH];
+	GetClientName(client, clientName, sizeof(clientName));
+    char reason[128];
+    Format(reason, sizeof(reason), "imute by %s", clientName);
+
+	char target[128];
+	GetCmdArg(1, target, sizeof(target));
+
+	int targetId = FindTarget(client, target, true, false);
+    if (targetId < 0)
+	{
+        CReplyToCommand(client, "Target player not found");
+        return Plugin_Handled;
+    }
+
+    char targetNamed[128];
+    GetClientName(targetId, targetNamed, sizeof(targetNamed));
+
+    bType isMuted = SourceComms_GetClientMuteType(targetId);
+    if (isMuted == bNot)
+	{
+        SourceComms_SetClientMute(targetId, true, 30, true, reason);
+        CPrintToChatAll("%s has been muted for 30 minutes (Reason: Mic spam/interrupting)", targetNamed);
     }
 
     return Plugin_Handled;
