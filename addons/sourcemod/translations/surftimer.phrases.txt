@@ -760,6 +760,11 @@
 		"#format"	"{1:s}"
 		"en"		"{1} Style set to {green}Low Gravity"
 	}
+	"StartSpeed"
+	{
+		"#format"	"{1:s},{2:i}"
+		"en"		"{1} Start speed: {2}%%% u/s"
+	}
 	"BotInUse"
 	{
 		"#format"	"{1:s},{2:s}"
