@@ -105,7 +105,7 @@ public void teleportClient(int client, int zonegroup, int zone, bool stopTime)
 
 	if (g_iInitalStyle[client] != 5 && g_iInitalStyle[client] != 6)
 	 	SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", 1.0);
-		
+
 	// Hack fix for b1 of surf_aircontrol_ksf
 	if (StrEqual(g_szMapName, "surf_aircontrol_ksf_123") && zonegroup == 1)
 		SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", 2.0);
@@ -127,12 +127,12 @@ public void teleportClient(int client, int zonegroup, int zone, bool stopTime)
 		realZone = 0;
 	else
 		realZone = zone;
-	
+
 	if (realZone > 1)
 		g_bInStageZone[client] = true;
 	else if (realZone == 1)
 		g_bInStartZone[client] = true;
-	
+
 	// Check clients tele side
 	int teleside = g_iTeleSide[client];
 
@@ -1066,10 +1066,10 @@ public void LimitSpeedNew(int client)
 {
 	if (!IsValidClient(client) || !IsPlayerAlive(client) || IsFakeClient(client) || g_mapZonesCount <= 0 || g_bPracticeMode[client] || g_mapZonesTypeCount[g_iClientInZone[client][2]][2] == 0 || g_iClientInZone[client][3] < 0 || g_iClientInZone[client][0] == 2 || g_iClientInZone[client][0] == 4 || g_iClientInZone[client][0] >= 6 || GetConVarInt(g_hLimitSpeedType) == 0)
 		return;
-	
+
 	if (GetConVarInt(g_hLimitSpeedType) == 0 || !g_bInStartZone[client] && !g_bInStageZone[client])
 		return;
-	
+
 	float speedCap = 0.0;
 	speedCap = g_mapZones[g_iClientInZone[client][3]][preSpeed];
 
@@ -1204,6 +1204,7 @@ public void SetClientDefaults(int client) {
 	g_bNoClip[client] = false;
 	g_bOverlay[client] = false;
 	g_bClientOwnReason[client] = false;
+	g_wrcpGlitchStopper[client] = true;
 	g_AdminMenuLastPage[client] = 0;
 	g_MenuLevel[client] = -1;
 	g_AttackCounter[client] = 0;
@@ -1299,7 +1300,7 @@ public void SetClientDefaults(int client) {
 	// Goose Start Pos
 	for (int i = 0; i < MAXZONEGROUPS; i++)
 		g_bStartposUsed[client][i] = false;
-	
+
 	// Save loc
 	g_iLastSaveLocIdClient[client] = 0;
 	g_fLastCheckpointMade[client] = 0.0;
@@ -1314,7 +1315,7 @@ public void SetClientDefaults(int client) {
 	// Set default stage maybe
 	for (int i = 0; i < MAXZONEGROUPS; i++)
 		g_Stage[i][client] = 1;
-	
+
 	g_bInBhop[client] = false;
 }
 
@@ -1379,7 +1380,7 @@ public void PlayRecordSound(int iRecordtype)
 	{
 		for (int i = 1; i <= GetMaxClients(); i++)
 		{
-			if (IsValidClient(i) && !IsFakeClient(i) && g_bEnableQuakeSounds[i] == true)
+			if (IsValidClient(i) && !IsFakeClient(i) && g_bEnableQuakeSounds[i])
 			{
 				Format(buffer, sizeof(buffer), "play %s", g_szRelativeSoundPathWR);
 				ClientCommand(i, buffer);
@@ -1390,7 +1391,7 @@ public void PlayRecordSound(int iRecordtype)
 	{
 		for (int i = 1; i <= GetMaxClients(); i++)
 		{
-			if (IsValidClient(i) && !IsFakeClient(i) && g_bEnableQuakeSounds[i] == true)
+			if (IsValidClient(i) && !IsFakeClient(i) && g_bEnableQuakeSounds[i])
 			{
 				Format(buffer, sizeof(buffer), "play %s", g_szRelativeSoundPathWR);
 				ClientCommand(i, buffer);
@@ -1401,7 +1402,7 @@ public void PlayRecordSound(int iRecordtype)
 	{
 		for (int i = 1; i <= GetMaxClients(); i++)
 		{
-			if (IsValidClient(i) && !IsFakeClient(i) && g_bEnableQuakeSounds[i] == true)
+			if (IsValidClient(i) && !IsFakeClient(i) && g_bEnableQuakeSounds[i])
 			{
 				Format(buffer, sizeof(buffer), "play %s", g_szRelativeSoundPathTop);
 				ClientCommand(i, buffer);
@@ -1412,7 +1413,7 @@ public void PlayRecordSound(int iRecordtype)
 	{
 		for (int i = 1; i <= GetMaxClients(); i++)
 		{
-			if (IsValidClient(i) && !IsFakeClient(i) && g_bEnableQuakeSounds[i] == true)
+			if (IsValidClient(i) && !IsFakeClient(i) && g_bEnableQuakeSounds[i])
 			{
 				Format(buffer, sizeof(buffer), "play %s", DISCOTIME_RELATIVE_SOUND_PATH);
 				ClientCommand(i, buffer);
@@ -1450,7 +1451,7 @@ public void PlayWRCPRecord(int iRecordtype)
 	{
 		for (int i = 1; i <= GetMaxClients(); i++)
 		{
-			if (IsValidClient(i) && !IsFakeClient(i) && g_bEnableQuakeSounds[i] == true)
+			if (IsValidClient(i) && !IsFakeClient(i) && g_bEnableQuakeSounds[i])
 			{
 				Format(buffer, sizeof(buffer), "play %s", g_szRelativeSoundPathWRCP);
 				ClientCommand(i, buffer);
@@ -1471,7 +1472,7 @@ public void InitPrecache()
 	// FakePrecacheSound(PRO_RELATIVE_SOUND_PATH);
 	// AddFileToDownloadsTable(CP_FULL_SOUND_PATH);
 	// FakePrecacheSound(CP_RELATIVE_SOUND_PATH);
-	
+
 	GetConVarString(g_hSoundPathWR, szBuffer, sizeof(szBuffer));
 	AddFileToDownloadsTable(szBuffer);
 	FakePrecacheSound(g_szRelativeSoundPathWR);
@@ -1513,8 +1514,8 @@ public void InitPrecache()
 	PrecacheModel(ZONE_MODEL);
 
 	// Preache default arm models
-	PrecacheModel("models/weapons/t_arms.mdl", true); 
-	PrecacheModel("models/weapons/ct_arms.mdl", true); 
+	PrecacheModel("models/weapons/t_arms.mdl", true);
+	PrecacheModel("models/weapons/ct_arms.mdl", true);
 }
 
 
@@ -1784,7 +1785,7 @@ stock void MapFinishedMsgs(int client, int rankThisRun = 0)
 
 		if (g_MapRank[client] == 99999 && IsValidClient(client))
 			CPrintToChat(client, "%t", "Misc19", g_szChatPrefix);
-		
+
 		Handle pack;
 		int style = 0;
 		CreateDataTimer(1.0, UpdatePlayerProfile, pack, TIMER_FLAG_NO_MAPCHANGE);
@@ -2158,7 +2159,7 @@ public void FormatTimeFloat(int client, float time, int type, char[] string, int
 		}
 		else
 			Format(string, length, "%s:%s:%s", szMinutes, szSeconds, szMilli);
-		
+
 		ReplaceString(string, length, "-", "");
 
 		if (time > 0.0)
@@ -2215,7 +2216,7 @@ public void SetSkillGroups()
 					pointsTop = StringToInt(sBuffer2[1]);
 				}
 				else if (!StrEqual(sBuffer, "invalid"))
-					points = StringToInt(sBuffer);				
+					points = StringToInt(sBuffer);
 
 				// Get percentage
 				fPercentage = KvGetFloat(hKeyValues, "percentage", 0.0);
@@ -2300,7 +2301,7 @@ public void SetPlayerRank(int client)
 			char szName[MAX_NAME_LENGTH];
 			GetClientName(client, szName, sizeof(szName));
 			CRemoveColors(szName, sizeof(szName));
-			
+
 			Format(g_pr_chat_coloredrank[client], 128, RankValue[RankNameColored]);
 			Format(g_pr_rankname[client], 128, RankValue[RankName]);
 			ReplaceString(g_pr_rankname[client], 128, "{style}", "");
@@ -2726,7 +2727,7 @@ public void SpecListMenuDead(int client) // What Spectators see
 						{
 							if (g_bManualStageReplayPlayback)
 							{
-								int stage = g_iSelectedReplayStage; 
+								int stage = g_iSelectedReplayStage;
 								Format(g_szPlayerPanelText[client], 512, "Stage: %i Replay (%i)\n%s (%s)\n \nSpecs (%i):\n%s\n", stage, g_iManualStageReplayCount + 1, g_szWrcpReplayName[stage],  g_szWrcpReplayTime[stage], count, sSpecs);
 							}
 							else
@@ -2949,7 +2950,7 @@ public void CenterHudDead(int client)
 				Format(sResult, sizeof(sResult), "%s <font color='#00ff00'>+R</font>", sResult);
 			else
 				Format(sResult, sizeof(sResult), "%s __", sResult);
-			
+
 			if (IsFakeClient(ObservedUser))
 			{
 				if (ObservedUser == g_RecordBot)
@@ -2958,7 +2959,7 @@ public void CenterHudDead(int client)
 					Format(obsAika, sizeof(obsAika), "<font color='#FFFF00'>%s</font>", g_szBonusTime);
 				else if (ObservedUser == g_WrcpBot)
 					Format(obsAika, sizeof(obsAika), "<font color='#FFFF00'>%s</font>", g_szWrcpReplayTime[g_iCurrentlyPlayingStage]);
-				
+
 				PrintHintText(client, "<pre><font face=''>%s\nSpeed: <font color='#66bbff'>%i</font> u/s\nKeys: %s</pre>", obsAika, RoundToNearest(g_fLastSpeed[ObservedUser]), sResult);
 				return;
 			}
@@ -3934,7 +3935,7 @@ public void GetSpeedColour(int client, int speed, int type)
 				Format(g_szSpeedColour[client], sizeof(g_szSpeedColour), "#66bbff");
 			else
 				Format(g_szSpeedColour[client], sizeof(g_szSpeedColour), "#ff7d7d");
-			
+
 			g_iPreviousSpeed[client] = speed;
 		}
 		else
@@ -4049,49 +4050,51 @@ public void diffForHumans(int unix, char[] buffer, int size, int type)
 public void totalTimeForHumans(int unix, char[] buffer, int size)
 {
 	int years, months, days, hours, mins, secs;
+	int secondsPerDay = 86400;
+  	int secondsSinceMidnight = unix % secondsPerDay;
 	if (unix > 31535999)
 	{
 		years = unix / 60 / 60 / 24 / 365;
 		months = unix / 60 / 60 / 24 / 30;
 		days = unix / 60 / 60 / 24;
-		hours = unix / 3600 % 60;
-		mins = unix / 60 % 60;
-		secs = unix % 60;
+		hours = secondsSinceMidnight / 3600;
+		mins = secondsSinceMidnight % 3600 / 60;
+		secs = secondsSinceMidnight % 60;
 		Format(buffer, size, "%d year%s %d month%s %d day%s %d hour%s %d minute%s %d second%s", years, years==1?"":"s", months, months==1?"":"s", days, days==1?"":"s", hours, hours==1?"":"s", mins, mins==1?"":"s", secs, secs==1?"":"s");
 	}
 	if (unix > 2591999)
 	{
 		months = unix / 60 / 60 / 24 / 30;
 		days = unix / 60 / 60 / 24;
-		hours = unix / 3600 % 60;
-		mins = unix / 60 % 60;
-		secs = unix % 60;
+		hours = secondsSinceMidnight / 3600;
+		mins = secondsSinceMidnight % 3600 / 60;
+		secs = secondsSinceMidnight % 60;
 		Format(buffer, size, "%d month%s %d day%s %d hour%s %d minute%s %d second%s", months, months==1?"":"s", days, days==1?"":"s", hours, hours==1?"":"s", mins, mins==1?"":"s", secs, secs==1?"":"s");
 	}
 	if (unix > 86399)
 	{
 		days = unix / 60 / 60 / 24;
-		hours = unix / 3600 % 60;
-		mins = unix / 60 % 60;
-		secs = unix % 60;
+		hours = secondsSinceMidnight / 3600;
+		mins = secondsSinceMidnight % 3600 / 60;
+		secs = secondsSinceMidnight % 60;
 		Format(buffer, size, "%d day%s %d hour%s %d minute%s %d second%s", days, days==1?"":"s", hours, hours==1?"":"s", mins, mins==1?"":"s", secs, secs==1?"":"s");
 	}
 	else if (unix > 3599)
 	{
-		hours = unix / 3600 % 60;
-		mins = unix / 60 % 60;
-		secs = unix % 60;
+		hours = secondsSinceMidnight / 3600;
+		mins = secondsSinceMidnight % 3600 / 60;
+		secs = secondsSinceMidnight % 60;
 		Format(buffer, size, "%d hour%s %d minute%s %d second%s", hours, hours==1?"":"s", mins, mins==1?"":"s", secs, secs==1?"":"s");
 	}
 	else if (unix > 59)
 	{
-		mins = unix / 60 % 60;
-		secs = unix % 60;
+		mins = secondsSinceMidnight % 3600 / 60;
+		secs = secondsSinceMidnight % 60;
 		Format(buffer, size, "%d minute%s %d second%s", mins, mins==1?"":"s", secs, secs==1?"":"s");
 	}
 	else
 	{
-		secs = unix;
+		secs = secondsSinceMidnight % 60;
 		Format(buffer, size, "%d second%s", secs, secs==1?"":"s");
 	}
 }
@@ -4102,7 +4105,7 @@ public void sendDiscordAnnouncement(char szName[32], char szMapName[128], char s
 	GetConVarString(g_hRecordAnnounceDiscord, webhook, 1024);
 	if (StrEqual(webhook, ""))
 		return;
-		
+
 	// Send Discord Announcement
 	DiscordWebHook hook = new DiscordWebHook(webhook);
 	hook.SlackMode = true;
