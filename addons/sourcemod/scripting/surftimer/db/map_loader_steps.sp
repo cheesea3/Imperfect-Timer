@@ -804,10 +804,10 @@ void SQL_db_GetDynamicTimelimitCallback(Handle owner, Handle hndl, const char[] 
 			avg = avg * scale_factor;
 
 			// timelimit: min 20min, max 120min
-			if (avg < 20)
-			avg = 20;
-			if (avg > 120)
-			avg = 120;
+			if (avg < 30)
+			avg = 30;
+			if (avg > 60)
+			avg = 60;
 
 			timelimit = avg;
 		}
