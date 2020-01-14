@@ -28,6 +28,7 @@ ConVar g_hPlayerModel = null;									// Player models
 ConVar g_hArmModel = null;										// Player arm models
 ConVar g_hcvarRestore = null;									// Restore player's runs?
 ConVar g_hNoClipS = null;										// Allow noclip?
+ConVar g_hAllowTP = null;										// Zephyrus' third person plugin
 ConVar g_hReplayBot = null;										// Replay bot?
 ConVar g_hWrcpBot = null;
 ConVar g_hBackupReplays = null;									// Back up replay bots?
@@ -352,9 +353,11 @@ void CreateConVars()
 	// Client side autobhop
 	g_hAutoBhop = FindConVar("sv_autobunnyhopping");
 	g_hEnableBhop = FindConVar("sv_enablebunnyhopping");
+	g_hAllowTP = FindConVar("sv_allow_thirdperson");
 
 	SetConVarBool(g_hAutoBhop, true);
 	SetConVarBool(g_hEnableBhop, true);
+	SetConVarInt(g_hAllowTP, 1);
 
 	g_cvar_sv_hibernate_when_empty = FindConVar("sv_hibernate_when_empty");
 

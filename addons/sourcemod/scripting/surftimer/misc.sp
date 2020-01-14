@@ -1205,6 +1205,7 @@ public void SetClientDefaults(int client) {
 	g_bOverlay[client] = false;
 	g_bClientOwnReason[client] = false;
 	g_wrcpGlitchStopper[client] = true;
+	g_bThirdPerson[client] = false;
 	g_AdminMenuLastPage[client] = 0;
 	g_MenuLevel[client] = -1;
 	g_AttackCounter[client] = 0;
@@ -1817,7 +1818,7 @@ stock void MapFinishedMsgs(int client, int rankThisRun = 0)
 	return;
 }
 
-stock void PrintChatBonus (int client, int zGroup, int rank = 0)
+stock void PrintChatBonus(int client, int zGroup, int rank = 0)
 {
 	if (!IsValidClient(client))
 		return;

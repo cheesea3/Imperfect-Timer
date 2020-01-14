@@ -319,7 +319,7 @@ public void CL_OnEndTimerPress(int client)
 		else if (style != 0)
 		{
 			// Third person angle surfing check. Do not record these times
-			if ((style > 0 && style < 4 && !Client_IsInThirdPersonMode(client)) || style > 3)
+			if ((style > 0 && style < 4 && !g_bThirdPerson[client]) || style > 3)
 			{
 				// Make a new record bot?
 				if (GetConVarBool(g_hReplaceReplayTime) && (g_fFinalTime[client] < g_fReplayTimes[0][style] || g_fReplayTimes[0][style] == 0.0))
@@ -581,7 +581,7 @@ public void CL_OnEndTimerPress(int client)
 		else if (style != 0)
 		{
 			// Third person angle surfing check. Do not record these times
-			if ((style > 0 && style < 4 && !Client_IsInThirdPersonMode(client)) || style > 3)
+			if ((style > 0 && style < 4 && !g_bThirdPerson[client]) || style > 3)
 			{
 				if (GetConVarBool(g_hReplaceReplayTime) && (g_fFinalTime[client] < g_fReplayTimes[zGroup][style] || g_fReplayTimes[zGroup][style] == 0.0))
 				{
@@ -866,7 +866,7 @@ public void CL_OnEndWrcpTimerPress(int client, float time2)
 		FormatTimeFloat(client, g_fFinalWrcpTime[client], 3, g_szFinalWrcpTime[client], 32);
 
 		// Third person angle surfing check. Do not record these times
-		if ((style > 0 && style < 4 && !Client_IsInThirdPersonMode(client)) || style > 3)
+		if ((style > 0 && style < 4 && !g_bThirdPerson[client]) || style > 3)
 		{
 			db_selectWrcpRecord(client, style, stage);
 		}

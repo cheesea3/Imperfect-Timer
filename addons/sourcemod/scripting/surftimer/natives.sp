@@ -156,6 +156,13 @@ public int Native_GetMapStages(Handle plugin, int numParams)
 	return stages;
 }
 
+// Zephyrus' third person plugin
+public int Native_IsPlayerInTP(Handle plugin, int numParams)
+{
+	int client = GetNativeCell(1);
+	return g_bThirdPerson[client];
+}
+
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
 	RegPluginLibrary("surftimer");
@@ -174,6 +181,10 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	CreateNative("surftimer_GetMapStages", Native_GetMapStages);
 	CreateNative("surftimer_SafeTeleport", Native_SafeTeleport);
 	CreateNative("surftimer_IsClientVip", Native_IsClientVip);
+
+	// Zephyrus' third person plugin
+	CreateNative("IsPlayerInTP", Native_IsPlayerInTP);
+
 	MarkNativeAsOptional("Store_GetClientCredits");
 	MarkNativeAsOptional("Store_SetClientCredits");
 	g_bLateLoaded = late;

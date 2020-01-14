@@ -470,15 +470,20 @@
 		"#format"	"{1:s}"
 		"en"		"{1} Usage: !btop <bonus id> <mapname>"
 	}
-	"Commands19"
+	"NoclipEnabled"
 	{
 		"#format"	"{1:s}"
 		"en"		"{1} Noclip enabled, timer {red}disabled"
 	}
-	"Commands20"
+	"NoclipDisabled"
 	{
 		"#format"	"{1:s}"
 		"en"		"{1} Noclip disabled, use {lightgreen}!surftimer {default}to re-enable your timer"
+	}
+	"ThirdPersonUnavailable"
+	{
+		"#format"	"{1:s}"
+		"en"		"{1} Third person is unavailable in your current style!"
 	}
 	"Commands31"
 	{

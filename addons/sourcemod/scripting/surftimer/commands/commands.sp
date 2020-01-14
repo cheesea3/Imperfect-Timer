@@ -79,8 +79,8 @@ void CreateCommands()
 	RegConsoleCmd("sm_cp", Command_createPlayerCheckpoint, "[surftimer] Creates a checkpoint, where the player can teleport back to");
 	RegConsoleCmd("sm_checkpoint", Command_createPlayerCheckpoint, "[surftimer] Creates a checkpoint, where the player can teleport back to");
 	RegConsoleCmd("sm_saveloc", Command_createPlayerCheckpoint, "[surftimer] Creates a checkpoint, where the player can teleport back to");
-	RegConsoleCmd("sm_savelocs", Command_SaveLocList);
-	RegConsoleCmd("sm_loclist", Command_SaveLocList);
+	RegConsoleCmd("sm_savelocs", Command_SaveLocList, "[surftimer] List all saved locations");
+	RegConsoleCmd("sm_loclist", Command_SaveLocList, "[surftimer] List all saved locations");
 	RegConsoleCmd("sm_normal", Command_normalMode, "[surftimer] Switches player back to normal mode.");
 	RegConsoleCmd("sm_n", Command_normalMode, "[surftimer] Switches player back to normal mode.");
 
@@ -124,8 +124,8 @@ void CreateCommands()
 	//RegConsoleCmd("sm_toggletitle", Command_ToggleTitle, "[surftimer] [vip] VIPs can toggle their title.");
 
 	// WRCPs
-	RegConsoleCmd("sm_wrcp", Client_Wrcp, "[surftimer] displays stage times for map");
-	RegConsoleCmd("sm_wrcps", Client_Wrcp, "[surftimer] displays stage times for map");
+	RegConsoleCmd("sm_wrcp", Client_Wrcp, "[surftimer] Displays stage times for map");
+	RegConsoleCmd("sm_wrcps", Client_Wrcp, "[surftimer] Displays stage times for map");
 
 	// QOL Commands
 	RegConsoleCmd("sm_gb", Command_GoBack, "[surftimer] Go back a stage");
@@ -138,9 +138,12 @@ void CreateCommands()
 	RegConsoleCmd("sm_bhoptimer", Client_OptionMenu, "[surftimer] Opens options menu");
 	RegConsoleCmd("sm_knife", Command_GiveKnife, "[surftimer] Give players a knife");
 
+	// Zephyrus' third person plugin
+	RegConsoleCmd("sm_tp", Command_ToggleThirdPerson, "[surftimer] Toggles between first and third person");
+
 	// New Commands
-	RegConsoleCmd("sm_mrank", Command_SelectMapTime, "[surftimer] prints a players map record in chat.");
-	RegConsoleCmd("sm_brank", Command_SelectBonusTime, "[surftimer] prints a players bonus record in chat.");
+	RegConsoleCmd("sm_mrank", Command_SelectMapTime, "[surftimer] Prints a players map record in chat.");
+	RegConsoleCmd("sm_brank", Command_SelectBonusTime, "[surftimer] Prints a players bonus record in chat.");
 	RegConsoleCmd("sm_pr", Command_SelectPlayerPr, "[surftimer] Displays pr menu to client");
 	RegConsoleCmd("sm_togglemapfinish", Command_ToggleMapFinish, "[surftimer] Toggles whether a player will finish a map when entering the end zone.");
 	RegConsoleCmd("sm_tmf", Command_ToggleMapFinish, "[surftimer] Toggles whether a player will finish a map when entering the end zone.");
@@ -1354,7 +1357,7 @@ public Action NoClip(int client, int args)
 	if (g_bTimerEnabled[client])
 		{
 			g_bTimerEnabled[client] = !g_bTimerEnabled[client];
-			CPrintToChat(client, "%t", "Commands19", g_szChatPrefix);
+			CPrintToChat(client, "%t", "NoclipEnabled", g_szChatPrefix);
 		}
 
 	Action_NoClip(client);
@@ -1367,7 +1370,7 @@ public Action UnNoClip(int client, int args)
 
 	if (!g_bTimerEnabled[client])
 	{
-		CPrintToChat(client, "%t", "Commands20", g_szChatPrefix);
+		CPrintToChat(client, "%t", "NoclipDisabled", g_szChatPrefix);
 	}
 
 	if (g_bNoClip[client] == true)
@@ -3527,6 +3530,12 @@ public Action Client_SetStyleSideways(int client, int args)
 		g_bFunStyle[client] = false;
 		CReplyToCommand(client, "%t", "CommandsSideways", g_szChatPrefix);
 		Command_Restart(client, 1);
+
+		if (g_bThirdPerson[client])
+		{
+			g_bThirdPerson[client] = false;
+			ClientCommand(client, "firstperson");
+		}
 	}
 
 	return Plugin_Handled;
@@ -3544,6 +3553,12 @@ public Action Client_SetStyleHalfSideways(int client, int args)
 		g_bFunStyle[client] = false;
 		CReplyToCommand(client, "%t", "CommandsHalfSideways", g_szChatPrefix);
 		Command_Restart(client, 1);
+
+		if (g_bThirdPerson[client])
+		{
+			g_bThirdPerson[client] = false;
+			ClientCommand(client, "firstperson");
+		}
 	}
 
 	return Plugin_Handled;
@@ -3561,6 +3576,12 @@ public Action Client_SetStyleBackwards(int client, int args)
 		g_bFunStyle[client] = false;
 		CReplyToCommand(client, "%t", "CommandsBackwards", g_szChatPrefix);
 		Command_Restart(client, 1);
+
+		if (g_bThirdPerson[client])
+		{
+			g_bThirdPerson[client] = false;
+			ClientCommand(client, "firstperson");
+		}
 	}
 
 	return Plugin_Handled;
@@ -4962,5 +4983,36 @@ public int PlayRecordMenuHandler(Handle menu, MenuAction action, int param1, int
 public Action Command_ShowSpeed(int client, int args)
 {
 	CenterSpeedDisplay(client);
+	return Plugin_Handled;
+}
+
+// Zephyrus' third person plugin (modified)
+public Action Command_ToggleThirdPerson(int client, int args)
+{
+	int style = g_iCurrentStyle[client];
+	if (!g_bThirdPerson[client] && (style == 1 || style == 2 || style == 3))
+	{
+		CPrintToChat(client, "%t", "ThirdPersonUnavailable", g_szChatPrefix);
+		return Plugin_Handled;
+	}
+
+	if (IsValidClient(client) && !IsFakeClient(client) && IsPlayerAlive(client))
+	{
+		int team = GetClientTeam(client);
+		if (team == 2 || team == 3)
+		{
+			if (!g_bThirdPerson[client])
+			{
+				g_bThirdPerson[client] = true;
+				ClientCommand(client, "thirdperson");
+			}
+			else
+			{
+				g_bThirdPerson[client] = false;
+				ClientCommand(client, "firstperson");
+			}
+		}
+	}
+
 	return Plugin_Handled;
 }

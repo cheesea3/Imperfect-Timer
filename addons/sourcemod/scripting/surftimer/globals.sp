@@ -769,6 +769,9 @@ bool g_wrcpGlitchStopper[MAXPLAYERS + 1];
 // Checks for vmutes on a player
 bool g_bIsVmuted[MAXPLAYERS + 1];
 
+// Zephyrus' third person plugin
+bool g_bThirdPerson[MAXPLAYERS + 1];
+
 /*----------  Player location restoring  ----------*/
 
 // Clients location was restored this run

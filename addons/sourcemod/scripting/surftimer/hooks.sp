@@ -249,6 +249,10 @@ public Action Event_OnPlayerSpawn(Handle event, const char[] name, bool dontBroa
     // Give Player Kevlar + Helmet
     GivePlayerItem(client, "item_assaultsuit");
 
+	// Zephyrus' third person plugin
+	if (g_bThirdPerson[client])
+		Command_ToggleThirdPerson(client, 0);
+
 	return Plugin_Continue;
 }
 
@@ -1226,7 +1230,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 		// 		{
 		// 			if (g_hRecording[client] == null)
 		// 				StartRecording(client);
-					
+
 		// 			// Check if the map has stages
 		// 			if (g_bhasStages && g_StageRecStartFrame[client] == -1)
 		// 				Stage_StartRecording(client);
@@ -1477,7 +1481,7 @@ public Action Hook_SetTriggerTransmit(int entity, int client)
 	return Plugin_Continue;
 }
 
-public Action Hook_FootstepCheck(int clients[64], int &numClients, char sample[PLATFORM_MAX_PATH], int &entity, int &channel, float &volume, int &level, int &pitch, int &flags) 
+public Action Hook_FootstepCheck(int clients[64], int &numClients, char sample[PLATFORM_MAX_PATH], int &entity, int &channel, float &volume, int &level, int &pitch, int &flags)
 {
 	// Player
   if (0 < entity <= MaxClients)
@@ -1511,7 +1515,7 @@ public Action Hook_FootstepCheck(int clients[64], int &numClients, char sample[P
   return Plugin_Continue;
 }
 
-public Action Hook_ShotgunShot(const char[] te_name, const int[] players, int numClients, float delay) 
+public Action Hook_ShotgunShot(const char[] te_name, const int[] players, int numClients, float delay)
 {
 	return Plugin_Handled;
 	// int shooter = TE_ReadNum("m_iPlayer") + 1;
@@ -1536,7 +1540,7 @@ public Action Hook_ShotgunShot(const char[] te_name, const int[] players, int nu
 
 	// if (newTotal == 0)
 	// 	return Plugin_Stop;
-	
+
 	// float vTemp[3];
   // TE_Start("Shotgun Shot");
   // TE_ReadVector("m_vecOrigin", vTemp);
