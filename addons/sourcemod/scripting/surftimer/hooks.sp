@@ -679,7 +679,7 @@ public Action OnEndTouchAllTriggers(int entity, int other)
 // https://forums.alliedmods.net/showthread.php?t=267131
 public Action OnTouchPushTrigger(int entity, int other)
 {
-	if (IsValidClient(other) && GetConVarBool(g_hTriggerPushFixEnable) == true)
+	if (IsValidClient(other) && GetConVarBool(g_hTriggerPushFixEnable))
 	{
 		if (IsFakeClient(other))
 			return Plugin_Handled;
@@ -710,7 +710,7 @@ public Action OnTouchPushTrigger(int entity, int other)
 
 public Action OnEndTouchPushTrigger(int entity, int other)
 {
-	if (IsValidClient(other) && GetConVarBool(g_hTriggerPushFixEnable) == true)
+	if (IsValidClient(other) && GetConVarBool(g_hTriggerPushFixEnable))
 	{
 		if (IsFakeClient(other))
 			return Plugin_Handled;
@@ -790,11 +790,11 @@ public Action OnLogAction(Handle source, Identity ident, int client, int target,
 public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3], float angles[3], int &weapon, int &subtype, int &cmdnum, int &tickcount, int &seed, int mouse[2])
 {
 	// fluffys
-	if (buttons & IN_DUCK && g_bInDuck[client] == true)
+	if (buttons & IN_DUCK && g_bInDuck[client])
 	{
 		CPrintToChat(client, "%t", "Hooks11", g_szChatPrefix);
 	}
-	else if (buttons & IN_DUCK && g_bInPushTrigger[client] == true)
+	else if (buttons & IN_DUCK && g_bInPushTrigger[client])
 	{
 		buttons &= ~IN_DUCK;
 		g_bInPushTrigger[client] = false;
@@ -993,8 +993,8 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 		float newVelocity[3];
 		// Slope Boost Fix by Mev, & Blacky
 		// https://forums.alliedmods.net/showthread.php?t=266888
-		// if (GetConVarBool(g_hSlopeFixEnable) == true)
-		if (GetConVarBool(g_hSlopeFixEnable) == true && !IsFakeClient(client))
+		// if (GetConVarBool(g_hSlopeFixEnable))
+		if (GetConVarBool(g_hSlopeFixEnable) && !IsFakeClient(client))
 		{
 			g_vLast[client][0] = g_vCurrent[client][0];
 			g_vLast[client][1] = g_vCurrent[client][1];
@@ -1004,7 +1004,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 			g_vCurrent[client][2] = GetEntPropFloat(client, Prop_Send, "m_vecVelocity[2]");
 
 			// Check if player landed on the ground
-			if (g_bOnGround[client] == true && g_bLastOnGround[client] == false)
+			if (g_bOnGround[client] && g_bLastOnGround[client])
 			{
 				// Set up and do tracehull to find out if the player landed on a slope
 				float vPos[3];
@@ -1345,7 +1345,7 @@ public Action Event_PlayerJump(Handle event, char[] name, bool dontBroadcast)
 	if (IsValidClient(client) && !IsFakeClient(client))
 	{
 		// Prehop limit in zone
-		if (g_bInJump[client] == true && !g_bInStartZone[client] && !g_bInStageZone[client])
+		if (g_bInJump[client] && !g_bInStartZone[client] && !g_bInStageZone[client])
 		{
 			if (!g_bJumpZoneTimer[client])
 			{

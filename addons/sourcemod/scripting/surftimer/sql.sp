@@ -116,7 +116,7 @@ public void db_upgradeDatabase(int ver)
       Format(query, sizeof(query), "ALTER TABLE ck_maptier DROP COLUMN btier%i", i);
       SQL_FastQuery(g_hDb, query);
     }
-    
+
     SQL_FastQuery(g_hDb, "ALTER TABLE ck_maptier ADD COLUMN maxvelocity FLOAT NOT NULL DEFAULT '3500.0';");
     SQL_FastQuery(g_hDb, "ALTER TABLE ck_maptier ADD COLUMN announcerecord INT(11) NOT NULL DEFAULT '0';");
     SQL_FastQuery(g_hDb, "ALTER TABLE ck_maptier ADD COLUMN gravityfix INT(11) NOT NULL DEFAULT '1';");
@@ -144,7 +144,7 @@ public void db_upgradeDatabase(int ver)
 	  SQL_FastQuery(g_hDb, "ALTER TABLE ck_playeroptions2 ADD COLUMN teleside INT(11) NOT NULL DEFAULT 0 AFTER centrehud;");
 	  SQL_FastQuery(g_hDb, "ALTER TABLE ck_spawnlocations DROP PRIMARY KEY, ADD COLUMN teleside INT(11) NOT NULL DEFAULT 0 AFTER stage, ADD PRIMARY KEY (mapname, zonegroup, stage, teleside);");
   }
-  
+
   SQL_UnlockDatabase(g_hDb);
 }
 
@@ -153,20 +153,20 @@ public void db_upgradeDatabase(int ver)
 public void sql_DeleteMenuView(Handle owner, Handle hndl, const char[] error, any data)
 {
 	int client = GetClientFromSerial(data);
-	
+
 	Menu editing = new Menu(callback_DeleteRecord);
 	editing.SetTitle("%s Records Editing Menu - %s\n► Editing %s record\n► Press the menu item to delete the record\n ", g_szMenuPrefix, g_EditingMap[client], g_EditTypes[g_SelectedEditOption[client]]);
-	
+
 	char menuFormat[88];
 	FormatEx(menuFormat, sizeof(menuFormat), "Style: %s\n► Press the menu item to change the style\n ", g_EditStyles[g_SelectedStyle[client]]);
 	editing.AddItem("0", menuFormat);
-	
+
 	if(g_SelectedEditOption[client] > 0)
 	{
 		FormatEx(menuFormat, sizeof(menuFormat), "%s: %i\n► Press the menu item to change the %s\n ", g_SelectedEditOption[client] == 1 ? "Stage":"Bonus", g_SelectedType[client], g_SelectedEditOption[client] == 1 ? "stage":"bonus");
 		editing.AddItem("0", menuFormat);
 	}
-	
+
 	if (hndl == INVALID_HANDLE)
 	{
 		PrintToServer("Error %s", error);
@@ -192,7 +192,7 @@ public void sql_DeleteMenuView(Handle owner, Handle hndl, const char[] error, an
 			FormatTimeFloat(data, runTime, 3, szRunTime, sizeof(szRunTime));
 			FormatEx(menuFormat, sizeof(menuFormat), "Rank: %d ► %s - %s", i, playerName, szRunTime);
 			ReplaceString(playerName, 32, ";;;", ""); // make sure the client dont has this in their name.
-			
+
 			FormatEx(menuFormatz, 128, "%s;;;%s;;;%s", playerName, steamID, szRunTime);
 			editing.AddItem(menuFormatz, menuFormat);
 		}
@@ -210,9 +210,9 @@ public int callback_DeleteRecord(Menu menu, MenuAction action, int client, int k
 				g_SelectedStyle[client]++;
 			else
 				g_SelectedStyle[client] = 0;
-			
+
 			char szQuery[512];
-			
+
 			switch(g_SelectedEditOption[client])
 			{
 				case 0:
@@ -232,35 +232,35 @@ public int callback_DeleteRecord(Menu menu, MenuAction action, int client, int k
 					FormatEx(szQuery, 512, sql_MainEditQuery, "runtime", "ck_bonus", g_EditingMap[client], g_SelectedStyle[client], stageQuery, "runtime");
 				}
 			}
-		
-			
+
+
 			PrintToServer(szQuery);
 			SQL_TQuery(g_hDb, sql_DeleteMenuView, szQuery, GetClientSerial(client));
 			return 0;
 		}
-	
+
 		if(g_SelectedEditOption[client] > 0 && key == 1)
 		{
 			g_iWaitingForResponse[client] = 6;
 			CPrintToChat(client, "%t", "DeleteRecordsNewValue", g_szChatPrefix);
 			return 0;
 		}
-	
-		
+
+
 		char menuItem[128];
 		menu.GetItem(key, menuItem, 128);
-		
+
 		char recordsBreak[3][32];
 		ExplodeString(menuItem, ";;;", recordsBreak, sizeof(recordsBreak), sizeof(recordsBreak[]));
-		
+
 		Menu confirm = new Menu(callback_Confirm);
 		confirm.SetTitle("%s Records Editing Menu - Confirm Deletion\n► Deleting %s [%s] %s record\n ", g_szMenuPrefix, recordsBreak[0], recordsBreak[1], recordsBreak[2]);
-		
+
 		confirm.AddItem("0", "No");
 		confirm.AddItem(recordsBreak[1], "Yes\n \n► This cannot be undone");
-		
+
 		confirm.Display(client, MENU_TIME_FOREVER);
-		
+
 		return 0;
 	}
 	else if (action == MenuAction_Cancel)
@@ -270,7 +270,7 @@ public int callback_DeleteRecord(Menu menu, MenuAction action, int client, int k
 	}
 	else if(action == MenuAction_End)
 		delete menu;
-		
+
 	return 0;
 }
 
@@ -282,9 +282,9 @@ public int callback_Confirm(Menu menu, MenuAction action, int client, int key)
 		{
 			char steamID[32];
 			menu.GetItem(key, steamID, 32);
-			
+
 			char szQuery[512];
-			
+
 			switch(g_SelectedEditOption[client])
 			{
 				case 0:
@@ -305,14 +305,14 @@ public int callback_Confirm(Menu menu, MenuAction action, int client, int key)
 				}
 			}
 			SQL_TQuery(g_hDb, SQL_CheckCallback, szQuery);
-			
+
 			// Looking for online player to refresh his record after deleting it.
 			char player_steamID[32];
 			for(int i=1; i <= MaxClients; i++)
 			{
 				if (!IsValidClient(i) || IsFakeClient(client))
 					continue;
-					
+
 				GetClientAuthId(i, AuthId_Steam2, player_steamID, 32, true);
 				if(StrEqual(player_steamID,steamID))
 				{
@@ -320,10 +320,10 @@ public int callback_Confirm(Menu menu, MenuAction action, int client, int key)
 					break;
 				}
 			}
-			
+
 			db_GetMapRecord_Pro();
 			PrintToServer(szQuery);
-			
+
 			CPrintToChat(client, "%t", "DeleteRecordsDeletion", g_szChatPrefix);
 		}
 
@@ -410,7 +410,7 @@ public void SQL_UpdateStatCallback(Handle owner, Handle hndl, const char[] error
 public void RecalcPlayerRank(int client, char steamid[128])
 {
 	int i = 66;
-	while (g_bProfileRecalc[i] == true)
+	while (g_bProfileRecalc[i])
 	i++;
 	if (!g_bProfileRecalc[i])
 	{
@@ -1542,7 +1542,7 @@ public void sql_selectTopSurfersCallback(Handle owner, Handle hndl, const char[]
 					if (StrEqual(lineBuf, szName, false))
 						bduplicat = true;
 				}
-				if (bduplicat == false && i < 51)
+				if (bduplicat && i < 51)
 				{
 					char szTime[32];
 					FormatTimeFloat(client, time, 3, szTime, sizeof(szTime));
@@ -1734,7 +1734,7 @@ public void sql_selectTopBonusSurfersCallback(Handle owner, Handle hndl, const c
 					if (StrEqual(lineBuf, szName, false))
 					bduplicat = true;
 				}
-				if (bduplicat == false && i < 51)
+				if (bduplicat && i < 51)
 				{
 					char szTime[32];
 					FormatTimeFloat(client, time, 3, szTime, sizeof(szTime));
@@ -2467,7 +2467,7 @@ public void db_insertZone(int zoneid, int zonetype, int zonetypeid, float pointa
 	Format(zName, 128, g_szZoneGroupName[zonegroup]);
 
 	// char sql_insertZones[] = "INSERT INTO ck_zones (mapname, zoneid, zonetype, zonetypeid, pointa_x, pointa_y, pointa_z, pointb_x, pointb_y, pointb_z, vis, team, zonegroup, zonename, hookname, targetname, onejumplimit, prespeed) VALUES ('%s', '%i', '%i', '%i', '%f', '%f', '%f', '%f', '%f', '%f', '%i', '%i', '%i','%s','%s','%s',%i,%f)";
-	Format(szQuery, 1024, sql_insertZones, g_szMapName, zoneid, zonetype, zonetypeid, pointax, pointay, pointaz, pointbx, pointby, pointbz, vis, team, zonegroup, zName, "None", "player", 1, 250.0);
+	Format(szQuery, 1024, sql_insertZones, g_szMapName, zoneid, zonetype, zonetypeid, pointax, pointay, pointaz, pointbx, pointby, pointbz, vis, team, zonegroup, zName, "None", "player", 1, 350.0);
 	SQL_TQuery(g_hDb, SQL_insertZonesCallback, szQuery);
 }
 
@@ -2930,7 +2930,7 @@ public void sql_selectRankedPlayersCallback(Handle owner, Handle hndl, const cha
 					if (g_bManualRecalc)
 					CPrintToChat(c, "%t", "PrUpdateFinished", g_szChatPrefix);
 				}
-				
+
 			g_bManualRecalc = false;
 			g_pr_RankingRecalc_InProgress = false;
 
@@ -3547,7 +3547,7 @@ public void SQL_UpdateWrcpRecordCallback2(Handle owner, Handle hndl, const char[
 		{ // If the server already has a record
 
 			if (g_fFinalWrcpTime[client] < g_fStageRecord[stage] && g_fFinalWrcpTime[client] > 0.0)
-			{ 
+			{
 				// New fastest time in map
 				g_bStageSRVRecord[client][stage] = true;
 				if (g_fWrcpRecord[client][stage][0] != g_fStageRecord[stage])
@@ -3762,7 +3762,7 @@ public void sql_selectStageTopSurfersCallback(Handle owner, Handle hndl, const c
 					if (StrEqual(lineBuf, szName, false))
 					bduplicat = true;
 				}
-				if (bduplicat == false && i < 51)
+				if (bduplicat && i < 51)
 				{
 					char szTime[32];
 					FormatTimeFloat(client, time, 3, szTime, sizeof(szTime));
@@ -4249,7 +4249,7 @@ public void sql_selectStageStyleTopSurfersCallback(Handle owner, Handle hndl, co
 					if (StrEqual(lineBuf, szName, false))
 						bduplicat = true;
 				}
-				if (bduplicat == false && i < 51)
+				if (bduplicat && i < 51)
 				{
 					char szTime[32];
 					FormatTimeFloat(client, time, 3, szTime, sizeof(szTime));

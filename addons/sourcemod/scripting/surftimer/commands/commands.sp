@@ -689,7 +689,7 @@ public Action Command_Teleport(int client, int args)
 	if (g_Stage[g_iClientInZone[client][2]][client] == 1)
 	{
 		// fluffys
-		if (g_bPause[client] == true)
+		if (g_bPause[client])
 			PauseMethod(client);
 
 		teleportClient(client, g_iClientInZone[client][2], 1, false);
@@ -697,7 +697,7 @@ public Action Command_Teleport(int client, int args)
 	}
 
 	// fluffys
-	if (g_bPause[client] == true)
+	if (g_bPause[client])
 		PauseMethod(client);
 
 	teleportClient(client, g_iClientInZone[client][2], g_Stage[g_iClientInZone[client][2]][client], false);
@@ -990,7 +990,7 @@ public Action Command_Restart(int client, int args)
 
 	g_bClientRestarting[client] = false;
 	// fluffys
-	if (g_bPause[client] == true)
+	if (g_bPause[client])
 		PauseMethod(client);
 
 	if (!g_bTimerEnabled[client])
@@ -1373,7 +1373,7 @@ public Action UnNoClip(int client, int args)
 		CPrintToChat(client, "%t", "NoclipDisabled", g_szChatPrefix);
 	}
 
-	if (g_bNoClip[client] == true)
+	if (g_bNoClip[client])
 		Action_UnNoClip(client);
 
 	if (g_iInitalStyle[client] != 4 && IsValidClient(client))
@@ -2233,7 +2233,7 @@ public Action Client_Pause(int client, int args)
 		return Plugin_Handled;
 	}
 	PauseMethod(client);
-	if (g_bPause[client] == false)
+	if (g_bPause[client])
 		CPrintToChat(client, "%t", "Pause2", g_szChatPrefix);
 	else
 		CPrintToChat(client, "%t", "Pause3", g_szChatPrefix);
@@ -2243,9 +2243,9 @@ public Action Client_Pause(int client, int args)
 public void PauseMethod(int client)
 {
 	if (GetClientTeam(client) == 1)return;
-	if (g_bPause[client] == false && IsValidEntity(client))
+	if (g_bPause[client] && IsValidEntity(client))
 	{
-		if (GetConVarBool(g_hPauseServerside) == false && client != g_RecordBot && client != g_BonusBot)
+		if (GetConVarBool(g_hPauseServerside) && client != g_RecordBot && client != g_BonusBot)
 		{
 			CPrintToChat(client, "%t", "Pause1", g_szChatPrefix);
 			return;
@@ -2259,7 +2259,7 @@ public void PauseMethod(int client)
 		*/
 		SetEntityMoveType(client, MOVETYPE_NONE); // not sure why he sets vel to 0
 		// Timer enabled?
-		if (g_bTimerRunning[client] == true)
+		if (g_bTimerRunning[client])
 		{
 			g_fStartPauseTime[client] = GetGameTime();
 			if (g_fPauseTime[client] > 0.0)
@@ -2270,7 +2270,7 @@ public void PauseMethod(int client)
 	}
 	else
 	{
-		if (g_fStartTime[client] != -1.0 && g_bTimerRunning[client] == true)
+		if (g_fStartTime[client] != -1.0 && g_bTimerRunning[client])
 		{
 			g_fPauseTime[client] = GetGameTime() - g_fStartPauseTime[client];
 		}

@@ -533,7 +533,7 @@ void TeamChangeActual(int client, int toteam)
 
 	if (g_bSpectate[client])
 	{
-		if (g_fStartTime[client] != -1.0 && g_bTimerRunning[client] == true)
+		if (g_fStartTime[client] != -1.0 && g_bTimerRunning[client])
 			g_fPauseTime[client] = GetGameTime() - g_fStartPauseTime[client];
 		g_bSpectate[client] = false;
 	}
