@@ -1585,7 +1585,7 @@ public void EditorMenu(int client)
 		editMenu.AddItem("", "Save Zone");
 
 		editMenu.AddItem("", "Go to Zone");
-		editMenu.AddItem("", "Strech Zone");
+		editMenu.AddItem("", "Stretch Zone");
 
 		if (g_ClientSelectedZone[client] != -1)
 		{
@@ -1764,7 +1764,7 @@ public void ScaleMenu(int client)
 {
 	g_Editing[client] = 3;
 	Menu ckScaleMenu = new Menu(MenuHandler_Scale);
-	ckScaleMenu.SetTitle("Strech Zone");
+	ckScaleMenu.SetTitle("Stretch Zone");
 
 	if (g_ClientSelectedPoint[client] == 1)
 		ckScaleMenu.AddItem("", "Point B");
