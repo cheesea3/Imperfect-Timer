@@ -23,6 +23,7 @@ public int Handle_VoteMenuExtend(Menu menu, MenuAction action, int param1, int p
 			CPrintToChatAll("%t", "CVote9", g_szChatPrefix, RoundToNearest(100.0*percent), totalVotes);
 			CPrintToChatAll("%t", "CVote10", g_szChatPrefix);
 			ExtendMapTimeLimit(600);
+			GameRules_SetProp("m_iRoundTime", GameRules_GetProp("m_iRoundTime", 4, 0) + 600, 4, 0, true);
 		}
 	}
 }
