@@ -3663,9 +3663,9 @@ public void Checkpoint(int client, int zone, int zonegroup, float time)
 		Call_Finish();
 
 		if (g_bCheckpointsEnabled[client])
-			CPrintToChat(client, "%t", "Misc30", g_szChatPrefix, g_iClientInZone[client][1] + 1, szTime, szDiff, sz_srDiff);
+			CPrintToChat(client, "%t", "CPDisplay", g_szChatPrefix, g_iClientInZone[client][1] + 1, szTime, szDiff, sz_srDiff);
 
-		Format(szSpecMessage, sizeof(szSpecMessage), "%t", "Misc31", g_szChatPrefix, szName, g_iClientInZone[client][1] + 1, szTime, szDiff, sz_srDiff);
+		Format(szSpecMessage, sizeof(szSpecMessage), "%t", "CPDisplaySpectator", g_szChatPrefix, szName, g_iClientInZone[client][1] + 1, szTime, szDiff, sz_srDiff);
 		CheckpointToSpec(client, szSpecMessage);
 
 		// Saving difference time for next checkpoint
@@ -3700,9 +3700,9 @@ public void Checkpoint(int client, int zone, int zonegroup, float time)
 			if (percent > -1.0)
 			{
 				if (g_bCheckpointsEnabled[client])
-					CPrintToChat(client, "%t", "Misc32", g_szChatPrefix, g_iClientInZone[client][1] + 1, szTime, sz_srDiff);
+					CPrintToChat(client, "%t", "CPDisplay2", g_szChatPrefix, g_iClientInZone[client][1] + 1, szTime, sz_srDiff);
 
-				Format(szSpecMessage, sizeof(szSpecMessage), "%t", "Misc33", g_szChatPrefix, szName, g_iClientInZone[client][1] + 1, szTime, sz_srDiff);
+				Format(szSpecMessage, sizeof(szSpecMessage), "%t", "CPDisplaySpectator2", g_szChatPrefix, szName, g_iClientInZone[client][1] + 1, szTime, sz_srDiff);
 				CheckpointToSpec(client, szSpecMessage);
 			}
 		}

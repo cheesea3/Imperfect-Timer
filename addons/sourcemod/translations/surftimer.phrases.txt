@@ -1228,22 +1228,22 @@
 		"#format"	"{1:s},{2:s}"
 		"en"		"{1} You have missed your best bonus time of [{orange}{2}{default}]"
 	}
-	"Misc30"
+	"CPDisplay"
 	{
 		"#format"	"{1:s},{2:i},{3:s},{4:s},{5:s}"
 		"en"		"{1} CP [{lightgreen}{2}{default}]: {lightgreen}{3} {default}[PB: {4}{default} | {5}{default}]"
 	}
-	"Misc31"
+	"CPDisplaySpectator"
 	{
 		"#format"	"{1:s},{2:s},{3:i},{4:s},{5:s},{6:s}"
 		"en"		"{1} {yellow}{2} {default}| CP [{lightgreen}{3}{default}]: {lightgreen}{4} {default}[PB: {5}{default} | {6}{default}]"
 	}
-	"Misc32"
+	"CPDisplay2"
 	{
 		"#format"	"{1:s},{2:i},{3:s},{4:s}"
 		"en"		"{1} CP [{lightgreen}{2}{default}]: {lightgreen}{3} {default}[PB: {lightgreen}N/A{default} | {4}{default}]"
 	}
-	"Misc33"
+	"CPDisplaySpectator2"
 	{
 		"#format"	"{1:s},{2:s},{3:i},{4:s},{5:s}"
 		"en"		"{1} {yellow}{2} {default}| CP [{lightgreen}{3}{default}]: {lightgreen}{4} {default}[PB: {lightgreen}N/A{default} | {5}{default}]"
