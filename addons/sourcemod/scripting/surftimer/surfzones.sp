@@ -415,7 +415,10 @@ public Action EndTouchTrigger(int caller, int activator)
         if (g_bPracticeMode[client] && !g_bTimerRunning[client]) // If on practice mode, but timer isn't on - start timer
         {
             CL_OnStartTimerPress(client);
-			CPrintToChat(client, "%t", "StartSpeed", g_szChatPrefix, RoundToNearest(g_fLastSpeed[client]));
+
+			int speed = RoundToNearest(g_fLastSpeed[client]);
+			if (speed > 0)
+				CPrintToChat(client, "%t", "StartSpeed", g_szChatPrefix, speed);
         }
         else
         {
@@ -440,7 +443,9 @@ public Action EndTouchTrigger(int caller, int activator)
                     if (g_bTimerEnabled[client])
                         CL_OnStartTimerPress(client);
 
-					CPrintToChat(client, "%t", "StartSpeed", g_szChatPrefix, RoundToNearest(g_fLastSpeed[client]));
+					int speed = RoundToNearest(g_fLastSpeed[client]);
+					if (speed > 0)
+						CPrintToChat(client, "%t", "StartSpeed", g_szChatPrefix, speed);
                 }
 
                 // fluffys
@@ -473,7 +478,10 @@ public Action EndTouchTrigger(int caller, int activator)
         if (!g_bPracticeMode[client] && g_bTimerEnabled[client])
 		{
             CL_OnStartWrcpTimerPress(client);
-			CPrintToChat(client, "%t", "StartSpeed", g_szChatPrefix, RoundToNearest(g_fLastSpeed[client]));
+
+			int speed = RoundToNearest(g_fLastSpeed[client]);
+			if (speed > 0)
+				CPrintToChat(client, "%t", "StartSpeed", g_szChatPrefix, speed);
 		}
 
     }
