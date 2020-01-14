@@ -1542,7 +1542,7 @@ public void sql_selectTopSurfersCallback(Handle owner, Handle hndl, const char[]
 					if (StrEqual(lineBuf, szName, false))
 						bduplicat = true;
 				}
-				if (bduplicat && i < 51)
+				if (!bduplicat && i < 51)
 				{
 					char szTime[32];
 					FormatTimeFloat(client, time, 3, szTime, sizeof(szTime));
@@ -1734,7 +1734,7 @@ public void sql_selectTopBonusSurfersCallback(Handle owner, Handle hndl, const c
 					if (StrEqual(lineBuf, szName, false))
 					bduplicat = true;
 				}
-				if (bduplicat && i < 51)
+				if (!bduplicat && i < 51)
 				{
 					char szTime[32];
 					FormatTimeFloat(client, time, 3, szTime, sizeof(szTime));
@@ -3762,7 +3762,7 @@ public void sql_selectStageTopSurfersCallback(Handle owner, Handle hndl, const c
 					if (StrEqual(lineBuf, szName, false))
 					bduplicat = true;
 				}
-				if (bduplicat && i < 51)
+				if (!bduplicat && i < 51)
 				{
 					char szTime[32];
 					FormatTimeFloat(client, time, 3, szTime, sizeof(szTime));
@@ -4249,7 +4249,7 @@ public void sql_selectStageStyleTopSurfersCallback(Handle owner, Handle hndl, co
 					if (StrEqual(lineBuf, szName, false))
 						bduplicat = true;
 				}
-				if (bduplicat && i < 51)
+				if (!bduplicat && i < 51)
 				{
 					char szTime[32];
 					FormatTimeFloat(client, time, 3, szTime, sizeof(szTime));

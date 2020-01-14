@@ -1004,7 +1004,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 			g_vCurrent[client][2] = GetEntPropFloat(client, Prop_Send, "m_vecVelocity[2]");
 
 			// Check if player landed on the ground
-			if (g_bOnGround[client] && g_bLastOnGround[client])
+			if (g_bOnGround[client] && !g_bLastOnGround[client])
 			{
 				// Set up and do tracehull to find out if the player landed on a slope
 				float vPos[3];

@@ -2233,7 +2233,7 @@ public Action Client_Pause(int client, int args)
 		return Plugin_Handled;
 	}
 	PauseMethod(client);
-	if (g_bPause[client])
+	if (!g_bPause[client])
 		CPrintToChat(client, "%t", "Pause2", g_szChatPrefix);
 	else
 		CPrintToChat(client, "%t", "Pause3", g_szChatPrefix);
@@ -2243,9 +2243,9 @@ public Action Client_Pause(int client, int args)
 public void PauseMethod(int client)
 {
 	if (GetClientTeam(client) == 1)return;
-	if (g_bPause[client] && IsValidEntity(client))
+	if (!g_bPause[client] && IsValidEntity(client))
 	{
-		if (GetConVarBool(g_hPauseServerside) && client != g_RecordBot && client != g_BonusBot)
+		if (!GetConVarBool(g_hPauseServerside) && client != g_RecordBot && client != g_BonusBot)
 		{
 			CPrintToChat(client, "%t", "Pause1", g_szChatPrefix);
 			return;
