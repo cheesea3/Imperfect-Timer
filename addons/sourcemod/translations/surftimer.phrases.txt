@@ -77,8 +77,8 @@
 	}
 	"TimeleftCounter"
 	{
-		"#format"	"{1:s},{2:s},{3:i}"
-		"en"		"{1} {blue}{2} {default}- {lightgreen}{3} seconds remaining"
+		"#format"	"{1:s},{2:i}"
+		"en"		"{1} {lightgreen}{2} seconds remaining"
 	}
 	"MissedMapBest"
 	{

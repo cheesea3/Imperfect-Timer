@@ -165,30 +165,34 @@ public Action CKTimer2(Handle timer)
 			GetMapTimeLeft(timeleft);
 			switch (timeleft)
 			{
-				case 1800:CPrintToChatAll("%t", "TimeleftMinutes", g_szChatPrefix, g_szMapName, timeleft / 60);
-				case 1200:CPrintToChatAll("%t", "TimeleftMinutes", g_szChatPrefix, g_szMapName, timeleft / 60);
-				case 600:CPrintToChatAll("%t", "TimeleftMinutes", g_szChatPrefix, g_szMapName, timeleft / 60);
-				case 300:CPrintToChatAll("%t", "TimeleftMinutes", g_szChatPrefix, g_szMapName, timeleft / 60);
-				case 120:CPrintToChatAll("%t", "TimeleftMinutes", g_szChatPrefix, g_szMapName, timeleft / 60);
-				case 60:CPrintToChatAll("%t", "TimeleftSeconds", g_szChatPrefix, g_szMapName, timeleft);
-				case 30:CPrintToChatAll("%t", "TimeleftSeconds", g_szChatPrefix, g_szMapName, timeleft);
-				case 15:CPrintToChatAll("%t", "TimeleftSeconds", g_szChatPrefix, g_szMapName, 10);
-				case 7:CPrintToChatAll("%t", "TimeleftCounter", g_szChatPrefix, g_szMapName, 3);
-				case 6:CPrintToChatAll("%t", "TimeleftCounter", g_szChatPrefix, g_szMapName, 2);
-				case 5:
+				case 1800: CPrintToChatAll("%t", "TimeleftMinutes", g_szChatPrefix, g_szMapName, timeleft / 60);
+				case 1200: CPrintToChatAll("%t", "TimeleftMinutes", g_szChatPrefix, g_szMapName, timeleft / 60);
+				case 600: CPrintToChatAll("%t", "TimeleftMinutes", g_szChatPrefix, g_szMapName, timeleft / 60);
+				case 300: CPrintToChatAll("%t", "TimeleftMinutes", g_szChatPrefix, g_szMapName, timeleft / 60);
+				case 120: CPrintToChatAll("%t", "TimeleftMinutes", g_szChatPrefix, g_szMapName, timeleft / 60);
+				case 60: CPrintToChatAll("%t", "TimeleftCounter", g_szChatPrefix, timeleft);
+				case 30: CPrintToChatAll("%t", "TimeleftCounter", g_szChatPrefix, timeleft);
+				case 15: CPrintToChatAll("%t", "TimeleftCounter", g_szChatPrefix, 15);
+				case 3: CPrintToChatAll("%t", "TimeleftCounter", g_szChatPrefix, 3);
+				case 2: CPrintToChatAll("%t", "TimeleftCounter", g_szChatPrefix, 2);
+				case 1:
 				{
-					if (!g_bRoundEnd)
-					{
-						g_bRoundEnd = true;
-						ServerCommand("mp_ignore_round_win_conditions 0; mp_maxrounds 1");
-						CPrintToChatAll("%t", "TimeleftCounter", g_szChatPrefix, g_szMapName, 1);
-						char szNextMap[128];
-						GetNextMap(szNextMap, 128);
-						CPrintToChatAll("%t", "Timer2", g_szChatPrefix, szNextMap);
-                        CreateTimer(1.0, Timer_RetryPlayers, INVALID_HANDLE, TIMER_FLAG_NO_MAPCHANGE);
-						CreateTimer(1.1, ForceNextMap, INVALID_HANDLE, TIMER_FLAG_NO_MAPCHANGE);
-					}
+					CPrintToChatAll("%t", "TimeleftCounter", g_szChatPrefix, 1);
+					//ServerCommand("mp_ignore_round_win_conditions 0; mp_maxrounds 1");
+                    //CreateTimer(1.0, Timer_RetryPlayers, INVALID_HANDLE, TIMER_FLAG_NO_MAPCHANGE);
+					//CreateTimer(1.1, ForceNextMap, INVALID_HANDLE, TIMER_FLAG_NO_MAPCHANGE);
 				}
+			}
+
+			if (timeleft <= -1)
+			{
+				g_bRoundEnd = true;
+				ServerCommand("mp_match_end_restart 0"); // just in case
+				char szNextMap[128];
+				GetNextMap(szNextMap, 128);
+				CPrintToChatAll("%t", "Timer2", g_szChatPrefix, szNextMap);
+				CS_TerminateRound(16, CSRoundEnd_Draw, true);
+				return Plugin_Continue;
 			}
 
 			if (timeleft == 60 || timeleft == 30 || timeleft == 15)
