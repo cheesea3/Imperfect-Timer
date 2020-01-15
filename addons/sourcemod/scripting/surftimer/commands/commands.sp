@@ -170,10 +170,11 @@ void CreateCommands()
 	RegConsoleCmd("sm_backwards", Client_SetStyleBackwards, "[surftimer] Switch to the backwards surf style");
 	RegConsoleCmd("sm_bw", Client_SetStyleBackwards, "[surftimer] Switch to the backwards surf style");
 	RegConsoleCmd("sm_fastforward", Client_SetStyleFastForward, "[surftimer] Switch to the fast forwards surf style");
-	RegConsoleCmd("sm_ff", Client_SetStyleFastForward, "[surftimer] Switch to the fast forwards surf style");
+	RegConsoleCmd("sm_slowmotion", Client_SetStyleSlomo, "[surftimer] Switch to the slow motion surf style");
 	RegConsoleCmd("sm_slowmo", Client_SetStyleSlomo, "[surftimer] Switch to the slow motion surf style");
 	RegConsoleCmd("sm_slw", Client_SetStyleSlomo, "[surftimer] Switch to the slow motion surf style");
 	RegConsoleCmd("sm_lowgravity", Client_SetStyleLowGrav, "[surftimer] Switch to the low gravity surf style");
+	RegConsoleCmd("sm_lowgrav", Client_SetStyleLowGrav, "[surftimer] Switch to the low gravity surf style");
 	RegConsoleCmd("sm_lg", Client_SetStyleLowGrav, "[surftimer] Switch to the low gravity surf style");
 
 	// style btop if i ever get around to it
