@@ -3538,23 +3538,28 @@ public void Checkpoint(int client, int zone, int zonegroup, float time)
 	int totalPoints = 0;
 	char szPercnt[24];
 	char szSpecMessage[512];
+	int speed = 0;
+	bool hasCheckpoints = false; // not necessary, but faster when true
 
 	if (g_bhasStages) // If staged map
 		totalPoints = g_mapZonesTypeCount[zonegroup][3];
-	else
-		if (g_mapZonesTypeCount[zonegroup][4] > 0) // If Linear Map and checkpoints
+	else if (g_mapZonesTypeCount[zonegroup][4] > 0) // If Linear Map and checkpoints
+	{
 		totalPoints = g_mapZonesTypeCount[zonegroup][4];
+		speed = RoundToNearest(g_fLastSpeed[client]);
+		hasCheckpoints = true;
+	}
 
 	// Count percent of completion
 	percent = (float(zone + 1) / float(totalPoints + 1));
 	percent = percent * 100.0;
 	Format(szPercnt, 24, "%1.f%%", percent);
 
-	if (g_bTimerRunning[client] && !g_bPracticeMode[client]) {
+	if (g_bTimerRunning[client] && !g_bPracticeMode[client])
+	{
 		if (g_fMaxPercCompleted[client] < 1.0) // First time a checkpoint is reached
 			g_fMaxPercCompleted[client] = percent;
-		else
-			if (g_fMaxPercCompleted[client] < percent) // The furthest checkpoint reached
+		else if (g_fMaxPercCompleted[client] < percent) // The furthest checkpoint reached
 			g_fMaxPercCompleted[client] = percent;
 	}
 
@@ -3674,7 +3679,12 @@ public void Checkpoint(int client, int zone, int zonegroup, float time)
 		Call_Finish();
 
 		if (g_bCheckpointsEnabled[client])
-			CPrintToChat(client, "%t", "CPDisplay", g_szChatPrefix, g_iClientInZone[client][1] + 1, szTime, szDiff, sz_srDiff);
+		{
+			if (g_bhasStages)
+				CPrintToChat(client, "%t", "CPDisplay", g_szChatPrefix, g_iClientInZone[client][1] + 1, szTime, szDiff, sz_srDiff);
+			else if (hasCheckpoints) // checkpoints exist
+				CPrintToChat(client, "%t", "CPDisplayLinear", g_szChatPrefix, g_iClientInZone[client][1] + 1, szTime, speed, szDiff, sz_srDiff);
+		}
 
 		Format(szSpecMessage, sizeof(szSpecMessage), "%t", "CPDisplaySpectator", g_szChatPrefix, szName, g_iClientInZone[client][1] + 1, szTime, szDiff, sz_srDiff);
 		CheckpointToSpec(client, szSpecMessage);
@@ -3711,9 +3721,14 @@ public void Checkpoint(int client, int zone, int zonegroup, float time)
 			if (percent > -1.0)
 			{
 				if (g_bCheckpointsEnabled[client])
-					CPrintToChat(client, "%t", "CPDisplay2", g_szChatPrefix, g_iClientInZone[client][1] + 1, szTime, sz_srDiff);
+				{
+					if (g_bhasStages)
+						CPrintToChat(client, "%t", "CPDisplayNoPB", g_szChatPrefix, g_iClientInZone[client][1] + 1, szTime, sz_srDiff);
+					else if (hasCheckpoints) // checkpoints exist
+						CPrintToChat(client, "%t", "CPDisplayLinearNoPB", g_szChatPrefix, g_iClientInZone[client][1] + 1, szTime, speed, sz_srDiff);
+				}
 
-				Format(szSpecMessage, sizeof(szSpecMessage), "%t", "CPDisplaySpectator2", g_szChatPrefix, szName, g_iClientInZone[client][1] + 1, szTime, sz_srDiff);
+				Format(szSpecMessage, sizeof(szSpecMessage), "%t", "CPDisplaySpectatorNoPB", g_szChatPrefix, szName, g_iClientInZone[client][1] + 1, szTime, sz_srDiff);
 				CheckpointToSpec(client, szSpecMessage);
 			}
 		}

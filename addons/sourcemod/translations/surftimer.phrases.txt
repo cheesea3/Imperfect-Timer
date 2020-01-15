@@ -1238,17 +1238,27 @@
 		"#format"	"{1:s},{2:i},{3:s},{4:s},{5:s}"
 		"en"		"{1} CP [{lightgreen}{2}{default}]: {lightgreen}{3} {default}[PB: {4}{default} | {5}{default}]"
 	}
+	"CPDisplayNoPB"
+	{
+		"#format"	"{1:s},{2:i},{3:s},{4:s}"
+		"en"		"{1} CP [{lightgreen}{2}{default}]: {lightgreen}{3} {default}[PB: {lightgreen}N/A{default} | {5}{default}]"
+	}
+	"CPDisplayLinear"
+	{
+		"#format"	"{1:s},{2:i},{3:s},{4:i},{5:s},{6:s}"
+		"en"		"{1} CP [{lightgreen}{2}{default}]: {lightgreen}{3}{default} ({4} u/s) [PB: {5}{default} | {6}{default}]"
+	}
+	"CPDisplayLinearNoPB"
+	{
+		"#format"	"{1:s},{2:i},{3:s},{4:i},{5:s}"
+		"en"		"{1} CP [{lightgreen}{2}{default}]: {lightgreen}{3}{default} ({4} u/s) [PB: {lightgreen}N/A{default} | {5}{default}]"
+	}
 	"CPDisplaySpectator"
 	{
 		"#format"	"{1:s},{2:s},{3:i},{4:s},{5:s},{6:s}"
 		"en"		"{1} {yellow}{2} {default}| CP [{lightgreen}{3}{default}]: {lightgreen}{4} {default}[PB: {5}{default} | {6}{default}]"
 	}
-	"CPDisplay2"
-	{
-		"#format"	"{1:s},{2:i},{3:s},{4:s}"
-		"en"		"{1} CP [{lightgreen}{2}{default}]: {lightgreen}{3} {default}[PB: {lightgreen}N/A{default} | {4}{default}]"
-	}
-	"CPDisplaySpectator2"
+	"CPDisplaySpectatorNoPB"
 	{
 		"#format"	"{1:s},{2:s},{3:i},{4:s},{5:s}"
 		"en"		"{1} {yellow}{2} {default}| CP [{lightgreen}{3}{default}]: {lightgreen}{4} {default}[PB: {lightgreen}N/A{default} | {5}{default}]"
