@@ -110,7 +110,7 @@ void CreateCommands()
 	RegAdminCmd("sm_fixbot", Admin_FixBot, ADMFLAG_ROOT, "[surftimer] Toggles replay bots off and on");
 	RegConsoleCmd("sm_vip", Command_Vip, "[surftimer] [vip] Displays the VIP menu to client");
 	RegConsoleCmd("sm_vmute", Command_Vmute, "[surftimer] [vip] Toggle vmute on a player");
-	RegAdminCmd("sm_imute", Command_Imute, ADMFLAG_CUSTOM2, "[surftimer] [IG] Mute a player for 30 minutes for mic spam/interrupting");
+	RegAdminCmd("sm_imute", Command_Imute, ADMFLAG_ROOT, "[surftimer] [IG] Mute a player for 30 minutes for mic spam/interrupting");
 	RegAdminCmd("sm_givetitle", Command_GiveTitle, ADMFLAG_ROOT, "[surftimer] Grants a title to a player");
 	RegAdminCmd("sm_removetitle", Command_RemoveTitle, ADMFLAG_ROOT, "[surftimer] Removes a title from a player");
 	RegAdminCmd("sm_listtitles", Command_ListTitles, ADMFLAG_ROOT, "[surftimer] Lists titles for a player");
@@ -196,8 +196,11 @@ void CreateCommands()
 	RegAdminCmd("sm_targetname", Client_TargetName, ADMFLAG_ROOT);
 
 	// !Startpos -- Goose
-	RegConsoleCmd("sm_startpos", Command_Startpos, "[surftimer] Saves current location as new !r spawn.");
-	RegConsoleCmd("sm_resetstartpos", Command_ResetStartpos, "[surftimer] Removes custom !r spawn.");
+	RegConsoleCmd("sm_startpos", Command_Startpos, "[surftimer] Saves current location as the new spawn position");
+	RegConsoleCmd("sm_setstart", Command_Startpos, "[surftimer] Saves current location as the new spawn position");
+	RegConsoleCmd("sm_resetstartpos", Command_ResetStartpos, "[surftimer] Removes custom spawn position");
+	RegConsoleCmd("sm_deletestartpos", Command_ResetStartpos, "[surftimer] Removes custom spawn position");
+	RegConsoleCmd("sm_delstart", Command_ResetStartpos, "[surftimer] Removes custom spawn position");
 
 	// Discord
 	RegConsoleCmd("sm_bug", Command_Bug, "[surftimer] report a bug to our discord");
