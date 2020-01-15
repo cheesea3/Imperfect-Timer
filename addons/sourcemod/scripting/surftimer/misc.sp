@@ -158,7 +158,7 @@ public void teleportClient(int client, int zonegroup, int zone, bool stopTime)
 
 			// Hack fix for zoneid not being set with hooked zones
 			int zId = getZoneID(zonegroup, zone);
-			if (!StrEqual(g_mapZones[zId][hookName], "None"))
+			if (!StrEqual(g_mapZones[zId].hookName, "None"))
 				g_iTeleportingZoneId[client] = zId;
 
 			teleportEntitySafe(client, g_fStartposLocation[client][zonegroup], g_fStartposAngle[client][zonegroup], view_as<float>( { 0.0, 0.0, 0.0 } ), stopTime);
@@ -187,7 +187,7 @@ public void teleportClient(int client, int zonegroup, int zone, bool stopTime)
 
 			// Hack fix for zoneid not being set with hooked zones
 			int zId = getZoneID(zonegroup, zone);
-			if (!StrEqual(g_mapZones[zId][hookName], "None"))
+			if (!StrEqual(g_mapZones[zId].hookName, "None"))
 				g_iTeleportingZoneId[client] = zId;
 
 			if (realZone == 0)
@@ -220,7 +220,7 @@ public void teleportClient(int client, int zonegroup, int zone, bool stopTime)
 						Client_Stop(client, 0);
 
 					// Set spawn location to the destination zone:
-					Array_Copy(g_mapZones[destinationZoneId][CenterPoint], g_fTeleLocation[client], 3);
+					Array_Copy(g_mapZones[destinationZoneId].CenterPoint, g_fTeleLocation[client], 3);
 
 					// Set specToStage flag
 					g_bRespawnPosition[client] = false;
@@ -283,7 +283,7 @@ public void teleportClient(int client, int zonegroup, int zone, bool stopTime)
 					if (destinationFound)
 						Array_Copy(origin, fLocation, 3);
 					else
-						Array_Copy(g_mapZones[destinationZoneId][CenterPoint], fLocation, 3);
+						Array_Copy(g_mapZones[destinationZoneId].CenterPoint, fLocation, 3);
 
 					// fluffys dont cheat wrcps!
 					g_bWrcpTimeractivated[client] = false;
@@ -318,7 +318,7 @@ void teleportEntitySafe(int client, float fDestination[3], float fAngles[3], flo
 
 	int zId = setClientLocation(client, fDestination); // Set new location
 
-	if (zId > -1 && g_bTimerRunning[client] && g_mapZones[zId][zoneType] == 2) // If teleporting to the end zone, stop timer
+	if (zId > -1 && g_bTimerRunning[client] && g_mapZones[zId].zoneType == 2) // If teleporting to the end zone, stop timer
 		Client_Stop(client, 0);
 
 	// Teleport
@@ -330,7 +330,7 @@ int setClientLocation(int client, float fDestination[3])
 	int zId = IsInsideZone(fDestination);
 
 	// Hack fix for hooked zones setting the clients zone id to -1
-	if (g_mapZonesCount > 0 && g_iTeleportingZoneId[client] >= 0 && !StrEqual(g_mapZones[g_iTeleportingZoneId[client]][hookName], "None"))
+	if (g_mapZonesCount > 0 && g_iTeleportingZoneId[client] >= 0 && !StrEqual(g_mapZones[g_iTeleportingZoneId[client]].hookName, "None"))
 	{
 		// Any side effects from doing this? Not sure, I assume joni is getting a new zone id for a reason but I don't understand why when he gets the new zone id in the teleportClient function
 		zId = g_iTeleportingZoneId[client];
@@ -343,9 +343,9 @@ int setClientLocation(int client, float fDestination[3])
 
 		if (zId > -1)
 		{
-			g_iClientInZone[client][0] = g_mapZones[zId][zoneType];
-			g_iClientInZone[client][1] = g_mapZones[zId][zoneTypeId];
-			g_iClientInZone[client][2] = g_mapZones[zId][zoneGroup];
+			g_iClientInZone[client][0] = g_mapZones[zId].zoneType;
+			g_iClientInZone[client][1] = g_mapZones[zId].zoneTypeId;
+			g_iClientInZone[client][2] = g_mapZones[zId].zoneGroup;
 			g_iClientInZone[client][3] = zId;
 		}
 		else
@@ -552,12 +552,12 @@ public int getZoneID(int zoneGrp, int stage)
 	{
 		for (int i = 0; i < g_mapZonesCount; i++)
 		{
-			if (g_mapZones[i][zoneGroup] == zoneGrp && (g_mapZones[i][zoneType] == 1 || g_mapZones[i][zoneType] == 5) && g_mapZones[i][zoneTypeId] == 0)
+			if (g_mapZones[i].zoneGroup == zoneGrp && (g_mapZones[i].zoneType == 1 || g_mapZones[i].zoneType == 5) && g_mapZones[i].zoneTypeId == 0)
 				return i;
 		}
 		for (int i = 0; i < g_mapZonesCount; i++) // If no start zone with typeId 0 found, return any start zone
 		{
-			if (g_mapZones[i][zoneGroup] == zoneGrp && (g_mapZones[i][zoneType] == 1 || g_mapZones[i][zoneType] == 5))
+			if (g_mapZones[i].zoneGroup == zoneGrp && (g_mapZones[i].zoneType == 1 || g_mapZones[i].zoneType == 5))
 				return i;
 		}
 	}
@@ -565,7 +565,7 @@ public int getZoneID(int zoneGrp, int stage)
 	{
 		for (int i = 0; i < g_mapZonesCount; i++)
 		{
-			if (g_mapZones[i][zoneGroup] == zoneGrp && g_mapZones[i][zoneType] == 3 && g_mapZones[i][zoneTypeId] == (stage - 2))
+			if (g_mapZones[i].zoneGroup == zoneGrp && g_mapZones[i].zoneType == 3 && g_mapZones[i].zoneTypeId == (stage - 2))
 			{
 				return i;
 			}
@@ -575,7 +575,7 @@ public int getZoneID(int zoneGrp, int stage)
 	{
 		for (int i = 0; i < g_mapZonesCount; i++)
 		{
-			if (g_mapZones[i][zoneType] == 2 && g_mapZones[i][zoneGroup] == zoneGrp)
+			if (g_mapZones[i].zoneType == 2 && g_mapZones[i].zoneGroup == zoneGrp)
 			{
 				return i;
 			}
@@ -1037,7 +1037,7 @@ public void LimitSpeed(int client)
 		return;
 
 	float speedCap = 0.0, CurVelVec[3];
-	speedCap = g_mapZones[g_iClientInZone[client][3]][preSpeed];
+	speedCap = g_mapZones[g_iClientInZone[client][3]].preSpeed;
 
 	if (speedCap == 0.0)
 		return;
@@ -1077,7 +1077,7 @@ public void LimitSpeedNew(int client)
 		return;
 
 	float speedCap = 0.0;
-	speedCap = g_mapZones[g_iClientInZone[client][3]][preSpeed];
+	speedCap = g_mapZones[g_iClientInZone[client][3]].preSpeed;
 
 	if (speedCap <= 0.0)
 		return;

@@ -147,7 +147,8 @@ int g_mapZonesTypeCount[MAXZONEGROUPS][ZONEAMOUNT];
 char g_szZoneGroupName[MAXZONEGROUPS][128];
 
 // Map Zone array
-int g_mapZones[MAXZONES][MapZone];
+MapZone g_mapZones[MAXZONES];
+// int g_mapZones[MAXZONES][MapZone];
 
 // The total amount of zones in the map
 int g_mapZonesCount;

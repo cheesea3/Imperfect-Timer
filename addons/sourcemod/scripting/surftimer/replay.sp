@@ -152,15 +152,15 @@ public void SaveRecording(int client, int zgroup, int style)
 	// Bonus replay path
 	if (zgroup > 0)
 		Format(sPath3, sizeof(sPath3), "%s_bonus_%d", sPath3, zgroup);
-	
+
 	// Style replay path
 	if (style > 0)
 		Format(sPath3, sizeof(sPath3), "%s_style_%d", sPath3, style);
-	
+
 	// Finish the path
 	Format(sPath3, sizeof(sPath3), "%s.rec", sPath3);
 	BuildPath(Path_SM, sPath2, sizeof(sPath2), sPath3);
-	
+
 	// Old method of making paths
 	// if (zgroup == 0)
 	// 	BuildPath(Path_SM, sPath2, sizeof(sPath2), "%s%s.rec", CK_REPLAY_PATH, g_szMapName);
@@ -304,9 +304,9 @@ public void LoadReplays()
 		LoadRecordFromFile(sPath, iFileHeader, true);
 		Array_Copy(iFileHeader[view_as<int>(FH_initialPosition)], initPos, 3);
 		int zId = IsInsideZone(initPos, 50.0);
-		if (zId != -1 && g_mapZones[zId][zoneGroup] != 0)
+		if (zId != -1 && g_mapZones[zId].zoneGroup != 0)
 		{
-			BuildPath(Path_SM, newPath, sizeof(newPath), "%s%s_bonus_%i.rec", CK_REPLAY_PATH, g_szMapName, g_mapZones[zId][zoneGroup]);
+			BuildPath(Path_SM, newPath, sizeof(newPath), "%s%s_bonus_%i.rec", CK_REPLAY_PATH, g_szMapName, g_mapZones[zId].zoneGroup);
 			if (RenameFile(newPath, sPath))
 				PrintToServer("surftimer | Succesfully renamed bonus record file to: %s", newPath);
 		}
@@ -458,7 +458,7 @@ public void PlayRecord(int client, int type, int style)
 			char buffer2[128];
 			Format(buffer2, sizeof(buffer2), g_szStyleAcronyms[style]);
 			StringToUpper(buffer2);
-			
+
 			Format(buffer, sizeof(buffer), "%s: %s (%s)", buffer2, g_szReplayName, g_szReplayTime);
 			SetClientName(client, buffer);
 
@@ -492,7 +492,7 @@ public void PlayRecord(int client, int type, int style)
 			char buffer2[128];
 			Format(buffer2, sizeof(buffer2), g_szStyleAcronyms[style]);
 			StringToUpper(buffer2);
-			
+
 			Format(buffer, sizeof(buffer), "%s: %s (%s)", buffer2, g_szBonusName, g_szBonusTime);
 			SetClientName(client, buffer);
 
@@ -1190,7 +1190,7 @@ public void Stage_StartRecording(int client)
 	GetClientEyeAngles(client, g_fStageInitialAngles[client]);
 
 	// Client is being recorded, save the ticks where the recording started
-	if (g_hRecording[client] != null) 
+	if (g_hRecording[client] != null)
 	{
 		g_StageRecStartFrame[client] = g_RecordedTicks[client];
 		g_StageRecStartAT[client] = g_CurrentAdditionalTeleportIndex[client];
@@ -1209,7 +1209,7 @@ public void Stage_StartRecording(int client)
 
 public void Stage_SaveRecording(int client, int stage, char[] time)
 {
-	if (!IsValidClient(client) || g_hRecording[client] == null) 
+	if (!IsValidClient(client) || g_hRecording[client] == null)
 		return;
 
 	char szName[MAX_NAME_LENGTH];

@@ -212,20 +212,20 @@ enum FileHeader
 	Handle:FH_frames
 }
 
-enum MapZone
+enum struct MapZone
 {
-	zoneId,
-	zoneType,
-	zoneTypeId,
-	Float:PointA[3],
-	Float:PointB[3],
-	Float:CenterPoint[3],
-	String:zoneName[128],
-	String:hookName[128],
-	String:targetName[128],
-	oneJumpLimit,
-	Float:preSpeed,
-	zoneGroup
+	int zoneId;
+	int zoneType;
+	int zoneTypeId;
+	float PointA[3];
+	float PointB[3];
+	float CenterPoint[3];
+	char zoneName[128];
+	char hookName[128];
+	char targetName[128];
+	int oneJumpLimit;
+	float preSpeed;
+	int zoneGroup;
 }
 
 enum SkillGroup

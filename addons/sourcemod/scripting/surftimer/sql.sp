@@ -2344,8 +2344,8 @@ public void sql_setZoneNamesCallback(Handle owner, Handle hndl, const char[] err
 
 	for (int i = 0; i < g_mapZonesCount; i++)
 	{
-		if (g_mapZones[i][zoneGroup] == zonegrp)
-		Format(g_mapZones[i][zoneName], 64, szName);
+		if (g_mapZones[i].zoneGroup == zonegrp)
+		Format(g_mapZones[i].zoneName, 64, szName);
 	}
 
 	if (IsValidClient(client))
@@ -2516,13 +2516,14 @@ public void SQL_saveZonesCallBack(Handle owner, Handle hndl, const char[] error,
 	char hookname[128], targetname[128];
 	for (int i = 0; i < g_mapZonesCount; i++)
 	{
-		Format(szzone, 128, "%s", g_szZoneGroupName[g_mapZones[i][zoneGroup]]);
-		Format(hookname, 128, "%s", g_mapZones[i][hookName]);
-		Format(targetname, 128, "%s", g_mapZones[i][targetName]);
+		Format(szzone, 128, "%s", g_szZoneGroupName[g_mapZones[i].zoneGroup]);
+		Format(hookname, 128, "%s", g_mapZones[i].hookName);
+		Format(targetname, 128, "%s", g_mapZones[i].targetName);
 
-		if (g_mapZones[i][PointA][0] != -1.0 && g_mapZones[i][PointA][1] != -1.0 && g_mapZones[i][PointA][2] != -1.0)
+		if (g_mapZones[i].PointA[0] != -1.0 && g_mapZones[i].PointA[1] != -1.0 && g_mapZones[i].PointA[2] != -1.0)
 		{
-			db_insertZoneCheap(g_mapZones[i][zoneId], g_mapZones[i][zoneType], g_mapZones[i][zoneTypeId], g_mapZones[i][PointA][0], g_mapZones[i][PointA][1], g_mapZones[i][PointA][2], g_mapZones[i][PointB][0], g_mapZones[i][PointB][1], g_mapZones[i][PointB][2], 0, 0, g_mapZones[i][zoneGroup], szzone, i, hookname, targetname, g_mapZones[i][oneJumpLimit], g_mapZones[i][preSpeed]);
+			db_insertZoneCheap(g_mapZones[i].zoneId, g_mapZones[i].zoneType, g_mapZones[i].zoneTypeId, g_mapZones[i].PointA[0], g_mapZones[i].PointA[1], g_mapZones[i].PointA[2],
+							   g_mapZones[i].PointB[0], g_mapZones[i].PointB[1], g_mapZones[i].PointB[2], 0, 0, g_mapZones[i].zoneGroup, szzone, i, hookname, targetname, g_mapZones[i].oneJumpLimit, g_mapZones[i].preSpeed);
 		}
 	}
 }
