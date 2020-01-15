@@ -166,6 +166,9 @@
 // New Save Locs
 #define MAX_LOCS 1024
 
+// Max player load steps
+#define MAX_LOAD_STEPS 6
+
 /*====================================
 =            Enumerations            =
 ====================================*/

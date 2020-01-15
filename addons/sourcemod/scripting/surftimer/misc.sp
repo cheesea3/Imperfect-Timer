@@ -3028,11 +3028,11 @@ public void CenterHudAlive(int client)
         return;
     }
     if (playerState == PLS_LOADING) {
-        PrintHintText(client, "<font color='#FFFF00'>Loading your account ... %i/%i</font>", GetPlayerLoadStep(client), GetPlayerLoadStepMax(client));
+        PrintHintText(client, "<font color='#FFFF00'>Loading your account ... %i/%i</font>", GetPlayerLoadStep(client), GetPlayerLoadStepMax());
         return;
     }
     if (playerState != PLS_LOADED) {
-        PrintHintText(client, "<font color='#FFFF00'>Account Load Error %i/%i</font>", GetPlayerLoadStep(client), GetPlayerLoadStepMax(client));
+        PrintHintText(client, "<font color='#FFFF00'>Account Load Error %i/%i</font>", GetPlayerLoadStep(client), GetPlayerLoadStepMax());
         return;
     }
 

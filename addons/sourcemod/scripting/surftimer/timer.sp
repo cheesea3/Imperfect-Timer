@@ -357,9 +357,9 @@ void SetClanTag(int client) {
     if (playerState == PLS_PENDING) {
         strcopy(tag, sizeof(tag), "WAITING");
     } else if (playerState == PLS_LOADING) {
-        Format(tag, sizeof(tag), "LOAD %i/%i", GetPlayerLoadStep(client), GetPlayerLoadStepMax(client));
+        Format(tag, sizeof(tag), "LOAD %i/%i", GetPlayerLoadStep(client), GetPlayerLoadStepMax());
     } else if (playerState != PLS_LOADED) {
-        Format(tag, sizeof(tag), "ERROR %i/%i", GetPlayerLoadStep(client), GetPlayerLoadStepMax(client));
+        Format(tag, sizeof(tag), "ERROR %i/%i", GetPlayerLoadStep(client), GetPlayerLoadStepMax());
     } else if (!StrEqual(g_pr_rankname[client], "")) {
         strcopy(tag, sizeof(tag), g_pr_rankname[client]);
         ReplaceString(tag, sizeof(tag), "{style}", "");
