@@ -1538,4 +1538,34 @@
 		"#format"	"{1:s},{2:s}"
 		"en"		"{1} {darkred}You must pass all {2} to finish your run"
 	}
+	"CommandsNormal"
+	{
+		"#format"	"{1:s},{2:s}"
+		"en"		"{1} Your style has been set to {darkred}Normal"
+	}
+	"CommandsSideways"
+	{
+		"#format"	"{1:s},{2:s}"
+		"en"		"{1} Your style has been set to {darkred}Sideways"
+	}
+	"CommandsBackwards"
+	{
+		"#format"	"{1:s},{2:s}"
+		"en"		"{1} Your style has been set to {darkred}Backwards"
+	}
+	"CommandsLowGravity"
+	{
+		"#format"	"{1:s},{2:s}"
+		"en"		"{1} Your style has been set to {darkred}Low Gravity"
+	}
+	"CommandsFastForward"
+	{
+		"#format"	"{1:s},{2:s}"
+		"en"		"{1} Your style has been set to {darkred}Fast Forward"
+	}
+	"CommandsSlowMotion"
+	{
+		"#format"	"{1:s},{2:s}"
+		"en"		"{1} Your style has been set to {darkred}Slow Motion"
+	}
 }
