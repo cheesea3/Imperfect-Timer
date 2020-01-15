@@ -1706,7 +1706,7 @@ public int MenuHandler_Editor(Handle tMenu, MenuAction action, int client, int i
 				case 6:
 				{
 					// Scaling
-					ScaleMenu(client);
+					ScaleMenu(client, 0);
 				}
 				case 7:
 				{
@@ -1765,7 +1765,7 @@ public void resetSelection(int client)
 	Array_Copy(resetArray, g_fBonusStartPos[client][1], 3);
 }
 
-public void ScaleMenu(int client)
+public void ScaleMenu(int client, int firstItem)
 {
 	g_Editing[client] = 3;
 	Menu ckScaleMenu = new Menu(MenuHandler_Scale);
@@ -1776,19 +1776,19 @@ public void ScaleMenu(int client)
 	else
 		ckScaleMenu.AddItem("", "Point A");
 
-	ckScaleMenu.AddItem("", "+ Width");
-	ckScaleMenu.AddItem("", "- Width");
-	ckScaleMenu.AddItem("", "+ Length");
-	ckScaleMenu.AddItem("", "- Length");
-	ckScaleMenu.AddItem("", "+ Height");
-	ckScaleMenu.AddItem("", "- Height");
+	ckScaleMenu.AddItem("", "Width +");
+	ckScaleMenu.AddItem("", "Width -");
+	ckScaleMenu.AddItem("", "Length +");
+	ckScaleMenu.AddItem("", "Length -");
+	ckScaleMenu.AddItem("", "Height +");
+	ckScaleMenu.AddItem("", "Height -");
 
 	char ScaleSize[128];
-	Format(ScaleSize, sizeof(ScaleSize), "Scale Size %f", g_AvaliableScales[g_ClientSelectedScale[client]]);
+	Format(ScaleSize, sizeof(ScaleSize), "Scale Size %.2f", g_AvaliableScales[g_ClientSelectedScale[client]]);
 	ckScaleMenu.AddItem("", ScaleSize);
 
 	ckScaleMenu.ExitButton = true;
-	ckScaleMenu.Display(client, MENU_TIME_FOREVER);
+	ckScaleMenu.DisplayAt(client, firstItem, MENU_TIME_FOREVER);
 }
 
 public int MenuHandler_Scale(Handle tMenu, MenuAction action, int client, int item)
@@ -1806,30 +1806,12 @@ public int MenuHandler_Scale(Handle tMenu, MenuAction action, int client, int it
 					else
 						g_ClientSelectedPoint[client] = 1;
 				}
-				case 1:
-				{
-					g_Positions[client][g_ClientSelectedPoint[client]][0] = FloatAdd(g_Positions[client][g_ClientSelectedPoint[client]][0], g_AvaliableScales[g_ClientSelectedScale[client]]);
-				}
-				case 2:
-				{
-					g_Positions[client][g_ClientSelectedPoint[client]][0] = FloatSub(g_Positions[client][g_ClientSelectedPoint[client]][0], g_AvaliableScales[g_ClientSelectedScale[client]]);
-				}
-				case 3:
-				{
-					g_Positions[client][g_ClientSelectedPoint[client]][1] = FloatAdd(g_Positions[client][g_ClientSelectedPoint[client]][1], g_AvaliableScales[g_ClientSelectedScale[client]]);
-				}
-				case 4:
-				{
-					g_Positions[client][g_ClientSelectedPoint[client]][1] = FloatSub(g_Positions[client][g_ClientSelectedPoint[client]][1], g_AvaliableScales[g_ClientSelectedScale[client]]);
-				}
-				case 5:
-				{
-					g_Positions[client][g_ClientSelectedPoint[client]][2] = FloatAdd(g_Positions[client][g_ClientSelectedPoint[client]][2], g_AvaliableScales[g_ClientSelectedScale[client]]);
-				}
-				case 6:
-				{
-					g_Positions[client][g_ClientSelectedPoint[client]][2] = FloatSub(g_Positions[client][g_ClientSelectedPoint[client]][2], g_AvaliableScales[g_ClientSelectedScale[client]]);
-				}
+				case 1:	g_Positions[client][g_ClientSelectedPoint[client]][0] = FloatAdd(g_Positions[client][g_ClientSelectedPoint[client]][0], g_AvaliableScales[g_ClientSelectedScale[client]]);
+				case 2: g_Positions[client][g_ClientSelectedPoint[client]][0] = FloatSub(g_Positions[client][g_ClientSelectedPoint[client]][0], g_AvaliableScales[g_ClientSelectedScale[client]]);
+				case 3: g_Positions[client][g_ClientSelectedPoint[client]][1] = FloatAdd(g_Positions[client][g_ClientSelectedPoint[client]][1], g_AvaliableScales[g_ClientSelectedScale[client]]);
+				case 4:	g_Positions[client][g_ClientSelectedPoint[client]][1] = FloatSub(g_Positions[client][g_ClientSelectedPoint[client]][1], g_AvaliableScales[g_ClientSelectedScale[client]]);
+				case 5:	g_Positions[client][g_ClientSelectedPoint[client]][2] = FloatAdd(g_Positions[client][g_ClientSelectedPoint[client]][2], g_AvaliableScales[g_ClientSelectedScale[client]]);
+				case 6:	g_Positions[client][g_ClientSelectedPoint[client]][2] = FloatSub(g_Positions[client][g_ClientSelectedPoint[client]][2], g_AvaliableScales[g_ClientSelectedScale[client]]);
 				case 7:
 				{
 					++g_ClientSelectedScale[client];
@@ -1837,8 +1819,13 @@ public int MenuHandler_Scale(Handle tMenu, MenuAction action, int client, int it
 						g_ClientSelectedScale[client] = 0;
 				}
 			}
-			ScaleMenu(client);
+
+			if (item < 6)
+				ScaleMenu(client, 0);
+			else
+				ScaleMenu(client, 6);
 		}
+
 		case MenuAction_Cancel:
 		{
 			EditorMenu(client);
