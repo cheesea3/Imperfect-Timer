@@ -772,6 +772,12 @@ bool g_bIsVmuted[MAXPLAYERS + 1];
 // Zephyrus' third person plugin
 bool g_bThirdPerson[MAXPLAYERS + 1];
 
+// Hide weapons toggle
+bool g_bHideWeapons[MAXPLAYERS + 1];
+
+// Last hide weapon command time (includes sm_showweps)
+float g_fLastHideWeapons[MAXPLAYERS + 1];
+
 /*----------  Player location restoring  ----------*/
 
 // Clients location was restored this run

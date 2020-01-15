@@ -117,12 +117,21 @@ public Action Event_OnPlayerSpawn(Handle event, const char[] name, bool dontBroa
     // Strip Weapons
     if ((GetClientTeam(client) > 1) && IsValidClient(client))
     {
-        StripAllWeapons(client);
-        if (!IsFakeClient(client))
-            GivePlayerItem(client, "weapon_usp_silencer");
-        int weapon = GetPlayerWeaponSlot(client, 2);
-        if (weapon != -1 && !IsFakeClient(client))
-            SetEntPropEnt(client, Prop_Send, "m_hActiveWeapon", weapon);
+		if (!g_bHideWeapons[client])
+		{
+			StripAllWeapons(client);
+			if (!IsFakeClient(client))
+			{
+				GivePlayerItem(client, "weapon_usp_silencer");
+				int weapon = GetPlayerWeaponSlot(client, 2);
+				if (weapon != -1)
+					SetEntPropEnt(client, Prop_Send, "m_hActiveWeapon", weapon);
+			}
+		}
+		else
+		{
+			StripAllWeapons(client, true);
+		}
     }
 
     // NoBlock
@@ -1573,3 +1582,13 @@ public Action Hook_ShotgunShot(const char[] te_name, const int[] players, int nu
 
 // 	return Plugin_Continue;
 // }
+
+public Action OnWeaponCanUse(int client, int other)
+{
+	if (g_bHideWeapons[client])
+	{
+		return Plugin_Handled;
+	}
+
+	return Plugin_Continue;
+}

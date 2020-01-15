@@ -138,9 +138,6 @@ void CreateCommands()
 	RegConsoleCmd("sm_bhoptimer", Client_OptionMenu, "[surftimer] Opens options menu");
 	RegConsoleCmd("sm_knife", Command_GiveKnife, "[surftimer] Give players a knife");
 
-	// Zephyrus' third person plugin
-	RegConsoleCmd("sm_tp", Command_ToggleThirdPerson, "[surftimer] Toggles between first and third person");
-
 	// New Commands
 	RegConsoleCmd("sm_mrank", Command_SelectMapTime, "[surftimer] Prints a players map record in chat.");
 	RegConsoleCmd("sm_brank", Command_SelectBonusTime, "[surftimer] Prints a players bonus record in chat.");
@@ -155,6 +152,11 @@ void CreateCommands()
 	RegConsoleCmd("sm_specbotb", Command_SpecBonusBot, "[surftimer] Spectate the bonus bot");
 	RegConsoleCmd("sm_showzones", Command_ShowZones, "[surftimer] Clients can toggle whether zones are visible for them");
 	RegConsoleCmd("sm_showspeed", Command_ShowSpeed, "[surftimer] Toggle the centre speed display");
+	RegConsoleCmd("sm_hideweps", Command_HideWeapons, "[surftimer] Toggle weapons and prevent pickups");
+	RegConsoleCmd("sm_hideweapons", Command_HideWeapons, "[surftimer] Toggle weapons and prevent pickups");
+	RegConsoleCmd("sm_showweps", Command_ShowWeapons, "[surftimer] Give weapons and allow pickups");
+	RegConsoleCmd("sm_showweapons", Command_ShowWeapons, "[surftimer] Give weapons and allow pickups");
+	RegConsoleCmd("sm_tp", Command_ToggleThirdPerson, "[surftimer] Toggles between first and third person"); // Zephyrus' third person plugin
 
 	// Styles
 	RegConsoleCmd("sm_style", Client_SelectStyle, "[surftimer] Open style select menu");
@@ -5011,6 +5013,53 @@ public Action Command_ToggleThirdPerson(int client, int args)
 				g_bThirdPerson[client] = false;
 				ClientCommand(client, "firstperson");
 			}
+		}
+	}
+
+	return Plugin_Handled;
+}
+
+public Action Command_HideWeapons(int client, int args)
+{
+	// prevent spam
+	if ((GetGameTime() - g_fLastHideWeapons[client]) < 5.0)
+		return Plugin_Handled;
+
+	g_fLastHideWeapons[client] = GetGameTime();
+	g_bHideWeapons[client] = !g_bHideWeapons[client];
+
+	if (IsValidClient(client) && !IsFakeClient(client) && IsPlayerAlive(client))
+	{
+		if (g_bHideWeapons[client])
+		{
+			StripAllWeapons(client, true);
+		}
+		else
+		{
+			GivePlayerItem(client, "weapon_usp_silencer");
+			GivePlayerItem(client, "weapon_knife");
+		}
+	}
+
+	return Plugin_Handled;
+}
+
+public Action Command_ShowWeapons(int client, int args)
+{
+	// prevent spam
+	if ((GetGameTime() - g_fLastHideWeapons[client]) < 5.0)
+		return Plugin_Handled;
+
+	g_fLastHideWeapons[client] = GetGameTime();
+
+	if (IsValidClient(client) && !IsFakeClient(client) && g_bHideWeapons[client])
+	{
+		g_bHideWeapons[client] = false;
+
+		if (IsPlayerAlive(client))
+		{
+			GivePlayerItem(client, "weapon_usp_silencer");
+			GivePlayerItem(client, "weapon_knife");
 		}
 	}
 

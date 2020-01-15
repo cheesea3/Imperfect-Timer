@@ -942,19 +942,25 @@ public void GetCountry(int client)
 	}
 }
 
-stock void StripAllWeapons(int client)
+/**
+ * Strips a client of all weapons.
+ *
+ * @param client		The client id
+ * @param removeKnife	Optional: Remove the client's knife
+ */
+stock void StripAllWeapons(int client, bool removeKnife = false)
 {
 	int iEnt;
-	for (int i = 0; i <= 5; i++)
+	for (int i = 0; i < 6; i++)
 	{
-		if (i != 2)
-			while ((iEnt = GetPlayerWeaponSlot(client, i)) != -1)
+		if ((iEnt = GetPlayerWeaponSlot(client, i)) != -1)
 		{
 			RemovePlayerItem(client, iEnt);
-			RemoveEdict(iEnt);
+			AcceptEntityInput(iEnt, "Kill");
 		}
 	}
-	if (GetPlayerWeaponSlot(client, 2) == -1)
+
+	if (!removeKnife && GetPlayerWeaponSlot(client, 2) == -1)
 		GivePlayerItem(client, "weapon_knife");
 }
 
@@ -1298,6 +1304,10 @@ public void SetClientDefaults(int client) {
 
 	// Show Triggers
 	g_bShowTriggers[client] = false;
+
+	// Hide/Show Weapons
+	g_fLastHideWeapons[client] = GameTime;
+	g_bHideWeapons[client] = false;
 
 	// Goose Start Pos
 	for (int i = 0; i < MAXZONEGROUPS; i++)

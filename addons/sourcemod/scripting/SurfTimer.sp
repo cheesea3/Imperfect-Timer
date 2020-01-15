@@ -1,7 +1,7 @@
 /*=======================================================
 =                    CS:GO Surftimer                    =
- This is a heavily modified version of ckSurf by fluffys 
- The original version of this timer was by jonitaikaponi 
+ This is a heavily modified version of ckSurf by fluffys
+ The original version of this timer was by jonitaikaponi
 = https://forums.alliedmods.net/showthread.php?t=264498 =
 =======================================================*/
 
@@ -131,14 +131,14 @@
 #define ZONETYPE_MAXSPEED 11
 
 // Zone Amount
-// Types: Start(1), End(2), Stage(3), Checkpoint(4), Speed(5), 
-// TeleToStart(6), Validator(7), Chekcer(8), Stop(0), AntiJump(9), 
+// Types: Start(1), End(2), Stage(3), Checkpoint(4), Speed(5),
+// TeleToStart(6), Validator(7), Chekcer(8), Stop(0), AntiJump(9),
 // AntiDuck(10), MaxSpeed(11)
 #define ZONEAMOUNT 12
 // Maximum amount of zonegroups in a map
 #define MAXZONEGROUPS 12
 // Maximum amount of zones in a map
-#define MAXZONES 128	
+#define MAXZONES 128
 
 // Ranking Definitions
 #define MAX_PR_PLAYERS 1066
@@ -377,7 +377,7 @@ public void OnMapStart()
 	char mapPieces[6][128];
 	int lastPiece = ExplodeString(g_szMapName, "/", mapPieces, sizeof(mapPieces), sizeof(mapPieces[]));
 	Format(g_szMapName, sizeof(g_szMapName), "%s", mapPieces[lastPiece - 1]);
-	
+
 	// Debug Logging
 	if (!DirExists("addons/sourcemod/logs/surftimer"))
 		CreateDirectory("addons/sourcemod/logs/surftimer", 511);
@@ -496,7 +496,7 @@ public void OnMapStart()
 	iEnt = -1;
 	if (g_hDestinations != null)
 		CloseHandle(g_hDestinations);
-	
+
 	g_hDestinations = CreateArray(128);
 	while ((iEnt = FindEntityByClassname(iEnt, "info_teleport_destination")) != -1)
 		PushArrayCell(g_hDestinations, iEnt);
@@ -507,12 +507,12 @@ public void OnMapStart()
 
 	// Playtime
 	CreateTimer(1.0, PlayTimeTimer, INVALID_HANDLE, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
-	
+
 	// if (FindPluginByFile("store.smx") != INVALID_HANDLE)
 	// 	LogMessage("Store plugin has been found! Timer credits enabled.");
-	// else 
+	// else
 	// 	LogMessage("Store not found! Timer credits have been disabled");
-	
+
 	// Server Announcements
 	g_iServerID = GetConVarInt(g_hServerID);
 	if (GetConVarBool(g_hRecordAnnounce))
@@ -660,6 +660,7 @@ public void OnClientPutInServer(int client) {
 	SDKHook(client, SDKHook_Think, OnPlayerThink);
 	SDKHook(client, SDKHook_PostThink, OnPlayerThink);
 	SDKHook(client, SDKHook_PostThinkPost, OnPlayerThink);
+	SDKHook(client, SDKHook_WeaponCanUse, OnWeaponCanUse);
 
 	// Footsteps
 	if (!IsFakeClient(client))
@@ -793,6 +794,7 @@ public void OnClientDisconnect(int client)
 	SDKUnhook(client, SDKHook_Think, OnPlayerThink);
 	SDKUnhook(client, SDKHook_PostThink, OnPlayerThink);
 	SDKUnhook(client, SDKHook_PostThinkPost, OnPlayerThink);
+	SDKUnhook(client, SDKHook_WeaponCanUse, OnWeaponCanUse);
 
 	if (client == g_RecordBot) g_RecordBot = -1;
 	if (client == g_BonusBot) g_BonusBot = -1;
@@ -1174,7 +1176,7 @@ public void OnSettingChanged(Handle convar, const char[] oldValue, const char[] 
 		Format(color, 28, "%s", newValue[0]);
 		StringRGBtoInt(color, g_iZoneColors[0]);
 	}
-	else if (convar == g_hZonerFlag) 
+	else if (convar == g_hZonerFlag)
 	{
 		AdminFlag flag;
 		bool validFlag;
@@ -1188,7 +1190,7 @@ public void OnSettingChanged(Handle convar, const char[] oldValue, const char[] 
 		else
 			g_ZonerFlag = FlagToBit(flag);
 	}
-	else if (convar == g_hAdminMenuFlag) 
+	else if (convar == g_hAdminMenuFlag)
 	{
 		AdminFlag flag;
 		bool validFlag;
