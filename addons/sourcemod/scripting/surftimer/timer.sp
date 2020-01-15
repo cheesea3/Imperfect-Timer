@@ -191,7 +191,7 @@ public Action CKTimer2(Handle timer)
 				char szNextMap[128];
 				GetNextMap(szNextMap, 128);
 				CPrintToChatAll("%t", "Timer2", g_szChatPrefix, szNextMap);
-				CS_TerminateRound(16, CSRoundEnd_Draw, true);
+				CS_TerminateRound(16.0, CSRoundEnd_Draw, true);
 				return Plugin_Continue;
 			}
 
