@@ -357,7 +357,7 @@ public void CustomTitleMenu(int client)
 
 	AddMenuItem(menu, "name", szItem);
 	AddMenuItem(menu, "text", szItem2);
-    AddMenuItem(menu, "next", "Change Title");
+	AddMenuItem(menu, "next", "Change Title");
 
 	SetMenuOptionFlags(menu, MENUFLAG_BUTTON_EXIT);
 	DisplayMenu(menu, client, MENU_TIME_FOREVER);
@@ -367,68 +367,70 @@ public int CustomTitleMenuHandler(Handle menu, MenuAction action, int param1, in
 {
 	if (action == MenuAction_Select)
 	{
-	    int client = param1;
-	    char info[32];
-	    GetMenuItem(menu, param2, info, sizeof(info));
-	    if (StrEqual(info, "name")) {
-	    	if (!IsPlayerVip(client)) return;
-	        ChangeColorsMenu(client, 0);
-	    } else if (StrEqual(info, "text")) {
-	        if (!IsPlayerVip(client)) return;
-            ChangeColorsMenu(client, 1);
-        } else if (StrEqual(info, "next")) {
-            g_bUpdatingColours[client] = true;
-            NextTitle(client, client);
-        }
+		int client = param1;
+		char info[32];
+		GetMenuItem(menu, param2, info, sizeof(info));
+		if (StrEqual(info, "name")) {
+			if (!IsPlayerVip(client))
+				return;
+			ChangeColorsMenu(client, 0);
+		} else if (StrEqual(info, "text")) {
+			if (!IsPlayerVip(client))
+				return;
+			ChangeColorsMenu(client, 1);
+		} else if (StrEqual(info, "next")) {
+			g_bUpdatingColours[client] = true;
+			NextTitle(client, client);
+		}
 	}
 	else if (action == MenuAction_End)
 		CloseHandle(menu);
 }
 
 public void ChangeColorsMenu(int client, int type) {
-    char szColour[32];
-    getColourName(client, szColour, 32, g_iCustomColours[client][type]);
+	char szColour[32];
+	getColourName(client, szColour, 32, g_iCustomColours[client][type]);
 
-    // change title menu
-    char szTitle[1024];
-    char szType[32];
-    switch (type)
-    {
-        case 0:
-        {
-            Format(szTitle, 1024, "Changing Name Colour (Current: %s):\n \n", szColour);
-            Format(szType, 32, "name");
-        }
-        case 1:
-        {
-            Format(szTitle, 1024, "Changing Text Colour (Current: %s):\n \n", szColour);
-            Format(szType, 32, "text");
-        }
-    }
+	// change title menu
+	char szTitle[1024];
+	char szType[32];
+	switch (type)
+	{
+		case 0:
+		{
+			Format(szTitle, 1024, "Changing Name Colour (Current: %s):\n \n", szColour);
+			Format(szType, 32, "name");
+		}
+		case 1:
+		{
+			Format(szTitle, 1024, "Changing Text Colour (Current: %s):\n \n", szColour);
+			Format(szType, 32, "text");
+		}
+	}
 
-    Menu changeColoursMenu = new Menu(changeColoursMenuHandler);
+	Menu changeColoursMenu = new Menu(changeColoursMenuHandler);
 
-    changeColoursMenu.SetTitle(szTitle);
+	changeColoursMenu.SetTitle(szTitle);
 
-    changeColoursMenu.AddItem(szType, "White");
-    changeColoursMenu.AddItem(szType, "Dark Red");
-    changeColoursMenu.AddItem(szType, "Green");
-    changeColoursMenu.AddItem(szType, "Lime Green");
-    changeColoursMenu.AddItem(szType, "Blue");
-    changeColoursMenu.AddItem(szType, "Moss Green");
-    changeColoursMenu.AddItem(szType, "Red");
-    changeColoursMenu.AddItem(szType, "Grey");
-    changeColoursMenu.AddItem(szType, "Yellow");
-    changeColoursMenu.AddItem(szType, "Light Blue");
-    changeColoursMenu.AddItem(szType, "Dark Blue");
-    changeColoursMenu.AddItem(szType, "Pink");
-    changeColoursMenu.AddItem(szType, "Light Red");
-    changeColoursMenu.AddItem(szType, "Purple");
-    changeColoursMenu.AddItem(szType, "Dark Grey");
-    changeColoursMenu.AddItem(szType, "Orange");
+	changeColoursMenu.AddItem(szType, "White");
+	changeColoursMenu.AddItem(szType, "Dark Red");
+	changeColoursMenu.AddItem(szType, "Green");
+	changeColoursMenu.AddItem(szType, "Lime Green");
+	changeColoursMenu.AddItem(szType, "Blue");
+	changeColoursMenu.AddItem(szType, "Moss Green");
+	changeColoursMenu.AddItem(szType, "Red");
+	changeColoursMenu.AddItem(szType, "Grey");
+	changeColoursMenu.AddItem(szType, "Yellow");
+	changeColoursMenu.AddItem(szType, "Light Blue");
+	changeColoursMenu.AddItem(szType, "Dark Blue");
+	changeColoursMenu.AddItem(szType, "Pink");
+	changeColoursMenu.AddItem(szType, "Light Red");
+	changeColoursMenu.AddItem(szType, "Purple");
+	changeColoursMenu.AddItem(szType, "Dark Grey");
+	changeColoursMenu.AddItem(szType, "Orange");
 
-    changeColoursMenu.ExitButton = true;
-    changeColoursMenu.Display(client, MENU_TIME_FOREVER);
+	changeColoursMenu.ExitButton = true;
+	changeColoursMenu.Display(client, MENU_TIME_FOREVER);
 }
 
 public int changeColoursMenuHandler(Handle menu, MenuAction action, int client, int item)
@@ -2189,10 +2191,10 @@ public void ProfileMenu2(int client, int style, char szName[MAX_NAME_LENGTH], ch
 		// Name provided, search for player on server
 		for (int i = 1; i <= MaxClients; i++) {
 			if (IsValidClient(i) && !IsFakeClient(i)) {
-			    char szBuffer[MAX_NAME_LENGTH];
+				char szBuffer[MAX_NAME_LENGTH];
 				GetClientName(i, szBuffer, sizeof(szBuffer));
 				if (StrContains(szBuffer, szName, false) != -1) {
-				    char szSteamId[32];
+					char szSteamId[32];
 					GetClientAuthId(i, AuthId_Steam2, szSteamId, 32, true);
 					db_viewPlayerProfileBySteamid(client, style, szSteamId);
 					return;
@@ -2339,34 +2341,34 @@ public void GotoMethod(int client, int target)
 	char szTargetName[MAX_NAME_LENGTH];
 	GetClientName(target, szTargetName, MAX_NAME_LENGTH);
 
-    Client_Stop(client, 0);
+	Client_Stop(client, 0);
 
-    if (GetClientTeam(client) == 1 || GetClientTeam(client) == 0)
-    {
-        float position[3];
-        float angles[3];
-        GetClientAbsOrigin(target, position);
-        GetClientEyeAngles(target, angles);
+	if (GetClientTeam(client) == 1 || GetClientTeam(client) == 0)
+	{
+		float position[3];
+		float angles[3];
+		GetClientAbsOrigin(target, position);
+		GetClientEyeAngles(target, angles);
 
-        AddVectors(position, angles, g_fTeleLocation[client]);
-        g_fTeleLocation[client][0] = FloatDiv(g_fTeleLocation[client][0], 2.0);
-        g_fTeleLocation[client][1] = FloatDiv(g_fTeleLocation[client][1], 2.0);
-        g_fTeleLocation[client][2] = FloatDiv(g_fTeleLocation[client][2], 2.0);
+		AddVectors(position, angles, g_fTeleLocation[client]);
+		g_fTeleLocation[client][0] = FloatDiv(g_fTeleLocation[client][0], 2.0);
+		g_fTeleLocation[client][1] = FloatDiv(g_fTeleLocation[client][1], 2.0);
+		g_fTeleLocation[client][2] = FloatDiv(g_fTeleLocation[client][2], 2.0);
 
-        g_bRespawnPosition[client] = false;
-        g_specToStage[client] = true;
-        TeamChangeActual(client, 0);
-    } else {
-        float position[3];
-        float angles[3];
-        GetClientAbsOrigin(target, position);
-        GetClientEyeAngles(target, angles);
-        teleportEntitySafe(client, position, angles, view_as<float>( { 0.0, 0.0, -100.0 } ), true);
-        // TeleportEntity(client, position, angles, Float:{0.0,0.0,-100.0});
-        char szClientName[MAX_NAME_LENGTH];
-        GetClientName(client, szClientName, MAX_NAME_LENGTH);
-        CPrintToChat(target, "%t", "Goto5", g_szChatPrefix, szClientName);
-    }
+		g_bRespawnPosition[client] = false;
+		g_specToStage[client] = true;
+		TeamChangeActual(client, 0);
+	} else {
+		float position[3];
+		float angles[3];
+		GetClientAbsOrigin(target, position);
+		GetClientEyeAngles(target, angles);
+		teleportEntitySafe(client, position, angles, view_as<float>( { 0.0, 0.0, -100.0 } ), true);
+		// TeleportEntity(client, position, angles, Float:{0.0,0.0,-100.0});
+		char szClientName[MAX_NAME_LENGTH];
+		GetClientName(client, szClientName, MAX_NAME_LENGTH);
+		CPrintToChat(target, "%t", "Goto5", g_szChatPrefix, szClientName);
+	}
 }
 
 public Action Client_GoTo(int client, int args)
@@ -3089,45 +3091,45 @@ public Action Command_Vmute(int client, int args)
 
 	char clientName[MAX_NAME_LENGTH];
 	GetClientName(client, clientName, sizeof(clientName));
-    char reason[128];
-    Format(reason, sizeof(reason), "vmute by %s", clientName);
+	char reason[128];
+	Format(reason, sizeof(reason), "vmute by %s", clientName);
 
 	char target[128];
 	GetCmdArg(1, target, sizeof(target));
 
 	int targetId = FindTarget(client, target, true, false);
-    if (targetId < 0)
+	if (targetId < 0)
 	{
-        CReplyToCommand(client, "Target player not found");
-        return Plugin_Handled;
-    }
+		CReplyToCommand(client, "Target player not found");
+		return Plugin_Handled;
+	}
 
-    char targetNamed[128];
-    GetClientName(targetId, targetNamed, sizeof(targetNamed));
+	char targetNamed[128];
+	GetClientName(targetId, targetNamed, sizeof(targetNamed));
 
-    bType isMuted = SourceComms_GetClientMuteType(targetId);
-    if (isMuted == bNot)
+	bType isMuted = SourceComms_GetClientMuteType(targetId);
+	if (isMuted == bNot)
 	{
-        SourceComms_SetClientMute(targetId, true, 30, true, reason);
+		SourceComms_SetClientMute(targetId, true, 30, true, reason);
 		g_bIsVmuted[targetId] = true;
-        CPrintToChatAll("VIP %s muted %s for 30 minutes", clientName, targetNamed);
-    }
+		CPrintToChatAll("VIP %s muted %s for 30 minutes", clientName, targetNamed);
+	}
 	else if (isMuted == bPerm)
 	{
-        CReplyToCommand(client, "Cannot unmute a permanently muted player using vmute.");
-    }
+		CReplyToCommand(client, "Cannot unmute a permanently muted player using vmute.");
+	}
 	else if (isMuted == bTime && !g_bIsVmuted[targetId])
 	{
 		CReplyToCommand(client, "Cannot remove a staff mute.");
 	}
 	else
 	{
-        SourceComms_SetClientMute(targetId, false, -1, false, reason);
+		SourceComms_SetClientMute(targetId, false, -1, false, reason);
 		g_bIsVmuted[targetId] = false;
-        CPrintToChatAll("VIP %s unmuted %s temporarily", clientName, targetNamed);
-    }
+		CPrintToChatAll("VIP %s unmuted %s temporarily", clientName, targetNamed);
+	}
 
-    return Plugin_Handled;
+	return Plugin_Handled;
 }
 
 public Action Command_Imute(int client, int args)
@@ -3143,30 +3145,30 @@ public Action Command_Imute(int client, int args)
 
 	char clientName[MAX_NAME_LENGTH];
 	GetClientName(client, clientName, sizeof(clientName));
-    char reason[128];
-    Format(reason, sizeof(reason), "imute by %s", clientName);
+	char reason[128];
+	Format(reason, sizeof(reason), "imute by %s", clientName);
 
 	char target[128];
 	GetCmdArg(1, target, sizeof(target));
 
 	int targetId = FindTarget(client, target, true, false);
-    if (targetId < 0)
+	if (targetId < 0)
 	{
-        CReplyToCommand(client, "Target player not found");
-        return Plugin_Handled;
-    }
+		CReplyToCommand(client, "Target player not found");
+		return Plugin_Handled;
+	}
 
-    char targetNamed[128];
-    GetClientName(targetId, targetNamed, sizeof(targetNamed));
+	char targetNamed[128];
+	GetClientName(targetId, targetNamed, sizeof(targetNamed));
 
-    bType isMuted = SourceComms_GetClientMuteType(targetId);
-    if (isMuted == bNot)
+	bType isMuted = SourceComms_GetClientMuteType(targetId);
+	if (isMuted == bNot)
 	{
-        SourceComms_SetClientMute(targetId, true, 30, true, reason);
-        CPrintToChatAll("%s has been muted for 30 minutes (Reason: Mic spam/interrupting)", targetNamed);
-    }
+		SourceComms_SetClientMute(targetId, true, 30, true, reason);
+		CPrintToChatAll("%s has been muted for 30 minutes (Reason: Mic spam/interrupting)", targetNamed);
+	}
 
-    return Plugin_Handled;
+	return Plugin_Handled;
 }
 
 public Action Command_SetDbNameColour(int client, int args)
@@ -3450,7 +3452,7 @@ public void WrcpMenu(int client, int args, int style)
 	}
 	else
 	{
-        db_viewStyleWrcpMap(client, g_szWrcpMapSelect[client], style);
+		db_viewStyleWrcpMap(client, g_szWrcpMapSelect[client], style);
 	}
 }
 

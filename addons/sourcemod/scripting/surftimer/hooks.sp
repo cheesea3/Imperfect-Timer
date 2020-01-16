@@ -79,44 +79,44 @@ public Action Event_OnPlayerSpawn(Handle event, const char[] name, bool dontBroa
 	int client = GetClientOfUserId(GetEventInt(event, "userid"));
 
 	if (client == 0) {
-	    if (IsFakeClient(client)) {
-	        SetEntData(client, FindSendPropInfo("CBaseEntity", "m_CollisionGroup"), 2, 4, true);
-	    }
-	    return Plugin_Continue;
+		if (IsFakeClient(client)) {
+			SetEntData(client, FindSendPropInfo("CBaseEntity", "m_CollisionGroup"), 2, 4, true);
+		}
+		return Plugin_Continue;
 	}
 
-    g_SpecTarget[client] = -1;
-    g_bPause[client] = false;
-    g_bFirstTimerStart[client] = true;
-    SetEntityMoveType(client, MOVETYPE_WALK);
-    SetEntityRenderMode(client, RENDER_NORMAL);
-    // fluffys
-    g_bInJump[client] = false;
-    g_bInDuck[client] = false;
+	g_SpecTarget[client] = -1;
+	g_bPause[client] = false;
+	g_bFirstTimerStart[client] = true;
+	SetEntityMoveType(client, MOVETYPE_WALK);
+	SetEntityRenderMode(client, RENDER_NORMAL);
+	// fluffys
+	g_bInJump[client] = false;
+	g_bInDuck[client] = false;
 
-    // Set stage to 1 on spawn cause why not
-    if (!g_bRespawnPosition[client] && !g_specToStage[client])
-    {
-        g_WrcpStage[client] = 1;
-        g_Stage[0][client] = 1;
-    }
+	// Set stage to 1 on spawn cause why not
+	if (!g_bRespawnPosition[client] && !g_specToStage[client])
+	{
+		g_WrcpStage[client] = 1;
+		g_Stage[0][client] = 1;
+	}
 
-    if (g_iCurrentStyle[client] == 4) // 4 low gravity
-        SetEntityGravity(client, 0.5);
-    else if (g_iCurrentStyle[client] == 5)// 5 slowmo
-        SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", 0.5);
-    else if (g_iCurrentStyle[client] == 6)// 6 fastforward
-        SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", 1.5);
+	if (g_iCurrentStyle[client] == 4) // 4 low gravity
+		SetEntityGravity(client, 0.5);
+	else if (g_iCurrentStyle[client] == 5)// 5 slowmo
+		SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", 0.5);
+	else if (g_iCurrentStyle[client] == 6)// 6 fastforward
+		SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", 1.5);
 
-    if (g_iCurrentStyle[client] < 4) // 0 normal, 1 hsw, 2 sw, 3 bw
-    {
-        SetEntityGravity(client, 1.0); // normal gravity
-        SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", 1.0); // normal speed
-    }
+	if (g_iCurrentStyle[client] < 4) // 0 normal, 1 hsw, 2 sw, 3 bw
+	{
+		SetEntityGravity(client, 1.0); // normal gravity
+		SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", 1.0); // normal speed
+	}
 
-    // Strip Weapons
-    if ((GetClientTeam(client) > 1) && IsValidClient(client))
-    {
+	// Strip Weapons
+	if ((GetClientTeam(client) > 1) && IsValidClient(client))
+	{
 		if (!g_bHideWeapons[client])
 		{
 			StripAllWeapons(client);
@@ -132,131 +132,131 @@ public Action Event_OnPlayerSpawn(Handle event, const char[] name, bool dontBroa
 		{
 			StripAllWeapons(client, true);
 		}
-    }
+	}
 
-    // NoBlock
-    if (GetConVarBool(g_hCvarNoBlock))
-        SetEntData(client, FindSendPropInfo("CBaseEntity", "m_CollisionGroup"), 2, 4, true);
-    else
-        SetEntData(client, FindSendPropInfo("CBaseEntity", "m_CollisionGroup"), 5, 4, true);
+	// NoBlock
+	if (GetConVarBool(g_hCvarNoBlock))
+		SetEntData(client, FindSendPropInfo("CBaseEntity", "m_CollisionGroup"), 2, 4, true);
+	else
+		SetEntData(client, FindSendPropInfo("CBaseEntity", "m_CollisionGroup"), 5, 4, true);
 
-    // Botmimic2
-    if (g_hBotMimicsRecord[client] != null && IsFakeClient(client))
-    {
-        g_BotMimicTick[client] = 0;
-        g_CurrentAdditionalTeleportIndex[client] = 0;
-    }
+	// Botmimic2
+	if (g_hBotMimicsRecord[client] != null && IsFakeClient(client))
+	{
+		g_BotMimicTick[client] = 0;
+		g_CurrentAdditionalTeleportIndex[client] = 0;
+	}
 
-    if (IsFakeClient(client))
-    {
-        if (client == g_InfoBot)
-            CS_SetClientClanTag(client, "");
-        else if (client == g_RecordBot)
-            CS_SetClientClanTag(client, "WR Replay");
-        else if (client == g_BonusBot)
-            CS_SetClientClanTag(client, "WRB Replay");
-        else if (client == g_WrcpBot)
-            CS_SetClientClanTag(client, "WRCP Replay");
+	if (IsFakeClient(client))
+	{
+		if (client == g_InfoBot)
+			CS_SetClientClanTag(client, "");
+		else if (client == g_RecordBot)
+			CS_SetClientClanTag(client, "WR Replay");
+		else if (client == g_BonusBot)
+			CS_SetClientClanTag(client, "WRB Replay");
+		else if (client == g_WrcpBot)
+			CS_SetClientClanTag(client, "WRCP Replay");
 
-        if (client == g_RecordBot || client == g_BonusBot || client == g_WrcpBot)
-        {
-            // Disabling noclip, makes the bot bug, look into later
-            // SetEntityMoveType(client, MOVETYPE_NOCLIP);
-            SetEntityGravity(client, 0.0);
-        }
+		if (client == g_RecordBot || client == g_BonusBot || client == g_WrcpBot)
+		{
+			// Disabling noclip, makes the bot bug, look into later
+			// SetEntityMoveType(client, MOVETYPE_NOCLIP);
+			SetEntityGravity(client, 0.0);
+		}
 
-        return Plugin_Continue;
-    }
+		return Plugin_Continue;
+	}
 
-    // Change Player Skin
-    if (GetConVarBool(g_hPlayerSkinChange) && (GetClientTeam(client) > 1))
-    {
-        char szBuffer[256];
-        // GetConVarString(g_hArmModel, szBuffer, 256);
-        // SetEntPropString(client, Prop_Send, "m_szArmsModel", szBuffer);
+	// Change Player Skin
+	if (GetConVarBool(g_hPlayerSkinChange) && (GetClientTeam(client) > 1))
+	{
+		char szBuffer[256];
+		// GetConVarString(g_hArmModel, szBuffer, 256);
+		// SetEntPropString(client, Prop_Send, "m_szArmsModel", szBuffer);
 
-        GetConVarString(g_hPlayerModel, szBuffer, 256);
-        SetEntityModel(client, szBuffer);
-        CreateTimer(1.0, SetArmsModel, client, TIMER_FLAG_NO_MAPCHANGE);
-        //SetEntPropString(client, Prop_Send, "m_szArmsModel", "models/weapons/ct_arms.mdl");
-    }
+		GetConVarString(g_hPlayerModel, szBuffer, 256);
+		SetEntityModel(client, szBuffer);
+		CreateTimer(1.0, SetArmsModel, client, TIMER_FLAG_NO_MAPCHANGE);
+		//SetEntPropString(client, Prop_Send, "m_szArmsModel", "models/weapons/ct_arms.mdl");
+	}
 
-    // 1st Spawn & T/CT
-    if (g_bFirstSpawn[client] && (GetClientTeam(client) > 1))
-    {
-        float fLocation[3];
-        GetClientAbsOrigin(client, fLocation);
-        if (setClientLocation(client, fLocation) == -1)
-        {
-            g_iClientInZone[client][2] = 0;
-            g_bIgnoreZone[client] = false;
-        }
+	// 1st Spawn & T/CT
+	if (g_bFirstSpawn[client] && (GetClientTeam(client) > 1))
+	{
+		float fLocation[3];
+		GetClientAbsOrigin(client, fLocation);
+		if (setClientLocation(client, fLocation) == -1)
+		{
+			g_iClientInZone[client][2] = 0;
+			g_bIgnoreZone[client] = false;
+		}
 
 
-        StartRecording(client);
-        CreateTimer(1.5, CenterMsgTimer, client, TIMER_FLAG_NO_MAPCHANGE);
+		StartRecording(client);
+		CreateTimer(1.5, CenterMsgTimer, client, TIMER_FLAG_NO_MAPCHANGE);
 
-        if (g_bCenterSpeedDisplay[client])
-        {
-            SetHudTextParams(-1.0, 0.30, 1.0, 255, 255, 255, 255, 0, 0.25, 0.0, 0.0);
-            CreateTimer(0.1, CenterSpeedDisplayTimer, client, TIMER_FLAG_NO_MAPCHANGE|TIMER_REPEAT);
-        }
+		if (g_bCenterSpeedDisplay[client])
+		{
+			SetHudTextParams(-1.0, 0.30, 1.0, 255, 255, 255, 255, 0, 0.25, 0.0, 0.0);
+			CreateTimer(0.1, CenterSpeedDisplayTimer, client, TIMER_FLAG_NO_MAPCHANGE|TIMER_REPEAT);
+		}
 
-        g_bFirstSpawn[client] = false;
-    }
+		g_bFirstSpawn[client] = false;
+	}
 
-    // Restore Position
-    if (!g_specToStage[client])
-    {
+	// Restore Position
+	if (!g_specToStage[client])
+	{
 
-        if ((GetClientTeam(client) > 1))
-        {
-            if (g_bRestorePosition[client])
-            {
-                g_bPositionRestored[client] = true;
-                teleportEntitySafe(client, g_fPlayerCordsRestore[client], g_fPlayerAnglesRestore[client], NULL_VECTOR, false);
-                g_bRestorePosition[client] = false;
-            }
-            else
-            {
-                if (g_bRespawnPosition[client])
-                {
-                    teleportEntitySafe(client, g_fPlayerCordsRestore[client], g_fPlayerAnglesRestore[client], NULL_VECTOR, false);
-                    g_bRespawnPosition[client] = false;
-                }
-                else
-                {
-                    g_bTimerRunning[client] = false;
-                    g_fStartTime[client] = -1.0;
-                    g_fCurrentRunTime[client] = -1.0;
+		if ((GetClientTeam(client) > 1))
+		{
+			if (g_bRestorePosition[client])
+			{
+				g_bPositionRestored[client] = true;
+				teleportEntitySafe(client, g_fPlayerCordsRestore[client], g_fPlayerAnglesRestore[client], NULL_VECTOR, false);
+				g_bRestorePosition[client] = false;
+			}
+			else
+			{
+				if (g_bRespawnPosition[client])
+				{
+					teleportEntitySafe(client, g_fPlayerCordsRestore[client], g_fPlayerAnglesRestore[client], NULL_VECTOR, false);
+					g_bRespawnPosition[client] = false;
+				}
+				else
+				{
+					g_bTimerRunning[client] = false;
+					g_fStartTime[client] = -1.0;
+					g_fCurrentRunTime[client] = -1.0;
 
-                    // Spawn Client To The Start Zone.
-                    if (GetConVarBool(g_hSpawnToStartZone))
-                        Command_Restart(client, 1);
-                }
-            }
-        }
-    }
-    else
-    {
-        Array_Copy(g_fTeleLocation[client], g_fPlayerCordsRestore[client], 3);
-        Array_Copy(NULL_VECTOR, g_fPlayerAnglesRestore[client], 3);
-        SetEntPropVector(client, Prop_Data, "m_vecVelocity", view_as<float>( { 0.0, 0.0, -100.0 } ));
-        teleportEntitySafe(client, g_fTeleLocation[client], NULL_VECTOR, view_as<float>( { 0.0, 0.0, -100.0 } ), false);
-        g_specToStage[client] = false;
-    }
+					// Spawn Client To The Start Zone.
+					if (GetConVarBool(g_hSpawnToStartZone))
+						Command_Restart(client, 1);
+				}
+			}
+		}
+	}
+	else
+	{
+		Array_Copy(g_fTeleLocation[client], g_fPlayerCordsRestore[client], 3);
+		Array_Copy(NULL_VECTOR, g_fPlayerAnglesRestore[client], 3);
+		SetEntPropVector(client, Prop_Data, "m_vecVelocity", view_as<float>( { 0.0, 0.0, -100.0 } ));
+		teleportEntitySafe(client, g_fTeleLocation[client], NULL_VECTOR, view_as<float>( { 0.0, 0.0, -100.0 } ), false);
+		g_specToStage[client] = false;
+	}
 
-    // Hide Radar
-    CreateTimer(0.0, HideHud, client, TIMER_FLAG_NO_MAPCHANGE);
+	// Hide Radar
+	CreateTimer(0.0, HideHud, client, TIMER_FLAG_NO_MAPCHANGE);
 
-    // Set Speclist
-    Format(g_szPlayerPanelText[client], 512, "");
+	// Set Speclist
+	Format(g_szPlayerPanelText[client], 512, "");
 
-    // Get Speed & Origin
-    g_fLastSpeed[client] = GetSpeed(client);
+	// Get Speed & Origin
+	g_fLastSpeed[client] = GetSpeed(client);
 
-    // Give Player Kevlar + Helmet
-    GivePlayerItem(client, "item_assaultsuit");
+	// Give Player Kevlar + Helmet
+	GivePlayerItem(client, "item_assaultsuit");
 
 	// Zephyrus' third person plugin
 	if (g_bThirdPerson[client])
@@ -290,214 +290,214 @@ public Action Say_Hook(int client, const char[] command, int argc)
 		return Plugin_Continue;
 
 	if (!IsValidClient(client))
-	    return Plugin_Continue;
+		return Plugin_Continue;
 
-    if (client > 0)
-        if (BaseComm_IsClientGagged(client))
-            return Plugin_Handled;
+	if (client > 0)
+		if (BaseComm_IsClientGagged(client))
+			return Plugin_Handled;
 
-    // Blocked Commands
-    for (int i = 0; i < sizeof(g_BlockedChatText); i++)
-    {
-        if (StrEqual(g_BlockedChatText[i], sText, true))
-        {
-            return Plugin_Handled;
-        }
-    }
+	// Blocked Commands
+	for (int i = 0; i < sizeof(g_BlockedChatText); i++)
+	{
+		if (StrEqual(g_BlockedChatText[i], sText, true))
+		{
+			return Plugin_Handled;
+		}
+	}
 
-    // Functions that require the client to input something via the chat box
-    if (g_iWaitingForResponse[client] > -1)
-    {
-        // Check if client is cancelling
-        if (StrEqual(sText, "cancel"))
-        {
-            CPrintToChat(client, "%t", "Hooks1", g_szChatPrefix);
-            g_iWaitingForResponse[client] = -1;
-            return Plugin_Handled;
-        }
+	// Functions that require the client to input something via the chat box
+	if (g_iWaitingForResponse[client] > -1)
+	{
+		// Check if client is cancelling
+		if (StrEqual(sText, "cancel"))
+		{
+			CPrintToChat(client, "%t", "Hooks1", g_szChatPrefix);
+			g_iWaitingForResponse[client] = -1;
+			return Plugin_Handled;
+		}
 
-        // Check which function we're waiting for
-        switch (g_iWaitingForResponse[client])
-        {
-            case 0:
-            {
-                // Set zone Prespeed
-                float prespeed = StringToFloat(sText);
-                if (prespeed < 0.0)
-                    prespeed = 0.0;
-                g_mapZones[g_ClientSelectedZone[client]].preSpeed = prespeed;
-                PrespeedMenu(client);
-            }
-            case 1:
-            {
-                // BugMsg
-                Format(g_sBugMsg[client], sizeof(g_sBugMsg), sText);
-                SendBugReport(client);
-            }
-            case 2:
-            {
-                // Calladmin
-                CallAdmin(client, sText);
-            }
-            case 3:
-            {
-                // Hook zone zonegroup
-                int zgrp = StringToInt(sText);
-                if (zgrp < 1 || zgrp > 35)
-                {
-                    CPrintToChat(client, "%t", "Hooks2", g_szChatPrefix);
-                    return Plugin_Handled;
-                }
-                g_iZonegroupHook[client] = zgrp;
-                CPrintToChat(client, "%t", "Hooks3", g_szChatPrefix, zgrp);
-            }
-            case 4:
-            {
-                // Maxvelocity for map
-                float maxvelocity = StringToFloat(sText);
-                if (maxvelocity < 1.0)
-                    maxvelocity = 10000.0;
-                g_fMaxVelocity = maxvelocity;
-                db_updateMapSettings();
-                MaxVelocityMenu(client);
-                CPrintToChat(client, "%t", "Hooks4", g_szChatPrefix, g_szMapName, maxvelocity);
-            }
-            case 5:
-            {
-                // Zone set clients Target Name
-                if (StrEqual(sText, "reset"))
-                    Format(sText, sizeof(sText), "player");
+		// Check which function we're waiting for
+		switch (g_iWaitingForResponse[client])
+		{
+			case 0:
+			{
+				// Set zone Prespeed
+				float prespeed = StringToFloat(sText);
+				if (prespeed < 0.0)
+					prespeed = 0.0;
+				g_mapZones[g_ClientSelectedZone[client]].preSpeed = prespeed;
+				PrespeedMenu(client);
+			}
+			case 1:
+			{
+				// BugMsg
+				Format(g_sBugMsg[client], sizeof(g_sBugMsg), sText);
+				SendBugReport(client);
+			}
+			case 2:
+			{
+				// Calladmin
+				CallAdmin(client, sText);
+			}
+			case 3:
+			{
+				// Hook zone zonegroup
+				int zgrp = StringToInt(sText);
+				if (zgrp < 1 || zgrp > 35)
+				{
+					CPrintToChat(client, "%t", "Hooks2", g_szChatPrefix);
+					return Plugin_Handled;
+				}
+				g_iZonegroupHook[client] = zgrp;
+				CPrintToChat(client, "%t", "Hooks3", g_szChatPrefix, zgrp);
+			}
+			case 4:
+			{
+				// Maxvelocity for map
+				float maxvelocity = StringToFloat(sText);
+				if (maxvelocity < 1.0)
+					maxvelocity = 10000.0;
+				g_fMaxVelocity = maxvelocity;
+				db_updateMapSettings();
+				MaxVelocityMenu(client);
+				CPrintToChat(client, "%t", "Hooks4", g_szChatPrefix, g_szMapName, maxvelocity);
+			}
+			case 5:
+			{
+				// Zone set clients Target Name
+				if (StrEqual(sText, "reset"))
+					Format(sText, sizeof(sText), "player");
 
-                Format(g_mapZones[g_ClientSelectedZone[client]].targetName, sizeof(g_mapZones), "%s", sText);
+				Format(g_mapZones[g_ClientSelectedZone[client]].targetName, sizeof(g_mapZones), "%s", sText);
 
-                CPrintToChat(client, "%t", "Hooks5", g_szChatPrefix, g_szZoneDefaultNames[g_CurrentZoneType[client]], g_mapZones[g_ClientSelectedZone[client]].zoneTypeId, sText);
+				CPrintToChat(client, "%t", "Hooks5", g_szChatPrefix, g_szZoneDefaultNames[g_CurrentZoneType[client]], g_mapZones[g_ClientSelectedZone[client]].zoneTypeId, sText);
 
-                EditorMenu(client);
-            }
-            case 6:
-            {
-                g_SelectedType[client] = StringToInt(sText);
-                char szQuery[512];
+				EditorMenu(client);
+			}
+			case 6:
+			{
+				g_SelectedType[client] = StringToInt(sText);
+				char szQuery[512];
 
-                switch(g_SelectedEditOption[client])
-                {
-                    case 0:
-                    {
-                        FormatEx(szQuery, 512, sql_MainEditQuery, "runtimepro", "ck_playertimes", g_EditingMap[client], g_SelectedStyle[client], "", "runtimepro");
-                    }
-                    case 1:
-                    {
-                        char stageQuery[32];
-                        FormatEx(stageQuery, 32, "AND stage='%i' ", g_SelectedType[client]);
-                        FormatEx(szQuery, 512, sql_MainEditQuery, "runtimepro", "ck_wrcps", g_EditingMap[client], g_SelectedStyle[client], stageQuery, "runtimepro");
-                    }
-                    case 2:
-                    {
-                        char stageQuery[32];
-                        FormatEx(stageQuery, 32, "AND zonegroup='%i' ", g_SelectedType[client]);
-                        FormatEx(szQuery, 512, sql_MainEditQuery, "runtime", "ck_bonus", g_EditingMap[client], g_SelectedStyle[client], stageQuery, "runtime");
-                    }
-                }
+				switch(g_SelectedEditOption[client])
+				{
+					case 0:
+					{
+						FormatEx(szQuery, 512, sql_MainEditQuery, "runtimepro", "ck_playertimes", g_EditingMap[client], g_SelectedStyle[client], "", "runtimepro");
+					}
+					case 1:
+					{
+						char stageQuery[32];
+						FormatEx(stageQuery, 32, "AND stage='%i' ", g_SelectedType[client]);
+						FormatEx(szQuery, 512, sql_MainEditQuery, "runtimepro", "ck_wrcps", g_EditingMap[client], g_SelectedStyle[client], stageQuery, "runtimepro");
+					}
+					case 2:
+					{
+						char stageQuery[32];
+						FormatEx(stageQuery, 32, "AND zonegroup='%i' ", g_SelectedType[client]);
+						FormatEx(szQuery, 512, sql_MainEditQuery, "runtime", "ck_bonus", g_EditingMap[client], g_SelectedStyle[client], stageQuery, "runtime");
+					}
+				}
 
-                SQL_TQuery(g_hDb, sql_DeleteMenuView, szQuery, GetClientSerial(client));
-            }
-        }
+				SQL_TQuery(g_hDb, sql_DeleteMenuView, szQuery, GetClientSerial(client));
+			}
+		}
 
-        g_iWaitingForResponse[client] = -1;
-        return Plugin_Handled;
-    }
+		g_iWaitingForResponse[client] = -1;
+		return Plugin_Handled;
+	}
 
-    // !s & !stage Commands
-    if (StrContains(sText, "!s", false) == 0 || StrContains(sText, "!stage", false) == 0)
-        return Plugin_Handled;
+	// !s & !stage Commands
+	if (StrContains(sText, "!s", false) == 0 || StrContains(sText, "!stage", false) == 0)
+		return Plugin_Handled;
 
-    // !b & !bonus Commands
-    if (StrContains(sText, "!b", false) == 0 || StrContains(sText, "!bonus", false) == 0)
-        return Plugin_Handled;
+	// !b & !bonus Commands
+	if (StrContains(sText, "!b", false) == 0 || StrContains(sText, "!bonus", false) == 0)
+		return Plugin_Handled;
 
-    // Maptier
-    // if (StrContains(sText, "!map", false) == 0)
-    // {
-    // 	if (CheckCommandAccess(client, "sm_map", ADMFLAG_RESERVATION))
-    // 	{
-    // 		char mapname[1024];
-    // 		mapname = sText;
-    // 		ReplaceString(mapname, 1024, "!map ", "", false);
-    // 		db_selectMapName(mapname);
-    // 	}
-    // 	else
-    // 		return Plugin_Handled;
-    // }
+	// Maptier
+	// if (StrContains(sText, "!map", false) == 0)
+	// {
+	// 	if (CheckCommandAccess(client, "sm_map", ADMFLAG_RESERVATION))
+	// 	{
+	// 		char mapname[1024];
+	// 		mapname = sText;
+	// 		ReplaceString(mapname, 1024, "!map ", "", false);
+	// 		db_selectMapName(mapname);
+	// 	}
+	// 	else
+	// 		return Plugin_Handled;
+	// }
 
-    // Empty Message
-    if (StrEqual(sText, " ") || !sText[0])
-        return Plugin_Handled;
+	// Empty Message
+	if (StrEqual(sText, " ") || !sText[0])
+		return Plugin_Handled;
 
-    if (checkSpam(client))
-        return Plugin_Handled;
+	if (checkSpam(client))
+		return Plugin_Handled;
 
-    parseColorsFromString(sText, 1024);
+	parseColorsFromString(sText, 1024);
 
-    /*if (g_bDbCustomTitleInUse[client])
-        Format(sText, 1024, "%s%s", g_szTextColoured[client], sText);*/
+	/*if (g_bDbCustomTitleInUse[client])
+		Format(sText, 1024, "%s%s", g_szTextColoured[client], sText);*/
 
-    // Lowercase
-    if ((sText[0] == '/') || (sText[0] == '!'))
-    {
-        if (IsCharUpper(sText[1]))
-        {
-            for (int i = 0; i <= strlen(sText); ++i)
-                sText[i] = CharToLower(sText[i]);
-            FakeClientCommand(client, "say %s", sText);
-            return Plugin_Handled;
-        }
-    }
+	// Lowercase
+	if ((sText[0] == '/') || (sText[0] == '!'))
+	{
+		if (IsCharUpper(sText[1]))
+		{
+			for (int i = 0; i <= strlen(sText); ++i)
+				sText[i] = CharToLower(sText[i]);
+			FakeClientCommand(client, "say %s", sText);
+			return Plugin_Handled;
+		}
+	}
 
-    // Hide ! commands
-    if (StrContains(sText, "!", false) == 0)
-    return Plugin_Handled;
+	// Hide ! commands
+	if (StrContains(sText, "!", false) == 0)
+	return Plugin_Handled;
 
-    // Chat Trigger?
-    if ((IsChatTrigger() && sText[0] == '/') || (sText[0] == '@' && (GetUserFlagBits(client) & ADMFLAG_ROOT || GetUserFlagBits(client) & ADMFLAG_GENERIC)))
-    {
-        return Plugin_Continue;
-    }
+	// Chat Trigger?
+	if ((IsChatTrigger() && sText[0] == '/') || (sText[0] == '@' && (GetUserFlagBits(client) & ADMFLAG_ROOT || GetUserFlagBits(client) & ADMFLAG_GENERIC)))
+	{
+		return Plugin_Continue;
+	}
 
-    char szName[64];
-    GetClientName(client, szName, 64);
-    CRemoveColors(szName, 64);
+	char szName[64];
+	GetClientName(client, szName, 64);
+	CRemoveColors(szName, 64);
 
-    // log the chat of the player to the server so that tools such as HLSW/HLSTATX see it and also it remains logged in the log file
-    WriteChatLog(client, "say", sText);
-    PrintToServer("%s: %s", szName, sText);
+	// log the chat of the player to the server so that tools such as HLSW/HLSTATX see it and also it remains logged in the log file
+	WriteChatLog(client, "say", sText);
+	PrintToServer("%s: %s", szName, sText);
 
-    if (IsPlayerVip(client, true, false)) {
-        setNameColor(szName, g_iCustomColours[client][0], 64);
-        setTextColor(sText, g_iCustomColours[client][1], 1024);
-    }
+	if (IsPlayerVip(client, true, false)) {
+		setNameColor(szName, g_iCustomColours[client][0], 64);
+		setTextColor(sText, g_iCustomColours[client][1], 1024);
+	}
 
-    char szChatRank[1024] = "";
-    if (g_bDbCustomTitleInUse[client]) {
-        Format(szChatRank, sizeof(szChatRank), "{default}%s {gray}| ", g_pr_chat_coloredrank[client]);
-        ReplaceString(szChatRank, sizeof(szChatRank), "{style}", "");
-    }
+	char szChatRank[1024] = "";
+	if (g_bDbCustomTitleInUse[client]) {
+		Format(szChatRank, sizeof(szChatRank), "{default}%s {gray}| ", g_pr_chat_coloredrank[client]);
+		ReplaceString(szChatRank, sizeof(szChatRank), "{style}", "");
+	}
 
-    char szCountry[1024] = "";
-    if (GetConVarBool(g_hCountry) && (GetConVarBool(g_hPointSystem))) {
-        Format(szCountry, sizeof(szCountry), "{green}{1} ", g_szCountryCode[client]);
-    }
+	char szCountry[1024] = "";
+	if (GetConVarBool(g_hCountry) && (GetConVarBool(g_hPointSystem))) {
+		Format(szCountry, sizeof(szCountry), "{green}{1} ", g_szCountryCode[client]);
+	}
 
-    char szSpec[1024] = "";
-    /*
-    if (GetClientTeam(client) == 1) {
-        szSpec = "*SPEC* ";
-    } else if (!IsPlayerAlive(client)) {
-        szSpec = "*DEAD* ";
-    }
-    */
+	char szSpec[1024] = "";
+	/*
+	if (GetClientTeam(client) == 1) {
+		szSpec = "*SPEC* ";
+	} else if (!IsPlayerAlive(client)) {
+		szSpec = "*DEAD* ";
+	}
+	*/
 
-    CPrintToChatAll("%s%s{default}%s%s{gray}: {default}%s", szCountry, szChatRank, szSpec, szName, sText);
-    return Plugin_Handled;
+	CPrintToChatAll("%s%s{default}%s%s{gray}: {default}%s", szCountry, szChatRank, szSpec, szName, sText);
+	return Plugin_Handled;
 }
 
 public Action Event_OnPlayerTeam(Handle event, const char[] name, bool dontBroadcast)
@@ -790,9 +790,9 @@ public Action OnLogAction(Handle source, Identity ident, int client, int target,
 		if ((strcmp("playercommands.smx", logtag, false) == 0) || (strcmp("slap.smx", logtag, false) == 0))
 			Client_Stop(target, 0);
 	}
-    if( StrContains( message , "changed map to" ) != -1) {
-        CreateTimer( 2.9 , Timer_RetryPlayers , _ , TIMER_FLAG_NO_MAPCHANGE );
-    }
+	if( StrContains( message , "changed map to" ) != -1) {
+		CreateTimer( 2.9 , Timer_RetryPlayers , _ , TIMER_FLAG_NO_MAPCHANGE );
+	}
 	return Plugin_Continue;
 }
 
@@ -905,7 +905,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 					g_KeyCount[client] = 0;
 		}
 	}
-	else if (g_iCurrentStyle[client] == 3)    // Backwards
+	else if (g_iCurrentStyle[client] == 3) // Backwards
 	{
 		float eye[3];
 		float velocity[3];
@@ -1256,11 +1256,11 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 	// Strafe Sync taken from shavit's bhop timer
 	g_fAngleCache[client] = angles[1];
 
-    if (g_resetButtons[client]) {
-        buttons = 0;
-        g_resetButtons[client] = false;
-        return Plugin_Changed;
-    }
+	if (g_resetButtons[client]) {
+		buttons = 0;
+		g_resetButtons[client] = false;
+		return Plugin_Changed;
+	}
 	return Plugin_Continue;
 }
 

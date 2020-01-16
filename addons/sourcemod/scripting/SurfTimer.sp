@@ -331,10 +331,10 @@ public void OnPluginEnd()
 	for (int x = 1; x <= MaxClients; x++)
 	{
 		if (IsValidClient(x)) {
-		    if (IsValidEntity(x)) {
-			    SetEntPropEnt(x, Prop_Send, "m_bSpotted", 1);
-			    SetEntProp(x, Prop_Send, "m_iHideHUD", 0);
-			    SetEntProp(x, Prop_Send, "m_iAccount", 1);
+			if (IsValidEntity(x)) {
+				SetEntPropEnt(x, Prop_Send, "m_bSpotted", 1);
+				SetEntProp(x, Prop_Send, "m_iHideHUD", 0);
+				SetEntProp(x, Prop_Send, "m_iAccount", 1);
 			}
 			CS_SetClientClanTag(x, "");
 			OnClientDisconnect(x);
@@ -393,7 +393,7 @@ public void OnMapStart()
 	// Load spawns
 	checkSpawnPoints();
 
-    LoadMapStart();
+	LoadMapStart();
 
 	// Get Map Tag
 	ExplodeString(g_szMapName, "_", g_szMapPrefix, 2, 32);
@@ -643,15 +643,15 @@ public void OnAutoConfigsBuffered()
 
 public void OnClientPutInServer(int client) {
 	if (!IsValidClient(client)) {
-	    return;
+		return;
 	}
 
 	// Defaults
 	SetClientDefaults(client);
 	//Command_Restart(client, 1);
 
-    // Sometimes, player buttons get stuck because of our csgo panorama "retry" before map change fix
-    // Reset all buttons to unpressed on next tick
+	// Sometimes, player buttons get stuck because of our csgo panorama "retry" before map change fix
+	// Reset all buttons to unpressed on next tick
 	g_resetButtons[client] = true;
 
 	// SDKHooks
@@ -695,7 +695,7 @@ public void OnClientPutInServer(int client) {
 	// Get SteamID
 	g_szSteamID[client] = "";
 	if (!GetClientAuthId(client, AuthId_Steam2, g_szSteamID[client], MAX_NAME_LENGTH, true)) {
-	    g_szSteamID[client] = "";
+		g_szSteamID[client] = "";
 	}
 
 	// char fix
@@ -703,13 +703,13 @@ public void OnClientPutInServer(int client) {
 
 	// Position Restoring
 	if (GetConVarBool(g_hcvarRestore))
-	    db_selectLastRun(client);
+		db_selectLastRun(client);
 
 	if (g_bTierFound)
 		AnnounceTimer[client] = CreateTimer(20.0, AnnounceMap, client, TIMER_FLAG_NO_MAPCHANGE);
 
 	if (!IsFakeClient(client)) {
-	    LoadPlayerStart(client);
+		LoadPlayerStart(client);
 	}
 }
 
@@ -1223,30 +1223,30 @@ public void OnSettingChanged(Handle convar, const char[] oldValue, const char[] 
 	else if (convar == g_hSoundPathWR)
 	{
 		GetConVarString(g_hSoundPathWR, g_szSoundPathWR, sizeof(g_szSoundPathWR));
-        char sBuffer[2][PLATFORM_MAX_PATH];
-        ExplodeString(g_szSoundPathWR, "sound/", sBuffer, 2, PLATFORM_MAX_PATH);
-        Format(g_szRelativeSoundPathWR, sizeof(g_szRelativeSoundPathWR), "*%s", sBuffer[1]);
+		char sBuffer[2][PLATFORM_MAX_PATH];
+		ExplodeString(g_szSoundPathWR, "sound/", sBuffer, 2, PLATFORM_MAX_PATH);
+		Format(g_szRelativeSoundPathWR, sizeof(g_szRelativeSoundPathWR), "*%s", sBuffer[1]);
 	}
 	else if (convar == g_hSoundPathTop)
 	{
 		GetConVarString(g_hSoundPathTop, g_szSoundPathTop, sizeof(g_szSoundPathTop));
-        char sBuffer[2][PLATFORM_MAX_PATH];
-        ExplodeString(g_szSoundPathTop, "sound/", sBuffer, 2, PLATFORM_MAX_PATH);
-        Format(g_szRelativeSoundPathTop, sizeof(g_szRelativeSoundPathTop), "*%s", sBuffer[1]);
+		char sBuffer[2][PLATFORM_MAX_PATH];
+		ExplodeString(g_szSoundPathTop, "sound/", sBuffer, 2, PLATFORM_MAX_PATH);
+		Format(g_szRelativeSoundPathTop, sizeof(g_szRelativeSoundPathTop), "*%s", sBuffer[1]);
 	}
 	else if (convar == g_hSoundPathPB)
 	{
 		GetConVarString(g_hSoundPathPB, g_szSoundPathPB, sizeof(g_szSoundPathPB));
-        char sBuffer[2][PLATFORM_MAX_PATH];
-        ExplodeString(g_szSoundPathPB, "sound/", sBuffer, 2, PLATFORM_MAX_PATH);
-        Format(g_szRelativeSoundPathPB, sizeof(g_szRelativeSoundPathPB), "*%s", sBuffer[1]);
+		char sBuffer[2][PLATFORM_MAX_PATH];
+		ExplodeString(g_szSoundPathPB, "sound/", sBuffer, 2, PLATFORM_MAX_PATH);
+		Format(g_szRelativeSoundPathPB, sizeof(g_szRelativeSoundPathPB), "*%s", sBuffer[1]);
 	}
 	else if (convar == g_hSoundPathWRCP)
 	{
 		GetConVarString(g_hSoundPathWRCP, g_szSoundPathWRCP, sizeof(g_szSoundPathWRCP));
-        char sBuffer[2][PLATFORM_MAX_PATH];
-        ExplodeString(g_szSoundPathWRCP, "sound/", sBuffer, 2, PLATFORM_MAX_PATH);
-        Format(g_szRelativeSoundPathWRCP, sizeof(g_szRelativeSoundPathWRCP), "*%s", sBuffer[1]);
+		char sBuffer[2][PLATFORM_MAX_PATH];
+		ExplodeString(g_szSoundPathWRCP, "sound/", sBuffer, 2, PLATFORM_MAX_PATH);
+		Format(g_szRelativeSoundPathWRCP, sizeof(g_szRelativeSoundPathWRCP), "*%s", sBuffer[1]);
 	}
 }
 

@@ -100,7 +100,7 @@ public Action Hook_WeaponCanSwitchTo(int client, int weapon)
 
 public void StartRecording(int client)
 {
-    StopRecording(client);
+	StopRecording(client);
 
 	if (!IsValidClient(client) || IsFakeClient(client))
 		return;

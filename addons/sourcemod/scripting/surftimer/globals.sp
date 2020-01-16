@@ -1,15 +1,15 @@
 enum PlayerLoadState {
-    PLS_UNLOADED,
-    PLS_PENDING,
-    PLS_LOADING,
-    PLS_ERROR,
-    PLS_LOADED
+	PLS_UNLOADED,
+	PLS_PENDING,
+	PLS_LOADING,
+	PLS_ERROR,
+	PLS_LOADED
 }
 
 enum MapLoadState {
-    MLS_LOADING,
-    MLS_ERROR,
-    MLS_LOADED
+	MLS_LOADING,
+	MLS_ERROR,
+	MLS_LOADED
 }
 
 char g_szLogFile[PLATFORM_MAX_PATH];

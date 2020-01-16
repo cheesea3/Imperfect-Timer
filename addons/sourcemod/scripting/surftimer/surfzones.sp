@@ -146,12 +146,12 @@ public void CreateZoneEntity(int zoneIndex)
 
 public Action StartTouchTrigger(int caller, int activator)
 {
-    int client = activator;
+	int client = activator;
 
 	// Ignore dead players
 	if (!IsValidClient(client)) {
 		return Plugin_Handled;
-    }
+	}
 
 	// g_bLeftZone[activator] = false;
 
@@ -177,187 +177,187 @@ public Action StartTouchTrigger(int caller, int activator)
 		DispatchKeyValue(activator, "targetname", g_mapZones[id].targetName);
 
 	if (iZoneGroup == g_iClientInZone[activator][2]) {
-	    // Is touching zone in their active zonegroup
+		// Is touching zone in their active zonegroup
 		// Set client location
 		g_iClientInZone[activator][0] = iZoneType;
 		g_iClientInZone[activator][1] = iZoneTypeId;
 		g_iClientInZone[activator][2] = iZoneGroup;
 		g_iClientInZone[activator][3] = id;
 	} else if (iZoneType == 1 || iZoneType == 5) {
-	    // Is touching start or speedstart of some other zonegroup
-        g_iClientInZone[activator][0] = iZoneType;
-        g_iClientInZone[activator][1] = iZoneTypeId;
-        g_iClientInZone[activator][2] = iZoneGroup;
-        g_iClientInZone[activator][3] = id;
-    } else if (iZoneType == 6 || iZoneType == 7 || iZoneType == 8 || iZoneType == 0 || iZoneType == 9 || iZoneType == 10 || iZoneType == 11) {
-        // Is touching some MISC zone
-        // (perform action but don't put the player there)
-    } else {
-        // Ignore this touch
-        return Plugin_Handled;
-    }
+		// Is touching start or speedstart of some other zonegroup
+		g_iClientInZone[activator][0] = iZoneType;
+		g_iClientInZone[activator][1] = iZoneTypeId;
+		g_iClientInZone[activator][2] = iZoneGroup;
+		g_iClientInZone[activator][3] = id;
+	} else if (iZoneType == 6 || iZoneType == 7 || iZoneType == 8 || iZoneType == 0 || iZoneType == 9 || iZoneType == 10 || iZoneType == 11) {
+		// Is touching some MISC zone
+		// (perform action but don't put the player there)
+	} else {
+		// Ignore this touch
+		return Plugin_Handled;
+	}
 
-    // Types: Start(1), End(2), Stage(3), Checkpoint(4), Speed(5), TeleToStart(6), Validator(7), Chekcer(8), Stop(0) // fluffys: NoBhop(9), NoCrouch(10)
+	// Types: Start(1), End(2), Stage(3), Checkpoint(4), Speed(5), TeleToStart(6), Validator(7), Chekcer(8), Stop(0) // fluffys: NoBhop(9), NoCrouch(10)
 
-    if (iZoneType == ZONETYPE_STOP) {
-        Client_Stop(client, 1);
-        lastCheckpoint[g_iClientInZone[client][2]][client] = 999;
-    } else if (iZoneType == ZONETYPE_START || iZoneType == ZONETYPE_SPEEDSTART) {
-        // Set Default Values
-        Client_Stop(client, 1);
-        ResetGravity(client);
-        g_KeyCount[client] = 0;
-        g_bInJump[client] = false;
-        g_bInDuck[client] = false;
-        g_bInMaxSpeed[client] = 0.0;
-        g_iCurrentCheckpoint[client] = 0;
-        g_Stage[g_iClientInZone[client][2]][client] = 1;
-        g_bInStartZone[client] = true;
-        g_bInStageZone[client] = false;
-        g_iCurrentStyle[client] = g_iInitalStyle[client];
-        lastCheckpoint[g_iClientInZone[client][2]][client] = 1;
+	if (iZoneType == ZONETYPE_STOP) {
+		Client_Stop(client, 1);
+		lastCheckpoint[g_iClientInZone[client][2]][client] = 999;
+	} else if (iZoneType == ZONETYPE_START || iZoneType == ZONETYPE_SPEEDSTART) {
+		// Set Default Values
+		Client_Stop(client, 1);
+		ResetGravity(client);
+		g_KeyCount[client] = 0;
+		g_bInJump[client] = false;
+		g_bInDuck[client] = false;
+		g_bInMaxSpeed[client] = 0.0;
+		g_iCurrentCheckpoint[client] = 0;
+		g_Stage[g_iClientInZone[client][2]][client] = 1;
+		g_bInStartZone[client] = true;
+		g_bInStageZone[client] = false;
+		g_iCurrentStyle[client] = g_iInitalStyle[client];
+		lastCheckpoint[g_iClientInZone[client][2]][client] = 1;
 
-        if (g_bhasStages)
-        {
-            g_bWrcpTimeractivated[client] = false;
-            g_CurrentStage[client] = 0;
-        }
-    } else if (iZoneType == ZONETYPE_END) {
-        if (g_iClientInZone[client][2] == iZoneGroup) // Cant end bonus timer in this zone && in the having the same timer on
-        {
-            // fluffys gravity
-            if (g_iCurrentStyle[client] != 4) // low grav
-                ResetGravity(client);
+		if (g_bhasStages)
+		{
+			g_bWrcpTimeractivated[client] = false;
+			g_CurrentStage[client] = 0;
+		}
+	} else if (iZoneType == ZONETYPE_END) {
+		if (g_iClientInZone[client][2] == iZoneGroup) // Cant end bonus timer in this zone && in the having the same timer on
+		{
+			// fluffys gravity
+			if (g_iCurrentStyle[client] != 4) // low grav
+				ResetGravity(client);
 
-            g_bInJump[client] = false;
-            g_bInDuck[client] = false;
+			g_bInJump[client] = false;
+			g_bInDuck[client] = false;
 
-            // fluffys wrcps
-            if (g_bhasStages)
-            {
-                float time = g_fCurrentRunTime[client];
-                g_bWrcpEndZone[client] = true;
-                CL_OnEndWrcpTimerPress(client, time);
-            }
+			// fluffys wrcps
+			if (g_bhasStages)
+			{
+				float time = g_fCurrentRunTime[client];
+				g_bWrcpEndZone[client] = true;
+				CL_OnEndWrcpTimerPress(client, time);
+			}
 
-            if (g_bToggleMapFinish[client])
-            {
-                if (GetConVarBool(g_hMustPassCheckpoints) && g_iTotalCheckpoints > 0 && iZoneGroup == 0)
-                {
-                    if (g_bIsValidRun[client])
-                        CL_OnEndTimerPress(client);
-                    else
-                        CPrintToChat(client, "%t", "InvalidRun", g_szChatPrefix, g_bhasStages ? "stages" : "checkpoints");
-                }
-                else
-                    CL_OnEndTimerPress(client);
-            }
-            // Resetting checkpoints
-            lastCheckpoint[g_iClientInZone[client][2]][client] = 999;
-        }
-    } else if (iZoneType == ZONETYPE_STAGE) {
-        g_bInStageZone[client] = true;
-        g_bInStartZone[client] = false;
-        g_bInJump[client] = false;
-        g_bInDuck[client] = false;
-        g_KeyCount[client] = 0;
+			if (g_bToggleMapFinish[client])
+			{
+				if (GetConVarBool(g_hMustPassCheckpoints) && g_iTotalCheckpoints > 0 && iZoneGroup == 0)
+				{
+					if (g_bIsValidRun[client])
+						CL_OnEndTimerPress(client);
+					else
+						CPrintToChat(client, "%t", "InvalidRun", g_szChatPrefix, g_bhasStages ? "stages" : "checkpoints");
+				}
+				else
+					CL_OnEndTimerPress(client);
+			}
+			// Resetting checkpoints
+			lastCheckpoint[g_iClientInZone[client][2]][client] = 999;
+		}
+	} else if (iZoneType == ZONETYPE_STAGE) {
+		g_bInStageZone[client] = true;
+		g_bInStartZone[client] = false;
+		g_bInJump[client] = false;
+		g_bInDuck[client] = false;
+		g_KeyCount[client] = 0;
 
-        // stop bot wrcp timer
-        if (client == g_WrcpBot)
-        {
-            Client_Stop(client, 1);
-            g_bWrcpTimeractivated[client] = false;
-        }
+		// stop bot wrcp timer
+		if (client == g_WrcpBot)
+		{
+			Client_Stop(client, 1);
+			g_bWrcpTimeractivated[client] = false;
+		}
 
-        if (g_bPracticeMode[client]) // If practice mode is on
-        {
-            // TODO:
-            // * Practice CPs
-        }
-        else
-        {
-            // Setting valid to false, in case of checkers
-            g_bValidRun[client] = false;
+		if (g_bPracticeMode[client]) // If practice mode is on
+		{
+			// TODO:
+			// * Practice CPs
+		}
+		else
+		{
+			// Setting valid to false, in case of checkers
+			g_bValidRun[client] = false;
 
-            // Announcing checkpoint
-            if (iZoneTypeId != lastCheckpoint[g_iClientInZone[client][2]][client] && g_iClientInZone[client][2] == iZoneGroup)
-            {
-                // Make sure the player is not going backwards
-                if ((iZoneTypeId + 2) < g_Stage[g_iClientInZone[client][2]][client])
-                    g_bWrcpTimeractivated[client] = false;
-                else
-                    g_bNewStage[client] = true;
+			// Announcing checkpoint
+			if (iZoneTypeId != lastCheckpoint[g_iClientInZone[client][2]][client] && g_iClientInZone[client][2] == iZoneGroup)
+			{
+				// Make sure the player is not going backwards
+				if ((iZoneTypeId + 2) < g_Stage[g_iClientInZone[client][2]][client])
+					g_bWrcpTimeractivated[client] = false;
+				else
+					g_bNewStage[client] = true;
 
-                g_Stage[g_iClientInZone[client][2]][client] = (iZoneTypeId + 2);
+				g_Stage[g_iClientInZone[client][2]][client] = (iZoneTypeId + 2);
 
-                float time = g_fCurrentRunTime[client];
-                float time2 = g_fCurrentWrcpRunTime[client];
-                CL_OnEndWrcpTimerPress(client, time2);
+				float time = g_fCurrentRunTime[client];
+				float time2 = g_fCurrentWrcpRunTime[client];
+				CL_OnEndWrcpTimerPress(client, time2);
 
-                // Stage enforcer
-                g_iCheckpointsPassed[client]++;
-                if (g_iCheckpointsPassed[client] == g_TotalStages)
-                    g_bIsValidRun[client] = true;
+				// Stage enforcer
+				g_iCheckpointsPassed[client]++;
+				if (g_iCheckpointsPassed[client] == g_TotalStages)
+					g_bIsValidRun[client] = true;
 
-                if (g_iCurrentStyle[client] == 0)
-                    Checkpoint(client, iZoneTypeId, g_iClientInZone[client][2], time);
+				if (g_iCurrentStyle[client] == 0)
+					Checkpoint(client, iZoneTypeId, g_iClientInZone[client][2], time);
 
-                lastCheckpoint[g_iClientInZone[client][2]][client] = iZoneTypeId;
-            }
-            else if (!g_bTimerRunning[client])
-                g_iCurrentStyle[client] = g_iInitalStyle[client];
+				lastCheckpoint[g_iClientInZone[client][2]][client] = iZoneTypeId;
+			}
+			else if (!g_bTimerRunning[client])
+				g_iCurrentStyle[client] = g_iInitalStyle[client];
 
-            if (g_bWrcpTimeractivated[client])
-                g_bWrcpTimeractivated[client] = false;
-        }
-    } else if (iZoneType == ZONETYPE_CHECKPOINT) {
-        if (iZoneTypeId != lastCheckpoint[g_iClientInZone[client][2]][client] && g_iClientInZone[client][2] == iZoneGroup)
-        {
-            g_iCurrentCheckpoint[client]++;
+			if (g_bWrcpTimeractivated[client])
+				g_bWrcpTimeractivated[client] = false;
+		}
+	} else if (iZoneType == ZONETYPE_CHECKPOINT) {
+		if (iZoneTypeId != lastCheckpoint[g_iClientInZone[client][2]][client] && g_iClientInZone[client][2] == iZoneGroup)
+		{
+			g_iCurrentCheckpoint[client]++;
 
-            // Checkpoint enforcer
-            if (GetConVarBool(g_hMustPassCheckpoints) && g_iTotalCheckpoints > 0)
-            {
-                g_iCheckpointsPassed[client]++;
-                if (g_iCheckpointsPassed[client] == g_iTotalCheckpoints)
-                    g_bIsValidRun[client] = true;
-            }
+			// Checkpoint enforcer
+			if (GetConVarBool(g_hMustPassCheckpoints) && g_iTotalCheckpoints > 0)
+			{
+				g_iCheckpointsPassed[client]++;
+				if (g_iCheckpointsPassed[client] == g_iTotalCheckpoints)
+					g_bIsValidRun[client] = true;
+			}
 
-            // Announcing checkpoint in linear maps
-            if (g_iCurrentStyle[client] == 0)
-            {
-                float time = g_fCurrentRunTime[client];
-                Checkpoint(client, iZoneTypeId, g_iClientInZone[client][2], time);
-                lastCheckpoint[g_iClientInZone[client][2]][client] = iZoneTypeId;
-            }
-        }
-    } else if (iZoneType == ZONETYPE_TELETOSTART) {
-        teleportClient(client, g_iClientInZone[client][2], 1, true);
-    } else if (iZoneType == ZONETYPE_VALIDATOR) {
-        g_bValidRun[client] = true;
-    } else if (iZoneType == ZONETYPE_CHECKER) {
-        if (!g_bValidRun[client]) {
-            Command_Teleport(client, 1);
-        }
-    } else if (iZoneType == ZONETYPE_ANTIJUMP) {
-        g_bInJump[client] = true;
-    } else if (iZoneType == ZONETYPE_ANTIDUCK) {
-        g_bInDuck[client] = true;
-    } else if (iZoneType == ZONETYPE_MAXSPEED) {
-        g_bInMaxSpeed[client] = g_mapZones[id].preSpeed;
-    }
+			// Announcing checkpoint in linear maps
+			if (g_iCurrentStyle[client] == 0)
+			{
+				float time = g_fCurrentRunTime[client];
+				Checkpoint(client, iZoneTypeId, g_iClientInZone[client][2], time);
+				lastCheckpoint[g_iClientInZone[client][2]][client] = iZoneTypeId;
+			}
+		}
+	} else if (iZoneType == ZONETYPE_TELETOSTART) {
+		teleportClient(client, g_iClientInZone[client][2], 1, true);
+	} else if (iZoneType == ZONETYPE_VALIDATOR) {
+		g_bValidRun[client] = true;
+	} else if (iZoneType == ZONETYPE_CHECKER) {
+		if (!g_bValidRun[client]) {
+			Command_Teleport(client, 1);
+		}
+	} else if (iZoneType == ZONETYPE_ANTIJUMP) {
+		g_bInJump[client] = true;
+	} else if (iZoneType == ZONETYPE_ANTIDUCK) {
+		g_bInDuck[client] = true;
+	} else if (iZoneType == ZONETYPE_MAXSPEED) {
+		g_bInMaxSpeed[client] = g_mapZones[id].preSpeed;
+	}
 
 	return Plugin_Handled;
 }
 
 public Action EndTouchTrigger(int caller, int activator)
 {
-    int client = activator;
+	int client = activator;
 
 	// Ignore dead players
 	if (!IsValidClient(client)) {
 		return Plugin_Handled;
-    }
+	}
 
 	// For new speed limiter
 	g_bLeftZone[activator] = true;
@@ -387,110 +387,110 @@ public Action EndTouchTrigger(int caller, int activator)
 	int iZoneGroup = g_mapZones[id].zoneGroup;
 
 	if (iZoneType == ZONETYPE_ANTIJUMP) {
-        g_bInJump[client] = false;
-    } else if (iZoneType == ZONETYPE_ANTIDUCK) {
-        g_bInDuck[client] = false;
-    } else if (iZoneType == ZONETYPE_MAXSPEED) {
-        g_bInMaxSpeed[client] = 0.0;
-    }
-
-	if (iZoneGroup != g_iClientInZone[activator][2]
-	    || iZoneType == ZONETYPE_TELETOSTART
-	    || iZoneType == ZONETYPE_CHECKER
-	    || iZoneType != g_iClientInZone[activator][0]
-	) {
-	    // Ignore end touches in other zonegroups, zones that teleports away or multiple zones on top of each other // fluffys
-	    return Plugin_Handled;
+		g_bInJump[client] = false;
+	} else if (iZoneType == ZONETYPE_ANTIDUCK) {
+		g_bInDuck[client] = false;
+	} else if (iZoneType == ZONETYPE_MAXSPEED) {
+		g_bInMaxSpeed[client] = 0.0;
 	}
 
-    LimitSpeed(client);
-    // Set Client targetName
-    if (StrEqual(g_szMapName, "surf_forgotten"))
-    {
-        if (!StrEqual("player", g_mapZones[g_iClientInZone[client][3]].targetName))
-            DispatchKeyValue(client, "targetname", g_mapZones[g_iClientInZone[client][3]].targetName);
-    }
+	if (iZoneGroup != g_iClientInZone[activator][2]
+		|| iZoneType == ZONETYPE_TELETOSTART
+		|| iZoneType == ZONETYPE_CHECKER
+		|| iZoneType != g_iClientInZone[activator][0]
+	) {
+		// Ignore end touches in other zonegroups, zones that teleports away or multiple zones on top of each other // fluffys
+		return Plugin_Handled;
+	}
 
-    if (iZoneType == ZONETYPE_START || iZoneType == ZONETYPE_SPEEDSTART) {
-        if (g_bPracticeMode[client] && !g_bTimerRunning[client]) // If on practice mode, but timer isn't on - start timer
-        {
-            CL_OnStartTimerPress(client);
+	LimitSpeed(client);
+	// Set Client targetName
+	if (StrEqual(g_szMapName, "surf_forgotten"))
+	{
+		if (!StrEqual("player", g_mapZones[g_iClientInZone[client][3]].targetName))
+			DispatchKeyValue(client, "targetname", g_mapZones[g_iClientInZone[client][3]].targetName);
+	}
+
+	if (iZoneType == ZONETYPE_START || iZoneType == ZONETYPE_SPEEDSTART) {
+		if (g_bPracticeMode[client] && !g_bTimerRunning[client]) // If on practice mode, but timer isn't on - start timer
+		{
+			CL_OnStartTimerPress(client);
 
 			int speed = RoundToNearest(g_fLastSpeed[client]);
 			if (speed > 0)
 				CPrintToChat(client, "%t", "StartSpeed", g_szChatPrefix, speed);
-        }
-        else
-        {
-            if (!g_bPracticeMode[client])
-            {
-                g_Stage[g_iClientInZone[client][2]][client] = 1;
-                lastCheckpoint[g_iClientInZone[client][2]][client] = 999;
+		}
+		else
+		{
+			if (!g_bPracticeMode[client])
+			{
+				g_Stage[g_iClientInZone[client][2]][client] = 1;
+				lastCheckpoint[g_iClientInZone[client][2]][client] = 999;
 
-                // NoClip check
-                if (g_bNoClip[client] || (!g_bNoClip[client] && (GetGameTime() - g_fLastTimeNoClipUsed[client]) < 3.0))
-                {
-                    CPrintToChat(client, "%t", "SurfZones1", g_szChatPrefix);
-                    ClientCommand(client, "play buttons\\button10.wav");
-                    // fluffys
-                    // ClientCommand(client, "sm_stuck");
-                }
-                else
-                {
-                    if (g_bhasStages && g_bTimerEnabled[client])
-                        CL_OnStartWrcpTimerPress(client); // fluffys only start stage timer if not in prac mode
+				// NoClip check
+				if (g_bNoClip[client] || (!g_bNoClip[client] && (GetGameTime() - g_fLastTimeNoClipUsed[client]) < 3.0))
+				{
+					CPrintToChat(client, "%t", "SurfZones1", g_szChatPrefix);
+					ClientCommand(client, "play buttons\\button10.wav");
+					// fluffys
+					// ClientCommand(client, "sm_stuck");
+				}
+				else
+				{
+					if (g_bhasStages && g_bTimerEnabled[client])
+						CL_OnStartWrcpTimerPress(client); // fluffys only start stage timer if not in prac mode
 
-                    if (g_bTimerEnabled[client])
-                        CL_OnStartTimerPress(client);
+					if (g_bTimerEnabled[client])
+						CL_OnStartTimerPress(client);
 
 					int speed = RoundToNearest(g_fLastSpeed[client]);
 					if (speed > 0)
 						CPrintToChat(client, "%t", "StartSpeed", g_szChatPrefix, speed);
-                }
+				}
 
-                // fluffys
-                if (!g_bNoClip[client])
-                    g_bInStartZone[client] = false;
+				// fluffys
+				if (!g_bNoClip[client])
+					g_bInStartZone[client] = false;
 
-                g_bValidRun[client] = false;
-            }
-        }
-    } else if (iZoneType == ZONETYPE_STAGE) {
-        // targetname filters
-        if (StrEqual(g_szMapName, "surf_treespam") && g_Stage[g_iClientInZone[client][2]][client] == 4)
-        {
-            DispatchKeyValue(client, "targetname", "s4neutral");
-        }
-        else if (StrEqual(g_szMapName, "surf_looksmodern"))
-        {
-            if (g_Stage[g_iClientInZone[client][2]][client] == 2)
-                DispatchKeyValue(client, "classname", "two_1");
-            else if (g_Stage[g_iClientInZone[client][2]][client] == 3)
-                DispatchKeyValue(client, "classname", "threer");
-            else if (g_Stage[g_iClientInZone[client][2]][client] == 4)
-                DispatchKeyValue(client, "classname", "four_1");
-            else if (g_Stage[g_iClientInZone[client][2]][client] == 5)
-                DispatchKeyValue(client, "classname", "five_1");
-        }
-
-        g_bInStageZone[client] = false;
-
-        if (!g_bPracticeMode[client] && g_bTimerEnabled[client])
+				g_bValidRun[client] = false;
+			}
+		}
+	} else if (iZoneType == ZONETYPE_STAGE) {
+		// targetname filters
+		if (StrEqual(g_szMapName, "surf_treespam") && g_Stage[g_iClientInZone[client][2]][client] == 4)
 		{
-            CL_OnStartWrcpTimerPress(client);
+			DispatchKeyValue(client, "targetname", "s4neutral");
+		}
+		else if (StrEqual(g_szMapName, "surf_looksmodern"))
+		{
+			if (g_Stage[g_iClientInZone[client][2]][client] == 2)
+				DispatchKeyValue(client, "classname", "two_1");
+			else if (g_Stage[g_iClientInZone[client][2]][client] == 3)
+				DispatchKeyValue(client, "classname", "threer");
+			else if (g_Stage[g_iClientInZone[client][2]][client] == 4)
+				DispatchKeyValue(client, "classname", "four_1");
+			else if (g_Stage[g_iClientInZone[client][2]][client] == 5)
+				DispatchKeyValue(client, "classname", "five_1");
+		}
+
+		g_bInStageZone[client] = false;
+
+		if (!g_bPracticeMode[client] && g_bTimerEnabled[client])
+		{
+			CL_OnStartWrcpTimerPress(client);
 
 			int speed = RoundToNearest(g_fLastSpeed[client]);
 			if (speed > 0)
 				CPrintToChat(client, "%t", "StartSpeed", g_szChatPrefix, speed);
 		}
 
-    }
+	}
 
-    // Set client location
-    g_iClientInZone[client][0] = -1;
-    g_iClientInZone[client][1] = -1;
-    g_iClientInZone[client][2] = iZoneGroup;
-    g_iClientInZone[client][3] = -1;
+	// Set client location
+	g_iClientInZone[client][0] = -1;
+	g_iClientInZone[client][1] = -1;
+	g_iClientInZone[client][2] = iZoneGroup;
+	g_iClientInZone[client][3] = -1;
 
 	return Plugin_Handled;
 }
@@ -532,74 +532,74 @@ public Action BeamBox(Handle timer, int client) {
 }
 
 public Action BeamBoxAll(Handle timer, any data) {
-    ThrottledBeamBoxAll(INVALID_HANDLE, 0);
+	ThrottledBeamBoxAll(INVALID_HANDLE, 0);
 }
 
 public Action ThrottledBeamBoxAll(Handle timer, int i) {
-    if (i >= g_mapZonesCount) {
-        return;
-    }
+	if (i >= g_mapZonesCount) {
+		return;
+	}
 
 	int zonesToDisplay = GetConVarInt(g_hZonesToDisplay);
 
-    bool drawForEveryone = false;
-    int iZoneType = g_mapZones[i].zoneType;
-    int iZoneGroup = g_mapZones[i].zoneGroup;
+	bool drawForEveryone = false;
+	int iZoneType = g_mapZones[i].zoneType;
+	int iZoneGroup = g_mapZones[i].zoneGroup;
 
-    switch(iZoneType) {
-        case ZONETYPE_START,
-             ZONETYPE_SPEEDSTART,
-             ZONETYPE_END: {
-            drawForEveryone = zonesToDisplay >= 1;
-        }
-        case ZONETYPE_STAGE: {
-            drawForEveryone = zonesToDisplay >= 2;
-        }
-        default: {
-            drawForEveryone = zonesToDisplay >= 3;
-        }
-    }
+	switch(iZoneType) {
+		case ZONETYPE_START,
+			 ZONETYPE_SPEEDSTART,
+			 ZONETYPE_END: {
+			drawForEveryone = zonesToDisplay >= 1;
+		}
+		case ZONETYPE_STAGE: {
+			drawForEveryone = zonesToDisplay >= 2;
+		}
+		default: {
+			drawForEveryone = zonesToDisplay >= 3;
+		}
+	}
 
-    int zColor[4];
-    getZoneDisplayColor(iZoneType, zColor, iZoneGroup);
+	int zColor[4];
+	getZoneDisplayColor(iZoneType, zColor, iZoneGroup);
 
-    for (int p = 1; p <= MaxClients; p++) {
-        if (!IsValidClient(p) || IsFakeClient(p)) {
-            continue;
-        }
-        if (g_ClientSelectedZone[p] == i) {
-            continue;
-        }
+	for (int p = 1; p <= MaxClients; p++) {
+		if (!IsValidClient(p) || IsFakeClient(p)) {
+			continue;
+		}
+		if (g_ClientSelectedZone[p] == i) {
+			continue;
+		}
 
-        bool full = false;
-        bool draw = drawForEveryone;
-        if (g_bShowZones[p]) {
-            // Player has /showzones enabled
-            full = true;
-            draw = true;
-        } else if (GetConVarInt(g_hZoneDisplayType) >= 2) {
-            // Draw full box
-            full = true;
-        } else if (GetConVarInt(g_hZoneDisplayType) >= 1) {
-            // Draw bottom only
-        } else if (GetConVarInt(g_hZoneDisplayType) == 0) {
-            draw = false;
-        }
+		bool full = false;
+		bool draw = drawForEveryone;
+		if (g_bShowZones[p]) {
+			// Player has /showzones enabled
+			full = true;
+			draw = true;
+		} else if (GetConVarInt(g_hZoneDisplayType) >= 2) {
+			// Draw full box
+			full = true;
+		} else if (GetConVarInt(g_hZoneDisplayType) >= 1) {
+			// Draw bottom only
+		} else if (GetConVarInt(g_hZoneDisplayType) == 0) {
+			draw = false;
+		}
 
-        if (!draw) {
-            continue;
-        }
+		if (!draw) {
+			continue;
+		}
 
-        float buffer_a[3], buffer_b[3];
-        for (int x = 0; x < 3; x++)
-        {
-            buffer_a[x] = g_mapZones[i].PointA[x];
-            buffer_b[x] = g_mapZones[i].PointB[x];
-        }
-        TE_SendBeamBoxToClient(p, buffer_a, buffer_b, g_BeamSprite, g_HaloSprite, 0, 30, ZONE_REFRESH_TIME, 1.0, 1.0, 2, 0.0, zColor, 0, full);
-    }
+		float buffer_a[3], buffer_b[3];
+		for (int x = 0; x < 3; x++)
+		{
+			buffer_a[x] = g_mapZones[i].PointA[x];
+			buffer_b[x] = g_mapZones[i].PointB[x];
+		}
+		TE_SendBeamBoxToClient(p, buffer_a, buffer_b, g_BeamSprite, g_HaloSprite, 0, 30, ZONE_REFRESH_TIME, 1.0, 1.0, 2, 0.0, zColor, 0, full);
+	}
 
-    CreateTimer(0.1, ThrottledBeamBoxAll, i + 1);
+	CreateTimer(0.1, ThrottledBeamBoxAll, i + 1);
 }
 
 public void getZoneDisplayColor(int type, int zColor[4], int zGrp)
@@ -704,45 +704,45 @@ public void BeamBox_OnPlayerRunCmd(int client)
 
 stock void TE_SendBeamBoxToClient(int client, float uppercorner[3], float bottomcorner[3], int ModelIndex, int HaloIndex, int StartFrame, int FrameRate, float Life, float Width, float EndWidth, int FadeLength, float Amplitude, const int Color[4], int Speed, bool full)
 {
-    float corners[8][3];
-    Array_Copy(uppercorner, corners[0], 3);
-    Array_Copy(bottomcorner, corners[7], 3);
+	float corners[8][3];
+	Array_Copy(uppercorner, corners[0], 3);
+	Array_Copy(bottomcorner, corners[7], 3);
 
-    // Calculate mins
-    float min[3];
-    for (int i = 0; i < 3; i++) {
-        min[i] = corners[0][i];
-        if (corners[7][i] < min[i]) min[i] = corners[7][i];
-    }
+	// Calculate mins
+	float min[3];
+	for (int i = 0; i < 3; i++) {
+		min[i] = corners[0][i];
+		if (corners[7][i] < min[i]) min[i] = corners[7][i];
+	}
 
-    // Calculate all corners from two provided
-    for(int i = 1; i < 7; i++) {
-        for(int j = 0; j < 3; j++) {
-            corners[i][j] = corners[((i >> (2-j)) & 1) * 7][j];
-        }
-    }
+	// Calculate all corners from two provided
+	for(int i = 1; i < 7; i++) {
+		for(int j = 0; j < 3; j++) {
+			corners[i][j] = corners[((i >> (2-j)) & 1) * 7][j];
+		}
+	}
 
-    // Pull corners in by 1 unit to prevent them being hidden inside the ground / walls / ceiling
-    for (int j = 0; j < 3; j++) {
-        for (int i = 0; i < 8; i++) {
-            if (corners[i][j] == min[j]) {
-                corners[i][j] += WALL_BEAMBOX_OFFSET_UNITS;
-            } else {
-                corners[i][j] -= WALL_BEAMBOX_OFFSET_UNITS;
-            }
-        }
-        min[j] += WALL_BEAMBOX_OFFSET_UNITS;
-    }
+	// Pull corners in by 1 unit to prevent them being hidden inside the ground / walls / ceiling
+	for (int j = 0; j < 3; j++) {
+		for (int i = 0; i < 8; i++) {
+			if (corners[i][j] == min[j]) {
+				corners[i][j] += WALL_BEAMBOX_OFFSET_UNITS;
+			} else {
+				corners[i][j] -= WALL_BEAMBOX_OFFSET_UNITS;
+			}
+		}
+		min[j] += WALL_BEAMBOX_OFFSET_UNITS;
+	}
 
-    // Send beams to client
-    // https://forums.alliedmods.net/showpost.php?p=2006539&postcount=8
+	// Send beams to client
+	// https://forums.alliedmods.net/showpost.php?p=2006539&postcount=8
 	for (int i = 0, i2 = 3; i2 >= 0; i+=i2--) {
 		for(int j = 1; j <= 7; j += (j / 2) + 1) {
-            if (j != 7-i) {
-                if (!full && (corners[i][2] != min[2] || corners[j][2] != min[2])) continue;
-                TE_SetupBeamPoints(corners[i], corners[j], ModelIndex, HaloIndex, StartFrame, FrameRate, Life, Width, EndWidth, FadeLength, Amplitude, Color, Speed);
-                TE_SendToClient(client);
-            }
+			if (j != 7-i) {
+				if (!full && (corners[i][2] != min[2] || corners[j][2] != min[2])) continue;
+				TE_SetupBeamPoints(corners[i], corners[j], ModelIndex, HaloIndex, StartFrame, FrameRate, Life, Width, EndWidth, FadeLength, Amplitude, Color, Speed);
+				TE_SendToClient(client);
+			}
 		}
 	}
 }

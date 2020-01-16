@@ -315,27 +315,27 @@ void CreateConVars()
 	g_hSoundPathWR = CreateConVar("ck_sp_wr", "sound/surftimer/wr/2/valve_logo_music.mp3", "Set the sound path for the WR sound");
 	HookConVarChange(g_hSoundPathWR, OnSettingChanged);
 	GetConVarString(g_hSoundPathWR, g_szSoundPathWR, sizeof(g_szSoundPathWR));
-    char sBuffer[2][PLATFORM_MAX_PATH];
-    ExplodeString(g_szSoundPathWR, "sound/", sBuffer, 2, PLATFORM_MAX_PATH);
-    Format(g_szRelativeSoundPathWR, sizeof(g_szRelativeSoundPathWR), "*%s", sBuffer[1]);
+	char sBuffer[2][PLATFORM_MAX_PATH];
+	ExplodeString(g_szSoundPathWR, "sound/", sBuffer, 2, PLATFORM_MAX_PATH);
+	Format(g_szRelativeSoundPathWR, sizeof(g_szRelativeSoundPathWR), "*%s", sBuffer[1]);
 
 	g_hSoundPathTop = CreateConVar("ck_sp_top", "sound/surftimer/top10/valve_logo_music.mp3", "Set the sound path for the Top 10 sound");
 	HookConVarChange(g_hSoundPathTop, OnSettingChanged);
 	GetConVarString(g_hSoundPathTop, g_szSoundPathTop, sizeof(g_szSoundPathTop));
-    ExplodeString(g_szSoundPathTop, "sound/", sBuffer, 2, PLATFORM_MAX_PATH);
-    Format(g_szRelativeSoundPathTop, sizeof(g_szRelativeSoundPathTop), "*%s", sBuffer[1]);
+	ExplodeString(g_szSoundPathTop, "sound/", sBuffer, 2, PLATFORM_MAX_PATH);
+	Format(g_szRelativeSoundPathTop, sizeof(g_szRelativeSoundPathTop), "*%s", sBuffer[1]);
 
 	g_hSoundPathPB = CreateConVar("ck_sp_pb", "sound/surftimer/pr/valve_logo_music.mp3", "Set the sound path for the PB sound");
 	HookConVarChange(g_hSoundPathPB, OnSettingChanged);
 	GetConVarString(g_hSoundPathPB, g_szSoundPathPB, sizeof(g_szSoundPathPB));
-    ExplodeString(g_szSoundPathPB, "sound/", sBuffer, 2, PLATFORM_MAX_PATH);
-    Format(g_szRelativeSoundPathPB, sizeof(g_szRelativeSoundPathPB), "*%s", sBuffer[1]);
+	ExplodeString(g_szSoundPathPB, "sound/", sBuffer, 2, PLATFORM_MAX_PATH);
+	Format(g_szRelativeSoundPathPB, sizeof(g_szRelativeSoundPathPB), "*%s", sBuffer[1]);
 
 	g_hSoundPathWRCP = CreateConVar("ck_sp_wrcp", "sound/physics/glass/glass_bottle_break2.wav", "Set the sound path for the WRCP sound");
 	HookConVarChange(g_hSoundPathWRCP, OnSettingChanged);
 	GetConVarString(g_hSoundPathWRCP, g_szSoundPathWRCP, sizeof(g_szSoundPathWRCP));
-    ExplodeString(g_szSoundPathWRCP, "sound/", sBuffer, 2, PLATFORM_MAX_PATH);
-    Format(g_szRelativeSoundPathWRCP, sizeof(g_szRelativeSoundPathWRCP), "*%s", sBuffer[1]);
+	ExplodeString(g_szSoundPathWRCP, "sound/", sBuffer, 2, PLATFORM_MAX_PATH);
+	Format(g_szRelativeSoundPathWRCP, sizeof(g_szRelativeSoundPathWRCP), "*%s", sBuffer[1]);
 
 	g_hMustPassCheckpoints = CreateConVar("ck_enforce_checkpoints", "1", "Sets whether a player must pass all checkpoints to finish their run. Enable/Disable");
 

@@ -1169,8 +1169,8 @@ public bool Base_TraceFilter(int entity, int contentsMask, any data)
 }
 
 public void SetClientDefaults(int client) {
-    g_bInMaxSpeed[client] = 0.0;
-    g_bLoadedModules[client] = false;
+	g_bInMaxSpeed[client] = 0.0;
+	g_bLoadedModules[client] = false;
 
 	float GameTime = GetGameTime();
 	g_fLastCommandBack[client] = GameTime;
@@ -1847,64 +1847,64 @@ stock void PrintChatBonus(int client, int zGroup, int rank = 0)
 		(GetConVarInt(g_hAnnounceRecord) == 2 && g_bBonusSRVRecord[client])) &&
 		(rank <= GetConVarInt(g_hAnnounceRank) || GetConVarInt(g_hAnnounceRank) == 0))
 	{
-	    printToAll = true;
+		printToAll = true;
 	}
 
 	char msg[512] = "";
 	ArrayList msgs = new ArrayList(ByteCountToCells(sizeof(msg)));
 
-    if (g_bBonusSRVRecord[client])
-    {
-        // int i = GetRandomInt(1, 2);
-        PlayRecordSound(2);
+	if (g_bBonusSRVRecord[client])
+	{
+		// int i = GetRandomInt(1, 2);
+		PlayRecordSound(2);
 
-        RecordDiff = g_fOldBonusRecordTime[zGroup] - g_fFinalTime[client];
-        FormatTimeFloat(client, RecordDiff, 3, szRecordDiff, 54);
-        Format(szRecordDiff, 54, "-%s", szRecordDiff);
-    }
-    if (g_bBonusFirstRecord[client] && g_bBonusSRVRecord[client])
-    {
-        Format(msg, sizeof(msg), "%t", "BonusFinished2", g_szChatPrefix, szName, g_szZoneGroupName[zGroup]);
-        msgs.PushString(msg);
-        if (g_tmpBonusCount[zGroup] == 0) {
-            Format(msg, sizeof(msg), "%t", "BonusFinished3", g_szChatPrefix, szName, g_szZoneGroupName[zGroup], g_szFinalTime[client], g_szFinalTime[client]);
-            msgs.PushString(msg);
-        } else {
-            Format(msg, sizeof(msg), "%t", "BonusFinished4", g_szChatPrefix, szName, g_szZoneGroupName[zGroup], g_szFinalTime[client], szRecordDiff, g_MapRankBonus[zGroup][client], g_iBonusCount[zGroup], g_szFinalTime[client]);
-            msgs.PushString(msg);
-        }
-    }
-    if (g_bBonusPBRecord[client] && g_bBonusSRVRecord[client])
-    {
-        Format(msg, sizeof(msg), "%t", "BonusFinished2", g_szChatPrefix, szName, g_szZoneGroupName[zGroup]);
-        msgs.PushString(msg);
-        Format(msg, sizeof(msg), "%t", "BonusFinished5", g_szChatPrefix, szName, g_szZoneGroupName[zGroup], g_szFinalTime[client], szRecordDiff, g_MapRankBonus[zGroup][client], g_iBonusCount[zGroup], g_szFinalTime[client]);
-        msgs.PushString(msg);
-    }
-    if (g_bBonusPBRecord[client] && !g_bBonusSRVRecord[client])
-    {
-        PlayUnstoppableSound(client);
-        Format(msg, sizeof(msg), "%t", "BonusFinished6", g_szChatPrefix, szName, g_szZoneGroupName[zGroup], g_szFinalTime[client], g_szBonusTimeDifference[client], g_MapRankBonus[zGroup][client], g_iBonusCount[zGroup], g_szBonusFastestTime[zGroup]);
-        msgs.PushString(msg);
-    }
-    if (g_bBonusFirstRecord[client] && !g_bBonusSRVRecord[client])
-    {
-        Format(msg, sizeof(msg), "%t", "BonusFinished7", g_szChatPrefix, szName, g_szZoneGroupName[zGroup], g_szFinalTime[client], g_MapRankBonus[zGroup][client], g_iBonusCount[zGroup], g_szBonusFastestTime[zGroup]);
-        msgs.PushString(msg);
-    }
-    if (!g_bBonusSRVRecord[client] && !g_bBonusFirstRecord[client] && !g_bBonusPBRecord[client])
-    {
-        Format(msg, sizeof(msg), "%t", "BonusFinished1", g_szChatPrefix, szName, g_szZoneGroupName[zGroup], g_szFinalTime[client], g_szBonusTimeDifference[client], g_MapRankBonus[zGroup][client], g_iBonusCount[zGroup], g_szBonusFastestTime[zGroup]);
-        msgs.PushString(msg);
-    }
+		RecordDiff = g_fOldBonusRecordTime[zGroup] - g_fFinalTime[client];
+		FormatTimeFloat(client, RecordDiff, 3, szRecordDiff, 54);
+		Format(szRecordDiff, 54, "-%s", szRecordDiff);
+	}
+	if (g_bBonusFirstRecord[client] && g_bBonusSRVRecord[client])
+	{
+		Format(msg, sizeof(msg), "%t", "BonusFinished2", g_szChatPrefix, szName, g_szZoneGroupName[zGroup]);
+		msgs.PushString(msg);
+		if (g_tmpBonusCount[zGroup] == 0) {
+			Format(msg, sizeof(msg), "%t", "BonusFinished3", g_szChatPrefix, szName, g_szZoneGroupName[zGroup], g_szFinalTime[client], g_szFinalTime[client]);
+			msgs.PushString(msg);
+		} else {
+			Format(msg, sizeof(msg), "%t", "BonusFinished4", g_szChatPrefix, szName, g_szZoneGroupName[zGroup], g_szFinalTime[client], szRecordDiff, g_MapRankBonus[zGroup][client], g_iBonusCount[zGroup], g_szFinalTime[client]);
+			msgs.PushString(msg);
+		}
+	}
+	if (g_bBonusPBRecord[client] && g_bBonusSRVRecord[client])
+	{
+		Format(msg, sizeof(msg), "%t", "BonusFinished2", g_szChatPrefix, szName, g_szZoneGroupName[zGroup]);
+		msgs.PushString(msg);
+		Format(msg, sizeof(msg), "%t", "BonusFinished5", g_szChatPrefix, szName, g_szZoneGroupName[zGroup], g_szFinalTime[client], szRecordDiff, g_MapRankBonus[zGroup][client], g_iBonusCount[zGroup], g_szFinalTime[client]);
+		msgs.PushString(msg);
+	}
+	if (g_bBonusPBRecord[client] && !g_bBonusSRVRecord[client])
+	{
+		PlayUnstoppableSound(client);
+		Format(msg, sizeof(msg), "%t", "BonusFinished6", g_szChatPrefix, szName, g_szZoneGroupName[zGroup], g_szFinalTime[client], g_szBonusTimeDifference[client], g_MapRankBonus[zGroup][client], g_iBonusCount[zGroup], g_szBonusFastestTime[zGroup]);
+		msgs.PushString(msg);
+	}
+	if (g_bBonusFirstRecord[client] && !g_bBonusSRVRecord[client])
+	{
+		Format(msg, sizeof(msg), "%t", "BonusFinished7", g_szChatPrefix, szName, g_szZoneGroupName[zGroup], g_szFinalTime[client], g_MapRankBonus[zGroup][client], g_iBonusCount[zGroup], g_szBonusFastestTime[zGroup]);
+		msgs.PushString(msg);
+	}
+	if (!g_bBonusSRVRecord[client] && !g_bBonusFirstRecord[client] && !g_bBonusPBRecord[client])
+	{
+		Format(msg, sizeof(msg), "%t", "BonusFinished1", g_szChatPrefix, szName, g_szZoneGroupName[zGroup], g_szFinalTime[client], g_szBonusTimeDifference[client], g_MapRankBonus[zGroup][client], g_iBonusCount[zGroup], g_szBonusFastestTime[zGroup]);
+		msgs.PushString(msg);
+	}
 
 	for (int i = 0; i < msgs.Length; i++) {
-	    msgs.GetString(i, msg, sizeof(msg));
-	    if (printToAll) {
-	        CPrintToChatAll("%s", msg);
-	    } else {
-	        CPrintToChat(client, "%s", msg);
-	    }
+		msgs.GetString(i, msg, sizeof(msg));
+		if (printToAll) {
+			CPrintToChatAll("%s", msg);
+		} else {
+			CPrintToChat(client, "%s", msg);
+		}
 	}
 
 	/* Start function call */
@@ -2183,7 +2183,7 @@ public void FormatTimeFloat(int client, float time, int type, char[] string, int
 
 public void SetSkillGroups()
 {
-    // old junk
+	// old junk
 	float MaxPoints = 100000.0;
 
 	// Load rank cfg
@@ -2306,7 +2306,7 @@ public void SetPlayerRank(int client)
 	int index = GetSkillgroupIndex(rank, points);
 	GetArrayArray(g_hSkillGroups, index, RankValue[0]);
 
-    if (!g_bDbCustomTitleInUse[client]) {
+	if (!g_bDbCustomTitleInUse[client]) {
 		// Player is not using a title
 		if (GetConVarBool(g_hPointSystem))
 		{
@@ -2867,7 +2867,7 @@ public void CreateNavFile()
 		File_Copy(szSource, szNav);
 		// If we don't restart the map, the server will lag to death
 		// when we try to create a replay bot
-	    ForceChangeLevel(g_szMapName, ".nav file generated");
+		ForceChangeLevel(g_szMapName, ".nav file generated");
 	}
 }
 
@@ -3008,33 +3008,33 @@ public void CenterHudDead(int client)
 
 public void CenterHudAlive(int client)
 {
-    if (!IsValidClient(client) || !IsValidEntity(client) || client < 1 || client > MaxClients || g_bOverlay[client]) {
-        return;
-    }
+	if (!IsValidClient(client) || !IsValidEntity(client) || client < 1 || client > MaxClients || g_bOverlay[client]) {
+		return;
+	}
 
-    MapLoadState mapState = GetMapLoadState();
-    if (mapState == MLS_LOADING) {
-        PrintHintText(client, "<font color='#FFFF00'>Loading map ... %i/%i</font>", GetMapLoadStep(), GetMapLoadStepMax());
-        return;
-    }
-    if (mapState != MLS_LOADED) {
-        PrintHintText(client, "<font color='#FFFF00'>Map Load Error %i/%i</font>", GetMapLoadStep(), GetMapLoadStepMax());
-        return;
-    }
+	MapLoadState mapState = GetMapLoadState();
+	if (mapState == MLS_LOADING) {
+		PrintHintText(client, "<font color='#FFFF00'>Loading map ... %i/%i</font>", GetMapLoadStep(), GetMapLoadStepMax());
+		return;
+	}
+	if (mapState != MLS_LOADED) {
+		PrintHintText(client, "<font color='#FFFF00'>Map Load Error %i/%i</font>", GetMapLoadStep(), GetMapLoadStepMax());
+		return;
+	}
 
-    PlayerLoadState playerState = GetPlayerLoadState(client);
-    if (playerState == PLS_PENDING) {
-        PrintHintText(client, "<font color='#FFFF00'>Waiting in account queue ...</font>");
-        return;
-    }
-    if (playerState == PLS_LOADING) {
-        PrintHintText(client, "<font color='#FFFF00'>Loading your account ... %i/%i</font>", GetPlayerLoadStep(client), GetPlayerLoadStepMax());
-        return;
-    }
-    if (playerState != PLS_LOADED) {
-        PrintHintText(client, "<font color='#FFFF00'>Account Load Error %i/%i</font>", GetPlayerLoadStep(client), GetPlayerLoadStepMax());
-        return;
-    }
+	PlayerLoadState playerState = GetPlayerLoadState(client);
+	if (playerState == PLS_PENDING) {
+		PrintHintText(client, "<font color='#FFFF00'>Waiting in account queue ...</font>");
+		return;
+	}
+	if (playerState == PLS_LOADING) {
+		PrintHintText(client, "<font color='#FFFF00'>Loading your account ... %i/%i</font>", GetPlayerLoadStep(client), GetPlayerLoadStepMax());
+		return;
+	}
+	if (playerState != PLS_LOADED) {
+		PrintHintText(client, "<font color='#FFFF00'>Account Load Error %i/%i</font>", GetPlayerLoadStep(client), GetPlayerLoadStepMax());
+		return;
+	}
 
 	if (g_bCentreHud[client])
 	{
@@ -4350,39 +4350,39 @@ public bool IsPlayerTimerAdmin(int client)
 }
 
 public Action ThrottledConsolePrint(DataPack pack) {
-    ThrottledConsolePrint2(INVALID_HANDLE, pack);
+	ThrottledConsolePrint2(INVALID_HANDLE, pack);
 }
 
 public Action ThrottledConsolePrint2(Handle timer, DataPack pack) {
-    ResetPack(pack);
-    int client = ReadPackCell(pack);
-    int offset = ReadPackCell(pack);
-    ArrayList msgs = ReadPackCell(pack);
-    CloseHandle(pack);
+	ResetPack(pack);
+	int client = ReadPackCell(pack);
+	int offset = ReadPackCell(pack);
+	ArrayList msgs = ReadPackCell(pack);
+	CloseHandle(pack);
 
-    if (!IsValidClient(client)) {
-        CloseHandle(msgs);
-        return;
-    }
+	if (!IsValidClient(client)) {
+		CloseHandle(msgs);
+		return;
+	}
 
-    int size = GetArraySize(msgs);
-    int max = offset + 20;
-    if (max > size) max = size;
+	int size = GetArraySize(msgs);
+	int max = offset + 20;
+	if (max > size) max = size;
 
-    char line[1024];
-    for (; offset < max; offset++) {
-        GetArrayString(msgs, offset, line, sizeof(line));
-        PrintToConsole(client, "%s", line);
-    }
+	char line[1024];
+	for (; offset < max; offset++) {
+		GetArrayString(msgs, offset, line, sizeof(line));
+		PrintToConsole(client, "%s", line);
+	}
 
-    if (offset >= size) {
-        CloseHandle(msgs);
-        return;
-    }
+	if (offset >= size) {
+		CloseHandle(msgs);
+		return;
+	}
 
-    DataPack out = CreateDataPack();
-    WritePackCell(out, client);
-    WritePackCell(out, offset);
-    WritePackCell(out, msgs);
-    CreateTimer(0.3, ThrottledConsolePrint2, out);
+	DataPack out = CreateDataPack();
+	WritePackCell(out, client);
+	WritePackCell(out, offset);
+	WritePackCell(out, msgs);
+	CreateTimer(0.3, ThrottledConsolePrint2, out);
 }

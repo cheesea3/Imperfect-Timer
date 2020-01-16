@@ -714,7 +714,7 @@ public void CL_OnEndTimerPress(int client)
 public void CL_OnStartWrcpTimerPress(int client)
 {
 	if (!IsPlayerLoaded(client)) {
-	    return;
+		return;
 	}
 	if (!g_bSpectate[client] && !g_bNoClip[client] && ((GetGameTime() - g_fLastTimeNoClipUsed[client]) > 2.0))
 	{

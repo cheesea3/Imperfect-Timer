@@ -128,16 +128,16 @@ public int ChangeMapTierHandler(Handle menu, MenuAction action, int client, int 
 		delete menu;
 }
 public void db_insertMapTier(int tier) {
-    char mapNameEx[MAX_MAPNAME_LENGTH*2+1];
-    SQL_EscapeString(g_hDb, g_szMapName, mapNameEx, sizeof(mapNameEx));
+	char mapNameEx[MAX_MAPNAME_LENGTH*2+1];
+	SQL_EscapeString(g_hDb, g_szMapName, mapNameEx, sizeof(mapNameEx));
 
 	char szQuery[256];
 	Format(szQuery, sizeof(szQuery), " \
-	    INSERT INTO ck_maptier \
-	    SET mapname='%s', tier='%i' \
-	    ON DUPLICATE KEY UPDATE tier='%i' \
+		INSERT INTO ck_maptier \
+		SET mapname='%s', tier='%i' \
+		ON DUPLICATE KEY UPDATE tier='%i' \
 	", mapNameEx, tier, tier);
-    SQL_TQuery(g_hDb, db_insertMapTierCallback, szQuery);
+	SQL_TQuery(g_hDb, db_insertMapTierCallback, szQuery);
 }
 public void db_insertMapTierCallback(Handle owner, Handle hndl, const char[] error, any data) {
 	if (hndl == null) {
@@ -149,18 +149,18 @@ public void db_insertMapTierCallback(Handle owner, Handle hndl, const char[] err
 
 public void db_updateMapRankedStatus()
 {
-    char mapNameEx[MAX_MAPNAME_LENGTH*2+1];
-    SQL_EscapeString(g_hDb, g_szMapName, mapNameEx, sizeof(mapNameEx));
+	char mapNameEx[MAX_MAPNAME_LENGTH*2+1];
+	SQL_EscapeString(g_hDb, g_szMapName, mapNameEx, sizeof(mapNameEx));
 
-    g_bRankedMap = !g_bRankedMap;
-    int rankedInt = g_bRankedMap ? 1 : 0;
+	g_bRankedMap = !g_bRankedMap;
+	int rankedInt = g_bRankedMap ? 1 : 0;
 
 	char szQuery[256];
 	Format(szQuery, sizeof(szQuery), " \
-	    INSERT INTO ck_maptier \
-	    SET mapname='%s', ranked='%i' \
-	    ON DUPLICATE KEY UPDATE ranked='%i' \
-    ", mapNameEx, rankedInt, rankedInt);
+		INSERT INTO ck_maptier \
+		SET mapname='%s', ranked='%i' \
+		ON DUPLICATE KEY UPDATE ranked='%i' \
+	", mapNameEx, rankedInt, rankedInt);
 	SQL_TQuery(g_hDb, SQL_CheckCallback, szQuery);
 }
 
