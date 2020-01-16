@@ -770,8 +770,6 @@ public void OnClientDisconnect(int client)
 		g_hRecordingAdditionalTeleport[client] = null;
 	}
 
-	LoadPlayerStop(client);
-
 	StopRecording(client);
 	StopPlayerMimic(client);
 
@@ -810,6 +808,8 @@ public void OnClientDisconnect(int client)
 
 		db_updatePlayerOptions(client);
 	}
+
+	LoadPlayerStop(client);
 
 	// Stop Showing Triggers
 	if (g_bShowTriggers[client])
