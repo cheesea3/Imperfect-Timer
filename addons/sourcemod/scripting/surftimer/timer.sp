@@ -154,8 +154,11 @@ public Action CKTimer2(Handle timer)
 		int iTimeLimit;
 		iTimeLimit = GetConVarInt(hTmp);
 		// Emergency reset timelimit if it's 0
-		if (iTimeLimit == 0) {
-		    hTmp.SetInt(30, true);
+		if (iTimeLimit == 0)
+		{
+			hTmp.SetInt(30, true);
+			ServerCommand("mp_roundtime 30");
+			GameRules_SetProp("m_iRoundTime", 1800, 4, 0, true);
 		}
 		if (hTmp != null)
 			CloseHandle(hTmp);
@@ -179,7 +182,7 @@ public Action CKTimer2(Handle timer)
 				{
 					CPrintToChatAll("%t", "TimeleftCounter", g_szChatPrefix, 1);
 					//ServerCommand("mp_ignore_round_win_conditions 0; mp_maxrounds 1");
-                    //CreateTimer(1.0, Timer_RetryPlayers, INVALID_HANDLE, TIMER_FLAG_NO_MAPCHANGE);
+					//CreateTimer(1.0, Timer_RetryPlayers, INVALID_HANDLE, TIMER_FLAG_NO_MAPCHANGE);
 					//CreateTimer(1.1, ForceNextMap, INVALID_HANDLE, TIMER_FLAG_NO_MAPCHANGE);
 				}
 			}
@@ -241,9 +244,9 @@ public Action CKTimer2(Handle timer)
 				Client_SetScore(i, 0);
 			}
 
-            if (IsFakeClient(i))
-                CS_SetClientContributionScore(i, -99999);
-			else    if (g_pr_AllPlayers[0] < g_PlayerRank[i][0])
+			if (IsFakeClient(i))
+				CS_SetClientContributionScore(i, -99999);
+			else if (g_pr_AllPlayers[0] < g_PlayerRank[i][0])
 				CS_SetClientContributionScore(i, -99998);
 			else
 				CS_SetClientContributionScore(i, -g_PlayerRank[i][0]);
@@ -351,60 +354,60 @@ void SetClanTag(int client) {
 
 	SetPlayerRank(client);
 
-    char tag[128] = "";
-    bool announce = false;
-    PlayerLoadState playerState = GetPlayerLoadState(client);
-    if (playerState == PLS_PENDING) {
-        strcopy(tag, sizeof(tag), "WAITING");
-    } else if (playerState == PLS_LOADING) {
-        Format(tag, sizeof(tag), "LOAD %i/%i", GetPlayerLoadStep(client), GetPlayerLoadStepMax());
-    } else if (playerState != PLS_LOADED) {
-        Format(tag, sizeof(tag), "ERROR %i/%i", GetPlayerLoadStep(client), GetPlayerLoadStepMax());
-    } else if (!StrEqual(g_pr_rankname[client], "")) {
-        strcopy(tag, sizeof(tag), g_pr_rankname[client]);
-        ReplaceString(tag, sizeof(tag), "{style}", "");
-        announce = true;
-    }
+	char tag[128] = "";
+	bool announce = false;
+	PlayerLoadState playerState = GetPlayerLoadState(client);
+	if (playerState == PLS_PENDING) {
+		strcopy(tag, sizeof(tag), "WAITING");
+	} else if (playerState == PLS_LOADING) {
+		Format(tag, sizeof(tag), "LOAD %i/%i", GetPlayerLoadStep(client), GetPlayerLoadStepMax());
+	} else if (playerState != PLS_LOADED) {
+		Format(tag, sizeof(tag), "ERROR %i/%i", GetPlayerLoadStep(client), GetPlayerLoadStepMax());
+	} else if (!StrEqual(g_pr_rankname[client], "")) {
+		strcopy(tag, sizeof(tag), g_pr_rankname[client]);
+		ReplaceString(tag, sizeof(tag), "{style}", "");
+		announce = true;
+	}
 
-    bool changed = false;
-    if (!StrEqual(oldTags[client], tag)) {
-        strcopy(oldTags[client], sizeof(oldTags[]), tag);
-        changed = true;
-    }
+	bool changed = false;
+	if (!StrEqual(oldTags[client], tag)) {
+		strcopy(oldTags[client], sizeof(oldTags[]), tag);
+		changed = true;
+	}
 
-    if (!StrEqual(tag, "")) {
-        if (changed && announce) {
-            CPrintToChat(client, "%t", "SkillGroup", g_szChatPrefix, g_pr_chat_coloredrank[client]);
-        }
-        if (strlen(tag) <= 10) {
-            Format(tag, sizeof(tag), "[%s]", tag);
-        }
-        CS_SetClientClanTag(client, tag);
-    } else {
-        CS_SetClientClanTag(client, "");
-    }
+	if (!StrEqual(tag, "")) {
+		if (changed && announce) {
+			CPrintToChat(client, "%t", "SkillGroup", g_szChatPrefix, g_pr_chat_coloredrank[client]);
+		}
+		if (strlen(tag) <= 10) {
+			Format(tag, sizeof(tag), "[%s]", tag);
+		}
+		CS_SetClientClanTag(client, tag);
+	} else {
+		CS_SetClientClanTag(client, "");
+	}
 }
 
 public Action Timer_RetryPlayers(Handle hTimer) {
-    for (int i = 1; i <= MaxClients; i++)
-    {
-        if (IsClientConnected(i) && !IsFakeClient(i))
-        {
-            ClientCommand(i, "retry");
-            LogMessage("Sending retry to %N", i);
-        }
-    }
-    return Plugin_Stop;
+	for (int i = 1; i <= MaxClients; i++)
+	{
+		if (IsClientConnected(i) && !IsFakeClient(i))
+		{
+			ClientCommand(i, "retry");
+			LogMessage("Sending retry to %N", i);
+		}
+	}
+	return Plugin_Stop;
 }
 
 public Action ForceNextMap(Handle timer) {
-    char szNextMap[128];
-    GetNextMap(szNextMap, 128);
-    if (IsMapValid(szNextMap))  {
-        ForceChangeLevel(szNextMap, "Map Time Ended");
-    } else {
-        ForceChangeLevel("surf_progress", "Map Time Ended");
-    }
+	char szNextMap[128];
+	GetNextMap(szNextMap, 128);
+	if (IsMapValid(szNextMap))  {
+		ForceChangeLevel(szNextMap, "Map Time Ended");
+	} else {
+		ForceChangeLevel("surf_progress", "Map Time Ended");
+	}
 	return Plugin_Handled;
 }
 
