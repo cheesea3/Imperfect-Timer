@@ -223,43 +223,53 @@ public void SQL_selectMapZonesCallback(Handle owner, Handle hndl, const char[] e
 		*/
 		char szQuery[258];
 		for (int i = 0; i < g_mapZonesCount; i++)
-		if (zoneIdChecker[i] == 0)
 		{
-			PrintToServer("[Surftimer] Found an error in zoneid : %i", i);
-			Format(szQuery, 258, "UPDATE `ck_zones` SET zoneid = zoneid-1 WHERE mapname = '%s' AND zoneid > %i", g_szMapName, i);
-			PrintToServer("Query: %s", szQuery);
-			SQL_TQuery(g_hDb, sql_zoneFixCallback, szQuery);
-			return;
+			if (zoneIdChecker[i] == 0)
+			{
+				PrintToServer("[Surftimer] Found an error in zoneid : %i", i);
+				Format(szQuery, 258, "UPDATE `ck_zones` SET zoneid = zoneid-1 WHERE mapname = '%s' AND zoneid > %i", g_szMapName, i);
+				PrintToServer("Query: %s", szQuery);
+				SQL_TQuery(g_hDb, sql_zoneFixCallback, szQuery);
+				return;
+			}
 		}
 
 		// 2nd ZoneGroup
 		for (int i = 0; i < g_mapZoneGroupCount; i++)
-		if (zoneGroupChecker[i] == 0)
 		{
-			PrintToServer("[Surftimer] Found an error in zonegroup %i (ZoneGroups total: %i)", i, g_mapZoneGroupCount);
-			Format(szQuery, 258, "UPDATE `ck_zones` SET `zonegroup` = zonegroup-1 WHERE `mapname` = '%s' AND `zonegroup` > %i", g_szMapName, i);
-			SQL_TQuery(g_hDb, sql_zoneFixCallback, szQuery, zoneGroupChecker[i]);
-			return;
+			if (zoneGroupChecker[i] == 0)
+			{
+				PrintToServer("[Surftimer] Found an error in zonegroup %i (ZoneGroups total: %i)", i, g_mapZoneGroupCount);
+				Format(szQuery, 258, "UPDATE `ck_zones` SET `zonegroup` = zonegroup-1 WHERE `mapname` = '%s' AND `zonegroup` > %i", g_szMapName, i);
+				SQL_TQuery(g_hDb, sql_zoneFixCallback, szQuery, zoneGroupChecker[i]);
+				return;
+			}
 		}
 
 		// 3rd ZoneTypeId
 		for (int i = 0; i < g_mapZoneGroupCount; i++)
-		for (int k = 0; k < ZONEAMOUNT; k++)
-		for (int x = 0; x < zoneTypeIdCheckerCount[i][k]; x++)
-		if (zoneTypeIdChecker[i][k][x] != 1 && (k == 3) || (k == 4))
 		{
-			if (zoneTypeIdChecker[i][k][x] == 0)
+			for (int k = 0; k < ZONEAMOUNT; k++)
 			{
-				PrintToServer("[Surftimer] ZoneTypeID missing! [ZoneGroup: %i ZoneType: %i, ZonetypeId: %i]", i, k, x);
-				Format(szQuery, 258, "UPDATE `ck_zones` SET zonetypeid = zonetypeid-1 WHERE mapname = '%s' AND zonetype = %i AND zonetypeid > %i AND zonegroup = %i;", g_szMapName, k, x, i);
-				SQL_TQuery(g_hDb, sql_zoneFixCallback, szQuery);
-				return;
-			}
-			else if (zoneTypeIdChecker[i][k][x] > 1)
-			{
-				char szerror[258];
-				Format(szerror, 258, "[Surftimer] Duplicate Stage Zone ID's on %s [ZoneGroup: %i, ZoneType: 3, ZoneTypeId: %i]", g_szMapName, k, x);
-				LogError(szerror);
+				for (int x = 0; x < zoneTypeIdCheckerCount[i][k]; x++)
+				{
+					if (zoneTypeIdChecker[i][k][x] != 1 && (k == 3) || (k == 4))
+					{
+						if (zoneTypeIdChecker[i][k][x] == 0)
+						{
+							PrintToServer("[Surftimer] ZoneTypeID missing! [ZoneGroup: %i ZoneType: %i, ZonetypeId: %i]", i, k, x);
+							Format(szQuery, 258, "UPDATE `ck_zones` SET zonetypeid = zonetypeid-1 WHERE mapname = '%s' AND zonetype = %i AND zonetypeid > %i AND zonegroup = %i;", g_szMapName, k, x, i);
+							SQL_TQuery(g_hDb, sql_zoneFixCallback, szQuery);
+							return;
+						}
+						else if (zoneTypeIdChecker[i][k][x] > 1)
+						{
+							char szerror[258];
+							Format(szerror, 258, "[Surftimer] Duplicate Stage Zone ID's on %s [ZoneGroup: %i, ZoneType: 3, ZoneTypeId: %i]", g_szMapName, k, x);
+							LogError(szerror);
+						}
+					}
+				}
 			}
 		}
 

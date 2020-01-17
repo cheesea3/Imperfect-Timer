@@ -237,7 +237,7 @@ public Action Command_DeleteRecords(int client, int args)
 public void ShowMainDeleteMenu(int client)
 {
 	Menu editing = new Menu(ShowMainDeleteMenuHandler);
-	editing.SetTitle("%s Records Editing Menu - %s\n► Select the type of the record you would like to delete\n ", g_szMenuPrefix, g_EditingMap[client]);
+	editing.SetTitle("%s Records - %s\nSelect the record type:\n ", g_szMenuPrefix, g_EditingMap[client]);
 
 	editing.AddItem("0", "Map Record");
 	editing.AddItem("1", "Stage Record");

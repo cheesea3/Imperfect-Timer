@@ -606,41 +606,30 @@ public void getZoneDisplayColor(int type, int zColor[4], int zGrp)
 {
 	switch (type)
 	{
-		case ZONETYPE_START: {
-
+		case ZONETYPE_START:
+		{
 			if (zGrp > 0)
 				zColor = g_iZoneColors[3];
 			else
 				zColor = g_iZoneColors[1];
 		}
-		case ZONETYPE_END: {
+
+		case ZONETYPE_END:
+		{
 			if (zGrp > 0)
 				zColor = g_iZoneColors[4];
 			else
 				zColor = g_iZoneColors[2];
 		}
-		case ZONETYPE_STAGE: {
-			zColor = g_iZoneColors[5];
-		}
-		case ZONETYPE_CHECKPOINT: {
-			zColor = g_iZoneColors[6];
-		}
-		case ZONETYPE_SPEEDSTART: {
-			zColor = g_iZoneColors[7];
-		}
-		case ZONETYPE_TELETOSTART: {
-			zColor = g_iZoneColors[8];
-		}
-		case ZONETYPE_VALIDATOR: {
-			zColor = g_iZoneColors[9];
-		}
-		case ZONETYPE_CHECKER: {
-			zColor = g_iZoneColors[10];
-		}
-		case ZONETYPE_STOP: {
-			zColor = g_iZoneColors[0];
-		}
-		default:zColor = beamColorOther;
+
+		case ZONETYPE_STAGE: zColor = g_iZoneColors[5];
+		case ZONETYPE_CHECKPOINT: zColor = g_iZoneColors[6];
+		case ZONETYPE_SPEEDSTART: zColor = g_iZoneColors[7];
+		case ZONETYPE_TELETOSTART: zColor = g_iZoneColors[8];
+		case ZONETYPE_VALIDATOR: zColor = g_iZoneColors[9];
+		case ZONETYPE_CHECKER: zColor = g_iZoneColors[10];
+		case ZONETYPE_STOP: zColor = g_iZoneColors[0];
+		default: zColor = beamColorOther;
 	}
 }
 
@@ -810,10 +799,8 @@ public int Handle_ZoneMenu(Handle tMenu, MenuAction action, int client, int item
 				}
 			}
 		}
-		case MenuAction_End:
-		{
-			delete tMenu;
-		}
+
+		case MenuAction_End: delete tMenu;
 	}
 }
 
@@ -857,10 +844,7 @@ public int h_editZoneGroupMenu(Handle tMenu, MenuAction action, int client, int 
 			resetSelection(client);
 			ZoneMenu(client);
 		}
-		case MenuAction_End:
-		{
-			delete tMenu;
-		}
+		case MenuAction_End: delete tMenu;
 	}
 }
 
@@ -904,10 +888,8 @@ public int Handler_bonusGroupListing(Handle tMenu, MenuAction action, int client
 			resetSelection(client);
 			EditZoneGroup(client);
 		}
-		case MenuAction_End:
-		{
-			delete tMenu;
-		}
+
+		case MenuAction_End: delete tMenu;
 	}
 }
 
@@ -944,10 +926,8 @@ public int Handler_ListBonusSettings(Handle tMenu, MenuAction action, int client
 			resetSelection(client);
 			ListBonusGroups(client);
 		}
-		case MenuAction_End:
-		{
-			delete tMenu;
-		}
+
+		case MenuAction_End: delete tMenu;
 	}
 }
 
@@ -973,20 +953,15 @@ public int Handle_checkForMissclick(Handle tMenu, MenuAction action, int client,
 		{
 			switch (item)
 			{
-				case 0:ListBonusSettings(client);
-				case 1:ListBonusSettings(client);
-				case 2:db_deleteZonesInGroup(client);
-				case 3:ListBonusSettings(client);
+				case 0: ListBonusSettings(client);
+				case 1: ListBonusSettings(client);
+				case 2: db_deleteZonesInGroup(client);
+				case 3: ListBonusSettings(client);
 			}
 		}
-		case MenuAction_Cancel:
-		{
-			ListBonusSettings(client);
-		}
-		case MenuAction_End:
-		{
-			delete tMenu;
-		}
+
+		case MenuAction_Cancel: ListBonusSettings(client);
+		case MenuAction_End: delete tMenu;
 	}
 }
 
@@ -1033,14 +1008,8 @@ public int Handler_listBonusZones(Handle tMenu, MenuAction action, int client, i
 			}
 			EditorMenu(client);
 		}
-		case MenuAction_Cancel:
-		{
-			ListBonusSettings(client);
-		}
-		case MenuAction_End:
-		{
-			delete tMenu;
-		}
+		case MenuAction_Cancel: ListBonusSettings(client);
+		case MenuAction_End: delete tMenu;
 	}
 }
 
@@ -1336,23 +1305,18 @@ public void ZoneSettings(int client)
 	ZoneSettingMenu.SetTitle("Global Zone Settings");
 	switch (GetConVarInt(g_hZoneDisplayType))
 	{
-		case 0:
-			ZoneSettingMenu.AddItem("1", "Visible: Nothing");
-		case 1:
-			ZoneSettingMenu.AddItem("1", "Visible: Lower edges");
-		case 2:
-			ZoneSettingMenu.AddItem("1", "Visible: All sides");
+		case 0: ZoneSettingMenu.AddItem("1", "Visible: Nothing");
+		case 1: ZoneSettingMenu.AddItem("1", "Visible: Lower edges");
+		case 2: ZoneSettingMenu.AddItem("1", "Visible: All sides");
 	}
 
 	switch (GetConVarInt(g_hZonesToDisplay))
 	{
-		case 1:
-			ZoneSettingMenu.AddItem("2", "Draw Zones: Start & End");
-		case 2:
-			ZoneSettingMenu.AddItem("2", "Draw Zones: Start, End, Stage, Bonus");
-		case 3:
-			ZoneSettingMenu.AddItem("2", "Draw Zones: All zones");
+		case 1:	ZoneSettingMenu.AddItem("2", "Draw Zones: Start & End");
+		case 2: ZoneSettingMenu.AddItem("2", "Draw Zones: Start, End, Stage, Bonus");
+		case 3: ZoneSettingMenu.AddItem("2", "Draw Zones: All zones");
 	}
+
 	ZoneSettingMenu.ExitButton = true;
 	ZoneSettingMenu.Display(client, MENU_TIME_FOREVER);
 }
@@ -1369,18 +1333,14 @@ public int Handle_ZoneSettingMenu(Handle tMenu, MenuAction action, int client, i
 				case 0:
 				{
 					if (GetConVarInt(g_hZoneDisplayType) < 2)
-					{
 						SetConVarInt(g_hZoneDisplayType, (GetConVarInt(g_hZoneDisplayType) + 1));
-					}
 					else
 						SetConVarInt(g_hZoneDisplayType, 0);
 				}
 				case 1:
 				{
 					if (GetConVarInt(g_hZonesToDisplay) < 3)
-					{
 						SetConVarInt(g_hZonesToDisplay, (GetConVarInt(g_hZonesToDisplay) + 1));
-					}
 					else
 						SetConVarInt(g_hZonesToDisplay, 1);
 				}
@@ -1610,7 +1570,7 @@ public void EditorMenu(int client)
 				editMenu.AddItem("", "Enable One Jump Limit");
 
 			// Prespeed
-			Format(szMenuItem, sizeof(szMenuItem), "Prespeed: %f", g_mapZones[g_ClientSelectedZone[client]].preSpeed);
+			Format(szMenuItem, sizeof(szMenuItem), "Prespeed: %.1f", g_mapZones[g_ClientSelectedZone[client]].preSpeed);
 			editMenu.AddItem("", szMenuItem);
 		}
 	}
@@ -1784,7 +1744,7 @@ public void ScaleMenu(int client, int firstItem)
 	ckScaleMenu.AddItem("", "Height -");
 
 	char ScaleSize[128];
-	Format(ScaleSize, sizeof(ScaleSize), "Scale Size %.2f", g_AvaliableScales[g_ClientSelectedScale[client]]);
+	Format(ScaleSize, sizeof(ScaleSize), "Scale Size %.1f", g_AvaliableScales[g_ClientSelectedScale[client]]);
 	ckScaleMenu.AddItem("", ScaleSize);
 
 	ckScaleMenu.ExitButton = true;
@@ -1826,14 +1786,8 @@ public int MenuHandler_Scale(Handle tMenu, MenuAction action, int client, int it
 				ScaleMenu(client, 6);
 		}
 
-		case MenuAction_Cancel:
-		{
-			EditorMenu(client);
-		}
-		case MenuAction_End:
-		{
-			delete tMenu;
-		}
+		case MenuAction_Cancel: EditorMenu(client);
+		case MenuAction_End: delete tMenu;
 	}
 }
 
@@ -1844,7 +1798,7 @@ public void PrespeedMenu(int client)
 	if ( g_mapZones[g_ClientSelectedZone[client]].preSpeed == 0.0)
 		Format(szTitle, sizeof(szTitle), "Zone Prespeed (No Limit)");
 	else
-		Format(szTitle, sizeof(szTitle), "Zone Prespeed (%f)", g_mapZones[g_ClientSelectedZone[client]].preSpeed);
+		Format(szTitle, sizeof(szTitle), "Zone Prespeed (%.1f)", g_mapZones[g_ClientSelectedZone[client]].preSpeed);
 	SetMenuTitle(menu, szTitle);
 
 	AddMenuItem(menu, "285.0", "285.0");
@@ -1879,14 +1833,9 @@ public int MenuHandler_Prespeed(Handle tMenu, MenuAction action, int client, int
 				g_mapZones[g_ClientSelectedZone[client]].preSpeed = prespeed;
 			PrespeedMenu(client);
 		}
-		case MenuAction_Cancel:
-		{
-			EditorMenu(client);
-		}
-		case MenuAction_End:
-		{
-			delete tMenu;
-		}
+
+		case MenuAction_Cancel: EditorMenu(client);
+		case MenuAction_End: delete tMenu;
 	}
 }
 
