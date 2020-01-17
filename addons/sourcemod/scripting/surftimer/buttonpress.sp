@@ -234,6 +234,7 @@ public void CL_OnEndTimerPress(int client)
 					// New fastest time in map
 					g_bMapSRVRecord[client] = true;
 					g_fRecordMapTime = g_fFinalTime[client];
+					g_iRecordMapStartSpeed[style] = g_iStartSpeed[client]; // @IG start speeds
 					Format(g_szRecordPlayer, MAX_NAME_LENGTH, "%s", szName);
 					FormatTimeFloat(1, g_fRecordMapTime, 3, g_szRecordMapTime, 64);
 
@@ -271,6 +272,7 @@ public void CL_OnEndTimerPress(int client)
 
 				g_bMapSRVRecord[client] = true;
 				g_fRecordMapTime = g_fFinalTime[client];
+				g_iRecordMapStartSpeed[style] = g_iStartSpeed[client]; // @IG start speeds
 				Format(g_szRecordPlayer, MAX_NAME_LENGTH, "%s", szName);
 				FormatTimeFloat(1, g_fRecordMapTime, 3, g_szRecordMapTime, 64);
 
@@ -291,6 +293,7 @@ public void CL_OnEndTimerPress(int client)
 			// Clients first record
 			if (g_fPersonalRecord[client] == 0.0) {
 				g_fPersonalRecord[client] = g_fFinalTime[client];
+				g_iPBMapStartSpeed[style][client] = g_iStartSpeed[client]; // @IG start speeds
 				g_pr_finishedmaps[client][0]++;
 				g_MapTimesCount++;
 				FormatTimeFloat(1, g_fPersonalRecord[client], 3, g_szPersonalRecord[client], 64);
@@ -303,6 +306,7 @@ public void CL_OnEndTimerPress(int client)
 			} else if (diff > 0.0) {
 				// Client's new record
 				g_fPersonalRecord[client] = g_fFinalTime[client];
+				g_iPBMapStartSpeed[style][client] = g_iStartSpeed[client]; // @IG start speeds
 				FormatTimeFloat(1, g_fPersonalRecord[client], 3, g_szPersonalRecord[client], 64);
 
 				g_bMapPBRecord[client] = true;
@@ -361,6 +365,7 @@ public void CL_OnEndTimerPress(int client)
 						// New fastest time in map
 						g_bStyleMapSRVRecord[style][client] = true;
 						g_fRecordStyleMapTime[style] = g_fFinalTime[client];
+						g_iRecordMapStartSpeed[style] = g_iStartSpeed[client]; // @IG start speeds
 						Format(g_szRecordStylePlayer[style], MAX_NAME_LENGTH, "%s", szName);
 						FormatTimeFloat(1, g_fRecordStyleMapTime[style], 3, g_szRecordStyleMapTime[style], 64);
 
@@ -393,6 +398,7 @@ public void CL_OnEndTimerPress(int client)
 					// Has to be the new record, since it is the first completion
 					g_bStyleMapSRVRecord[style][client] = true;
 					g_fRecordStyleMapTime[style] = g_fFinalTime[client];
+					g_iRecordMapStartSpeed[style] = g_iStartSpeed[client]; // @IG start speeds
 					Format(g_szRecordStylePlayer[style], MAX_NAME_LENGTH, "%s", szName);
 					FormatTimeFloat(1, g_fRecordStyleMapTime[style], 3, g_szRecordStyleMapTime[style], 64);
 
@@ -406,6 +412,7 @@ public void CL_OnEndTimerPress(int client)
 				{
 					// Clients first record
 					g_fPersonalStyleRecord[style][client] = g_fFinalTime[client];
+					g_iPBMapStartSpeed[style][client] = g_iStartSpeed[client]; // @IG start speeds
 					/*g_pr_finishedmaps[client]++;
 					g_MapTimesCount++;*/
 					FormatTimeFloat(1, g_fPersonalStyleRecord[style][client], 3, g_szPersonalStyleRecord[style][client], 64);
@@ -419,6 +426,7 @@ public void CL_OnEndTimerPress(int client)
 				{
 					// Client's new record
 					g_fPersonalStyleRecord[style][client] = g_fFinalTime[client];
+					g_iPBMapStartSpeed[style][client] = g_iStartSpeed[client]; // @IG start speeds
 					FormatTimeFloat(1, g_fPersonalStyleRecord[style][client], 3, g_szPersonalStyleRecord[style][client], 64);
 
 					g_bStyleMapPBRecord[style][client] = true;

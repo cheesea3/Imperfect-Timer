@@ -544,6 +544,15 @@ char g_szTimeDifference[MAXPLAYERS + 1][32];
 // Record map time in seconds
 float g_fRecordMapTime;
 
+// IG: Record map start speeds by style
+int g_iRecordMapStartSpeed[MAX_STYLES];
+
+// IG: Personal best start speeds by style
+int g_iPBMapStartSpeed[MAX_STYLES][MAXPLAYERS + 1];
+
+// IG: Run start speed
+int g_iStartSpeed[MAXPLAYERS + 1];
+
 // Record map time in 00:00:00 format
 char g_szRecordMapTime[64];
 

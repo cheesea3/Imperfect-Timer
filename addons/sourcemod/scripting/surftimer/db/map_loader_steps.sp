@@ -290,7 +290,10 @@ public void SQL_selectMapZonesCallback(Handle owner, Handle hndl, const char[] e
 void db_GetMapRecord_Pro(any cb=0) {
 	g_fRecordMapTime = 9999999.0;
 	for (int i = 1; i < MAX_STYLES; i++)
+	{
 		g_fRecordStyleMapTime[i] = 9999999.0;
+		g_iRecordMapStartSpeed[i] = -1; // @IG start speeds
+	}
 
 	char szQuery[512];
 	// SELECT MIN(runtimepro), name, steamid, style FROM ck_playertimes WHERE mapname = '%s' AND runtimepro > -1.0 GROUP BY style
@@ -309,6 +312,7 @@ public void sql_selectMapRecordCallback(Handle owner, Handle hndl, const char[] 
 	if (SQL_HasResultSet(hndl)) {
 		while (SQL_FetchRow(hndl)) {
 			style = SQL_FetchInt(hndl, 3);
+
 			if (style == 0) {
 				g_fRecordMapTime = SQL_FetchFloat(hndl, 0);
 
@@ -318,6 +322,7 @@ public void sql_selectMapRecordCallback(Handle owner, Handle hndl, const char[] 
 					FormatTimeFloat(0, g_fRecordMapTime, 3, g_szRecordMapTime, 64);
 					SQL_FetchString(hndl, 1, g_szRecordPlayer, MAX_NAME_LENGTH);
 					SQL_FetchString(hndl, 2, g_szRecordMapSteamID, MAX_NAME_LENGTH);
+					g_iRecordMapStartSpeed[style] = SQL_FetchInt(hndl, 4); // @IG start speeds
 				} else {
 					Format(g_szRecordMapTime, 64, "N/A");
 					g_fRecordMapTime = 9999999.0;
@@ -339,9 +344,11 @@ public void sql_selectMapRecordCallback(Handle owner, Handle hndl, const char[] 
 	} else {
 		Format(g_szRecordMapTime, 64, "N/A");
 		g_fRecordMapTime = 9999999.0;
-		for (int i = 1; i < MAX_STYLES; i++) {
+		for (int i = 1; i < MAX_STYLES; i++)
+		{
 			Format(g_szRecordStyleMapTime[i], 64, "N/A");
 			g_fRecordStyleMapTime[i] = 9999999.0;
+			g_iRecordMapStartSpeed[i] = -1; // @IG start speeds
 		}
 	}
 

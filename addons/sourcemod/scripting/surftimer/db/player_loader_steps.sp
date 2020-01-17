@@ -9,7 +9,8 @@ void db_refreshPlayerMapRecords(int client, any cb=0) {
 			0 AS zonegroup, \
 			0 AS isstage, \
 			runtimepro, \
-			(SELECT COUNT(*)+1 FROM ck_playertimes a WHERE runtimepro<mytime.runtimepro AND style=mytime.style AND mapname=mytime.mapname) AS rank \
+			(SELECT COUNT(*)+1 FROM ck_playertimes a WHERE runtimepro<mytime.runtimepro AND style=mytime.style AND mapname=mytime.mapname) AS rank, \
+			startspeed \
 		FROM ck_playertimes mytime \
 			WHERE steamid = '__steamid__' AND mapname = '__mapname__' AND runtimepro > 0.0 \
 		UNION ALL SELECT \
@@ -17,7 +18,8 @@ void db_refreshPlayerMapRecords(int client, any cb=0) {
 			zonegroup, \
 			0 AS isstage, \
 			runtime, \
-			(SELECT COUNT(*)+1 FROM ck_bonus a WHERE runtime<mytime.runtime AND style=mytime.style AND zonegroup=mytime.zonegroup AND mapname=mytime.mapname) AS rank \
+			(SELECT COUNT(*)+1 FROM ck_bonus a WHERE runtime<mytime.runtime AND style=mytime.style AND zonegroup=mytime.zonegroup AND mapname=mytime.mapname) AS rank, \
+			-1 AS startspeed \
 		FROM ck_bonus mytime \
 			WHERE steamid = '__steamid__' AND mapname = '__mapname__' AND runtime > 0.0 \
 		UNION ALL SELECT \
@@ -25,7 +27,8 @@ void db_refreshPlayerMapRecords(int client, any cb=0) {
 			stage, \
 			1 AS isstage, \
 			runtimepro, \
-			(SELECT COUNT(*)+1 FROM ck_wrcps a WHERE runtimepro<mytime.runtimepro AND style=mytime.style AND stage=mytime.stage AND mapname=mytime.mapname) AS rank \
+			(SELECT COUNT(*)+1 FROM ck_wrcps a WHERE runtimepro<mytime.runtimepro AND style=mytime.style AND stage=mytime.stage AND mapname=mytime.mapname) AS rank, \
+			-1 AS startspeed \
 		FROM ck_wrcps mytime \
 			WHERE steamid = '__steamid__' AND mapname = '__mapname__' AND runtimepro > 0.0 \
 	";
@@ -53,6 +56,7 @@ void db_refreshPlayerMapRecordsCb(Handle hndl, const char[] error, int client, a
 		Format(g_szPersonalStyleRecord[style][client], 64, "NONE");
 		g_fPersonalStyleRecord[style][client] = 0.0;
 		g_StyleMapRank[style][client] = 9999999;
+		g_iPBMapStartSpeed[style][client] = -1; // @IG start speeds
 	}
 	for (int zgroup = 0; zgroup < MAXZONEGROUPS; zgroup++) {
 		g_fPersonalRecordBonus[zgroup][client] = 0.0;
@@ -78,6 +82,7 @@ void db_refreshPlayerMapRecordsCb(Handle hndl, const char[] error, int client, a
 			bool isStage = view_as<bool>(SQL_FetchInt(hndl, 2));
 			float time = SQL_FetchFloat(hndl, 3);
 			int rank = SQL_FetchInt(hndl, 4);
+			int startSpeed = SQL_FetchInt(hndl, 5); // @IG start speeds
 
 			if (isStage) {
 				g_fWrcpRecord[client][zgroup][style] = time;
@@ -94,10 +99,12 @@ void db_refreshPlayerMapRecordsCb(Handle hndl, const char[] error, int client, a
 						g_fPersonalRecord[client] = time;
 						FormatTimeFloat(client, time, 3, g_szPersonalRecord[client], 64);
 						g_MapRank[client] = rank;
+						g_iPBMapStartSpeed[style][client] = startSpeed; // @IG start speeds
 					} else {
 						g_fPersonalStyleRecord[style][client] = time;
 						FormatTimeFloat(client, time, 3, g_szPersonalStyleRecord[style][client], 64);
 						g_StyleMapRank[style][client] = rank;
+						g_iPBMapStartSpeed[style][client] = startSpeed; // @IG start speeds
 					}
 				} else {
 					if (style == 0) {

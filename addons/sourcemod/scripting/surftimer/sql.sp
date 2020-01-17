@@ -150,6 +150,11 @@ public void db_upgradeDatabase(int ver)
       SQL_FastQuery(g_hDb, "ALTER TABLE ck_playeroptions2 ADD COLUMN hideweapons INT(11) NOT NULL DEFAULT 0 AFTER teleside;");
   }
 
+    if (!SQL_FastQuery(g_hDb, "SELECT startspeed FROM ck_playertimes LIMIT 1"))
+  {
+      SQL_FastQuery(g_hDb, "ALTER TABLE ck_playertimes ADD COLUMN startspeed INT(11) NOT NULL DEFAULT -1 AFTER runtimepro;");
+  }
+
   SQL_UnlockDatabase(g_hDb);
 }
 
@@ -1847,7 +1852,7 @@ public void sql_selectRecordCallback(Handle owner, Handle hndl, const char[] err
 			SQL_EscapeString(g_hDb, szUName, szName, MAX_NAME_LENGTH * 2 + 1);
 
 			// "UPDATE ck_playertimes SET name = '%s', runtimepro = '%f' WHERE steamid = '%s' AND mapname = '%s' AND style = %i;";
-			Format(szQuery, sizeof(szQuery), "UPDATE ck_playertimes SET name = '%s', runtimepro = '%f' WHERE steamid = '%s' AND mapname = '%s' AND style = %i", szName, g_fFinalTime[client], g_szSteamID[client], g_szMapName, 0);
+			Format(szQuery, sizeof(szQuery), "UPDATE ck_playertimes SET name = '%s', runtimepro = '%f', startspeed = '%i' WHERE steamid = '%s' AND mapname = '%s' AND style = %i", szName, g_fFinalTime[client], g_iStartSpeed[client], g_szSteamID[client], g_szMapName, 0);
 			SQL_TQuery(g_hDb, SQL_UpdateRecordProCallback, szQuery, pack);
 		}
 	} else {
@@ -1859,7 +1864,7 @@ public void sql_selectRecordCallback(Handle owner, Handle hndl, const char[] err
 		SQL_EscapeString(g_hDb, szUName, szName, MAX_NAME_LENGTH);
 
 		// "INSERT INTO ck_playertimes (steamid, mapname, name, runtimepro, style) VALUES('%s', '%s', '%s', '%f', %i);";
-		Format(szQuery, sizeof(szQuery), "INSERT INTO ck_playertimes (steamid, mapname, name, runtimepro, style) VALUES ('%s', '%s', '%s', '%f', %i)", g_szSteamID[client], g_szMapName, szName, g_fFinalTime[client], 0);
+		Format(szQuery, sizeof(szQuery), "INSERT INTO ck_playertimes (steamid, mapname, name, runtimepro, startspeed, style) VALUES ('%s', '%s', '%s', '%f', %i, %i)", g_szSteamID[client], g_szMapName, szName, g_fFinalTime[client], g_iStartSpeed[client], 0);
 		SQL_TQuery(g_hDb, SQL_UpdateRecordProCallback, szQuery, pack);
 
 		g_bInsertNewTime = true;
@@ -3889,7 +3894,7 @@ public void sql_selectStyleRecordCallback(Handle owner, Handle hndl, const char[
 
 	g_StyleMapTimesCount[style]++;
 
-	Format(szQuery, 512, "INSERT INTO ck_playertimes (steamid, mapname, name, runtimepro, style) VALUES ('%s', '%s', '%s', '%f', %i)", g_szSteamID[data], g_szMapName, szName, g_fFinalTime[data], style);
+	Format(szQuery, 512, "INSERT INTO ck_playertimes (steamid, mapname, name, runtimepro, startspeed, style) VALUES ('%s', '%s', '%s', '%f', %i, %i)", g_szSteamID[data], g_szMapName, szName, g_fFinalTime[data], g_iStartSpeed[data], style);
 	SQL_TQuery(g_hDb, SQL_UpdateStyleRecordCallback, szQuery, pack);
 }
 }
@@ -3900,9 +3905,9 @@ public void db_updateStyleRecord(int client, int style)
 	char szUName[MAX_NAME_LENGTH];
 
 	if (IsValidClient(client))
-	GetClientName(client, szUName, MAX_NAME_LENGTH);
+		GetClientName(client, szUName, MAX_NAME_LENGTH);
 	else
-	return;
+		return;
 
 	// Also updating name in database, escape string
 	char szName[MAX_NAME_LENGTH * 2 + 1];
@@ -3916,7 +3921,7 @@ public void db_updateStyleRecord(int client, int style)
 
 	char szQuery[1024];
 	// "UPDATE ck_playertimes SET name = '%s', runtimepro = '%f' WHERE steamid = '%s' AND mapname = '%s';";
-	Format(szQuery, 1024, "UPDATE `ck_playertimes` SET `name` = '%s', runtimepro = '%f' WHERE `steamid` = '%s' AND `mapname` = '%s' AND `style` = %i;", szName, g_fFinalTime[client], g_szSteamID[client], g_szMapName, style);
+	Format(szQuery, 1024, "UPDATE `ck_playertimes` SET `name` = '%s', runtimepro = '%f', startspeed = '%i' WHERE `steamid` = '%s' AND `mapname` = '%s' AND `style` = %i;", szName, g_fFinalTime[client], g_iStartSpeed[client], g_szSteamID[client], g_szMapName, style);
 	SQL_TQuery(g_hDb, SQL_UpdateStyleRecordCallback, szQuery, pack);
 }
 
@@ -3971,7 +3976,7 @@ public void db_GetStyleMapRecord_Pro(int style)
 {
 	g_fRecordStyleMapTime[style] = 9999999.0;
 	char szQuery[512];
-	Format(szQuery, 512, "SELECT runtimepro, name, steamid FROM ck_playertimes WHERE mapname = '%s' AND style = %i AND runtimepro > -1.0 ORDER BY runtimepro ASC LIMIT 1", g_szMapName, style);
+	Format(szQuery, 512, "SELECT runtimepro, name, steamid, startspeed FROM ck_playertimes WHERE mapname = '%s' AND style = %i AND runtimepro > -1.0 ORDER BY runtimepro ASC LIMIT 1", g_szMapName, style);
 	SQL_TQuery(g_hDb, sql_selectStyleMapRecordCallback, szQuery, style);
 }
 
@@ -3992,17 +3997,20 @@ public void sql_selectStyleMapRecordCallback(Handle owner, Handle hndl, const ch
 			FormatTimeFloat(0, g_fRecordStyleMapTime[style], 3, g_szRecordStyleMapTime[style], 64);
 			SQL_FetchString(hndl, 1, g_szRecordStylePlayer[style], MAX_NAME_LENGTH);
 			SQL_FetchString(hndl, 2, g_szRecordStyleMapSteamID[style], MAX_NAME_LENGTH);
+			g_iRecordMapStartSpeed[style] = SQL_FetchInt(hndl, 3); // @IG start speed
 		}
 		else
 		{
 			Format(g_szRecordStyleMapTime[style], 64, "N/A");
 			g_fRecordStyleMapTime[style] = 9999999.0;
+			g_iRecordMapStartSpeed[style] = -1;
 		}
 	}
 	else
 	{
 		Format(g_szRecordStyleMapTime[style], 64, "N/A");
 		g_fRecordStyleMapTime[style] = 9999999.0;
+		g_iRecordMapStartSpeed[style] = -1;
 	}
 	return;
 }

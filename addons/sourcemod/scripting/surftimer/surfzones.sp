@@ -411,49 +411,125 @@ public Action EndTouchTrigger(int caller, int activator)
 			DispatchKeyValue(client, "targetname", g_mapZones[g_iClientInZone[client][3]].targetName);
 	}
 
-	if (iZoneType == ZONETYPE_START || iZoneType == ZONETYPE_SPEEDSTART) {
+	if (iZoneType == ZONETYPE_START || iZoneType == ZONETYPE_SPEEDSTART)
+	{
 		if (g_bPracticeMode[client] && !g_bTimerRunning[client]) // If on practice mode, but timer isn't on - start timer
 		{
 			CL_OnStartTimerPress(client);
 
-			int speed = RoundToNearest(g_fLastSpeed[client]);
+			int speed = RoundToNearest(g_fLastSpeed[client]); // don't care to store it if it's only practice mode
 			if (speed > 0)
-				CPrintToChat(client, "%t", "StartSpeed", g_szChatPrefix, speed);
-		}
-		else
-		{
-			if (!g_bPracticeMode[client])
 			{
-				g_Stage[g_iClientInZone[client][2]][client] = 1;
-				lastCheckpoint[g_iClientInZone[client][2]][client] = 999;
+				char szSpeed[64];
+				int style = g_iCurrentStyle[client];
+				int recSpeed = g_iRecordMapStartSpeed[style];
+				int pbSpeed = g_iPBMapStartSpeed[style][client];
 
-				// NoClip check
-				if (g_bNoClip[client] || (!g_bNoClip[client] && (GetGameTime() - g_fLastTimeNoClipUsed[client]) < 3.0))
+				if (pbSpeed > 0) // pb speed exists
 				{
-					CPrintToChat(client, "%t", "SurfZones1", g_szChatPrefix);
-					ClientCommand(client, "play buttons\\button10.wav");
-					// fluffys
-					// ClientCommand(client, "sm_stuck");
+					int speedDiff = speed - pbSpeed;
+					if (speedDiff < 0) // slower than pb
+						Format(szSpeed, 64, "PB: {darkred}%i{default} | SR: ", speedDiff);
+					else if (speedDiff > 0) // faster than pb
+						Format(szSpeed, 64, "PB: {green}+%i{default} | SR: ");
+					else // same as pb
+						Format(szSpeed, 64, "PB: 0 | SR: ");
+				}
+				else // pb doesn't exist
+				{
+					Format(szSpeed, 64, "PB: {lightgreen}N/A{default} | SR: ");
+				}
+
+				if (recSpeed > 0) // sr start speed exists
+				{
+					int recSpeedDiff = speed - recSpeed;
+					if (recSpeedDiff < 0)// slower than server record
+						Format(szSpeed, 64, "%s{darkred}%i{default}", szSpeed, recSpeedDiff);
+					else if (recSpeedDiff > 0) // faster than server record
+						Format(szSpeed, 64, "%s{green}+%i{default}", szSpeed, recSpeedDiff);
+					else // same as server record
+						Format(szSpeed, 64, "%s{default}+0", szSpeed);
 				}
 				else
 				{
-					if (g_bhasStages && g_bTimerEnabled[client])
-						CL_OnStartWrcpTimerPress(client); // fluffys only start stage timer if not in prac mode
-
-					if (g_bTimerEnabled[client])
-						CL_OnStartTimerPress(client);
-
-					int speed = RoundToNearest(g_fLastSpeed[client]);
-					if (speed > 0)
-						CPrintToChat(client, "%t", "StartSpeed", g_szChatPrefix, speed);
+					Format(szSpeed, 64, "%s{lightgreen}N/A{default}", szSpeed);
 				}
 
-				// fluffys
-				if (!g_bNoClip[client])
-					g_bInStartZone[client] = false;
-
-				g_bValidRun[client] = false;
+				CPrintToChat(client, "%t", "StartSpeed", g_szChatPrefix, speed, szSpeed);
 			}
+		}
+		else if (!g_bPracticeMode[client])
+		{
+			g_Stage[g_iClientInZone[client][2]][client] = 1;
+			lastCheckpoint[g_iClientInZone[client][2]][client] = 999;
+
+			// NoClip check
+			if (g_bNoClip[client] || (!g_bNoClip[client] && (GetGameTime() - g_fLastTimeNoClipUsed[client]) < 3.0))
+			{
+				CPrintToChat(client, "%t", "SurfZones1", g_szChatPrefix);
+				ClientCommand(client, "play buttons\\button10.wav");
+				// fluffys
+				// ClientCommand(client, "sm_stuck");
+			}
+			else
+			{
+				if (g_bhasStages && g_bTimerEnabled[client])
+					CL_OnStartWrcpTimerPress(client); // fluffys only start stage timer if not in prac mode
+
+				if (g_bTimerEnabled[client])
+					CL_OnStartTimerPress(client);
+
+				g_iStartSpeed[client] = RoundToNearest(g_fLastSpeed[client]); // store it, will save it if the run is a pb
+				//if (g_iStartSpeed[client] > 0)
+				//	CPrintToChat(client, "%t", "StartSpeed", g_szChatPrefix, g_iStartSpeed[client]);
+
+				int speed = g_iStartSpeed[client];
+				if (speed > 0)
+				{
+					char szSpeed[80];
+					int style = g_iCurrentStyle[client];
+					int recSpeed = g_iRecordMapStartSpeed[style];
+					int pbSpeed = g_iPBMapStartSpeed[style][client];
+
+					if (pbSpeed > 0) // pb speed exists
+					{
+						int speedDiff = speed - pbSpeed;
+						if (speedDiff < 0) // slower than pb
+							Format(szSpeed, 80, "{darkred}%i{default} | {gray}SR: ", speedDiff);
+						else if (speedDiff > 0) // faster than pb
+							Format(szSpeed, 80, "{green}+%i{default} | {gray}SR: ", speedDiff);
+						else // same as pb
+							Format(szSpeed, 80, "0{default} | {gray}SR: ");
+					}
+					else // pb doesn't exist
+					{
+						Format(szSpeed, 80, "{lightgreen}N/A{default} | {gray}SR: ");
+					}
+
+					if (recSpeed > 0) // sr start speed exists
+					{
+						int recSpeedDiff = speed - recSpeed;
+						if (recSpeedDiff < 0) // slower than server record
+							Format(szSpeed, 80, "%s{darkred}%i{default}", szSpeed, recSpeedDiff);
+						else if (recSpeedDiff > 0) // faster than server record
+							Format(szSpeed, 80, "%s{green}+%i{default}", szSpeed, recSpeedDiff);
+						else // same as server record
+								Format(szSpeed, 80, "%s{default}+0", szSpeed);
+					}
+					else
+					{
+						Format(szSpeed, 80, "%s{lightgreen}N/A{default}", szSpeed);
+					}
+
+					CPrintToChat(client, "%t", "StartSpeedNew", g_szChatPrefix, speed, szSpeed);
+				}
+			}
+
+			// fluffys
+			if (!g_bNoClip[client])
+				g_bInStartZone[client] = false;
+
+			g_bValidRun[client] = false;
 		}
 	} else if (iZoneType == ZONETYPE_STAGE) {
 		// targetname filters
@@ -479,6 +555,7 @@ public Action EndTouchTrigger(int caller, int activator)
 		{
 			CL_OnStartWrcpTimerPress(client);
 
+			// not saving stage speeds yet
 			int speed = RoundToNearest(g_fLastSpeed[client]);
 			if (speed > 0)
 				CPrintToChat(client, "%t", "StartSpeed", g_szChatPrefix, speed);
