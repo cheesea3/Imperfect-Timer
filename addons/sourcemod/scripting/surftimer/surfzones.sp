@@ -531,7 +531,9 @@ public Action EndTouchTrigger(int caller, int activator)
 
 			g_bValidRun[client] = false;
 		}
-	} else if (iZoneType == ZONETYPE_STAGE) {
+	}
+	else if (iZoneType == ZONETYPE_STAGE)
+	{
 		// targetname filters
 		if (StrEqual(g_szMapName, "surf_treespam") && g_Stage[g_iClientInZone[client][2]][client] == 4)
 		{
@@ -560,7 +562,6 @@ public Action EndTouchTrigger(int caller, int activator)
 			if (speed > 0)
 				CPrintToChat(client, "%t", "StartSpeed", g_szChatPrefix, speed);
 		}
-
 	}
 
 	// Set client location

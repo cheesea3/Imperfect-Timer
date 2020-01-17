@@ -1026,22 +1026,10 @@ public Action Client_HideChat(int client, int args)
 
 void HideChat(int client, bool menu = false)
 {
-	if (!g_bHideChat[client])
-	{
-		// Hiding
-		if (g_bViewModel[client])
-			SetEntProp(client, Prop_Send, "m_iHideHUD", GetEntProp(client, Prop_Send, "m_iHideHUD") | HIDE_RADAR | HIDE_CHAT);
-		else
-			SetEntProp(client, Prop_Send, "m_iHideHUD", GetEntProp(client, Prop_Send, "m_iHideHUD") | HIDE_RADAR | HIDE_CHAT);
-	}
-	else
-	{
-		// Displaying
-		if (g_bViewModel[client])
-			SetEntProp(client, Prop_Send, "m_iHideHUD", HIDE_RADAR);
-		else
-			SetEntProp(client, Prop_Send, "m_iHideHUD", HIDE_RADAR);
-	}
+    if (!g_bHideChat[client])
+        SetEntProp(client, Prop_Send, "m_iHideHUD", GetEntProp(client, Prop_Send, "m_iHideHUD") | HIDE_RADAR | HIDE_CHAT); // Hiding
+    else
+        SetEntProp(client, Prop_Send, "m_iHideHUD", HIDE_RADAR); // Displaying
 
 	g_bHideChat[client] = !g_bHideChat[client];
 	if (menu)
@@ -3511,7 +3499,8 @@ public Action Command_GoBack(int client, int args)
 // Styles
 public Action Client_SetStyleNormal(int client, int args)
 {
-	if (g_iCurrentStyle[client] != 0)
+	// check for hsw -> normal and bw -> normal
+	if (g_iCurrentStyle[client] != 0 || (g_iCurrentStyle[client] == 0 && g_iInitalStyle[client] == 2) || (g_iCurrentStyle[client] == 0 && g_iInitalStyle[client] == 3))
 	{
 		g_iCurrentStyle[client] = 0;
 		g_iInitalStyle[client] = 0;
