@@ -859,7 +859,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 				{
 					g_iCurrentStyle[client] = 0;
 					g_KeyCount[client] = 0;
-					CPrintToChat(client, "%t", "Hooks14", g_szChatPrefix);
+					CPrintToChat(client, "%t", "CommandsNormal", g_szChatPrefix);
 				}
 			}
 			else if (buttons & IN_BACK && (buttons & IN_MOVELEFT || buttons & IN_MOVERIGHT))
@@ -872,7 +872,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 					{
 						g_iCurrentStyle[client] = 0;
 						g_KeyCount[client] = 0;
-						CPrintToChat(client, "%t", "Hooks14", g_szChatPrefix);
+						CPrintToChat(client, "%t", "CommandsNormal", g_szChatPrefix);
 					}
 				}
 			else if (buttons & IN_FORWARD && (buttons & IN_MOVELEFT || buttons & IN_MOVERIGHT))
@@ -885,7 +885,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 					{
 						g_iCurrentStyle[client] = 0;
 						g_KeyCount[client] = 0;
-						CPrintToChat(client, "%t", "Hooks14", g_szChatPrefix);
+						CPrintToChat(client, "%t", "CommandsNormal", g_szChatPrefix);
 					}
 				}
 			else if (buttons & IN_MOVELEFT && (buttons & IN_FORWARD || buttons & IN_BACK))
@@ -898,7 +898,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 					{
 						g_iCurrentStyle[client] = 0;
 						g_KeyCount[client] = 0;
-						CPrintToChat(client, "%t", "Hooks14", g_szChatPrefix);
+						CPrintToChat(client, "%t", "CommandsNormal", g_szChatPrefix);
 					}
 				}
 				else if (buttons & IN_MOVELEFT && (buttons & IN_FORWARD || buttons & IN_BACK))
@@ -936,7 +936,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 			{
 				g_iCurrentStyle[client] = 0;
 				g_KeyCount[client] = 0;
-				CPrintToChat(client, "%t", "Hooks14", g_szChatPrefix);
+				CPrintToChat(client, "%t", "CommandsNormal", g_szChatPrefix);
 			}
 		}
 		else if (!g_bInStartZone[client] && !g_bInStageZone[client] && val < -0.75)
@@ -1430,8 +1430,8 @@ public Action Event_PlayerJump(Handle event, char[] name, bool dontBroadcast)
 						g_bResetOneJump[client] = false;
 						float time = GetGameTime();
 						float time2 = time - g_fJumpedInZoneTime[client];
-						// CPrintToChat(client, "Second Time: %f", time);
-						// CPrintToChat(client, "Second Time - First Time = %f", time2);
+						CPrintToChat(client, "Second Time: %f", time);
+						CPrintToChat(client, "Second Time - First Time = %f", time2);
 						g_bJumpedInZone[client] = false;
 						if (time2 <= 0.9)
 						{
