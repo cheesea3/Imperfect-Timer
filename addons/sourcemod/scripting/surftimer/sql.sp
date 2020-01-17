@@ -160,15 +160,15 @@ public void sql_DeleteMenuView(Handle owner, Handle hndl, const char[] error, an
 	int client = GetClientFromSerial(data);
 
 	Menu editing = new Menu(callback_DeleteRecord);
-	editing.SetTitle("%s Records Editing Menu - %s\n► Editing %s record\n► Press the menu item to delete the record\n ", g_szMenuPrefix, g_EditingMap[client], g_EditTypes[g_SelectedEditOption[client]]);
+	editing.SetTitle("%s %s Records - %s\nSelect a record to delete\n", g_szMenuPrefix, g_EditTypes[g_SelectedEditOption[client]], g_EditingMap[client]);
 
 	char menuFormat[88];
-	FormatEx(menuFormat, sizeof(menuFormat), "Style: %s\n► Press the menu item to change the style\n ", g_EditStyles[g_SelectedStyle[client]]);
+	FormatEx(menuFormat, sizeof(menuFormat), "Style: %s", g_EditStyles[g_SelectedStyle[client]]);
 	editing.AddItem("0", menuFormat);
 
 	if(g_SelectedEditOption[client] > 0)
 	{
-		FormatEx(menuFormat, sizeof(menuFormat), "%s: %i\n► Press the menu item to change the %s\n ", g_SelectedEditOption[client] == 1 ? "Stage":"Bonus", g_SelectedType[client], g_SelectedEditOption[client] == 1 ? "stage":"bonus");
+		FormatEx(menuFormat, sizeof(menuFormat), "%s %i", g_SelectedEditOption[client] == 1 ? "Stage":"Bonus", g_SelectedType[client]);
 		editing.AddItem("0", menuFormat);
 	}
 
@@ -195,7 +195,7 @@ public void sql_DeleteMenuView(Handle owner, Handle hndl, const char[] error, an
 			runTime = SQL_FetchFloat(hndl, 2);
 			char szRunTime[128];
 			FormatTimeFloat(data, runTime, 3, szRunTime, sizeof(szRunTime));
-			FormatEx(menuFormat, sizeof(menuFormat), "Rank: %d ► %s - %s", i, playerName, szRunTime);
+			FormatEx(menuFormat, sizeof(menuFormat), "#%d: %s - %s", i, szRunTime, playerName);
 			ReplaceString(playerName, 32, ";;;", ""); // make sure the client dont has this in their name.
 
 			FormatEx(menuFormatz, 128, "%s;;;%s;;;%s", playerName, steamID, szRunTime);
@@ -259,10 +259,10 @@ public int callback_DeleteRecord(Menu menu, MenuAction action, int client, int k
 		ExplodeString(menuItem, ";;;", recordsBreak, sizeof(recordsBreak), sizeof(recordsBreak[]));
 
 		Menu confirm = new Menu(callback_Confirm);
-		confirm.SetTitle("%s Records Editing Menu - Confirm Deletion\n► Deleting %s [%s] %s record\n ", g_szMenuPrefix, recordsBreak[0], recordsBreak[1], recordsBreak[2]);
+		confirm.SetTitle("%s Records - Confirm Deletion\nDeleting %s [%s] %s record\n ", g_szMenuPrefix, recordsBreak[0], recordsBreak[1], recordsBreak[2]);
 
 		confirm.AddItem("0", "No");
-		confirm.AddItem(recordsBreak[1], "Yes\n \n► This cannot be undone");
+		confirm.AddItem(recordsBreak[1], "Yes\n \nThis cannot be undone!");
 
 		confirm.Display(client, MENU_TIME_FOREVER);
 
@@ -292,6 +292,8 @@ public int callback_Confirm(Menu menu, MenuAction action, int client, int key)
 
 			switch(g_SelectedEditOption[client])
 			{
+				// sql_MainDeleteQeury[] = "DELETE From %s where mapname='%s' and style='%s' and steamid='%s' %s";
+
 				case 0:
 				{
 					FormatEx(szQuery, 512, sql_MainDeleteQeury, "ck_playertimes", g_EditingMap[client], g_SelectedStyle[client], steamID, "");
@@ -1634,7 +1636,7 @@ public void db_selectBonusesInMapCallback(Handle owner, Handle hndl, const char[
 		SQL_FetchString(hndl, 2, BonusName, 128);
 
 		if (!BonusName[0])
-			Format(BonusName, 128, "bonus %i", zGrp);
+			Format(BonusName, 128, "Bonus %i", zGrp);
 
 		Format(MenuID, 248, "%s-%i", mapname, zGrp);
 
@@ -1647,7 +1649,7 @@ public void db_selectBonusesInMapCallback(Handle owner, Handle hndl, const char[
 			zGrp = SQL_FetchInt(hndl, 1);
 
 			if (StrEqual(BonusName, "NULL", false))
-				Format(BonusName, 128, "bonus %i", zGrp);
+				Format(BonusName, 128, "Bonus %i", zGrp);
 
 			Format(MenuID, 248, "%s-%i", mapname, zGrp);
 
@@ -2433,7 +2435,7 @@ public void db_checkAndFixZoneIdsCallback(Handle owner, Handle hndl, const char[
 public void ZoneDefaultName(int zonetype, int zonegroup, char zName[128])
 {
 	if (zonegroup > 0)
-		Format(zName, 64, "bonus %i", zonegroup);
+		Format(zName, 64, "Bonus %i", zonegroup);
 	else
 	if (-1 < zonetype < ZONEAMOUNT)
 	Format(zName, 128, "%s %i", g_szZoneDefaultNames[zonetype], zonegroup);
@@ -2558,27 +2560,36 @@ public int db_deleteZonesInGroup(int client)
 	if (g_CurrentSelectedZoneGroup[client] < 1)
 	{
 		if (IsValidClient(client))
-		CPrintToChat(client, "%t", "SQL6", g_szChatPrefix, g_CurrentSelectedZoneGroup[client]);
+			CPrintToChat(client, "%t", "SQL6", g_szChatPrefix, g_CurrentSelectedZoneGroup[client]);
 
 		PrintToServer("surftimer | Invalid zonegroup index selected, aborting. (%i)", g_CurrentSelectedZoneGroup[client]);
 	}
 
 	Transaction h_DeleteZoneGroup = SQL_CreateTransaction();
-
+	//"DELETE FROM ck_zones WHERE mapname = '%s' AND zonegroup = '%i'"
 	Format(szQuery, 258, sql_deleteZonesInGroup, g_szMapName, g_CurrentSelectedZoneGroup[client]);
 	SQL_AddQuery(h_DeleteZoneGroup, szQuery);
-
-	// Format(szQuery, 258, "UPDATE ck_zones SET zonegroup = zonegroup-1 WHERE zonegroup > %i AND mapname = '%s';", g_CurrentSelectedZoneGroup[client], g_szMapName);
-	// SQL_AddQuery(h_DeleteZoneGroup, szQuery);
 
 	Format(szQuery, 258, "DELETE FROM ck_bonus WHERE zonegroup = %i AND mapname = '%s';", g_CurrentSelectedZoneGroup[client], g_szMapName);
 	SQL_AddQuery(h_DeleteZoneGroup, szQuery);
 
-	// Format(szQuery, 258, "UPDATE ck_bonus SET zonegroup = zonegroup-1 WHERE zonegroup > %i AND mapname = '%s';", g_CurrentSelectedZoneGroup[client], g_szMapName);
-	// SQL_AddQuery(h_DeleteZoneGroup, szQuery);
+	// dunno why these were commented out originally, they work as intended
+	Format(szQuery, 258, "UPDATE ck_zones SET zonegroup = zonegroup-1 WHERE zonegroup > %i AND mapname = '%s';", g_CurrentSelectedZoneGroup[client], g_szMapName);
+	SQL_AddQuery(h_DeleteZoneGroup, szQuery);
+
+	Format(szQuery, 258, "UPDATE ck_bonus SET zonegroup = zonegroup-1 WHERE zonegroup > %i AND mapname = '%s';", g_CurrentSelectedZoneGroup[client], g_szMapName);
+	SQL_AddQuery(h_DeleteZoneGroup, szQuery);
 
 	SQL_ExecuteTransaction(g_hDb, h_DeleteZoneGroup, SQLTxn_ZoneGroupRemovalSuccess, SQLTxn_ZoneGroupRemovalFailed, client);
 
+	// reload all players just in case
+	for (int i = 1; i <= MaxClients; i++)
+	{
+		if (!IsValidClient(i) || IsFakeClient(i))
+			continue;
+
+		LoadPlayerStart(i);
+	}
 }
 
 public void SQLTxn_ZoneGroupRemovalSuccess(Handle db, any client, int numQueries, Handle[] results, any[] queryData)
@@ -2595,7 +2606,6 @@ public void SQLTxn_ZoneGroupRemovalSuccess(Handle db, any client, int numQueries
 		ZoneMenu(client);
 		CPrintToChat(client, "%t", "SQL7", g_szChatPrefix);
 	}
-	return;
 }
 
 public void SQLTxn_ZoneGroupRemovalFailed(Handle db, any client, int numQueries, const char[] error, int failIndex, any[] queryData)
@@ -2603,7 +2613,7 @@ public void SQLTxn_ZoneGroupRemovalFailed(Handle db, any client, int numQueries,
 	if (IsValidClient(client))
 	CPrintToChat(client, "%t", "SQL8", g_szChatPrefix, error);
 
-	PrintToServer("surftimer | Zonegroup removal failed (Error: %s)", error);
+	PrintToServer("surftimer | Zonegroup removal failed (Index: %i | Error: %s)", failIndex, error);
 	return;
 }
 
