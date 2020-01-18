@@ -6,3 +6,13 @@ addons/sourcemod/scripting/surftimer-api.smx
 .idea/
 *.iml
 /surftimer.smx
+addons/sourcemod/gamedata/movementapi.games.txt
+addons/sourcemod/plugins/movementapi.smx
+addons/sourcemod/scripting/include/movement.inc
+addons/sourcemod/scripting/include/movementapi.inc
+addons/sourcemod/scripting/movementapi.sp
+addons/sourcemod/scripting/movementapi/forwards.sp
+addons/sourcemod/scripting/movementapi/natives.sp
+addons/sourcemod/scripting/movementtweaker.smx
+addons/sourcemod/scripting/movementtweaker.sp
+addons/sourcemod/scripting/movementtweaker/tweaks.sp
