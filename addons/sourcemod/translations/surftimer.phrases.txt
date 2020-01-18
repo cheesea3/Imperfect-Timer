@@ -1228,7 +1228,7 @@
 		"#format"	"{1:s},{2:s}"
 		"en"		"*SPEC* {1}: {2}"
 	}
-	"Misc29"
+	"MissedBonusPB"
 	{
 		"#format"	"{1:s},{2:s}"
 		"en"		"{1} You have missed your best bonus time of [{orange}{2}{default}]"

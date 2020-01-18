@@ -2546,23 +2546,60 @@ public void CheckRun(int client)
 
 	if (g_bTimerRunning[client])
 	{
-		if (g_fCurrentRunTime[client] > g_fPersonalRecord[client] && !g_bMissedMapBest[client] && !g_bPause[client] && g_iClientInZone[client][2] == 0)
+		int zoneGroup = g_iClientInZone[client][2];
+		int style = g_iCurrentStyle[client];
+		/*
+		if (g_fCurrentRunTime[client] > g_fPersonalRecord[client] && !g_bMissedMapBest[client] && !g_bPause[client] && zoneGroup == 0)
 		{
 			g_bMissedMapBest[client] = true;
 			if (g_fPersonalRecord[client] > 0.0)
+			{
 				CPrintToChat(client, "%t", "MissedMapBest", g_szChatPrefix, g_szPersonalRecord[client]);
-			EmitSoundToClient(client, "buttons/button18.wav", client);
+				EmitSoundToClient(client, "buttons/button18.wav", client);
+			}
 		}
 		else
 		{
-			if (g_fCurrentRunTime[client] > g_fPersonalRecordBonus[g_iClientInZone[client][2]][client] && g_iClientInZone[client][2] > 0 && !g_bPause[client] && !g_bMissedBonusBest[client])
+			if (g_fCurrentRunTime[client] > g_fPersonalRecordBonus[zoneGroup][client] && zoneGroup > 0 && !g_bPause[client] && !g_bMissedBonusBest[client])
 			{
-				if (g_fPersonalRecordBonus[g_iClientInZone[client][2]][client] > 0.0)
+				if (g_fPersonalRecordBonus[zoneGroup][client] > 0.0)
 				{
 					g_bMissedBonusBest[client] = true;
-					CPrintToChat(client, "%t", "Misc29", g_szChatPrefix, g_szPersonalRecordBonus[g_iClientInZone[client][2]][client]);
+					CPrintToChat(client, "%t", "MissedBonusPB", g_szChatPrefix, g_szPersonalRecordBonus[zoneGroup][client]);
 					EmitSoundToClient(client, "buttons/button18.wav", client);
 				}
+			}
+		}*/
+
+		if (zoneGroup == 0) // map
+		{
+			// get the style to compare against
+			float bestTime = style == 0 ? g_fPersonalRecord[client] : g_fPersonalStyleRecord[style][client];
+
+			if (g_fCurrentRunTime[client] > bestTime && !g_bMissedMapBest[client] && !g_bPause[client])
+			{
+				g_bMissedMapBest[client] = true;
+				if (bestTime > 0.0)
+				{
+					char szBestTime[32];
+					FormatTimeFloat(1, bestTime, 3, szBestTime, 32);
+					CPrintToChat(client, "%t", "MissedMapBest", g_szChatPrefix, szBestTime);
+					EmitSoundToClient(client, "buttons/button18.wav", client);
+				}
+			}
+		}
+		else // bonus
+		{
+			// get the style to compare against
+			float bestTime = style == 0 ? g_fPersonalRecordBonus[zoneGroup][client] : g_fStylePersonalRecordBonus[style][zoneGroup][client];
+
+			if (!g_bMissedBonusBest[client] && g_fCurrentRunTime[client] > bestTime /*&& zoneGroup > 0*/ && !g_bPause[client] && bestTime > 0.0)
+			{
+				g_bMissedBonusBest[client] = true;
+				char szBestTime[32];
+				FormatTimeFloat(1, bestTime, 3, szBestTime, 32);
+				CPrintToChat(client, "%t", "MissedBonusPB", g_szChatPrefix, szBestTime);
+				EmitSoundToClient(client, "buttons/button18.wav", client);
 			}
 		}
 	}
