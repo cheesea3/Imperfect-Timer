@@ -1368,6 +1368,7 @@ public Action Event_PlayerJump(Handle event, char[] name, bool dontBroadcast)
 			}
 		}
 
+		// surftimer method
 		if (GetConVarInt(g_hLimitSpeedType) == 1)
 		{
 			if (!g_bInStartZone[client] && !g_bInStageZone[client])
@@ -1376,42 +1377,33 @@ public Action Event_PlayerJump(Handle event, char[] name, bool dontBroadcast)
 			g_iTicksOnGround[client] = 0;
 			int time = GetTime();
 			int cTime = time - g_iLastJump[client];
+			int style = g_iCurrentStyle[client];
+
+			if (style == 4 || style == 5)
+				cTime--;
+
 			if (!g_bInBhop[client])
 			{
 				if (g_bFirstJump[client])
 				{
 					if (cTime > 1)
-					{
 						g_bFirstJump[client] = false;
-						g_iLastJump[client] = GetTime();
-					}
 					else
-					{
-						g_iLastJump[client] = GetTime();
 						g_bInBhop[client] = true;
-					}
 				}
 				else
 				{
-					g_iLastJump[client] = GetTime();
 					g_bFirstJump[client] = true;
 				}
 			}
-			else
+			else if (cTime > 1)
 			{
-				if (cTime > 1)
-				{
-					g_bInBhop[client] = false;
-					g_iLastJump[client] = GetTime();
-				}
-				else
-				{
-					g_iLastJump[client] = GetTime();
-				}
+				g_bInBhop[client] = false;
 			}
-		}
 
-		if (GetConVarBool(g_hOneJumpLimit) && GetConVarInt(g_hLimitSpeedType) == 0)
+			g_iLastJump[client] = GetTime();
+		}
+		else if (GetConVarBool(g_hOneJumpLimit)) // cksurf method
 		{
 			if (g_bInStartZone[client] || g_bInStageZone[client])
 			{
