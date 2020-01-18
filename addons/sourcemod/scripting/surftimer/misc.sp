@@ -1070,7 +1070,8 @@ public void LimitSpeed(int client)
 
 public void LimitSpeedNew(int client)
 {
-	if (!IsValidClient(client) || !IsPlayerAlive(client) || IsFakeClient(client) || g_mapZonesCount <= 0 || g_bPracticeMode[client] || g_mapZonesTypeCount[g_iClientInZone[client][2]][2] == 0 || g_iClientInZone[client][3] < 0 || g_iClientInZone[client][0] == 2 || g_iClientInZone[client][0] == 4 || g_iClientInZone[client][0] >= 6 || GetConVarInt(g_hLimitSpeedType) == 0)
+	if (!IsValidClient(client) || !IsPlayerAlive(client) || IsFakeClient(client) || g_mapZonesCount <= 0 || g_bPracticeMode[client] || g_mapZonesTypeCount[g_iClientInZone[client][2]][2] == 0
+		|| g_iClientInZone[client][3] < 0 || g_iClientInZone[client][0] == 2 || g_iClientInZone[client][0] == 4 || g_iClientInZone[client][0] >= 6 || GetConVarInt(g_hLimitSpeedType) == 0)
 		return;
 
 	if (GetConVarInt(g_hLimitSpeedType) == 0 || !g_bInStartZone[client] && !g_bInStageZone[client])
@@ -1103,7 +1104,7 @@ public void LimitSpeedNew(int client)
 	// scale = limit / (vx^2 + vy^2)^0.5)
 	// Derived from Pythagorean theorem, where the hypotenuse represents the magnitude of velocity,
 	// and the two legs represent the x and y velocity components.
-  // As a side effect, velocity component signs are also handled.
+	// As a side effect, velocity component signs are also handled.
 	float scale = FloatDiv(speedCap, SquareRoot( FloatAdd( Pow(fVel[0], 2.0), Pow(fVel[1], 2.0) ) ) );
 
 	// A scale < 1 indicates a magnitude > limit
@@ -1121,8 +1122,9 @@ public void LimitSpeedNew(int client)
 		fVel[1] = FloatMul(fVel[1], scale);
 
 		// Impart new velocity onto player
-		if (g_bInBhop[client] || g_bLeftZone[client])
+		if (g_bInBhop[client] || g_bLeftZone[client]) // doesnt always consider player as bhopping when in lg/slw
 		{
+			//CPrintToChat(client, "%f, %f", fVel[0], fVel[1]);
 			TeleportEntity(client, NULL_VECTOR, NULL_VECTOR, fVel);
 		}
 	}

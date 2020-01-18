@@ -6,12 +6,12 @@
 char sql_createAnnouncements[] = "CREATE TABLE `ck_announcements` (`id` int(11) NOT NULL AUTO_INCREMENT, `server` varchar(256) NOT NULL DEFAULT 'Beginner', `name` varchar(32) NOT NULL, `mapname` varchar(128) NOT NULL, `time` varchar(32) NOT NULL, PRIMARY KEY (`id`))DEFAULT CHARSET=utf8mb4;";
 
 // ck_bonus
-char sql_createBonus[] = "CREATE TABLE IF NOT EXISTS ck_bonus (steamid VARCHAR(32), name VARCHAR(32), mapname VARCHAR(32), runtime FLOAT NOT NULL DEFAULT '-1.0', zonegroup INT(12) NOT NULL DEFAULT 1, style INT(11) NOT NULL DEFAULT 0, PRIMARY KEY(steamid, mapname, zonegroup, style)) DEFAULT CHARSET=utf8mb4;";
-char sql_createBonusIndex[] = "CREATE INDEX bonusrank ON ck_bonus (mapname,runtime,zonegroup,style);";
-char sql_insertBonus[] = "INSERT INTO ck_bonus (steamid, name, mapname, runtime, zonegroup) VALUES ('%s', '%s', '%s', '%f', '%i')";
-char sql_updateBonus[] = "UPDATE ck_bonus SET runtime = '%f', name = '%s' WHERE steamid = '%s' AND mapname = '%s' AND zonegroup = %i";
+char sql_createBonus[] = "CREATE TABLE IF NOT EXISTS ck_bonus (steamid VARCHAR(32), name VARCHAR(32), mapname VARCHAR(32), runtime FLOAT NOT NULL DEFAULT '-1.0', startspeed INT(11) NOT NULL DEFAULT -1, zonegroup INT(12) NOT NULL DEFAULT 1, style INT(11) NOT NULL DEFAULT 0, PRIMARY KEY(steamid, mapname, zonegroup, style)) DEFAULT CHARSET=utf8mb4;";
+char sql_createBonusIndex[] = "CREATE INDEX bonusrank ON ck_bonus (mapname,runtime,startspeed,zonegroup,style);";
+char sql_insertBonus[] = "INSERT INTO ck_bonus (steamid, name, mapname, runtime, startspeed, zonegroup) VALUES ('%s', '%s', '%s', '%f', '%i', '%i)";
+char sql_updateBonus[] = "UPDATE ck_bonus SET runtime = '%f', startspeed = '%i', name = '%s' WHERE steamid = '%s' AND mapname = '%s' AND zonegroup = %i";
 char sql_selectBonusCount[] = "SELECT zonegroup, style, count(1) FROM ck_bonus WHERE mapname = '%s' GROUP BY zonegroup, style;";
-char sql_selectFastestBonus[] = "SELECT full.name, full.runtime, full.zonegroup, full.style FROM ( SELECT MIN(runtime) AS time, style, mapname, zonegroup FROM ck_bonus WHERE mapname = '%s' GROUP BY zonegroup, style ) as mins INNER JOIN ck_bonus as full ON mins.time = full.runtime AND mins.style = full.style AND mins.mapname = full.mapname AND mins.zonegroup = full.zonegroup;";
+char sql_selectFastestBonus[] = "SELECT full.name, full.runtime, full.zonegroup, full.style, full.startspeed FROM ( SELECT MIN(runtime) AS time, style, mapname, zonegroup FROM ck_bonus WHERE mapname = '%s' GROUP BY zonegroup, style ) as mins INNER JOIN ck_bonus as full ON mins.time = full.runtime AND mins.style = full.style AND mins.mapname = full.mapname AND mins.zonegroup = full.zonegroup;";
 char sql_deleteBonus[] = "DELETE FROM ck_bonus WHERE mapname = '%s'";
 char sql_selectAllBonusTimesinMap[] = "SELECT zonegroup, runtime from ck_bonus WHERE mapname = '%s';";
 char sql_selectTopBonusSurfers[] = "SELECT db2.steamid, db1.name, db2.runtime as overall, db1.steamid, db2.mapname FROM ck_bonus as db2 INNER JOIN ck_playerrank as db1 on db2.steamid = db1.steamid WHERE db2.mapname = '%s' AND db2.style = 0 AND db1.style = 0 AND db2.runtime > -1.0 AND zonegroup = %i ORDER BY overall ASC LIMIT 100;";

@@ -150,9 +150,15 @@ public void db_upgradeDatabase(int ver)
       SQL_FastQuery(g_hDb, "ALTER TABLE ck_playeroptions2 ADD COLUMN hideweapons INT(11) NOT NULL DEFAULT 0 AFTER teleside;");
   }
 
-    if (!SQL_FastQuery(g_hDb, "SELECT startspeed FROM ck_playertimes LIMIT 1"))
+  // @IG database updates
+  if (!SQL_FastQuery(g_hDb, "SELECT startspeed FROM ck_playertimes LIMIT 1"))
   {
       SQL_FastQuery(g_hDb, "ALTER TABLE ck_playertimes ADD COLUMN startspeed INT(11) NOT NULL DEFAULT -1 AFTER runtimepro;");
+  }
+
+  if (!SQL_FastQuery(g_hDb, "SELECT startspeed FROM ck_bonus LIMIT 1"))
+  {
+      SQL_FastQuery(g_hDb, "ALTER TABLE ck_bonus ADD COLUMN startspeed INT(11) NOT NULL DEFAULT -1 AFTER runtime;");
   }
 
   SQL_UnlockDatabase(g_hDb);
@@ -2270,7 +2276,7 @@ public void db_deleteBonus()
 	SQL_TQuery(g_hDb, SQL_deleteBonusCallback, szQuery);
 }
 
-public void db_insertBonus(int client, char szSteamId[32], char szUName[32], float FinalTime, int zoneGrp)
+public void db_insertBonus(int client, char szSteamId[32], char szUName[32], float finalTime, int startSpeed, int zoneGrp)
 {
 	char szQuery[1024];
 	char szName[MAX_NAME_LENGTH * 2 + 1];
@@ -2278,11 +2284,11 @@ public void db_insertBonus(int client, char szSteamId[32], char szUName[32], flo
 	Handle pack = CreateDataPack();
 	WritePackCell(pack, client);
 	WritePackCell(pack, zoneGrp);
-	Format(szQuery, 1024, sql_insertBonus, szSteamId, szName, g_szMapName, FinalTime, zoneGrp);
+	Format(szQuery, 1024, sql_insertBonus, szSteamId, szName, g_szMapName, finalTime, startSpeed, zoneGrp);
 	SQL_TQuery(g_hDb, SQL_updateBonusCallback, szQuery, pack);
 }
 
-public void db_updateBonus(int client, char szSteamId[32], char szUName[32], float FinalTime, int zoneGrp)
+public void db_updateBonus(int client, char szSteamId[32], char szUName[32], float finalTime, int startSpeed, int zoneGrp)
 {
 	char szQuery[1024];
 	char szName[MAX_NAME_LENGTH * 2 + 1];
@@ -2290,7 +2296,7 @@ public void db_updateBonus(int client, char szSteamId[32], char szUName[32], flo
 	WritePackCell(datapack, client);
 	WritePackCell(datapack, zoneGrp);
 	SQL_EscapeString(g_hDb, szUName, szName, MAX_NAME_LENGTH * 2 + 1);
-	Format(szQuery, 1024, sql_updateBonus, FinalTime, szName, szSteamId, g_szMapName, zoneGrp);
+	Format(szQuery, 1024, sql_updateBonus, finalTime, startSpeed, szName, szSteamId, g_szMapName, zoneGrp);
 	SQL_TQuery(g_hDb, SQL_updateBonusCallback, szQuery, datapack);
 }
 
@@ -4051,7 +4057,7 @@ public void db_selectStyleMapTopSurfers(int client, char mapname[128], int style
 }
 
 // Styles for bonuses
-public void db_insertBonusStyle(int client, char szSteamId[32], char szUName[32], float FinalTime, int zoneGrp, int style)
+public void db_insertBonusStyle(int client, char szSteamId[32], char szUName[32], float FinalTime, int startSpeed, int zoneGrp, int style)
 {
 	char szQuery[1024];
 	char szName[MAX_NAME_LENGTH * 2 + 1];
@@ -4060,7 +4066,7 @@ public void db_insertBonusStyle(int client, char szSteamId[32], char szUName[32]
 	WritePackCell(pack, client);
 	WritePackCell(pack, zoneGrp);
 	WritePackCell(pack, style);
-	Format(szQuery, 1024, "INSERT INTO ck_bonus (steamid, name, mapname, runtime, zonegroup, style) VALUES ('%s', '%s', '%s', '%f', '%i', '%i')", szSteamId, szName, g_szMapName, FinalTime, zoneGrp, style);
+	Format(szQuery, 1024, "INSERT INTO ck_bonus (steamid, name, mapname, runtime, startspeed, zonegroup, style) VALUES ('%s', '%s', '%s', '%f', '%i', '%i', '%i')", szSteamId, szName, g_szMapName, FinalTime, startSpeed, zoneGrp, style);
 	SQL_TQuery(g_hDb, SQL_insertBonusStyleCallback, szQuery, pack);
 }
 
@@ -4084,7 +4090,7 @@ public void SQL_insertBonusStyleCallback(Handle owner, Handle hndl, const char[]
 	CalculatePlayerRank(client);*/
 }
 
-public void db_updateBonusStyle(int client, char szSteamId[32], char szUName[32], float FinalTime, int zoneGrp, int style)
+public void db_updateBonusStyle(int client, char szSteamId[32], char szUName[32], float FinalTime, int startSpeed, int zoneGrp, int style)
 {
 	char szQuery[1024];
 	char szName[MAX_NAME_LENGTH * 2 + 1];
@@ -4093,7 +4099,7 @@ public void db_updateBonusStyle(int client, char szSteamId[32], char szUName[32]
 	WritePackCell(datapack, zoneGrp);
 	WritePackCell(datapack, style);
 	SQL_EscapeString(g_hDb, szUName, szName, MAX_NAME_LENGTH * 2 + 1);
-	Format(szQuery, 1024, "UPDATE ck_bonus SET runtime = '%f', name = '%s' WHERE steamid = '%s' AND mapname = '%s' AND zonegroup = %i AND style = %i", FinalTime, szName, szSteamId, g_szMapName, zoneGrp, style);
+	Format(szQuery, 1024, "UPDATE ck_bonus SET runtime = '%f', startspeed = '%i', name = '%s' WHERE steamid = '%s' AND mapname = '%s' AND zonegroup = %i AND style = %i", FinalTime, startSpeed, szName, szSteamId, g_szMapName, zoneGrp, style);
 	SQL_TQuery(g_hDb, SQL_updateBonusStyleCallback, szQuery, datapack);
 }
 

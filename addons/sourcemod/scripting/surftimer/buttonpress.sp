@@ -492,7 +492,7 @@ public void CL_OnEndTimerPress(int client)
 
 			g_tmpBonusCount[zGroup] = g_iBonusCount[zGroup];
 
-			// If the server already has a record
+			// If the server already has a bonus record
 			if (g_iBonusCount[zGroup] > 0)
 			{
 				// New fastest time in current bonus
@@ -500,6 +500,7 @@ public void CL_OnEndTimerPress(int client)
 				{
 					g_fOldBonusRecordTime[zGroup] = g_fBonusFastest[zGroup];
 					g_fBonusFastest[zGroup] = g_fFinalTime[client];
+					g_iRecordBonusStartSpeed[style][zGroup] = g_iStartSpeed[client]; // @IG start speeds (bonus)
 					Format(g_szBonusFastest[zGroup], MAX_NAME_LENGTH, "%s", szName);
 					FormatTimeFloat(1, g_fBonusFastest[zGroup], 3, g_szBonusFastestTime[zGroup], 64);
 
@@ -527,7 +528,7 @@ public void CL_OnEndTimerPress(int client)
 			}
 			else
 			{
-				// Has to be the new record, since it is the first completion
+				// Has to be the new bonus record, since it is the first completion
 				if (GetConVarBool(g_hBonusBot) && !g_bPositionRestored[client] && !g_bNewBonus[client])
 				{
 					g_bNewBonus[client] = true;
@@ -540,6 +541,7 @@ public void CL_OnEndTimerPress(int client)
 
 				g_fOldBonusRecordTime[zGroup] = g_fBonusFastest[zGroup];
 				g_fBonusFastest[zGroup] = g_fFinalTime[client];
+				g_iRecordBonusStartSpeed[style][zGroup] = g_iStartSpeed[client]; // @IG start speeds (bonus)
 				Format(g_szBonusFastest[zGroup], MAX_NAME_LENGTH, "%s", szName);
 				FormatTimeFloat(1, g_fBonusFastest[zGroup], 3, g_szBonusFastestTime[zGroup], 64);
 
@@ -556,28 +558,30 @@ public void CL_OnEndTimerPress(int client)
 				g_fOldBonusRecordTime[zGroup] = g_fBonusFastest[zGroup];
 			}
 
-			// Clients first record
+			// Clients first bonus record
 			if (g_fPersonalRecordBonus[zGroup][client] == 0.0)
 			{
 				g_fPersonalRecordBonus[zGroup][client] = g_fFinalTime[client];
+				g_iPBBonusStartSpeed[style][zGroup][client] = g_iStartSpeed[client]; // @IG start speeds (bonus)
 				FormatTimeFloat(1, g_fPersonalRecordBonus[zGroup][client], 3, g_szPersonalRecordBonus[zGroup][client], 64);
 
 				g_bBonusFirstRecord[client] = true;
 				g_pr_showmsg[client] = true;
 				db_UpdateCheckpoints(client, g_szSteamID[client], zGroup);
-				db_insertBonus(client, g_szSteamID[client], szName, g_fFinalTime[client], zGroup);
+				db_insertBonus(client, g_szSteamID[client], szName, g_fFinalTime[client], g_iStartSpeed[client], zGroup);
 			}
 
 			else if (diff > 0.0)
 			{
-				// client's new record
+				// client's new bonus record
 				g_fPersonalRecordBonus[zGroup][client] = g_fFinalTime[client];
+				g_iPBBonusStartSpeed[style][zGroup][client] = g_iStartSpeed[client]; // @IG start speeds (bonus)
 				FormatTimeFloat(1, g_fPersonalRecordBonus[zGroup][client], 3, g_szPersonalRecordBonus[zGroup][client], 64);
 
 				g_bBonusPBRecord[client] = true;
 				g_pr_showmsg[client] = true;
 				db_UpdateCheckpoints(client, g_szSteamID[client], zGroup);
-				db_updateBonus(client, g_szSteamID[client], szName, g_fFinalTime[client], zGroup);
+				db_updateBonus(client, g_szSteamID[client], szName, g_fFinalTime[client], g_iStartSpeed[client], zGroup);
 			}
 
 
@@ -635,6 +639,7 @@ public void CL_OnEndTimerPress(int client)
 						// New fastest time in current bonus
 						g_fStyleOldBonusRecordTime[style][zGroup] = g_fStyleBonusFastest[style][zGroup];
 						g_fStyleBonusFastest[style][zGroup] = g_fFinalTime[client];
+						g_iRecordBonusStartSpeed[style][zGroup] = g_iStartSpeed[client]; // @IG start speeds (bonus)
 						Format(g_szStyleBonusFastest[style][zGroup], MAX_NAME_LENGTH, "%s", szName); // fluffys come back stopped here
 						FormatTimeFloat(1, g_fStyleBonusFastest[style][zGroup], 3, g_szStyleBonusFastestTime[style][zGroup], 64);
 
@@ -667,6 +672,7 @@ public void CL_OnEndTimerPress(int client)
 					// Has to be the new record, since it is the first completion
 					g_fStyleOldBonusRecordTime[style][zGroup] = g_fStyleBonusFastest[style][zGroup];
 					g_fStyleBonusFastest[style][zGroup] = g_fFinalTime[client];
+					g_iRecordBonusStartSpeed[style][zGroup] = g_iStartSpeed[client]; // @IG start speeds (bonus)
 					Format(g_szStyleBonusFastest[style][zGroup], MAX_NAME_LENGTH, "%s", szName);
 					FormatTimeFloat(1, g_fStyleBonusFastest[style][zGroup], 3, g_szStyleBonusFastestTime[style][zGroup], 64);
 
@@ -679,21 +685,23 @@ public void CL_OnEndTimerPress(int client)
 				if (g_fStylePersonalRecordBonus[style][zGroup][client] == 0.0)
 				{
 					g_fStylePersonalRecordBonus[style][zGroup][client] = g_fFinalTime[client];
+					g_iPBBonusStartSpeed[style][zGroup][client] = g_iStartSpeed[client]; // @IG start speeds (bonus)
 					FormatTimeFloat(1, g_fStylePersonalRecordBonus[style][zGroup][client], 3, g_szStylePersonalRecordBonus[style][zGroup][client], 64);
 
 					g_bBonusFirstRecord[client] = true;
 					g_pr_showmsg[client] = true;
-					db_insertBonusStyle(client, g_szSteamID[client], szName, g_fFinalTime[client], zGroup, style);
+					db_insertBonusStyle(client, g_szSteamID[client], szName, g_fFinalTime[client], g_iStartSpeed[client], zGroup, style);
 				}
 				else if (diff > 0.0)
 				{
 					// client's new record
 					g_fStylePersonalRecordBonus[style][zGroup][client] = g_fFinalTime[client];
+					g_iPBBonusStartSpeed[style][zGroup][client] = g_iStartSpeed[client]; // @IG start speeds (bonus)
 					FormatTimeFloat(1, g_fStylePersonalRecordBonus[style][zGroup][client], 3, g_szStylePersonalRecordBonus[style][zGroup][client], 64);
 
 					g_bBonusPBRecord[client] = true;
 					g_pr_showmsg[client] = true;
-					db_updateBonusStyle(client, g_szSteamID[client], szName, g_fFinalTime[client], zGroup, style);
+					db_updateBonusStyle(client, g_szSteamID[client], szName, g_fFinalTime[client], g_iStartSpeed[client], zGroup, style);
 				}
 
 

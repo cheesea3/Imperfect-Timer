@@ -322,7 +322,6 @@ public void sql_selectMapRecordCallback(Handle owner, Handle hndl, const char[] 
 					FormatTimeFloat(0, g_fRecordMapTime, 3, g_szRecordMapTime, 64);
 					SQL_FetchString(hndl, 1, g_szRecordPlayer, MAX_NAME_LENGTH);
 					SQL_FetchString(hndl, 2, g_szRecordMapSteamID, MAX_NAME_LENGTH);
-					g_iRecordMapStartSpeed[style] = SQL_FetchInt(hndl, 4); // @IG start speeds
 				} else {
 					Format(g_szRecordMapTime, 64, "N/A");
 					g_fRecordMapTime = 9999999.0;
@@ -340,6 +339,8 @@ public void sql_selectMapRecordCallback(Handle owner, Handle hndl, const char[] 
 					g_fRecordStyleMapTime[style] = 9999999.0;
 				}
 			}
+
+			g_iRecordMapStartSpeed[style] = SQL_FetchInt(hndl, 4); // @IG start speeds
 		}
 	} else {
 		Format(g_szRecordMapTime, 64, "N/A");
@@ -418,6 +419,7 @@ public void SQL_selectFastestBonusCallback(Handle owner, Handle hndl, const char
 		{
 			Format(g_szStyleBonusFastestTime[s][i], 64, "N/A");
 			g_fStyleBonusFastest[s][i] = 9999999.0;
+			g_iRecordBonusStartSpeed[s][i] = -1; // @IG start speeds (bonus)
 		}
 	}
 
@@ -442,6 +444,9 @@ public void SQL_selectFastestBonusCallback(Handle owner, Handle hndl, const char
 				g_fStyleBonusFastest[style][zonegroup] = SQL_FetchFloat(hndl, 1);
 				FormatTimeFloat(1, g_fStyleBonusFastest[style][zonegroup], 3, g_szStyleBonusFastestTime[style][zonegroup], 64);
 			}
+
+			// style does matter, its all stored in the same array
+			g_iRecordBonusStartSpeed[style][zonegroup] = SQL_FetchInt(hndl, 4); // @IG start speeds (bonus)
 		}
 	}
 

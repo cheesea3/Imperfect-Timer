@@ -19,7 +19,7 @@ void db_refreshPlayerMapRecords(int client, any cb=0) {
 			0 AS isstage, \
 			runtime, \
 			(SELECT COUNT(*)+1 FROM ck_bonus a WHERE runtime<mytime.runtime AND style=mytime.style AND zonegroup=mytime.zonegroup AND mapname=mytime.mapname) AS rank, \
-			-1 AS startspeed \
+			startspeed \
 		FROM ck_bonus mytime \
 			WHERE steamid = '__steamid__' AND mapname = '__mapname__' AND runtime > 0.0 \
 		UNION ALL SELECT \
@@ -75,8 +75,10 @@ void db_refreshPlayerMapRecordsCb(Handle hndl, const char[] error, int client, a
 		}
 	}
 
-	if (SQL_HasResultSet(hndl)) {
-		while (SQL_FetchRow(hndl)) {
+	if (SQL_HasResultSet(hndl))
+	{
+		while (SQL_FetchRow(hndl))
+		{
 			int style = SQL_FetchInt(hndl, 0);
 			int zgroup = SQL_FetchInt(hndl, 1);
 			bool isStage = view_as<bool>(SQL_FetchInt(hndl, 2));
@@ -84,44 +86,59 @@ void db_refreshPlayerMapRecordsCb(Handle hndl, const char[] error, int client, a
 			int rank = SQL_FetchInt(hndl, 4);
 			int startSpeed = SQL_FetchInt(hndl, 5); // @IG start speeds
 
-			if (isStage) {
+			if (isStage)
+			{
 				g_fWrcpRecord[client][zgroup][style] = time;
-				if (style == 0) {
+
+				if (style == 0)
 					g_StageRank[client][zgroup] = rank;
-				} else {
+				else
 					g_StyleStageRank[style][client][zgroup] = rank;
-				}
-			} else {
+
+			}
+			else
+			{
 				bool print = g_printRecord[client][zgroup][style];
 				g_printRecord[client][zgroup][style] = false;
-				if (zgroup == 0) {
-					if (style == 0) {
+				if (zgroup == 0) // main map
+				{
+					if (style == 0)
+					{
 						g_fPersonalRecord[client] = time;
 						FormatTimeFloat(client, time, 3, g_szPersonalRecord[client], 64);
 						g_MapRank[client] = rank;
-						g_iPBMapStartSpeed[style][client] = startSpeed; // @IG start speeds
-					} else {
+					}
+					else
+					{
 						g_fPersonalStyleRecord[style][client] = time;
 						FormatTimeFloat(client, time, 3, g_szPersonalStyleRecord[style][client], 64);
 						g_StyleMapRank[style][client] = rank;
-						g_iPBMapStartSpeed[style][client] = startSpeed; // @IG start speeds
 					}
-				} else {
-					if (style == 0) {
+
+					g_iPBMapStartSpeed[style][client] = startSpeed; // @IG start speeds
+				}
+				else // bonuses
+				{
+					if (style == 0) // normal
+					{
 						g_fPersonalRecordBonus[zgroup][client] = time;
 						FormatTimeFloat(client, time, 3, g_szPersonalRecordBonus[zgroup][client], 64);
 						g_MapRankBonus[zgroup][client] = rank;
-						if (print) {
+
+						if (print)
 							PrintChatBonus(client, zgroup);
-						}
-					} else {
+					}
+					else // styles
+					{
 						g_fStylePersonalRecordBonus[style][zgroup][client] = time;
 						FormatTimeFloat(client, time, 3, g_szStylePersonalRecordBonus[style][zgroup][client], 64);
 						g_StyleMapRankBonus[style][zgroup][client] = rank;
-						if (print) {
+
+						if (print)
 							PrintChatBonusStyle(client, zgroup, style);
-						}
 					}
+
+					g_iPBBonusStartSpeed[style][zgroup][client] = startSpeed; // @IG start speeds (bonus)
 				}
 			}
 		}

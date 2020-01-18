@@ -1430,8 +1430,8 @@ public Action Event_PlayerJump(Handle event, char[] name, bool dontBroadcast)
 						g_bResetOneJump[client] = false;
 						float time = GetGameTime();
 						float time2 = time - g_fJumpedInZoneTime[client];
-						CPrintToChat(client, "Second Time: %f", time);
-						CPrintToChat(client, "Second Time - First Time = %f", time2);
+						// CPrintToChat(client, "Second Time: %f", time);
+						// CPrintToChat(client, "Second Time - First Time = %f", time2);
 						g_bJumpedInZone[client] = false;
 						if (time2 <= 0.9)
 						{

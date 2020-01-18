@@ -422,8 +422,19 @@ public Action EndTouchTrigger(int caller, int activator)
 			{
 				char szSpeed[64];
 				int style = g_iCurrentStyle[client];
-				int recSpeed = g_iRecordMapStartSpeed[style];
-				int pbSpeed = g_iPBMapStartSpeed[style][client];
+				int recSpeed = 0;
+				int pbSpeed = 0;
+
+				if (g_iClientInZone[client][2] == 0) // in main map iZoneGroup
+				{
+					recSpeed = g_iRecordMapStartSpeed[style];
+					pbSpeed = g_iPBMapStartSpeed[style][client];
+				}
+				else // in bonus
+				{
+					recSpeed = g_iRecordBonusStartSpeed[style][iZoneGroup];
+					pbSpeed = g_iPBBonusStartSpeed[style][iZoneGroup][client];
+				}
 
 				if (pbSpeed > 0) // pb speed exists
 				{
@@ -480,16 +491,24 @@ public Action EndTouchTrigger(int caller, int activator)
 					CL_OnStartTimerPress(client);
 
 				g_iStartSpeed[client] = RoundToNearest(g_fLastSpeed[client]); // store it, will save it if the run is a pb
-				//if (g_iStartSpeed[client] > 0)
-				//	CPrintToChat(client, "%t", "StartSpeed", g_szChatPrefix, g_iStartSpeed[client]);
-
 				int speed = g_iStartSpeed[client];
 				if (speed > 0)
 				{
 					char szSpeed[80];
 					int style = g_iCurrentStyle[client];
-					int recSpeed = g_iRecordMapStartSpeed[style];
-					int pbSpeed = g_iPBMapStartSpeed[style][client];
+					int recSpeed = 0;
+					int pbSpeed = 0;
+
+					if (g_iClientInZone[client][2] == 0) // in main map iZoneGroup
+					{
+						recSpeed = g_iRecordMapStartSpeed[style];
+						pbSpeed = g_iPBMapStartSpeed[style][client];
+					}
+					else // in bonus
+					{
+						recSpeed = g_iRecordBonusStartSpeed[style][iZoneGroup];
+						pbSpeed = g_iPBBonusStartSpeed[style][iZoneGroup][client];
+					}
 
 					if (pbSpeed > 0) // pb speed exists
 					{

@@ -79,6 +79,12 @@ int g_iBonusCount[MAXZONEGROUPS];
 // Does map have a bonus?
 bool g_bhasBonus;
 
+// IG: Record bonus start speeds by style
+int g_iRecordBonusStartSpeed[MAX_STYLES][MAXZONEGROUPS];
+
+// IG: Personal best bonus start speeds by style
+int g_iPBBonusStartSpeed[MAX_STYLES][MAXZONEGROUPS][MAXPLAYERS + 1];
+
 /*----------  Checkpoint Variables  ----------*/
 
 // Clients best run's times
