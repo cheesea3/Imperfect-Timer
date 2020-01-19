@@ -1546,6 +1546,7 @@ public int Handle_CreateOutline(Handle tMenu, MenuAction action, int client, int
 			{
 				g_bStartPointPlaced[client] = false;
 				g_bEndPointPlaced[client] = false;
+				StartOutlineCreation(client);
 			}
 			if (item == 1)
 			{
