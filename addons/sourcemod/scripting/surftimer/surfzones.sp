@@ -784,6 +784,18 @@ public void BeamBox_OnPlayerRunCmd(int client)
 			TE_SendBeamBoxToClient(client, fMins, fMaxs, g_BeamSprite, g_HaloSprite, 0, 30, 1.0, 1.0, 1.0, 2, 0.0, view_as<int>({255, 255, 0, 255}), 0, true);
 		}
 	}
+
+	// @IG outlines
+	if (g_bCreatingOutline[client] && g_bStartPointPlaced[client] && g_bEndPointPlaced[client])
+	{
+		for (int i = 1; i < MAXPLAYERS + 1; i++)
+		{
+			if (!IsValidClient)
+				continue;
+
+			TE_SendBeamLineToClient(i, g_fOutlineStartPos[client], g_fOutlineEndPos[client], g_BeamSprite, g_HaloSprite, 0, 30, 0.25, 0.8, 0.8, 1, 0.0, g_outlineBeamColor, 0, true);
+		}
+	}
 }
 
 #define WALL_BEAMBOX_OFFSET_UNITS 2.0
@@ -833,6 +845,36 @@ stock void TE_SendBeamBoxToClient(int client, float uppercorner[3], float bottom
 	}
 }
 
+stock void TE_SendBeamLineToClient(int client, float start[3], float end[3], int modelIndex, int haloIndex, int startFrame, int frameRate, float life, float width, float endWidth, int fadeLength, float amplitude, const int color[4], int speed, bool full)
+{
+	float points[2][3];
+	Array_Copy(start, points[0], 3);
+	Array_Copy(end, points[1], 3);
+
+	// Calculate mins
+	float min[3];
+	for (int i = 0; i < 3; i++) {
+		min[i] = points[0][i];
+		if (points[1][i] < min[i])
+			min[i] = points[1][i];
+	}
+
+	// Pull points in by 1 unit to prevent them being hidden inside the ground / walls / ceiling
+	for (int j = 0; j < 3; j++) {
+		for (int i = 0; i < 2; i++) {
+			if (points[i][j] == min[j])
+				points[i][j] += WALL_BEAMBOX_OFFSET_UNITS;
+			else
+				points[i][j] -= WALL_BEAMBOX_OFFSET_UNITS;
+		}
+
+		min[j] += WALL_BEAMBOX_OFFSET_UNITS;
+	}
+
+	TE_SetupBeamPoints(points[0], points[1], modelIndex, haloIndex, startFrame, frameRate, life, width, endWidth, fadeLength, amplitude, color, speed);
+	TE_SendToClient(client);
+}
+
 // !zones menu starts here
 public void ZoneMenu(int client)
 {
@@ -849,6 +891,7 @@ public void ZoneMenu(int client)
 		ckZoneMenu.AddItem("", "Save Zones");
 		ckZoneMenu.AddItem("", "Edit Zone Settings");
 		ckZoneMenu.AddItem("", "Reload Zones");
+		ckZoneMenu.AddItem("", "Outlines");
 		ckZoneMenu.ExitButton = true;
 		ckZoneMenu.Display(client, MENU_TIME_FOREVER);
 	}
@@ -893,6 +936,12 @@ public int Handle_ZoneMenu(Handle tMenu, MenuAction action, int client, int item
 					CPrintToChat(client, "%t", "SurfZones3", g_szChatPrefix);
 					resetSelection(client);
 					ZoneMenu(client);
+				}
+				case 5:
+				{
+					// Outlines
+					OutlineMenu(client);
+					//OutlineSettings(client);
 				}
 			}
 		}
@@ -1396,6 +1445,128 @@ public int Handle_SelectNormalZoneType(Handle tMenu, MenuAction action, int clie
 	}
 }
 
+// @IG outlines
+public void OutlineMenu(int client)
+{
+	if (!IsValidClient(client))
+		return;
+
+	if (IsPlayerZoner(client))
+	{
+		resetSelection(client);
+		Menu outlineMenu = new Menu(Handle_OutlineMenu);
+		outlineMenu.SetTitle("Outlines");
+		outlineMenu.AddItem("", "Create Outlines");
+		outlineMenu.AddItem("", "Delete Outlines");
+
+		if (GetConVarBool(g_hShowOutlines))
+			outlineMenu.AddItem("", "Hide Outlines");
+		else
+			outlineMenu.AddItem("", "Show Outlines");
+
+		outlineMenu.ExitButton = true;
+		outlineMenu.Display(client, MENU_TIME_FOREVER);
+	}
+	else
+		CPrintToChat(client, "%t", "NoZoneAccess", g_szChatPrefix);
+}
+
+public int Handle_OutlineMenu(Handle tMenu, MenuAction action, int client, int item)
+{
+	switch (action)
+	{
+		case MenuAction_Select:
+		{
+			switch (item)
+			{
+				case 0: CreateOutlineMenu(client); // create new outlines
+				//case 1: EditOutlineGroup(client); // edit existing outlines
+				case 2: // toggle outlines
+				{
+					SetConVarBool(g_hShowOutlines, !GetConVarBool(g_hShowOutlines));
+					OutlineMenu(client);
+				}
+			}
+		}
+
+		case MenuAction_End: delete tMenu;
+	}
+}
+
+public void CreateOutlineMenu(int client)
+{
+	if (!IsValidClient(client))
+		return;
+
+	Menu createOutlineMenu = new Menu(Handle_CreateOutlineMenu);
+	createOutlineMenu.SetTitle("Select outline style");
+	createOutlineMenu.AddItem("", "Line");
+	createOutlineMenu.AddItem("", "Box");
+
+	createOutlineMenu.ExitButton = true;
+	createOutlineMenu.Display(client, MENU_TIME_FOREVER);
+}
+
+public int Handle_CreateOutlineMenu(Handle tMenu, MenuAction action, int client, int item)
+{
+	switch (action)
+	{
+		case MenuAction_Select:
+		{
+			StartOutlineCreation(client); // item == 0: line creation, 1: box creation
+			g_iOutlineStyle[client] = item;
+		}
+
+		case MenuAction_Cancel: OutlineMenu(client);
+		case MenuAction_End: delete tMenu;
+	}
+}
+
+public void StartOutlineCreation(int client)
+{
+	if (!IsValidClient(client))
+		return;
+
+	Menu createOutline = new Menu(Handle_CreateOutline);
+	createOutline.SetTitle("Outline Creation\nLeft click to place start position\nRight click to place end position\n");
+	g_bCreatingOutline[client] = true;
+	createOutline.AddItem("", "Reset");
+	createOutline.AddItem("", "Save");
+	//createOutline.ExitButton = true;
+	createOutline.Display(client, MENU_TIME_FOREVER);
+}
+
+public int Handle_CreateOutline(Handle tMenu, MenuAction action, int client, int item)
+{
+	switch (action)
+	{
+		case MenuAction_Select:
+		{
+			if (item == 0)
+			{
+				g_bStartPointPlaced[client] = false;
+				g_bEndPointPlaced[client] = false;
+			}
+			if (item == 1)
+			{
+				// save
+			}
+		}
+		case MenuAction_Cancel:
+		{
+			g_bCreatingOutline[client] = false;
+			g_iOutlineStyle[client] = 0;
+			OutlineMenu(client);//CreateOutlineMenu(client);
+		}
+		case MenuAction_End:
+		{
+			g_bCreatingOutline[client] = false;
+			g_iOutlineStyle[client] = 0;
+			OutlineMenu(client);//delete tMenu;
+		}
+	}
+}
+
 public void ZoneSettings(int client)
 {
 	Menu ZoneSettingMenu = new Menu(Handle_ZoneSettingMenu);
@@ -1422,7 +1593,6 @@ public int Handle_ZoneSettingMenu(Handle tMenu, MenuAction action, int client, i
 {
 	switch (action)
 	{
-
 		case MenuAction_Select:
 		{
 			switch (item)

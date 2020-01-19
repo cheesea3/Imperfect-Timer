@@ -140,6 +140,9 @@
 // Maximum amount of zones in a map
 #define MAXZONES 128
 
+#define MAX_OUTLINE_LINES 100; // max outlines per map
+#define MAX_OUTLINE_BOXES 30;
+
 // Ranking Definitions
 #define MAX_PR_PLAYERS 1066
 #define MAX_SKILLGROUPS 64

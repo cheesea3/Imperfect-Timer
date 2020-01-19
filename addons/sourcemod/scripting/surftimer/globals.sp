@@ -373,7 +373,7 @@ float g_AvaliableScales[5] = { 1.0, 5.0, 10.0, 50.0, 100.0 };
 // Currently selected zonegroup
 int g_CurrentSelectedZoneGroup[MAXPLAYERS + 1];
 
-// Currenyly selected zone's type
+// Currently selected zone's type
 int g_CurrentZoneType[MAXPLAYERS + 1];
 
 // What state of editing is happening eg. editing, creating etc.
@@ -394,8 +394,8 @@ int g_CurrentZoneTypeId[MAXPLAYERS + 1];
 // Is client renaming zone?
 bool g_ClientRenamingZone[MAXPLAYERS + 1];
 
-// Zone team colors
-int beamColorEdit[] = { 255, 255, 0, 255 };
+// Zone beam colors
+int beamColorEdit[] = { 255, 255, 0, 210 };
 int beamColorOther[] = { 255, 255, 255, 128 };
 
 // Zone Default Names
@@ -404,6 +404,34 @@ char g_szZoneDefaultNames[ZONEAMOUNT][128] = { "Stop", "Start", "End", "Stage", 
 // Zone sprites
 int g_BeamSprite;
 int g_HaloSprite;
+
+/*----------  @IG Outlines  ----------*/
+// Is the player is in outline creation mode?
+bool g_bCreatingOutline[MAXPLAYERS + 1];
+
+// What style is the outline creator using? 1 = line, 2 = box
+int g_iOutlineStyle[MAXPLAYERS + 1];
+
+// Has the start point been created?
+bool g_bStartPointPlaced[MAXPLAYERS + 1];
+
+// Has the end point been created?
+bool g_bEndPointPlaced[MAXPLAYERS + 1];
+
+// Outline start position
+float g_fOutlineStartPos[MAXPLAYERS + 1][3];
+
+// Outline end position
+float g_fOutlineEndPos[MAXPLAYERS + 1][3];
+
+// Outline colour (white)
+int g_outlineBeamColor[] = { 255, 255, 255, 200 };
+
+int g_iOutlineBoxCount;
+int g_iOutlineLineCount;
+
+//float g_vOutlineBoxes[MAX_OUTLINE_BOXES][2][3];
+//float g_vOutlineLines[MAX_OUTLINE_LINES][2][3];
 
 /*----------  PushFix by Mev, George & Blacky  ----------*/
 // https://forums.alliedmods.net/showthread.php?t=267131
@@ -1041,7 +1069,7 @@ int g_SelectedStyle[MAXPLAYERS + 1];
 int g_SelectedType[MAXPLAYERS + 1];
 
 char g_EditTypes[][] =  { "Main", "Stage", "Bonus" };
-char g_EditStyles[][] =  { "Normal", "Sideways", "Half-Sideways", "Backwards", "Low-Gravity", "Slow Motion", "Fast Forward"};
+char g_EditStyles[][] =  { "Normal", "Sideways", "Half-Sideways", "Backwards", "Low Gravity", "Slow Motion", "Fast Forward"};
 
 // Checkpoint/Stage enforcer
 int g_iTotalCheckpoints;
