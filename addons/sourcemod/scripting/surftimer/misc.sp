@@ -3648,12 +3648,6 @@ public void Checkpoint(int client, int zone, int zonegroup, float time)
 	// Has completed the map before
 	if (g_bCheckpointsFound[zonegroup][client] && g_bTimerRunning[client] && !g_bPracticeMode[client] && g_fCheckpointTimesRecord[zonegroup][client][zone] > 0.1)
 	{
-		// Set percent of completion to assist
-		if (CS_GetMVPCount(client) < 1)
-			CS_SetClientAssists(client, RoundToFloor(g_fMaxPercCompleted[client]));
-		else
-			CS_SetClientAssists(client, 100);
-
 		// Own record difference
 		float diff = (g_fCheckpointTimesRecord[zonegroup][client][zone] - time);
 		char szDiff[32];
@@ -3734,12 +3728,6 @@ public void Checkpoint(int client, int zone, int zonegroup, float time)
 	else // if first run
 		if (g_bTimerRunning[client] && !g_bPracticeMode[client])
 		{
-			// Set percent of completion to assist
-			if (CS_GetMVPCount(client) < 1)
-				CS_SetClientAssists(client, RoundToFloor(g_fMaxPercCompleted[client]));
-			else
-				CS_SetClientAssists(client, 100);
-
 			char szTime[32];
 			FormatTimeFloat(client, time, 3, szTime, 32);
 

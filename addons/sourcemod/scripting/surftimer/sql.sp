@@ -1139,6 +1139,11 @@ public void db_updatePoints(int client, int style)
 			SQL_TQuery(g_hDb, sql_updatePlayerRankPointsCallback, szQuery, pack);
 		}
 	}
+
+	if (style == 0 && IsValidClient(client))
+	{
+		CS_SetClientAssists(client, g_pr_finishedmaps[client][0]);
+	}
 }
 
 // 7. Calculations done, if calculating all, move forward, if not announce changes.

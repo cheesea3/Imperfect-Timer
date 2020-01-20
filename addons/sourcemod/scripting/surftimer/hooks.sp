@@ -158,6 +158,8 @@ public Action Event_OnPlayerSpawn(Handle event, const char[] name, bool dontBroa
 		else if (client == g_WrcpBot)
 			CS_SetClientClanTag(client, "WRCP Replay");
 
+		CS_SetClientContributionScore(client, -99999);
+
 		if (client == g_RecordBot || client == g_BonusBot || client == g_WrcpBot)
 		{
 			// Disabling noclip, makes the bot bug, look into later

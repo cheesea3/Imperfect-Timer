@@ -228,30 +228,6 @@ public Action CKTimer2(Handle timer)
 
 		SetClanTag(i);
 
-		// Scoreboard
-		if (!g_bPause[i])
-		{
-			float fltime;
-			fltime = GetGameTime() - g_fStartTime[i] - g_fPauseTime[i] + 1.0;
-			if (IsPlayerAlive(i) && g_bTimerRunning[i])
-			{
-				int time;
-				time = RoundToZero(fltime);
-				Client_SetScore(i, time);
-			}
-			else
-			{
-				Client_SetScore(i, 0);
-			}
-
-			if (IsFakeClient(i))
-				CS_SetClientContributionScore(i, -99999);
-			else if (g_pr_AllPlayers[0] < g_PlayerRank[i][0])
-				CS_SetClientContributionScore(i, -99998);
-			else
-				CS_SetClientContributionScore(i, -g_PlayerRank[i][0]);
-		}
-
 		if (IsPlayerAlive(i))
 		{
 			// spec hud

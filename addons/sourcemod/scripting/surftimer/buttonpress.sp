@@ -447,7 +447,6 @@ public void CL_OnEndTimerPress(int client)
 						}
 					}
 				}
-				CS_SetClientAssists(client, 100);
 			}
 		}
 	}
