@@ -1181,12 +1181,12 @@ char g_szRainbowGradient[][] =
 char g_szStyleRecordPrint[][] =
 {
 	"",
-	"* Sideways *",
-	"* Half-Sideways *",
-	"* Backwards *",
-	"* Low-Gravity *",
-	"* Slow Motion *",
-	"* Fast Forward *"
+	"Sideways",
+	"Half-Sideways",
+	"Backwards",
+	"Low Gravity",
+	"Slow Motion",
+	"Fast Forward"
 };
 
 char g_szStyleMenuPrint[][] =

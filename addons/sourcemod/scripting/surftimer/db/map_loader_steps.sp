@@ -60,18 +60,8 @@ public void SQL_SelectOutlinesCallback(Handle owner, Handle hndl, const char[] e
 		while (SQL_FetchRow(hndl))
 		{
 			MapOutline outline;
-			int id = SQL_FetchInt(hndl, 0);
-			int type = SQL_FetchInt(hndl, 1);
-
-			if (type == 0)
-				outline = g_outlineLines[g_iOutlineLineCount];
-			else if (type == 1)
-				outline = g_outlineBoxes[g_iOutlineBoxCount];
-			else
-				continue; // this shouldn't happen, but just in case
-
-			outline.id = id;
-			outline.type = type;
+			outline.id = SQL_FetchInt(hndl, 0);
+			outline.type = SQL_FetchInt(hndl, 1);
 			outline.startPos[0] = SQL_FetchFloat(hndl, 2);
 			outline.startPos[1] = SQL_FetchFloat(hndl, 3);
 			outline.startPos[2] = SQL_FetchFloat(hndl, 4);
@@ -79,7 +69,7 @@ public void SQL_SelectOutlinesCallback(Handle owner, Handle hndl, const char[] e
 			outline.endPos[1] = SQL_FetchFloat(hndl, 6);
 			outline.endPos[2] = SQL_FetchFloat(hndl, 7);
 
-			if (type == 1)
+			if (outline.type == 1)
 			{
 				// Center point
 				float posA[3], posB[3], result[3];
@@ -95,14 +85,18 @@ public void SQL_SelectOutlinesCallback(Handle owner, Handle hndl, const char[] e
 					g_vOutlineBoxCorners[g_iOutlineBoxCount][0][i] = outline.startPos[i];
 					g_vOutlineBoxCorners[g_iOutlineBoxCount][7][i] = outline.endPos[i];
 				}
-			}
 
-			// Update counts
-			if (type == 0)
-				g_iOutlineLineCount++;
-			else if (type == 1)
+				g_outlineBoxes[g_iOutlineBoxCount] = outline;
 				g_iOutlineBoxCount++;
+			}
+			else if (outline.type == 0)
+			{
+				g_outlineLines[g_iOutlineLineCount] = outline;
+				g_iOutlineLineCount++;
+			}
 		}
+
+
 
 		// Zone corners
 		for (int x = 0; x < g_iOutlineBoxCount; x++)
@@ -110,6 +104,7 @@ public void SQL_SelectOutlinesCallback(Handle owner, Handle hndl, const char[] e
 				for(int j = 0; j < 3; j++)
 					g_vOutlineBoxCorners[x][i][j] = g_vOutlineBoxCorners[x][((i >> (2-j)) & 1) * 7][j];
 	}
+	CPrintToChatAll("Found %i total outlines", g_iOutlineLineCount + g_iOutlineBoxCount);
 
 	RunCallback(cb);
 }

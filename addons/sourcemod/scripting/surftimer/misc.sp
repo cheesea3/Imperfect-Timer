@@ -3822,20 +3822,20 @@ stock void StyleFinishedMsgs(int client, int style)
 				{
 					if (g_bStyleMapFirstRecord[style][client]) // 1st time finishing
 					{
-						CPrintToChat(i, "%t", "Misc34", g_szChatPrefix, szName, g_szStyleRecordPrint[style], g_szFinalTime[client], g_StyleMapRank[style][client], count, g_szRecordStyleMapTime[style]);
+						CPrintToChat(i, "%t", "FirstMapPB", g_szChatPrefix, szName, g_szStyleRecordPrint[style], g_szFinalTime[client], g_StyleMapRank[style][client], count, g_szRecordStyleMapTime[style]);
 					}
 					else
 					if (g_bStyleMapPBRecord[style][client]) // Own record
 					{
 						PlayUnstoppableSound(client);
-						CPrintToChat(i, "%t", "Misc35", g_szChatPrefix, szName, g_szStyleRecordPrint[style], g_szFinalTime[client], g_szTimeDifference[client], g_StyleMapRank[style][client], count, g_szRecordStyleMapTime[style]);
+						CPrintToChat(i, "%t", "NewMapPB", g_szChatPrefix, szName, g_szStyleRecordPrint[style], g_szFinalTime[client], g_szTimeDifference[client], g_StyleMapRank[style][client], count, g_szRecordStyleMapTime[style]);
 					}
 
 					if (g_bStyleMapSRVRecord[style][client])
 					{
 						// int r = GetRandomInt(1, 2);
 						PlayRecordSound(2);
-						CPrintToChat(i, "%t", "Misc36", g_szChatPrefix, szName, g_szStyleRecordPrint[style]);
+						CPrintToChat(i, "%t", "NewMapServerRecord", g_szChatPrefix, szName, g_szStyleRecordPrint[style]);
 					}
 				}
 			}
@@ -3848,13 +3848,13 @@ stock void StyleFinishedMsgs(int client, int style)
 				{
 					// int r = GetRandomInt(1, 2);
 					PlayRecordSound(2);
-					CPrintToChat(i, "%t", "Misc36", g_szChatPrefix, szName, g_szStyleRecordPrint[style]);
+					CPrintToChat(i, "%t", "NewMapServerRecord", g_szChatPrefix, szName, g_szStyleRecordPrint[style]);
 				}
 			}
 		}
 
 		if (g_StyleMapRank[style][client] == 99999 && IsValidClient(client))
-			CPrintToChat(client, "%t", "Misc19", g_szChatPrefix);
+			CPrintToChat(client, "%t", "PlayerSaveFailure", g_szChatPrefix);
 
 		CalculatePlayerRank(client, style);
 		return;
@@ -3884,7 +3884,7 @@ stock void PrintChatBonusStyle (int client, int zGroup, int style, int rank = 0)
 	}
 	if (g_bBonusFirstRecord[client] && g_bBonusSRVRecord[client])
 	{
-		CPrintToChatAll("%t", "Misc37", g_szChatPrefix, szName, g_szZoneGroupName[zGroup], g_szStyleRecordPrint[style]);
+		CPrintToChatAll("%t", "NewBonusServerRecord", g_szChatPrefix, szName, g_szZoneGroupName[zGroup], g_szStyleRecordPrint[style]);
 		if (g_tmpBonusCount[zGroup] == 0)
 			CPrintToChatAll("%t", "Misc38", g_szChatPrefix, szName, g_szZoneGroupName[zGroup], g_szStyleRecordPrint[style], g_szFinalTime[client], g_szFinalTime[client]);
 		else

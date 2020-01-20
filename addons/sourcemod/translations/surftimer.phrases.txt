@@ -1178,7 +1178,7 @@
 		"#format"	"{1:s},{2:s},{3:s},{4:s},{5:s}"
 		"en"		"{1} {yellow}{2} {default}holds the {red}fast forward {orange}{3} {default}record with time: {lightgreen}{4} {default}on {blue}{5}"
 	}
-	"Misc19"
+	"PlayerSaveFailure"
 	{
 		"#format"	"{1:s}"
 		"en"		"{1} {darkred}Failed to save your data correctly! Please contact an admin"
@@ -1263,22 +1263,22 @@
 		"#format"	"{1:s},{2:s},{3:i},{4:s},{5:s}"
 		"en"		"{1} {yellow}{2} {default}| CP [{lightgreen}{3}{default}]: {lightgreen}{4} {default}[PB: {lightgreen}N/A{default} | {5}{default}]"
 	}
-	"Misc34"
+	"FirstMapPB"
 	{
 		"#format"	"{1:s},{2:s},{3:s},{4:s},{5:i},{6:i},{7:s}"
-		"en"		"{1} {yellow}{2}{default} finished {red}{3} {default}in [{lightgreen}{4}{default}]. [Rank: {lightgreen}{5}/{6} {default}| Record: {lightgreen}{7}{default}"
+		"en"		"{1} {yellow}{2}{default} finished {red}{3} {default}in [{lightgreen}{4}{default}]. [Rank: {lightgreen}{5}/{6} {default}| SR: {lightgreen}{7}{default}]"
 	}
-	"Misc35"
+	"NewMapPB"
 	{
 		"#format"	"{1:s},{2:s},{3:s},{4:s},{5:s},{6:i},{7:i},{8:s}"
-		"en"		"{1} {yellow}{2}{default} finished {red}{3} {default}in [{lightgreen}{4}{default}]. Improving their best time by [{lightgreen}{5}{default}]. [Rank: {lightgreen}{6}/{7} {default}| Record: {lightgreen}{8}{default}]"
+		"en"		"{1} {yellow}{2}{default} finished {red}{3} {default}in [{lightgreen}{4}{default}]. Improving their best time by [{lightgreen}{5}{default}]. [Rank: {lightgreen}{6}/{7} {default}| SR: {lightgreen}{8}{default}]"
 	}
-	"Misc36"
+	"NewMapServerRecord"
 	{
 		"#format"	"{1:s},{2:s},{3:s}"
 		"en"		"{1} {yellow}{2}{default} beat the {red}{3} {default}map record!"
 	}
-	"Misc37"
+	"NewBonusServerRecord"
 	{
 		"#format"	"{1:s},{2:s},{3:s},{4:s}"
 		"en"		"{1} {yellow}{2}{default} beat the [{orange}{3}{default}] {red}{4} {default}record!"

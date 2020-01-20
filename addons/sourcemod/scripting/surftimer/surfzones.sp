@@ -661,7 +661,7 @@ public Action ThrottledBeamBoxAll(Handle timer, int i) {
 	getZoneDisplayColor(iZoneType, zColor, iZoneGroup);
 
 	for (int p = 1; p <= MaxClients; p++) {
-		if (!IsValidClient(p) || IsFakeClient(p)) {
+		if (!IsClientInGame(p) || IsFakeClient(p)) {
 			continue;
 		}
 		if (g_ClientSelectedZone[p] == i) {
@@ -696,7 +696,29 @@ public Action ThrottledBeamBoxAll(Handle timer, int i) {
 		TE_SendBeamBoxToClient(p, buffer_a, buffer_b, g_BeamSprite, g_HaloSprite, 0, 30, ZONE_REFRESH_TIME, 1.0, 1.0, 2, 0.0, zColor, 0, full);
 	}
 
-	CreateTimer(0.1, ThrottledBeamBoxAll, i + 1);
+	CreateTimer(0.1, ThrottledBeamBoxAll);
+}
+
+public Action OutlineBeamsAll(Handle timer, any data)
+{
+	ThrottledOutlineBeamsAll(INVALID_HANDLE);
+}
+
+public Action ThrottledOutlineBeamsAll(Handle timer)
+{
+	// @IG Outlines
+	for (int i = 1; i <= MAXPLAYERS; i++)
+	{
+		if (!IsClientInGame(i) || IsFakeClient(i))
+			continue;
+
+		for (int k = 0; k < g_iOutlineLineCount; k++)
+		{
+			TE_SendBeamLineToClient(i, g_outlineLines[k].startPos, g_outlineLines[k].endPos, g_BeamSprite, g_HaloSprite, 0, 30, ZONE_REFRESH_TIME, 1.0, 1.0, 2, 0.0, g_outlineBeamColor, 0);
+		}
+	}
+
+	CreateTimer(0.1, ThrottledOutlineBeamsAll);
 }
 
 public void getZoneDisplayColor(int type, int zColor[4], int zGrp)
@@ -788,13 +810,7 @@ public void BeamBox_OnPlayerRunCmd(int client)
 	// @IG outlines
 	if (g_bCreatingOutline[client] && g_bStartPointPlaced[client] && g_bEndPointPlaced[client])
 	{
-		for (int i = 1; i <= MAXPLAYERS; i++)
-		{
-			if (!IsValidClient(i) || IsFakeClient(i))
-				continue;
-
-			TE_SendBeamLineToClient(i, g_fOutlineStartPos[client], g_fOutlineEndPos[client], g_BeamSprite, g_HaloSprite, 0, 30, 0.25, 0.8, 0.8, 1, 0.0, g_outlineBeamColor, 0, true);
-		}
+		TE_SendBeamLineToClient(client, g_fOutlineStartPos[client], g_fOutlineEndPos[client], g_BeamSprite, g_HaloSprite, 0, 30, 0.1, 0.8, 0.8, 1, 0.0, g_outlineBeamColor, 0);
 	}
 }
 
@@ -834,10 +850,14 @@ stock void TE_SendBeamBoxToClient(int client, float uppercorner[3], float bottom
 
 	// Send beams to client
 	// https://forums.alliedmods.net/showpost.php?p=2006539&postcount=8
-	for (int i = 0, i2 = 3; i2 >= 0; i+=i2--) {
-		for(int j = 1; j <= 7; j += (j / 2) + 1) {
-			if (j != 7-i) {
-				if (!full && (corners[i][2] != min[2] || corners[j][2] != min[2])) continue;
+	for (int i = 0, i2 = 3; i2 >= 0; i+=i2--)
+	{
+		for(int j = 1; j <= 7; j += (j / 2) + 1)
+		{
+			if (j != 7-i)
+			{
+				if (!full && (corners[i][2] != min[2] || corners[j][2] != min[2]))
+					continue;
 				TE_SetupBeamPoints(corners[i], corners[j], ModelIndex, HaloIndex, StartFrame, FrameRate, Life, Width, EndWidth, FadeLength, Amplitude, Color, Speed);
 				TE_SendToClient(client);
 			}
@@ -845,8 +865,11 @@ stock void TE_SendBeamBoxToClient(int client, float uppercorner[3], float bottom
 	}
 }
 
-stock void TE_SendBeamLineToClient(int client, float start[3], float end[3], int modelIndex, int haloIndex, int startFrame, int frameRate, float life, float width, float endWidth, int fadeLength, float amplitude, const int color[4], int speed, bool full)
+stock void TE_SendBeamLineToClient(int client, float start[3], float end[3], int modelIndex, int haloIndex, int startFrame, int frameRate, float life, float width, float endWidth, int fadeLength, float amplitude, const int color[4], int speed)
 {
+	if (!IsClientInGame(client) || IsFakeClient(client))
+		return;
+
 	float points[2][3];
 	Array_Copy(start, points[0], 3);
 	Array_Copy(end, points[1], 3);
@@ -2056,12 +2079,12 @@ public int MenuHandler_Scale(Handle tMenu, MenuAction action, int client, int it
 					else
 						g_ClientSelectedPoint[client] = 1;
 				}
-				case 1:	g_Positions[client][g_ClientSelectedPoint[client]][0] = FloatAdd(g_Positions[client][g_ClientSelectedPoint[client]][0], g_AvaliableScales[g_ClientSelectedScale[client]]);
-				case 2: g_Positions[client][g_ClientSelectedPoint[client]][0] = FloatSub(g_Positions[client][g_ClientSelectedPoint[client]][0], g_AvaliableScales[g_ClientSelectedScale[client]]);
-				case 3: g_Positions[client][g_ClientSelectedPoint[client]][1] = FloatAdd(g_Positions[client][g_ClientSelectedPoint[client]][1], g_AvaliableScales[g_ClientSelectedScale[client]]);
-				case 4:	g_Positions[client][g_ClientSelectedPoint[client]][1] = FloatSub(g_Positions[client][g_ClientSelectedPoint[client]][1], g_AvaliableScales[g_ClientSelectedScale[client]]);
-				case 5:	g_Positions[client][g_ClientSelectedPoint[client]][2] = FloatAdd(g_Positions[client][g_ClientSelectedPoint[client]][2], g_AvaliableScales[g_ClientSelectedScale[client]]);
-				case 6:	g_Positions[client][g_ClientSelectedPoint[client]][2] = FloatSub(g_Positions[client][g_ClientSelectedPoint[client]][2], g_AvaliableScales[g_ClientSelectedScale[client]]);
+				case 1:	g_Positions[client][g_ClientSelectedPoint[client]][0] = g_Positions[client][g_ClientSelectedPoint[client]][0] + g_AvaliableScales[g_ClientSelectedScale[client]];
+				case 2: g_Positions[client][g_ClientSelectedPoint[client]][0] = g_Positions[client][g_ClientSelectedPoint[client]][0] - g_AvaliableScales[g_ClientSelectedScale[client]];
+				case 3: g_Positions[client][g_ClientSelectedPoint[client]][1] = g_Positions[client][g_ClientSelectedPoint[client]][1] + g_AvaliableScales[g_ClientSelectedScale[client]];
+				case 4:	g_Positions[client][g_ClientSelectedPoint[client]][1] = g_Positions[client][g_ClientSelectedPoint[client]][1] - g_AvaliableScales[g_ClientSelectedScale[client]];
+				case 5:	g_Positions[client][g_ClientSelectedPoint[client]][2] = g_Positions[client][g_ClientSelectedPoint[client]][2] + g_AvaliableScales[g_ClientSelectedScale[client]];
+				case 6:	g_Positions[client][g_ClientSelectedPoint[client]][2] = g_Positions[client][g_ClientSelectedPoint[client]][2] - g_AvaliableScales[g_ClientSelectedScale[client]];
 				case 7:
 				{
 					++g_ClientSelectedScale[client];

@@ -2343,7 +2343,7 @@ public void DB_InsertOutline(MapOutline outline)
 	char szQuery[1024];
 
 	// INSERT INTO `ck_outlines` (mapname, id, type, pointa_x, pointa_y, pointa_z, pointb_x, pointb_y, pointb_z, name) VALUES ('%s', '%i', '%i', '%f', '%f', '%f', '%f', '%f', '%f')
-	Format(szQuery, 1024, sql_insertOutline, g_szMapName, outline.id, outline.type, outline.startPos[0], outline.startPos[1], outline.startPos[2], outline.endPos[0], outline.endPos[0], outline.endPos[0]);
+	Format(szQuery, 1024, sql_insertOutline, g_szMapName, outline.id, outline.type, outline.startPos[0], outline.startPos[1], outline.startPos[2], outline.endPos[0], outline.endPos[1], outline.endPos[2]);
 	SQL_TQuery(g_hDb, SQL_InsertOutlineCallback, szQuery);
 }
 
