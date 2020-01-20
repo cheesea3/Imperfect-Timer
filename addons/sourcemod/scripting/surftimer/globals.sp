@@ -409,7 +409,7 @@ int g_HaloSprite;
 // Is the player is in outline creation mode?
 bool g_bCreatingOutline[MAXPLAYERS + 1];
 
-// What style is the outline creator using? 1 = line, 2 = box
+// What style is the outline creator using? 0 = line, 1 = box
 int g_iOutlineStyle[MAXPLAYERS + 1];
 
 // Has the start point been created?
@@ -429,6 +429,7 @@ int g_outlineBeamColor[] = { 255, 255, 255, 200 };
 
 int g_iOutlineBoxCount;
 int g_iOutlineLineCount;
+int g_iTotalOutlines;
 
 MapOutline g_outlineLines[MAX_OUTLINE_LINES];
 MapOutline g_outlineBoxes[MAX_OUTLINE_BOXES];

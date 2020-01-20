@@ -619,9 +619,9 @@ public void DrawBeamBox(int client) {
 }
 
 public Action BeamBox(Handle timer, int client) {
-	if (IsClientInGame(client)) {
+	if (IsValidClient(client)) {
 		if (g_Editing[client] == 2) {
-			TE_SendBeamBoxToClient(client, g_Positions[client][1], g_Positions[client][0], g_BeamSprite, g_HaloSprite, 0, 30, 1.0, 1.0, 1.0, 2, 0.0, beamColorEdit, 0, true);
+			TE_SendBeamBoxToClient(client, g_Positions[client][1], g_Positions[client][0], g_BeamSprite, g_HaloSprite, 0, BEAM_FRAMERATE, 1.0, 1.0, 1.0, 1, 0.0, beamColorEdit, 0, true);
 			return Plugin_Continue;
 		}
 	}
@@ -661,7 +661,7 @@ public Action ThrottledBeamBoxAll(Handle timer, int i) {
 	getZoneDisplayColor(iZoneType, zColor, iZoneGroup);
 
 	for (int p = 1; p <= MaxClients; p++) {
-		if (!IsClientInGame(p) || IsFakeClient(p)) {
+		if (!IsValidClient(p) || IsFakeClient(p)) {
 			continue;
 		}
 		if (g_ClientSelectedZone[p] == i) {
@@ -693,13 +693,13 @@ public Action ThrottledBeamBoxAll(Handle timer, int i) {
 			buffer_a[x] = g_mapZones[i].PointA[x];
 			buffer_b[x] = g_mapZones[i].PointB[x];
 		}
-		TE_SendBeamBoxToClient(p, buffer_a, buffer_b, g_BeamSprite, g_HaloSprite, 0, 30, ZONE_REFRESH_TIME, 1.0, 1.0, 2, 0.0, zColor, 0, full);
+		TE_SendBeamBoxToClient(p, buffer_a, buffer_b, g_BeamSprite, g_HaloSprite, 0, BEAM_FRAMERATE, ZONE_REFRESH_TIME, 1.0, 1.0, 1, 0.0, zColor, 0, full);
 	}
 
-	CreateTimer(0.1, ThrottledBeamBoxAll);
+	CreateTimer(0.1, ThrottledBeamBoxAll, i + 1);
 }
 
-public Action OutlineBeamsAll(Handle timer, any data)
+public Action OutlineBeamsAll(Handle timer)
 {
 	ThrottledOutlineBeamsAll(INVALID_HANDLE);
 }
@@ -709,16 +709,19 @@ public Action ThrottledOutlineBeamsAll(Handle timer)
 	// @IG Outlines
 	for (int i = 1; i <= MAXPLAYERS; i++)
 	{
-		if (!IsClientInGame(i) || IsFakeClient(i))
+		if (!IsValidClient(i) || IsFakeClient(i))
 			continue;
 
-		for (int k = 0; k < g_iOutlineLineCount; k++)
+		for (int j = 0; j < g_iOutlineBoxCount; j++)
 		{
-			TE_SendBeamLineToClient(i, g_outlineLines[k].startPos, g_outlineLines[k].endPos, g_BeamSprite, g_HaloSprite, 0, 30, ZONE_REFRESH_TIME, 1.0, 1.0, 2, 0.0, g_outlineBeamColor, 0);
+			TE_SendBeamBoxToClient(i, g_outlineBoxes[j].startPos, g_outlineBoxes[j].endPos, g_BeamSprite, g_HaloSprite, 0, BEAM_FRAMERATE, OUTLINE_REFRESH_TIME, 1.0, 1.0, 1, 0.0, g_outlineBeamColor, 0, true);
+		}
+
+		for (int j = 0; j < g_iOutlineLineCount; j++)
+		{
+			TE_SendBeamLineToClient(i, g_outlineLines[j].startPos, g_outlineLines[j].endPos, g_BeamSprite, g_HaloSprite, 0, BEAM_FRAMERATE, OUTLINE_REFRESH_TIME, 1.0, 1.0, 1, 0.0, g_outlineBeamColor, 0);
 		}
 	}
-
-	CreateTimer(0.1, ThrottledOutlineBeamsAll);
 }
 
 public void getZoneDisplayColor(int type, int zColor[4], int zGrp)
@@ -772,13 +775,13 @@ public void BeamBox_OnPlayerRunCmd(int client)
 			TR_TraceRayFilter(pos, ang, MASK_PLAYERSOLID, RayType_Infinite, TraceRayDontHitSelf, client);
 			if (g_Editing[client] == 10) {
 				TR_GetEndPosition(g_fBonusStartPos[client][1]);
-				TE_SendBeamBoxToClient(client, g_fBonusStartPos[client][1], g_fBonusStartPos[client][0], g_BeamSprite, g_HaloSprite, 0, 30, 0.1, 1.0, 1.0, 2, 0.0, beamColorEdit, 0, true);
+				TE_SendBeamBoxToClient(client, g_fBonusStartPos[client][1], g_fBonusStartPos[client][0], g_BeamSprite, g_HaloSprite, 0, BEAM_FRAMERATE, 0.1, 1.0, 1.0, 1, 0.0, beamColorEdit, 0, true);
 			} else {
 				TR_GetEndPosition(g_fBonusEndPos[client][1]);
-				TE_SendBeamBoxToClient(client, g_fBonusEndPos[client][1], g_fBonusEndPos[client][0], g_BeamSprite, g_HaloSprite, 0, 30, 0.1, 1.0, 1.0, 2, 0.0, beamColorEdit, 0, true);
+				TE_SendBeamBoxToClient(client, g_fBonusEndPos[client][1], g_fBonusEndPos[client][0], g_BeamSprite, g_HaloSprite, 0, BEAM_FRAMERATE, 0.1, 1.0, 1.0, 1, 0.0, beamColorEdit, 0, true);
 			}
 		} else {
-			TE_SendBeamBoxToClient(client, g_Positions[client][1], g_Positions[client][0], g_BeamSprite, g_HaloSprite, 0, 30, 0.1, 1.0, 1.0, 2, 0.0, beamColorEdit, 0, true);
+			TE_SendBeamBoxToClient(client, g_Positions[client][1], g_Positions[client][0], g_BeamSprite, g_HaloSprite, 0, BEAM_FRAMERATE, 0.1, 1.0, 1.0, 1, 0.0, beamColorEdit, 0, true);
 		}
 	}
 
@@ -803,14 +806,21 @@ public void BeamBox_OnPlayerRunCmd(int client)
 				fMaxs[j] = (fMaxs[j] + position[j]);
 			}
 
-			TE_SendBeamBoxToClient(client, fMins, fMaxs, g_BeamSprite, g_HaloSprite, 0, 30, 1.0, 1.0, 1.0, 2, 0.0, view_as<int>({255, 255, 0, 255}), 0, true);
+			TE_SendBeamBoxToClient(client, fMins, fMaxs, g_BeamSprite, g_HaloSprite, 0, BEAM_FRAMERATE, 1.0, 1.0, 1.0, 1, 0.0, view_as<int>({255, 255, 0, 255}), 0, true);
 		}
 	}
 
 	// @IG outlines
-	if (g_bCreatingOutline[client] && g_bStartPointPlaced[client] && g_bEndPointPlaced[client])
+	if (g_bCreatingOutline[client] && g_bStartPointPlaced[client] && g_bEndPointPlaced[client] && IsValidClient(client) && IsClientInGame(client))
 	{
-		TE_SendBeamLineToClient(client, g_fOutlineStartPos[client], g_fOutlineEndPos[client], g_BeamSprite, g_HaloSprite, 0, 30, 0.1, 0.8, 0.8, 1, 0.0, g_outlineBeamColor, 0);
+		if (g_iOutlineStyle[client] == 0)
+		{
+			TE_SendBeamLineToClient(client, g_fOutlineStartPos[client], g_fOutlineEndPos[client], g_BeamSprite, g_HaloSprite, 0, BEAM_FRAMERATE, 0.1, 0.8, 0.8, 1, 0.0, g_outlineBeamColor, 0);
+		}
+		else if (g_iOutlineStyle[client] == 1)
+		{
+			TE_SendBeamBoxToClient(client, g_fOutlineStartPos[client], g_fOutlineEndPos[client], g_BeamSprite, g_HaloSprite, 0, BEAM_FRAMERATE, 0.1, 1.0, 1.0, 1, 0.0, g_outlineBeamColor, 0, true);
+		}
 	}
 }
 
@@ -867,9 +877,6 @@ stock void TE_SendBeamBoxToClient(int client, float uppercorner[3], float bottom
 
 stock void TE_SendBeamLineToClient(int client, float start[3], float end[3], int modelIndex, int haloIndex, int startFrame, int frameRate, float life, float width, float endWidth, int fadeLength, float amplitude, const int color[4], int speed)
 {
-	if (!IsClientInGame(client) || IsFakeClient(client))
-		return;
-
 	float points[2][3];
 	Array_Copy(start, points[0], 3);
 	Array_Copy(end, points[1], 3);
@@ -1577,15 +1584,17 @@ public int Handle_CreateOutline(Handle tMenu, MenuAction action, int client, int
 			{
 				if (g_iOutlineStyle[client] == 0) // line
 				{
-					g_outlineLines[g_iOutlineLineCount].Set(g_szMapName, g_iOutlineLineCount, 0, g_fOutlineStartPos[client], g_fOutlineEndPos[client]);
+					g_outlineLines[g_iOutlineLineCount].Set(g_szMapName, g_iTotalOutlines, 0, g_fOutlineStartPos[client], g_fOutlineEndPos[client]);
 					DB_InsertOutline(g_outlineLines[g_iOutlineLineCount]);
 					g_iOutlineLineCount++;
+					g_iTotalOutlines++;
 				}
 				else if (g_iOutlineStyle[client] == 1) // box
 				{
-					g_outlineBoxes[g_iOutlineBoxCount].Set(g_szMapName, g_iOutlineBoxCount, 1, g_fOutlineStartPos[client], g_fOutlineEndPos[client]);
+					g_outlineBoxes[g_iOutlineBoxCount].Set(g_szMapName, g_iTotalOutlines, 1, g_fOutlineStartPos[client], g_fOutlineEndPos[client]);
 					DB_InsertOutline(g_outlineBoxes[g_iOutlineBoxCount]);
 					g_iOutlineBoxCount++;
+					g_iTotalOutlines++;
 				}
 
 				g_bCreatingOutline[client] = false;

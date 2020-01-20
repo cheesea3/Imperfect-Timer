@@ -49,6 +49,7 @@ public void SQL_SelectOutlinesCallback(Handle owner, Handle hndl, const char[] e
 		// set defaults
 		g_iOutlineLineCount = 0;
 		g_iOutlineBoxCount = 0;
+		g_iTotalOutlines = 0;
 
 		for (int i = 0; i < MAX_OUTLINE_LINES; i++)
 			g_outlineLines[i].Defaults();
@@ -88,15 +89,15 @@ public void SQL_SelectOutlinesCallback(Handle owner, Handle hndl, const char[] e
 
 				g_outlineBoxes[g_iOutlineBoxCount] = outline;
 				g_iOutlineBoxCount++;
+				g_iTotalOutlines++;
 			}
 			else if (outline.type == 0)
 			{
 				g_outlineLines[g_iOutlineLineCount] = outline;
 				g_iOutlineLineCount++;
+				g_iTotalOutlines++;
 			}
 		}
-
-
 
 		// Zone corners
 		for (int x = 0; x < g_iOutlineBoxCount; x++)
@@ -104,7 +105,6 @@ public void SQL_SelectOutlinesCallback(Handle owner, Handle hndl, const char[] e
 				for(int j = 0; j < 3; j++)
 					g_vOutlineBoxCorners[x][i][j] = g_vOutlineBoxCorners[x][((i >> (2-j)) & 1) * 7][j];
 	}
-	CPrintToChatAll("Found %i total outlines", g_iOutlineLineCount + g_iOutlineBoxCount);
 
 	RunCallback(cb);
 }

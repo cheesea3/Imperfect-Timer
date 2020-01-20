@@ -103,7 +103,10 @@
 #define DISCOTIME_FULL_SOUND_PATH "sound/surftimer/discotime.mp3"
 #define DISCOTIME_RELATIVE_SOUND_PATH "*/surftimer/discotime.mp3"
 
+// beams
 #define ZONE_REFRESH_TIME 5.0
+#define OUTLINE_REFRESH_TIME 5.0
+#define BEAM_FRAMERATE 30
 
 #define MAX_STYLES 7
 
@@ -474,8 +477,8 @@ public void OnMapStart()
 	CreateTimer(1.0, CKTimer2, INVALID_HANDLE, TIMER_FLAG_NO_MAPCHANGE | TIMER_REPEAT);
 	CreateTimer(60.0, AttackTimer, INVALID_HANDLE, TIMER_FLAG_NO_MAPCHANGE | TIMER_REPEAT);
 	CreateTimer(600.0, PlayerRanksTimer, INVALID_HANDLE, TIMER_FLAG_NO_MAPCHANGE | TIMER_REPEAT);
+	CreateTimer(OUTLINE_REFRESH_TIME, OutlineBeamsAll, _, TIMER_FLAG_NO_MAPCHANGE | TIMER_REPEAT);
 	CreateTimer(ZONE_REFRESH_TIME, BeamBoxAll, _, TIMER_FLAG_NO_MAPCHANGE | TIMER_REPEAT);
-	CreateTimer(ZONE_REFRESH_TIME, OutlineBeamsAll, _, TIMER_FLAG_NO_MAPCHANGE | TIMER_REPEAT);
 
 	// AutoBhop
 	if (GetConVarBool(g_hAutoBhopConVar))
