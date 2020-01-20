@@ -1281,32 +1281,32 @@
 	"NewBonusServerRecord"
 	{
 		"#format"	"{1:s},{2:s},{3:s},{4:s}"
-		"en"		"{1} {yellow}{2}{default} beat the [{orange}{3}{default}] {red}{4} {default}record!"
+		"en"		"{1} {yellow}{2}{default} beat the {orange}{3}{default} {red}{4} {default}record!"
 	}
 	"Misc38"
 	{
 		"#format"	"{1:s},{2:s},{3:s},{4:s},{5:s},{6:s}"
-		"en"		"{1} {yellow}{2} {default}finished [{orange}{3}{default}] {red}{4} {default}in {lightgreen}{5}{default}. [Rank: {lightgreen}1/1 {default}| Record: {lightgreen}{6}{default}]"
+		"en"		"{1} {yellow}{2} {default}finished {orange}{3}{default} {red}{4} {default}in {lightgreen}{5}{default}. [Rank: {lightgreen}1/1 {default}| Record: {lightgreen}{6}{default}]"
 	}
 	"Misc39"
 	{
 		"#format"	"{1:s},{2:s},{3:s},{4:s},{5:s},{6:s},{7:i},{8:i},{9:s}"
-		"en"		"{1} {yellow}{2} {default}finished [{orange}{3}{default}] {red}{4} {default}in {lightgreen}{5}{default}. Improving the best time by {lightgreen}{6}{default}. [Rank: {lightgreen}{7}/{8} {default}| Record: {lightgreen}{9}{default}]"
+		"en"		"{1} {yellow}{2} {default}finished {orange}{3}{default} {red}{4} {default}in {lightgreen}{5}{default}. Improving the best time by {lightgreen}{6}{default}. [Rank: {lightgreen}{7}/{8} {default}| Record: {lightgreen}{9}{default}]"
 	}
 	"Misc40"
 	{
 		"#format"	"{1:s},{2:s},{3:s},{4:s},{5:s},{6:s},{7:i},{8:i},{9:s}"
-		"en"		"{1} {yellow}{2} {default}finished [{orange}{3}{default}] {red}{4} {default}in {lightgreen}{5}{default}. Improving their best time by {lightgreen}{6}{default}. [Rank: {lightgreen}{7}/{8} {default}| Record: {lightgreen}{9}{default}]"
+		"en"		"{1} {yellow}{2} {default}finished {orange}{3}{default} {red}{4} {default}in {lightgreen}{5}{default}. Improving their best time by {lightgreen}{6}{default}. [Rank: {lightgreen}{7}/{8} {default}| Record: {lightgreen}{9}{default}]"
 	}
 	"Misc41"
 	{
 		"#format"	"{1:s},{2:s},{3:s},{4:s},{5:s},{6:i},{7:i},{8:s}"
-		"en"		"{1} {yellow}{2} {default}finished [{orange}{3}{default}] {red}{4} {default}in {lightgreen}{5}{default}. [Rank: {lightgreen}{6}/{7} {default}| Record: {lightgreen}{8}{default}]"
+		"en"		"{1} {yellow}{2} {default}finished {orange}{3}{default} {red}{4} {default}in {lightgreen}{5}{default}. [Rank: {lightgreen}{6}/{7} {default}| Record: {lightgreen}{8}{default}]"
 	}
 	"Misc42"
 	{
 		"#format"	"{1:s},{2:s},{3:s},{4:s},{5:s},{6:s},{7:i},{8:i},{9:s}"
-		"en"		"{1} {yellow}{2} {default}finished [{orange}{3}{default}] {red}{4} {default}in {lightgreen}{5}{default}. Missing their best time by {red}{6}{default}. [Rank: {lightgreen}{7}/{8} {default}| Record: {lightgreen}{9}{default}]"
+		"en"		"{1} {yellow}{2} {default}finished {orange}{3}{default} {red}{4} {default}in {lightgreen}{5}{default}. Missing their best time by {red}{6}{default}. [Rank: {lightgreen}{7}/{8} {default}| Record: {lightgreen}{9}{default}]"
 	}
 	"Misc43"
 	{
@@ -1388,15 +1388,10 @@
 		"#format"	"{1:s},{2:i},{3:s},{4:s},{5:s},{6:i},{7:i}"
 		"en"		"{1} Completed {default}Stage {2} {red}{3} {default}in {lightgreen}{4} {5} {default}[Rank: {lightgreen}{6}/{7}{default}]"
 	}
-	"SQL14"
-	{
-		"#format"	"{1:s},{2:i},{3:s},{4:s},{5:s},{6:i},{7:i}"
-		"en"		"{1} Completed {default}Stage {2} {red}{3} {default}in {lightgreen}{4} {5} {default}[Rank: {lightgreen}{6}/{7}{default}]"
-	}
 	"SQL15"
 	{
 		"#format"	"{1:s},{2:s},{3:i},{4:s},{5:s},{6:i}"
-		"en"		"{1} {yellow}{2} {default}beat the [{purple}Stage {3}{default}] record! {lightgreen}{4} {5} {default}[Rank: {lightgreen}1/{6}{default}]"
+		"en"		"{1} {yellow}{2} {default}beat the {purple}Stage {3}{default} record! {lightgreen}{4} {5} {default}[Rank: {lightgreen}1/{6}{default}]"
 	}
 	"SQL16"
 	{
@@ -1411,12 +1406,12 @@
 	"SQL18"
 	{
 		"#format"	"{1:s},{2:s},{3:i},{4:s}"
-		"en"		"{1} {yellow}{2} {default}has set a new [{purple}Stage {3}{default}] record! {lightgreen}{4} {default}[Rank: {lightgreen}1/1{default}]"
+		"en"		"{1} {yellow}{2} {default}has set a new {purple}Stage {3}{default} record! {lightgreen}{4} {default}[Rank: {lightgreen}1/1{default}]"
 	}
 	"SQL19"
 	{
 		"#format"	"{1:s},{2:s},{3:s},{4:i},{5:s},{6:s},{7:i},{8:i}"
-		"en"		"{1} {yellow}{2} {default}beat the {red}{3}{default} [{purple}Stage {4}{default}] record! {lightgreen}{5} {6} {default}[Rank: {lightgreen}{7}/{8}{default}]"
+		"en"		"{1} {yellow}{2} {default}beat the {red}{3}{default} {purple}Stage {4}{default} record! {lightgreen}{5} {6} {default}[Rank: {lightgreen}{7}/{8}{default}]"
 	}
 	"SQL20"
 	{

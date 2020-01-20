@@ -1458,11 +1458,11 @@ public void PlayUnstoppableSound(int client)
 	}
 }
 
-public void PlayWRCPRecord(int iRecordtype, int client)
+public void PlayWRCPRecord(int client)
 {
-	char buffer[255];
-	if (iRecordtype == 1 && IsValidClient(client) && !IsFakeClient(client) && g_bEnableQuakeSounds[client])
+	if (IsValidClient(client) && !IsFakeClient(client) && g_bEnableQuakeSounds[client])
 	{
+		char buffer[255];
 		Format(buffer, sizeof(buffer), "play %s", g_szRelativeSoundPathWRCP);
 		ClientCommand(client, buffer);
 	}

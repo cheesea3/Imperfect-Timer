@@ -3418,7 +3418,7 @@ public void sql_selectWrcpRecordCallback(Handle owner, Handle hndl, const char[]
 			else if (style != 0) // styles
 			{
 				CPrintToChat(data, "%t", "SQL13", g_szChatPrefix, stage, g_szStyleRecordPrint[style], g_szFinalWrcpTime[data], sz_srDiff, g_StyleStageRank[style][data][stage], g_TotalStageStyleRecords[style][stage]);
-				Format(szSpecMessage, sizeof(szSpecMessage), "%t", "SQL14", g_szChatPrefix, stage, g_szStyleRecordPrint[style], g_szFinalWrcpTime[data], sz_srDiff, g_StyleStageRank[style][data][stage], g_TotalStageStyleRecords[style][stage]);
+				Format(szSpecMessage, sizeof(szSpecMessage), "%t", "SQL13", g_szChatPrefix, stage, g_szStyleRecordPrint[style], g_szFinalWrcpTime[data], sz_srDiff, g_StyleStageRank[style][data][stage], g_TotalStageStyleRecords[style][stage]);
 			}
 			CheckpointToSpec(data, szSpecMessage);
 
@@ -3601,7 +3601,7 @@ public void SQL_UpdateWrcpRecordCallback2(Handle owner, Handle hndl, const char[
 	bool newRecordHolder = false;
 	if (style == 0)
 	{
-		if (g_TotalStageRecords[stage] > 0)
+		if (g_TotalStageRecords[stage] > 1)
 		{ // If the server already has a record
 
 			if (g_fFinalWrcpTime[client] < g_fStageRecord[stage] && g_fFinalWrcpTime[client] > 0.0)
@@ -3614,14 +3614,15 @@ public void SQL_UpdateWrcpRecordCallback2(Handle owner, Handle hndl, const char[
 				Format(g_szStageRecordPlayer[stage], MAX_NAME_LENGTH, "%s", szName);
 				FormatTimeFloat(1, g_fStageRecord[stage], 3, g_szRecordStageTime[stage], 64);
 				CPrintToChatAll("%t", "SQL15", g_szChatPrefix, szName, stage, g_szFinalWrcpTime[client], sz_srDiff, g_TotalStageRecords[stage]);
+				CPrintToChat(client, "[1]: %.3f, %.3f, %.3f", g_fFinalWrcpTime[client], g_fStageRecord[stage], g_fFinalWrcpTime[client]);
 				g_bSavingWrcpReplay[client] = true;
 				// Stage_SaveRecording(client, stage, g_szFinalWrcpTime[client]);
-				PlayWRCPRecord(1, client);
+				PlayWRCPRecord(client);
 			}
 			else
 			{
 				CPrintToChat(client, "%t", "SQL16", g_szChatPrefix, stage, g_szFinalWrcpTime[client], szDiff, sz_srDiff, g_StageRank[client][stage], g_TotalStageRecords[stage]);
-
+				CPrintToChat(client, "[2]: FinalTime: %.3f | SR: %.3f | g_TotalStageRecords[stage]: %i ", g_fFinalWrcpTime[client], g_fStageRecord[stage], g_TotalStageRecords[stage]);
 				char szSpecMessage[512];
 				Format(szSpecMessage, sizeof(szSpecMessage), "%t", "SQL17", g_szChatPrefix, szName, stage, g_szFinalWrcpTime[client], szDiff, sz_srDiff, g_StageRank[client][stage], g_TotalStageRecords[stage]);
 				CheckpointToSpec(client, szSpecMessage);
@@ -3635,11 +3636,11 @@ public void SQL_UpdateWrcpRecordCallback2(Handle owner, Handle hndl, const char[
 			g_fStageRecord[stage] = g_fFinalTime[client];
 			Format(g_szStageRecordPlayer[stage], MAX_NAME_LENGTH, "%s", szName);
 			FormatTimeFloat(1, g_fStageRecord[stage], 3, g_szRecordStageTime[stage], 64);
-
+			CPrintToChat(client, "[3]: %.3f, %.3f, %.3f", g_fFinalWrcpTime[client], g_fStageRecord[stage], g_fFinalWrcpTime[client]);
 			CPrintToChatAll("%t", "SQL18", g_szChatPrefix, szName, stage, g_szFinalWrcpTime[client]);
 			g_bSavingWrcpReplay[client] = true;
 			// Stage_SaveRecording(client, stage, g_szFinalWrcpTime[client]);
-			PlayWRCPRecord(1, client);
+			PlayWRCPRecord(client);
 		}
 	}
 	else if (style != 0) // styles
@@ -3659,7 +3660,7 @@ public void SQL_UpdateWrcpRecordCallback2(Handle owner, Handle hndl, const char[
 				FormatTimeFloat(1, g_fStyleStageRecord[style][stage], 3, g_szStyleRecordStageTime[style][stage], 64);
 
 				CPrintToChatAll("%t", "SQL19", g_szChatPrefix, szName, g_szStyleRecordPrint[style], stage, g_szFinalWrcpTime[client], sz_srDiff, g_StyleStageRank[style][client][stage], g_TotalStageStyleRecords[style][stage]);
-				PlayWRCPRecord(1, client);
+				PlayWRCPRecord(client);
 			}
 			else
 			{
@@ -3680,7 +3681,7 @@ public void SQL_UpdateWrcpRecordCallback2(Handle owner, Handle hndl, const char[
 			FormatTimeFloat(1, g_fStyleStageRecord[style][stage], 3, g_szStyleRecordStageTime[style][stage], 64);
 
 			CPrintToChatAll("%t", "SQL22", g_szChatPrefix, szName, g_szStyleRecordPrint[style], stage, g_szFinalWrcpTime[client]);
-			PlayWRCPRecord(1, client);
+			PlayWRCPRecord(client);
 		}
 	}
 
