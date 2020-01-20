@@ -296,6 +296,21 @@ enum struct MapOutline
 	}
 }
 
+// could put this in SurfPlayer, but would it be worth it?
+enum struct PlayerOptions
+{
+	bool outlines; // outline toggle
+	bool hideWeapons; // weapon visibility/pickup toggle
+	float cooldown; // global command cooldown
+}
+
+// new type for player variables
+enum struct SurfPlayer
+{
+	int currentStyle;
+	int initialStyle;
+}
+
 /*===================================
 =            Plugin Info            =
 ===================================*/
@@ -306,7 +321,7 @@ public Plugin myinfo =
 	author = "fluffys",
 	description = "A fork of ckSurf",
 	version = VERSION,
-	url = "http://steamcommunity.com/profiles/76561198000303868/"
+	url = ""
 };
 
 /*====================================

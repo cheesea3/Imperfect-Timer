@@ -712,14 +712,17 @@ public Action ThrottledOutlineBeamsAll(Handle timer)
 		if (!IsValidClient(i) || IsFakeClient(i))
 			continue;
 
-		for (int j = 0; j < g_iOutlineBoxCount; j++)
+		if (g_playerOptions[i].outlines)
 		{
-			TE_SendBeamBoxToClient(i, g_outlineBoxes[j].startPos, g_outlineBoxes[j].endPos, g_BeamSprite, g_HaloSprite, 0, BEAM_FRAMERATE, OUTLINE_REFRESH_TIME, 1.0, 1.0, 1, 0.0, g_outlineBeamColor, 0, true);
-		}
+			for (int j = 0; j < g_iOutlineBoxCount; j++)
+			{
+				TE_SendBeamBoxToClient(i, g_outlineBoxes[j].startPos, g_outlineBoxes[j].endPos, g_BeamSprite, g_HaloSprite, 0, BEAM_FRAMERATE, OUTLINE_REFRESH_TIME, 1.0, 1.0, 1, 0.0, g_outlineBeamColor, 0, true);
+			}
 
-		for (int j = 0; j < g_iOutlineLineCount; j++)
-		{
-			TE_SendBeamLineToClient(i, g_outlineLines[j].startPos, g_outlineLines[j].endPos, g_BeamSprite, g_HaloSprite, 0, BEAM_FRAMERATE, OUTLINE_REFRESH_TIME, 1.0, 1.0, 1, 0.0, g_outlineBeamColor, 0);
+			for (int j = 0; j < g_iOutlineLineCount; j++)
+			{
+				TE_SendBeamLineToClient(i, g_outlineLines[j].startPos, g_outlineLines[j].endPos, g_BeamSprite, g_HaloSprite, 0, BEAM_FRAMERATE, OUTLINE_REFRESH_TIME, 1.0, 1.0, 1, 0.0, g_outlineBeamColor, 0);
+			}
 		}
 	}
 }

@@ -1227,7 +1227,7 @@ public void SetClientDefaults(int client) {
 
 	g_fCurrentRunTime[client] = -1.0;
 	g_fPlayerCordsLastPosition[client] = view_as<float>( { 0.0, 0.0, 0.0 } );
-	g_fLastChatMessage[client] = GetGameTime();
+	g_fLastChatMessage[client] = GameTime;
 	g_fLastTimeNoClipUsed[client] = -1.0;
 	g_fStartTime[client] = -1.0;
 	g_fPlayerLastTime[client] = -1.0;
@@ -1308,8 +1308,10 @@ public void SetClientDefaults(int client) {
 	g_bShowTriggers[client] = false;
 
 	// Hide/Show Weapons
-	g_fLastHideWeapons[client] = GameTime;
-	g_bHideWeapons[client] = false;
+
+	g_playerOptions[client].cooldown = GameTime;
+	g_playerOptions[client].hideWeapons = false;
+	g_playerOptions[client].outlines = true;
 
 	// Goose Start Pos
 	for (int i = 0; i < MAXZONEGROUPS; i++)
@@ -2488,11 +2490,6 @@ public int PanelHandler(Handle menu, MenuAction action, int param1, int param2)
 public bool TraceRayDontHitSelf(int entity, int mask, any data)
 {
 	return entity != data && !(0 < entity <= MaxClients);
-}
-
-stock int BooltoInt(bool status)
-{
-	return (status) ? 1:0;
 }
 
 public void PlayQuakeSound_Spec(int client, char[] buffer)

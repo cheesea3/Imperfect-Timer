@@ -117,7 +117,7 @@ public Action Event_OnPlayerSpawn(Handle event, const char[] name, bool dontBroa
 	// Strip Weapons
 	if ((GetClientTeam(client) > 1) && IsValidClient(client))
 	{
-		if (!g_bHideWeapons[client])
+		if (g_playerOptions[client].hideWeapons)
 		{
 			StripAllWeapons(client);
 			if (!IsFakeClient(client))
@@ -1608,7 +1608,7 @@ public Action Hook_ShotgunShot(const char[] te_name, const int[] players, int nu
 
 public Action OnWeaponCanUse(int client, int other)
 {
-	if (g_bHideWeapons[client])
+	if (g_playerOptions[client].hideWeapons)
 	{
 		return Plugin_Handled;
 	}

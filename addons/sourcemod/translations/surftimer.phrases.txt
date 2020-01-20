@@ -1533,4 +1533,14 @@
 		"#format"	"{1:s},{2:s}"
 		"en"		"{1} {darkred}You must pass all {2} to finish your run"
 	}
+	"OutlinesEnabled"
+	{
+		"#format"	"{1:s}"
+		"en"		"{1} Outlines are now {green}visible"
+	}
+	"OutlinesDisabled"
+	{
+		"#format"	"{1:s}"
+		"en"		"{1} Outlines are now {red}hidden"
+	}
 }

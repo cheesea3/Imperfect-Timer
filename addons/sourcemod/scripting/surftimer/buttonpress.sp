@@ -776,7 +776,9 @@ public void CL_OnEndWrcpTimerPress(int client, float time2)
 	else if (stage < 1)
 		stage = 1;
 
-	if (g_bWrcpTimeractivated[client] && g_iCurrentStyle[client] == 0)
+	int style = g_iCurrentStyle[client];
+
+	if (g_bWrcpTimeractivated[client] && style == 0)
 	{
 		// int stage = g_CurrentStage[client];
 
@@ -791,7 +793,8 @@ public void CL_OnEndWrcpTimerPress(int client, float time2)
 		}
 
 		//Stage 1 to stage 2 glitch stopper.
-		if(g_wrcpGlitchStopper[client] && stage == 2){
+		if (g_wrcpGlitchStopper[client] && stage == 2)
+		{
 			g_wrcpGlitchStopper[client] = false;
 			//CPrintToChat(client, "Potential S1 to S2 glitch stopped. Stage time was not recorded");
 			return;
@@ -823,27 +826,24 @@ public void CL_OnEndWrcpTimerPress(int client, float time2)
 		{
 			Stage_SaveRecording(client, stage, g_szFinalWrcpTime[client]);
 		}
-		else
+		else if (g_TotalStageRecords[stage] > 0)
 		{
-			if (g_TotalStageRecords[stage] > 0)
-			{ // If the server already has a record
-				if (g_fFinalWrcpTime[client] < g_fStageRecord[stage] && g_fFinalWrcpTime[client] > 0.0)
-				{
-					Stage_SaveRecording(client, stage, g_szFinalWrcpTime[client]);
-				}
-			}
-			else
+			// If the server already has a record
+			if (g_fFinalWrcpTime[client] < g_fStageRecord[stage] && g_fFinalWrcpTime[client] > 0.0)
 			{
 				Stage_SaveRecording(client, stage, g_szFinalWrcpTime[client]);
 			}
+		}
+		else
+		{
+			Stage_SaveRecording(client, stage, g_szFinalWrcpTime[client]);
 		}
 
 		db_selectWrcpRecord(client, 0, stage);
 		g_bWrcpTimeractivated[client] = false;
 	}
-	else if (g_bWrcpTimeractivated[client] && g_iCurrentStyle[client] != 0) // styles
+	else if (g_bWrcpTimeractivated[client] && style != 0) // styles
 	{
-		int style = g_iCurrentStyle[client];
 		g_fFinalWrcpTime[client] = GetGameTime() - g_fStartWrcpTime[client];
 		if (g_fFinalWrcpTime[client] <= 0.0)
 		{

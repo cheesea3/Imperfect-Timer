@@ -264,7 +264,7 @@ void db_viewPlayerOptions(int client, any cb=0) {
 	char szQuery[] = " \
 		SELECT \
 			timer, hide, sounds, chat, viewmodel, autobhop, checkpoints, \
-			gradient, speedmode, centrespeed, centrehud, teleside, hideweapons, \
+			gradient, speedmode, centrespeed, centrehud, teleside, hideweapons, outlines, \
 			module1c, module2c, module3c, module4c, module5c, module6c, \
 			sidehud, module1s, module2s, module3s, module4s, module5s \
 		FROM ck_playeroptions2 WHERE steamid = '__steamid__'";
@@ -291,19 +291,20 @@ void db_viewPlayerOptionsCallback(Handle hndl, const char[] error, int client, a
 		g_bCenterSpeedDisplay[client] = view_as<bool>(SQL_FetchInt(hndl, 9));
 		g_bCentreHud[client] = view_as<bool>(SQL_FetchInt(hndl, 10));
 		g_iTeleSide[client] = SQL_FetchInt(hndl, 11);
-		g_bHideWeapons[client] = view_as<bool>(SQL_FetchInt(hndl, 12));
-		g_iCentreHudModule[client][0] = SQL_FetchInt(hndl, 13);
-		g_iCentreHudModule[client][1] = SQL_FetchInt(hndl, 14);
-		g_iCentreHudModule[client][2] = SQL_FetchInt(hndl, 15);
-		g_iCentreHudModule[client][3] = SQL_FetchInt(hndl, 16);
-		g_iCentreHudModule[client][4] = SQL_FetchInt(hndl, 17);
-		g_iCentreHudModule[client][5] = SQL_FetchInt(hndl, 18);
-		g_bSideHud[client] = view_as<bool>(SQL_FetchInt(hndl, 19));
-		g_iSideHudModule[client][0] = SQL_FetchInt(hndl, 20);
-		g_iSideHudModule[client][1] = SQL_FetchInt(hndl, 21);
-		g_iSideHudModule[client][2] = SQL_FetchInt(hndl, 22);
-		g_iSideHudModule[client][3] = SQL_FetchInt(hndl, 23);
-		g_iSideHudModule[client][4] = SQL_FetchInt(hndl, 24);
+		g_playerOptions[client].hideWeapons = view_as<bool>(SQL_FetchInt(hndl, 12));
+		g_playerOptions[client].outlines = view_as<bool>(SQL_FetchInt(hndl, 13));
+		g_iCentreHudModule[client][0] = SQL_FetchInt(hndl, 14);
+		g_iCentreHudModule[client][1] = SQL_FetchInt(hndl, 15);
+		g_iCentreHudModule[client][2] = SQL_FetchInt(hndl, 16);
+		g_iCentreHudModule[client][3] = SQL_FetchInt(hndl, 17);
+		g_iCentreHudModule[client][4] = SQL_FetchInt(hndl, 18);
+		g_iCentreHudModule[client][5] = SQL_FetchInt(hndl, 19);
+		g_bSideHud[client] = view_as<bool>(SQL_FetchInt(hndl, 20));
+		g_iSideHudModule[client][0] = SQL_FetchInt(hndl, 21);
+		g_iSideHudModule[client][1] = SQL_FetchInt(hndl, 22);
+		g_iSideHudModule[client][2] = SQL_FetchInt(hndl, 23);
+		g_iSideHudModule[client][3] = SQL_FetchInt(hndl, 24);
+		g_iSideHudModule[client][4] = SQL_FetchInt(hndl, 25);
 
 		// Functionality for normal spec list
 		if (g_iSideHudModule[client][0] == 5 && (g_iSideHudModule[client][1] == 0 && g_iSideHudModule[client][2] == 0 && g_iSideHudModule[client][3] == 0 && g_iSideHudModule[client][4] == 0))
@@ -319,8 +320,7 @@ void db_viewPlayerOptionsCallback(Handle hndl, const char[] error, int client, a
 		if (!IsValidClient(client))
 			return;
 
-		// "INSERT INTO ck_playeroptions2 (steamid, timer, hide, sounds, chat, viewmodel, autobhop, checkpoints, centrehud, module1c, module2c, module3c, module4c, module5c, module6c, sidehud, module1s, module2s, module3s, module4s, module5s) VALUES('%s', '%i', '%i', '%i', '%i', '%i', '%i', '%i', '%i', '%i', '%i', '%i', '%i', '%i', '%i', '%i', '%i', '%i', '%i', '%i', '%i');";
-
+		char sql_insertPlayerOptions[] = "INSERT INTO ck_playeroptions2 (steamid) VALUES ('%s');";
 		Format(szQuery, 1024, sql_insertPlayerOptions, g_szSteamID[client]);
 		SQL_TQuery(g_hDb, SQL_CheckCallback, szQuery);
 
@@ -336,7 +336,8 @@ void db_viewPlayerOptionsCallback(Handle hndl, const char[] error, int client, a
 		g_bCenterSpeedDisplay[client] = false;
 		g_bCentreHud[client] = true;
 		g_iTeleSide[client] = 0;
-		g_bHideWeapons[client] = false;
+		g_playerOptions[client].hideWeapons = false;
+		g_playerOptions[client].outlines = true;
 		g_iCentreHudModule[client][0] = 1;
 		g_iCentreHudModule[client][1] = 2;
 		g_iCentreHudModule[client][2] = 3;

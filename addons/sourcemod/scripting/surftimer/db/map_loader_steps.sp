@@ -930,7 +930,7 @@ void db_GetTotalStagesCallback(Handle owner, Handle hndl, const char[] error, an
 	{
 		g_TotalStages = SQL_FetchInt(hndl, 0) + 1;
 
-		for(int i = 1;i <= g_TotalStages;i++)
+		for(int i = 1; i <= g_TotalStages; i++)
 		{
 			g_fStageRecord[i] = 0.0;
 			// fluffys comeback yo

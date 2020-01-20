@@ -481,6 +481,11 @@ bool g_bNoClip[MAXPLAYERS + 1];
 
 /*----------  User Options  ----------*/
 
+#define OPTION_COOLDOWN 1.5
+
+SurfPlayer g_players[MAXPLAYERS +1];
+PlayerOptions g_playerOptions[MAXPLAYERS + 1];
+
 // org variables track the original setting status, on disconnect, check if changed, if so, update new settings to database
 
 // bool to ensure the modules have loaded before resetting
@@ -819,12 +824,6 @@ bool g_bIsVmuted[MAXPLAYERS + 1];
 
 // Zephyrus' third person plugin
 bool g_bThirdPerson[MAXPLAYERS + 1];
-
-// Hide weapons toggle
-bool g_bHideWeapons[MAXPLAYERS + 1];
-
-// Last hide weapon command time (includes sm_showweps)
-float g_fLastHideWeapons[MAXPLAYERS + 1];
 
 /*----------  Player location restoring  ----------*/
 

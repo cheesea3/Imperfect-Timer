@@ -157,6 +157,8 @@ void CreateCommands()
 	RegConsoleCmd("sm_showweps", Command_ShowWeapons, "[surftimer] Give weapons and allow pickups");
 	RegConsoleCmd("sm_showweapons", Command_ShowWeapons, "[surftimer] Give weapons and allow pickups");
 	RegConsoleCmd("sm_tp", Command_ToggleThirdPerson, "[surftimer] Toggles between first and third person"); // Zephyrus' third person plugin
+	RegConsoleCmd("sm_outliner", Command_Outlines, "[surftimer] [Zoner] Open the outlines menu");
+	RegConsoleCmd("sm_outlines", Command_ToggleOutlines, "[surftimer] Toggle the visibility of outlines");
 
 	// Styles
 	RegConsoleCmd("sm_style", Client_SelectStyle, "[surftimer] Open style select menu");
@@ -4986,6 +4988,10 @@ public Action Command_ShowSpeed(int client, int args)
 // Zephyrus' third person plugin (modified)
 public Action Command_ToggleThirdPerson(int client, int args)
 {
+	// prevent spam
+	if ((GetGameTime() - g_playerOptions[client].cooldown) < OPTION_COOLDOWN)
+		return Plugin_Handled;
+
 	int style = g_iCurrentStyle[client];
 	if (!g_bThirdPerson[client] && (style == 1 || style == 2 || style == 3))
 	{
@@ -5017,15 +5023,15 @@ public Action Command_ToggleThirdPerson(int client, int args)
 public Action Command_HideWeapons(int client, int args)
 {
 	// prevent spam
-	if ((GetGameTime() - g_fLastHideWeapons[client]) < 5.0)
+	if ((GetGameTime() - g_playerOptions[client].cooldown) < OPTION_COOLDOWN)
 		return Plugin_Handled;
 
-	g_fLastHideWeapons[client] = GetGameTime();
-	g_bHideWeapons[client] = !g_bHideWeapons[client];
+	g_playerOptions[client].cooldown = GetGameTime();
+	g_playerOptions[client].hideWeapons = !g_playerOptions[client].hideWeapons;
 
 	if (IsValidClient(client) && !IsFakeClient(client) && IsPlayerAlive(client))
 	{
-		if (g_bHideWeapons[client])
+		if (g_playerOptions[client].hideWeapons)
 		{
 			StripAllWeapons(client, true);
 		}
@@ -5042,14 +5048,14 @@ public Action Command_HideWeapons(int client, int args)
 public Action Command_ShowWeapons(int client, int args)
 {
 	// prevent spam
-	if ((GetGameTime() - g_fLastHideWeapons[client]) < 5.0)
+	if ((GetGameTime() - g_playerOptions[client].cooldown) < OPTION_COOLDOWN)
 		return Plugin_Handled;
 
-	g_fLastHideWeapons[client] = GetGameTime();
+	g_playerOptions[client].cooldown = GetGameTime();
 
-	if (IsValidClient(client) && !IsFakeClient(client) && g_bHideWeapons[client])
+	if (IsValidClient(client) && !IsFakeClient(client) && g_playerOptions[client].hideWeapons)
 	{
-		g_bHideWeapons[client] = false;
+		g_playerOptions[client].hideWeapons = false;
 
 		if (IsPlayerAlive(client))
 		{
@@ -5057,6 +5063,28 @@ public Action Command_ShowWeapons(int client, int args)
 			GivePlayerItem(client, "weapon_knife");
 		}
 	}
+
+	return Plugin_Handled;
+}
+
+public Action Command_Outlines(int client, int args)
+{
+	OutlineMenu(client);
+	return Plugin_Handled;
+}
+
+public Action Command_ToggleOutlines(int client, int args)
+{
+	// prevent spam
+	if ((GetGameTime() - g_playerOptions[client].cooldown) < OPTION_COOLDOWN)
+		return Plugin_Handled;
+
+	g_playerOptions[client].outlines = !g_playerOptions[client].outlines;
+
+	if (g_playerOptions[client].outlines)
+		CPrintToChat(client, "%t", "OutlinesEnabled", g_szChatPrefix);
+	else
+		CPrintToChat(client, "%t", "OutlinesDisabled", g_szChatPrefix);
 
 	return Plugin_Handled;
 }

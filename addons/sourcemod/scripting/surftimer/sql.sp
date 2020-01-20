@@ -146,10 +146,14 @@ public void db_upgradeDatabase(int ver)
 		SQL_FastQuery(g_hDb, "ALTER TABLE ck_spawnlocations DROP PRIMARY KEY, ADD COLUMN teleside INT(11) NOT NULL DEFAULT 0 AFTER stage, ADD PRIMARY KEY (mapname, zonegroup, stage, teleside);");
 	}
 
-	// @IG database updates
+	// @IG database updates - @todo: optimize
 	// hideweapons
 	if (!SQL_FastQuery(g_hDb, "SELECT hideweapons FROM ck_playeroptions2 LIMIT 1"))
 		SQL_FastQuery(g_hDb, "ALTER TABLE ck_playeroptions2 ADD COLUMN hideweapons INT(11) NOT NULL DEFAULT 0 AFTER teleside;");
+
+	// outlines
+	if (!SQL_FastQuery(g_hDb, "SELECT outlines FROM ck_playeroptions2 LIMIT 1"))
+		SQL_FastQuery(g_hDb, "ALTER TABLE ck_playeroptions2 ADD COLUMN outlines INT(11) NOT NULL DEFAULT 1 AFTER hideweapons;");
 
 	// startspeeds
 	if (!SQL_FastQuery(g_hDb, "SELECT startspeed FROM ck_playertimes LIMIT 1"))
@@ -3158,7 +3162,35 @@ public void db_updatePlayerOptions(int client)
 	// "UPDATE ck_playeroptions2 SET timer = %i, hide = %i, sounds = %i, chat = %i, viewmodel = %i, autobhop = %i, checkpoints = %i, centrehud = %i, module1c = %i, module2c = %i, module3c = %i,
 	// module4c = %i, module5c = %i, module6c = %i, sidehud = %i, module1s = %i, module2s = %i, module3s = %i, module4s = %i, module5s = %i where steamid = '%s'";
 	if (IsPlayerLoaded(client)) {
-		Format(szQuery, 1024, sql_updatePlayerOptions, BooltoInt(g_bTimerEnabled[client]), BooltoInt(g_bHide[client]), BooltoInt(g_bEnableQuakeSounds[client]),  BooltoInt(g_bHideChat[client]),  BooltoInt(g_bViewModel[client]),  BooltoInt(g_bAutoBhopClient[client]),  BooltoInt(g_bCheckpointsEnabled[client]),  g_SpeedGradient[client], g_SpeedMode[client], BooltoInt(g_bCenterSpeedDisplay[client]), BooltoInt(g_bCentreHud[client]), g_iTeleSide[client], BooltoInt(g_bHideWeapons[client]), g_iCentreHudModule[client][0], g_iCentreHudModule[client][1], g_iCentreHudModule[client][2], g_iCentreHudModule[client][3], g_iCentreHudModule[client][4], g_iCentreHudModule[client][5],  BooltoInt(g_bSideHud[client]), g_iSideHudModule[client][0], g_iSideHudModule[client][1], g_iSideHudModule[client][2], g_iSideHudModule[client][3], g_iSideHudModule[client][4], g_szSteamID[client]);
+		Format(szQuery, 1024, sql_updatePlayerOptions,
+								view_as<int>(g_bTimerEnabled[client]),
+								view_as<int>(g_bHide[client]),
+								view_as<int>(g_bEnableQuakeSounds[client]),
+								view_as<int>(g_bHideChat[client]),
+								view_as<int>(g_bViewModel[client]),
+								view_as<int>(g_bAutoBhopClient[client]),
+								view_as<int>(g_bCheckpointsEnabled[client]),
+								g_SpeedGradient[client],
+								g_SpeedMode[client],
+								view_as<int>(g_bCenterSpeedDisplay[client]),
+								view_as<int>(g_bCentreHud[client]),
+								g_iTeleSide[client],
+								view_as<int>(g_playerOptions[client].hideWeapons),
+								view_as<int>(g_playerOptions[client].outlines),
+								g_iCentreHudModule[client][0],
+								g_iCentreHudModule[client][1],
+								g_iCentreHudModule[client][2],
+								g_iCentreHudModule[client][3],
+								g_iCentreHudModule[client][4],
+								g_iCentreHudModule[client][5],
+								view_as<int>(g_bSideHud[client]),
+								g_iSideHudModule[client][0],
+								g_iSideHudModule[client][1],
+								g_iSideHudModule[client][2],
+								g_iSideHudModule[client][3],
+								g_iSideHudModule[client][4],
+								g_szSteamID[client]);
+
 		SQL_TQuery(g_hDb, SQL_CheckCallback, szQuery, client);
 	}
 }
