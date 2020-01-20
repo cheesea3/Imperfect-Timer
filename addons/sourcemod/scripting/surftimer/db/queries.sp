@@ -85,7 +85,6 @@ char sql_deleteSpawnLocations[] = "DELETE FROM ck_spawnlocations WHERE mapname =
 // ck_wrcps
 char sql_createWrcps[] = "CREATE TABLE IF NOT EXISTS `ck_wrcps` (`steamid` varchar(32) NOT NULL DEFAULT '', `name` varchar(32) DEFAULT NULL, `mapname` varchar(32) NOT NULL DEFAULT '', `runtimepro` float NOT NULL DEFAULT '-1', `stage` int(11) NOT NULL, `style` int(11) NOT NULL DEFAULT '0', PRIMARY KEY (`steamid`,`mapname`,`stage`,`style`), KEY `stagerank` (`mapname`,`runtimepro`,`stage`,`style`)) DEFAULT CHARSET=utf8mb4;";
 
-
 // ck_zones
 char sql_createZones[] = "CREATE TABLE `ck_zones` (`mapname` varchar(54) NOT NULL, `zoneid` int(12) NOT NULL DEFAULT '-1', `zonetype` int(12) DEFAULT '-1', `zonetypeid` int(12) DEFAULT '-1', `pointa_x` float DEFAULT '-1', `pointa_y` float DEFAULT '-1', `pointa_z` float DEFAULT '-1', `pointb_x` float DEFAULT '-1', `pointb_y` float DEFAULT '-1', `pointb_z` float DEFAULT '-1', `vis` int(12) DEFAULT '0', `team` int(12) DEFAULT '0', `zonegroup` int(11) NOT NULL DEFAULT '0', `zonename` varchar(128) DEFAULT NULL, `hookname` varchar(128) DEFAULT 'None', `targetname` varchar(128) DEFAULT 'player', `onejumplimit` int(12) NOT NULL DEFAULT '1', `prespeed` int(64) NOT NULL DEFAULT '250.0', PRIMARY KEY (`mapname`,`zoneid`)) DEFAULT CHARSET=utf8mb4;";
 char sql_insertZones[] = "INSERT INTO ck_zones (mapname, zoneid, zonetype, zonetypeid, pointa_x, pointa_y, pointa_z, pointb_x, pointb_y, pointb_z, vis, team, zonegroup, zonename, hookname, targetname, onejumplimit, prespeed) VALUES ('%s', '%i', '%i', '%i', '%f', '%f', '%f', '%f', '%f', '%f', '%i', '%i', '%i','%s','%s','%s',%i,%f)";
@@ -98,6 +97,13 @@ char sql_deleteMapZones[] = "DELETE FROM ck_zones WHERE mapname = '%s'";
 char sql_deleteZone[] = "DELETE FROM ck_zones WHERE mapname = '%s' AND zoneid = '%i'";
 char sql_deleteZonesInGroup[] = "DELETE FROM ck_zones WHERE mapname = '%s' AND zonegroup = '%i'";
 char sql_setZoneNames[] = "UPDATE ck_zones SET zonename = '%s' WHERE mapname = '%s' AND zonegroup = '%i';";
+
+// ck_outlines
+char sql_createOutlineTable[] = "CREATE TABLE IF NOT EXISTS `ck_outlines` (`mapname` varchar(32) NOT NULL DEFAULT '', `id` int(11) NOT NULL DEFAULT '-1', `type` int(11) NOT NULL DEFAULT '-1', `pointa_x` float NOT NULL DEFAULT '-1', `pointa_y` float NOT NULL DEFAULT '-1', `pointa_z` float NOT NULL DEFAULT '-1', `pointb_x` float NOT NULL DEFAULT '-1', `pointb_y` float NOT NULL DEFAULT '-1', `pointb_z` float NOT NULL DEFAULT '-1', PRIMARY KEY (`mapname`,`id`)) DEFAULT CHARSET=utf8mb4;";
+char sql_insertOutline[] = "INSERT INTO `ck_outlines` (mapname, id, type, pointa_x, pointa_y, pointa_z, pointb_x, pointb_y, pointb_z) VALUES ('%s', '%i', '%i', '%f', '%f', '%f', '%f', '%f', '%f')";
+char sql_selectMapOutlines[] = "SELECT id, type, pointa_x, pointa_y, pointa_z, pointb_x, pointb_y, pointb_z FROM ck_outlines WHERE mapname = '%s' ORDER BY id ASC";
+char sql_deleteMapOutlines[] = "DELETE FROM `ck_outlines` WHERE `mapname` = '%s'";
+char sql_deleteOutline[] = "DELETE FROM `ck_outlines` WHERE `mapname` = '%s' AND `id` = '%i'";
 
 char sql_MainEditQuery[] = "SELECT steamid, name, %s FROM %s where mapname='%s' and style='%i' %sORDER BY %s ASC LIMIT 50";
 char sql_MainDeleteQeury[] = "DELETE From %s where mapname='%s' and style='%s' and steamid='%s' %s";

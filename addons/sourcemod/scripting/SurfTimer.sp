@@ -140,8 +140,9 @@
 // Maximum amount of zones in a map
 #define MAXZONES 128
 
-#define MAX_OUTLINE_LINES 100; // max outlines per map
-#define MAX_OUTLINE_BOXES 30;
+// max outlines per map
+#define MAX_OUTLINE_LINES 100
+#define MAX_OUTLINE_BOXES 30
 
 // Ranking Definitions
 #define MAX_PR_PLAYERS 1066
@@ -171,6 +172,9 @@
 
 // Max player load steps
 #define MAX_LOAD_STEPS 6
+
+// Max map load steps
+#define MAX_MAP_LOAD_STEPS 21
 
 /*====================================
 =            Enumerations            =
@@ -229,6 +233,26 @@ enum struct MapZone
 	int oneJumpLimit;
 	float preSpeed;
 	int zoneGroup;
+
+	void Defaults()
+	{
+		this.zoneId = -1;
+		this.PointA[0] = -1.0;
+		this.PointA[1] = -1.0;
+		this.PointA[2] = -1.0;
+		this.PointB[0] = -1.0;
+		this.PointB[1] = -1.0;
+		this.PointB[2] = -1.0;
+		this.zoneId = -1;
+		this.zoneType = -1;
+		this.zoneTypeId = -1;
+		this.zoneName = "";
+		this.hookName = "";
+		this.zoneGroup = 0;
+		this.targetName = "";
+		this.oneJumpLimit = 1;
+		this.preSpeed = 350.0;
+	}
 }
 
 enum SkillGroup
@@ -242,6 +266,31 @@ enum SkillGroup
 	String:RankName[128],
 	String:RankNameColored[128],
 	String:NameColour[32]
+}
+
+enum struct MapOutline
+{
+	char mapName[128];
+	int id;
+	int type;
+	float startPos[3];
+	float endPos[3];
+	float center[3]; // used for boxes
+
+	void Defaults()
+	{
+		this.id = -1;
+		this.type = -1;
+	}
+
+	void Set(char name[128], int id, int type, float startPos[3], float endPos[3])
+	{
+		this.mapName = name;
+		this.id = id;
+		this.type = type;
+		this.startPos = startPos;
+		this.endPos = endPos;
+	}
 }
 
 /*===================================

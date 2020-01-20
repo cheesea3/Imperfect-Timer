@@ -788,9 +788,9 @@ public void BeamBox_OnPlayerRunCmd(int client)
 	// @IG outlines
 	if (g_bCreatingOutline[client] && g_bStartPointPlaced[client] && g_bEndPointPlaced[client])
 	{
-		for (int i = 1; i < MAXPLAYERS + 1; i++)
+		for (int i = 1; i <= MAXPLAYERS; i++)
 		{
-			if (!IsValidClient)
+			if (!IsValidClient(i) || IsFakeClient(i))
 				continue;
 
 			TE_SendBeamLineToClient(i, g_fOutlineStartPos[client], g_fOutlineEndPos[client], g_BeamSprite, g_HaloSprite, 0, 30, 0.25, 0.8, 0.8, 1, 0.0, g_outlineBeamColor, 0, true);
@@ -1548,20 +1548,42 @@ public int Handle_CreateOutline(Handle tMenu, MenuAction action, int client, int
 				g_bEndPointPlaced[client] = false;
 				StartOutlineCreation(client);
 			}
-			if (item == 1)
+
+			// saving
+			if (item == 1 && g_bStartPointPlaced[client] && g_bStartPointPlaced[client])
 			{
-				// save
+				if (g_iOutlineStyle[client] == 0) // line
+				{
+					g_outlineLines[g_iOutlineLineCount].Set(g_szMapName, g_iOutlineLineCount, 0, g_fOutlineStartPos[client], g_fOutlineEndPos[client]);
+					DB_InsertOutline(g_outlineLines[g_iOutlineLineCount]);
+					g_iOutlineLineCount++;
+				}
+				else if (g_iOutlineStyle[client] == 1) // box
+				{
+					g_outlineBoxes[g_iOutlineBoxCount].Set(g_szMapName, g_iOutlineBoxCount, 1, g_fOutlineStartPos[client], g_fOutlineEndPos[client]);
+					DB_InsertOutline(g_outlineBoxes[g_iOutlineBoxCount]);
+					g_iOutlineBoxCount++;
+				}
+
+				g_bCreatingOutline[client] = false;
+				g_bStartPointPlaced[client] = false;
+				g_bEndPointPlaced[client] = false;
+				OutlineMenu(client);
 			}
 		}
 		case MenuAction_Cancel:
 		{
 			g_bCreatingOutline[client] = false;
+			g_bStartPointPlaced[client] = false;
+			g_bEndPointPlaced[client] = false;
 			g_iOutlineStyle[client] = 0;
 			OutlineMenu(client);//CreateOutlineMenu(client);
 		}
 		case MenuAction_End:
 		{
 			g_bCreatingOutline[client] = false;
+			g_bStartPointPlaced[client] = false;
+			g_bEndPointPlaced[client] = false;
 			g_iOutlineStyle[client] = 0;
 			OutlineMenu(client);//delete tMenu;
 		}
@@ -2350,11 +2372,9 @@ stock void RemoveZones()
 void resetZone(int zoneIndex)
 {
 	g_mapZones[zoneIndex].zoneId = -1;
-	//g_mapZones[zoneIndex].PointA = -1.0;
 	g_mapZones[zoneIndex].PointA[0] = -1.0;
 	g_mapZones[zoneIndex].PointA[1] = -1.0;
 	g_mapZones[zoneIndex].PointA[2] = -1.0;
-	//g_mapZones[zoneIndex].PointB = -1.0;
 	g_mapZones[zoneIndex].PointB[0] = -1.0;
 	g_mapZones[zoneIndex].PointB[1] = -1.0;
 	g_mapZones[zoneIndex].PointB[2] = -1.0;

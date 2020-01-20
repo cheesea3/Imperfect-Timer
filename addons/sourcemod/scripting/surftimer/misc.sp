@@ -3053,11 +3053,11 @@ public void CenterHudAlive(int client)
 
 	MapLoadState mapState = GetMapLoadState();
 	if (mapState == MLS_LOADING) {
-		PrintHintText(client, "<font color='#FFFF00'>Loading map ... %i/%i</font>", GetMapLoadStep(), GetMapLoadStepMax());
+		PrintHintText(client, "<font color='#FFFF00'>Loading map ... %i/%i</font>", GetMapLoadStep(), MAX_MAP_LOAD_STEPS);
 		return;
 	}
 	if (mapState != MLS_LOADED) {
-		PrintHintText(client, "<font color='#FFFF00'>Map Load Error %i/%i</font>", GetMapLoadStep(), GetMapLoadStepMax());
+		PrintHintText(client, "<font color='#FFFF00'>Map Load Error %i/%i</font>", GetMapLoadStep(), MAX_MAP_LOAD_STEPS);
 		return;
 	}
 

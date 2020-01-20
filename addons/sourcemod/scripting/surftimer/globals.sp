@@ -430,8 +430,11 @@ int g_outlineBeamColor[] = { 255, 255, 255, 200 };
 int g_iOutlineBoxCount;
 int g_iOutlineLineCount;
 
-//float g_vOutlineBoxes[MAX_OUTLINE_BOXES][2][3];
+MapOutline g_outlineLines[MAX_OUTLINE_LINES];
+MapOutline g_outlineBoxes[MAX_OUTLINE_BOXES];
+float g_vOutlineBoxCorners[MAX_OUTLINE_BOXES][8][3]; // really need to switch to Vectors...
 //float g_vOutlineLines[MAX_OUTLINE_LINES][2][3];
+//float g_vOutlineBoxes[MAX_OUTLINE_BOXES][2][3];
 
 /*----------  PushFix by Mev, George & Blacky  ----------*/
 // https://forums.alliedmods.net/showthread.php?t=267131

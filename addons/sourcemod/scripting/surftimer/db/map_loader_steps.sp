@@ -27,12 +27,102 @@ void sql_viewMapSettingsCallback(Handle owner, Handle hndl, const char[] error, 
 
 // 1
 
+void DB_SelectMapOutlines(any cb = 0)
+{
+	char szQuery[512];
+	// SELECT id, type, pointa_x, pointa_y, pointa_z, pointb_x, pointb_y, pointb_z, FROM ck_outlines WHERE mapname = '%s' ORDER BY id ASC
+	Format(szQuery, sizeof(szQuery), sql_selectMapOutlines, g_szMapName);
+	SQL_TQuery(g_hDb, SQL_SelectOutlinesCallback, szQuery, cb, DBPrio_High);
+}
+
+public void SQL_SelectOutlinesCallback(Handle owner, Handle hndl, const char[] error, any cb)
+{
+	if (hndl == null)
+	{
+		LogError("[Surftimer] SQL Error (SQL_SelectOutlinesCallback): %s", error);
+		RunCallback(cb, true);
+		return;
+	}
+
+	if (SQL_HasResultSet(hndl))
+	{
+		// set defaults
+		g_iOutlineLineCount = 0;
+		g_iOutlineBoxCount = 0;
+
+		for (int i = 0; i < MAX_OUTLINE_LINES; i++)
+			g_outlineLines[i].Defaults();
+
+		for (int i = 0; i < MAX_OUTLINE_BOXES; i++)
+			g_outlineBoxes[i].Defaults();
+
+		// read table
+		while (SQL_FetchRow(hndl))
+		{
+			MapOutline outline;
+			int id = SQL_FetchInt(hndl, 0);
+			int type = SQL_FetchInt(hndl, 1);
+
+			if (type == 0)
+				outline = g_outlineLines[g_iOutlineLineCount];
+			else if (type == 1)
+				outline = g_outlineBoxes[g_iOutlineBoxCount];
+			else
+				continue; // this shouldn't happen, but just in case
+
+			outline.id = id;
+			outline.type = type;
+			outline.startPos[0] = SQL_FetchFloat(hndl, 2);
+			outline.startPos[1] = SQL_FetchFloat(hndl, 3);
+			outline.startPos[2] = SQL_FetchFloat(hndl, 4);
+			outline.endPos[0] = SQL_FetchFloat(hndl, 5);
+			outline.endPos[1] = SQL_FetchFloat(hndl, 6);
+			outline.endPos[2] = SQL_FetchFloat(hndl, 7);
+
+			if (type == 1)
+			{
+				// Center point
+				float posA[3], posB[3], result[3];
+				Array_Copy(outline.startPos, posA, 3);
+				Array_Copy(outline.endPos, posB, 3);
+				AddVectors(posA, posB, result);
+				outline.center[0] = result[0] / 2.0;
+				outline.center[1] = result[1] / 2.0;
+				outline.center[2] = result[2] / 2.0;
+
+				for (int i = 0; i < 3; i++)
+				{
+					g_vOutlineBoxCorners[g_iOutlineBoxCount][0][i] = outline.startPos[i];
+					g_vOutlineBoxCorners[g_iOutlineBoxCount][7][i] = outline.endPos[i];
+				}
+			}
+
+			// Update counts
+			if (type == 0)
+				g_iOutlineLineCount++;
+			else if (type == 1)
+				g_iOutlineBoxCount++;
+		}
+
+		// Zone corners
+		for (int x = 0; x < g_iOutlineBoxCount; x++)
+			for(int i = 1; i < 7; i++)
+				for(int j = 0; j < 3; j++)
+					g_vOutlineBoxCorners[x][i][j] = g_vOutlineBoxCorners[x][((i >> (2-j)) & 1) * 7][j];
+	}
+
+	RunCallback(cb);
+}
+
 void db_selectMapZones(any cb=0)
 {
 	char szQuery[512];
+	// SELECT zoneid, zonetype, zonetypeid, pointa_x, pointa_y, pointa_z, pointb_x, pointb_y, pointb_z, vis, team, zonegroup, zonename, hookname, targetname, onejumplimit, prespeed
+	// FROM ck_zones WHERE mapname = '%s' ORDER BY zonetypeid ASC
 	Format(szQuery, sizeof(szQuery), sql_selectMapZones, g_szMapName);
 	SQL_TQuery(g_hDb, SQL_selectMapZonesCallback, szQuery, cb, DBPrio_High);
 }
+
 public void SQL_selectMapZonesCallback(Handle owner, Handle hndl, const char[] error, any cb)
 {
 	if (hndl == null) {
@@ -52,24 +142,7 @@ public void SQL_selectMapZonesCallback(Handle owner, Handle hndl, const char[] e
 
 		for (int i = 0; i < MAXZONES; i++)
 		{
-			g_mapZones[i].zoneId = -1;
-			g_mapZones[i].PointA[0] = -1.0;
-			g_mapZones[i].PointA[1] = -1.0;
-			g_mapZones[i].PointA[2] = -1.0;
-			//g_mapZones[i].PointA = -1.0;
-			g_mapZones[i].PointB[0] = -1.0;
-			g_mapZones[i].PointB[1] = -1.0;
-			g_mapZones[i].PointB[2] = -1.0;
-			//g_mapZones[i].PointB = -1.0;
-			g_mapZones[i].zoneId = -1;
-			g_mapZones[i].zoneType = -1;
-			g_mapZones[i].zoneTypeId = -1;
-			g_mapZones[i].zoneName = "";
-			g_mapZones[i].hookName = "";
-			g_mapZones[i].zoneGroup = 0;
-			g_mapZones[i].targetName = "";
-			g_mapZones[i].oneJumpLimit = 1;
-			g_mapZones[i].preSpeed = 350.0;
+			g_mapZones[i].Defaults();
 		}
 
 		for (int x = 0; x < MAXZONEGROUPS; x++)
@@ -189,9 +262,9 @@ public void SQL_selectMapZonesCallback(Handle owner, Handle hndl, const char[] e
 			Array_Copy(g_mapZones[g_mapZonesCount].PointA, posA, 3);
 			Array_Copy(g_mapZones[g_mapZonesCount].PointB, posB, 3);
 			AddVectors(posA, posB, result);
-			g_mapZones[g_mapZonesCount].CenterPoint[0] = FloatDiv(result[0], 2.0);
-			g_mapZones[g_mapZonesCount].CenterPoint[1] = FloatDiv(result[1], 2.0);
-			g_mapZones[g_mapZonesCount].CenterPoint[2] = FloatDiv(result[2], 2.0);
+			g_mapZones[g_mapZonesCount].CenterPoint[0] = result[0] / 2.0;
+			g_mapZones[g_mapZonesCount].CenterPoint[1] = result[1] / 2.0;
+			g_mapZones[g_mapZonesCount].CenterPoint[2] = result[2] / 2.0;
 
 			for (int i = 0; i < 3; i++)
 			{
