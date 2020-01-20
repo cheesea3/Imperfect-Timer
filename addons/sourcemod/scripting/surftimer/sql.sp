@@ -3616,7 +3616,7 @@ public void SQL_UpdateWrcpRecordCallback2(Handle owner, Handle hndl, const char[
 				CPrintToChatAll("%t", "SQL15", g_szChatPrefix, szName, stage, g_szFinalWrcpTime[client], sz_srDiff, g_TotalStageRecords[stage]);
 				g_bSavingWrcpReplay[client] = true;
 				// Stage_SaveRecording(client, stage, g_szFinalWrcpTime[client]);
-				PlayWRCPRecord(1);
+				PlayWRCPRecord(1, client);
 			}
 			else
 			{
@@ -3639,7 +3639,7 @@ public void SQL_UpdateWrcpRecordCallback2(Handle owner, Handle hndl, const char[
 			CPrintToChatAll("%t", "SQL18", g_szChatPrefix, szName, stage, g_szFinalWrcpTime[client]);
 			g_bSavingWrcpReplay[client] = true;
 			// Stage_SaveRecording(client, stage, g_szFinalWrcpTime[client]);
-			PlayWRCPRecord(1);
+			PlayWRCPRecord(1, client);
 		}
 	}
 	else if (style != 0) // styles
@@ -3659,7 +3659,7 @@ public void SQL_UpdateWrcpRecordCallback2(Handle owner, Handle hndl, const char[
 				FormatTimeFloat(1, g_fStyleStageRecord[style][stage], 3, g_szStyleRecordStageTime[style][stage], 64);
 
 				CPrintToChatAll("%t", "SQL19", g_szChatPrefix, szName, g_szStyleRecordPrint[style], stage, g_szFinalWrcpTime[client], sz_srDiff, g_StyleStageRank[style][client][stage], g_TotalStageStyleRecords[style][stage]);
-				PlayWRCPRecord(1);
+				PlayWRCPRecord(1, client);
 			}
 			else
 			{
@@ -3680,7 +3680,7 @@ public void SQL_UpdateWrcpRecordCallback2(Handle owner, Handle hndl, const char[
 			FormatTimeFloat(1, g_fStyleStageRecord[style][stage], 3, g_szStyleRecordStageTime[style][stage], 64);
 
 			CPrintToChatAll("%t", "SQL22", g_szChatPrefix, szName, g_szStyleRecordPrint[style], stage, g_szFinalWrcpTime[client]);
-			PlayWRCPRecord(1);
+			PlayWRCPRecord(1, client);
 		}
 	}
 
