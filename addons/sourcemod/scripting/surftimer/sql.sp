@@ -3155,7 +3155,8 @@ public void SQL_CheckCallback4(Handle owner, Handle hndl, const char[] error, an
 public void db_updatePlayerOptions(int client)
 {
 	char szQuery[1024];
-	// "UPDATE ck_playeroptions2 SET timer = %i, hide = %i, sounds = %i, chat = %i, viewmodel = %i, autobhop = %i, checkpoints = %i, centrehud = %i, module1c = %i, module2c = %i, module3c = %i, module4c = %i, module5c = %i, module6c = %i, sidehud = %i, module1s = %i, module2s = %i, module3s = %i, module4s = %i, module5s = %i where steamid = '%s'";
+	// "UPDATE ck_playeroptions2 SET timer = %i, hide = %i, sounds = %i, chat = %i, viewmodel = %i, autobhop = %i, checkpoints = %i, centrehud = %i, module1c = %i, module2c = %i, module3c = %i,
+	// module4c = %i, module5c = %i, module6c = %i, sidehud = %i, module1s = %i, module2s = %i, module3s = %i, module4s = %i, module5s = %i where steamid = '%s'";
 	if (IsPlayerLoaded(client)) {
 		Format(szQuery, 1024, sql_updatePlayerOptions, BooltoInt(g_bTimerEnabled[client]), BooltoInt(g_bHide[client]), BooltoInt(g_bEnableQuakeSounds[client]),  BooltoInt(g_bHideChat[client]),  BooltoInt(g_bViewModel[client]),  BooltoInt(g_bAutoBhopClient[client]),  BooltoInt(g_bCheckpointsEnabled[client]),  g_SpeedGradient[client], g_SpeedMode[client], BooltoInt(g_bCenterSpeedDisplay[client]), BooltoInt(g_bCentreHud[client]), g_iTeleSide[client], BooltoInt(g_bHideWeapons[client]), g_iCentreHudModule[client][0], g_iCentreHudModule[client][1], g_iCentreHudModule[client][2], g_iCentreHudModule[client][3], g_iCentreHudModule[client][4], g_iCentreHudModule[client][5],  BooltoInt(g_bSideHud[client]), g_iSideHudModule[client][0], g_iSideHudModule[client][1], g_iSideHudModule[client][2], g_iSideHudModule[client][3], g_iSideHudModule[client][4], g_szSteamID[client]);
 		SQL_TQuery(g_hDb, SQL_CheckCallback, szQuery, client);
@@ -3601,9 +3602,10 @@ public void SQL_UpdateWrcpRecordCallback2(Handle owner, Handle hndl, const char[
 	bool newRecordHolder = false;
 	if (style == 0)
 	{
+		// Compare against 1, since the player has completed the stage already
 		if (g_TotalStageRecords[stage] > 1)
-		{ // If the server already has a record
-
+		{
+			// If the server already has a record
 			if (g_fFinalWrcpTime[client] < g_fStageRecord[stage] && g_fFinalWrcpTime[client] > 0.0)
 			{
 				// New fastest time in map
@@ -3614,7 +3616,6 @@ public void SQL_UpdateWrcpRecordCallback2(Handle owner, Handle hndl, const char[
 				Format(g_szStageRecordPlayer[stage], MAX_NAME_LENGTH, "%s", szName);
 				FormatTimeFloat(1, g_fStageRecord[stage], 3, g_szRecordStageTime[stage], 64);
 				CPrintToChatAll("%t", "SQL15", g_szChatPrefix, szName, stage, g_szFinalWrcpTime[client], sz_srDiff, g_TotalStageRecords[stage]);
-				CPrintToChat(client, "[1]: %.3f, %.3f, %.3f", g_fFinalWrcpTime[client], g_fStageRecord[stage], g_fFinalWrcpTime[client]);
 				g_bSavingWrcpReplay[client] = true;
 				// Stage_SaveRecording(client, stage, g_szFinalWrcpTime[client]);
 				PlayWRCPRecord(client);
@@ -3622,7 +3623,6 @@ public void SQL_UpdateWrcpRecordCallback2(Handle owner, Handle hndl, const char[
 			else
 			{
 				CPrintToChat(client, "%t", "SQL16", g_szChatPrefix, stage, g_szFinalWrcpTime[client], szDiff, sz_srDiff, g_StageRank[client][stage], g_TotalStageRecords[stage]);
-				CPrintToChat(client, "[2]: FinalTime: %.3f | SR: %.3f | g_TotalStageRecords[stage]: %i ", g_fFinalWrcpTime[client], g_fStageRecord[stage], g_TotalStageRecords[stage]);
 				char szSpecMessage[512];
 				Format(szSpecMessage, sizeof(szSpecMessage), "%t", "SQL17", g_szChatPrefix, szName, stage, g_szFinalWrcpTime[client], szDiff, sz_srDiff, g_StageRank[client][stage], g_TotalStageRecords[stage]);
 				CheckpointToSpec(client, szSpecMessage);
@@ -3636,7 +3636,6 @@ public void SQL_UpdateWrcpRecordCallback2(Handle owner, Handle hndl, const char[
 			g_fStageRecord[stage] = g_fFinalTime[client];
 			Format(g_szStageRecordPlayer[stage], MAX_NAME_LENGTH, "%s", szName);
 			FormatTimeFloat(1, g_fStageRecord[stage], 3, g_szRecordStageTime[stage], 64);
-			CPrintToChat(client, "[3]: %.3f, %.3f, %.3f", g_fFinalWrcpTime[client], g_fStageRecord[stage], g_fFinalWrcpTime[client]);
 			CPrintToChatAll("%t", "SQL18", g_szChatPrefix, szName, stage, g_szFinalWrcpTime[client]);
 			g_bSavingWrcpReplay[client] = true;
 			// Stage_SaveRecording(client, stage, g_szFinalWrcpTime[client]);
@@ -3645,7 +3644,8 @@ public void SQL_UpdateWrcpRecordCallback2(Handle owner, Handle hndl, const char[
 	}
 	else if (style != 0) // styles
 	{
-		if (g_TotalStageStyleRecords[style][stage] > 0)
+		// Compare against 1, since the player has completed the stage already
+		if (g_TotalStageStyleRecords[style][stage] > 1)
 		{
 			// If the server already has a record
 			if (g_fFinalWrcpTime[client] < g_fStyleStageRecord[style][stage] && g_fFinalWrcpTime[client] > 0.0)
