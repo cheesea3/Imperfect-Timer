@@ -125,7 +125,7 @@ public void InsertSpawnLocation(int client, int teleside)
 		db_insertSpawnLocations(SpawnLocation, SpawnAngle, Velocity, g_iClientInZone[client][2], teleside);
 		CPrintToChat(client, "%t", "SpawnAdded", g_szChatPrefix);
 	}
-	
+
 	CPrintToChat(client, "%f : %f : %f : %i", SpawnLocation, SpawnAngle, Velocity, g_iClientInZone[client][2]);
 }
 
@@ -143,7 +143,7 @@ public Action Admin_deleteSpawnLocation(int client, int args)
 			AddMenuItem(menu, "", "Left");
 		else
 			AddMenuItem(menu, "", "Left", ITEMDRAW_DISABLED);
-		
+
 		if (g_bGotSpawnLocation[g_iClientInZone[client][2]][1][1])
 			AddMenuItem(menu, "", "Right");
 		else

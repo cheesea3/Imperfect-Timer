@@ -480,7 +480,7 @@ public Action Say_Hook(int client, const char[] command, int argc)
 
 	char szChatRank[1024] = "";
 	if (g_bDbCustomTitleInUse[client]) {
-		Format(szChatRank, sizeof(szChatRank), "{default}%s {gray}| ", g_pr_chat_coloredrank[client]);
+		Format(szChatRank, sizeof(szChatRank), "{default}%s {grey}| ", g_pr_chat_coloredrank[client]);
 		ReplaceString(szChatRank, sizeof(szChatRank), "{style}", "");
 	}
 
@@ -498,7 +498,7 @@ public Action Say_Hook(int client, const char[] command, int argc)
 	}
 	*/
 
-	CPrintToChatAll("%s%s{default}%s%s{gray}: {default}%s", szCountry, szChatRank, szSpec, szName, sText);
+	CPrintToChatAll("%s%s{default}%s%s{grey}: {default}%s", szCountry, szChatRank, szSpec, szName, sText);
 	return Plugin_Handled;
 }
 

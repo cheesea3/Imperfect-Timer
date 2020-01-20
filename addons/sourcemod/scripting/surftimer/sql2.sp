@@ -424,7 +424,7 @@ public void SQL_UpdatePlayerColoursCallback(Handle owner, Handle hndl, const cha
 
 // WR Announcements
 
-public void db_insertAnnouncement(char szName[32], char szMapName[128], char szTime[32])
+public void db_insertAnnouncement(char szName[MAX_NAME_LENGTH], char szMapName[128], char szTime[32])
 {
 	if (g_iServerID == -1)
 		return;

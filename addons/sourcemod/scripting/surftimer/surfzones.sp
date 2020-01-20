@@ -440,15 +440,15 @@ public Action EndTouchTrigger(int caller, int activator)
 				{
 					int speedDiff = speed - pbSpeed;
 					if (speedDiff < 0) // slower than pb
-						Format(szSpeed, 64, "{darkred}%i{default} | {gray}SR: ", speedDiff);
+						Format(szSpeed, 64, "{darkred}%i{default} | {grey}SR: ", speedDiff);
 					else if (speedDiff > 0) // faster than pb
-						Format(szSpeed, 64, "{green}+%i{default} | {gray}SR: ");
+						Format(szSpeed, 64, "{green}+%i{default} | {grey}SR: ");
 					else // same as pb
-						Format(szSpeed, 64, "{default}+0 | {gray}SR: ");
+						Format(szSpeed, 64, "{default}+0 | {grey}SR: ");
 				}
 				else // pb doesn't exist
 				{
-					Format(szSpeed, 64, "{lightgreen}N/A{default} | {gray}SR: ");
+					Format(szSpeed, 64, "{lightgreen}N/A{default} | {grey}SR: ");
 				}
 
 				if (recSpeed > 0) // sr start speed exists
@@ -514,15 +514,15 @@ public Action EndTouchTrigger(int caller, int activator)
 					{
 						int speedDiff = speed - pbSpeed;
 						if (speedDiff < 0) // slower than pb
-							Format(szSpeed, 80, "{darkred}%i{default} | {gray}SR: ", speedDiff);
+							Format(szSpeed, 80, "{darkred}%i{default} | {grey}SR: ", speedDiff);
 						else if (speedDiff > 0) // faster than pb
-							Format(szSpeed, 80, "{green}+%i{default} | {gray}SR: ", speedDiff);
+							Format(szSpeed, 80, "{green}+%i{default} | {grey}SR: ", speedDiff);
 						else // same as pb
-							Format(szSpeed, 80, "{default}+0 | {gray}SR: ");
+							Format(szSpeed, 80, "{default}+0 | {grey}SR: ");
 					}
 					else // pb doesn't exist
 					{
-						Format(szSpeed, 80, "{lightgreen}N/A{default} | {gray}SR: ");
+						Format(szSpeed, 80, "{lightgreen}N/A{default} | {grey}SR: ");
 					}
 
 					if (recSpeed > 0) // sr start speed exists
@@ -1981,9 +1981,9 @@ public int MenuHandler_Editor(Handle tMenu, MenuAction action, int client, int i
 					float ZonePos[3];
 					surftimer_StopTimer(client);
 					AddVectors(g_Positions[client][0], g_Positions[client][1], ZonePos);
-					ZonePos[0] = FloatDiv(ZonePos[0], 2.0);
-					ZonePos[1] = FloatDiv(ZonePos[1], 2.0);
-					ZonePos[2] = FloatDiv(ZonePos[2], 2.0);
+					ZonePos[0] = ZonePos[0] / 2.0;
+					ZonePos[1] = ZonePos[1] / 2.0;
+					ZonePos[2] = ZonePos[2] / 2.0;
 
 					TeleportEntity(client, ZonePos, NULL_VECTOR, NULL_VECTOR);
 					EditorMenu(client);

@@ -14,7 +14,7 @@ public int Handle_VoteMenuExtend(Menu menu, MenuAction action, int param1, int p
 		if (strcmp(item, VOTE_NO) == 0 && param1 == 1)
 		votes = totalVotes - votes;
 
-		percent = FloatDiv(float(votes),float(totalVotes));
+		percent = float(votes) / float(totalVotes);
 
 		/* 0=yes, 1=no */
 		if ((strcmp(item, VOTE_YES) == 0 && FloatCompare(percent,limit) < 0 && param1 == 0) || (strcmp(item, VOTE_NO) == 0 && param1 == 1)) {

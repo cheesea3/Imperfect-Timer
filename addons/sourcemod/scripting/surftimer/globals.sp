@@ -942,7 +942,7 @@ bool g_bPracticeMode[MAXPLAYERS + 1];
 bool g_bReportSuccess[MAXPLAYERS + 1];
 
 // Chat Colors in String Format
-char szWHITE[12], szDARKRED[12], szPURPLE[12], szGREEN[12], szLIGHTGREEN[12], szLIMEGREEN[12], szRED[12], szGRAY[12], szYELLOW[12], szDARKGREY[12], szBLUE[12], szDARKBLUE[12], szLIGHTBLUE[12], szPINK[12], szLIGHTRED[12], szORANGE[12];
+char szWHITE[12], szDARKRED[12], szPURPLE[12], szGREEN[12], szLIGHTGREEN[12], szLIMEGREEN[12], szRED[12], szGRAY[12], szYELLOW[12], szDARKGREY[12], szBLUE[12], szDARKBLUE[12], szBLUEGREY[12], szPINK[12], szLIGHTRED[12], szORANGE[12];
 
 // hook zones
 Handle g_hTriggerMultiple;

@@ -607,7 +607,7 @@ public void setNameColor(char[] ClientName, int index, int size)
 		case 8:
 			Format(ClientName, size, "%c%s", YELLOW, ClientName);
 		case 9:
-			Format(ClientName, size, "%c%s", LIGHTBLUE, ClientName);
+			Format(ClientName, size, "%c%s", BLUEGREY, ClientName);
 		case 10:
 			Format(ClientName, size, "%c%s", DARKBLUE, ClientName);
 		case 11:
@@ -646,7 +646,7 @@ public void setTextColor(char[] ClientText, int index, int size)
 		case 8:
 			Format(ClientText, size, "%c%s", YELLOW, ClientText);
 		case 9:
-			Format(ClientText, size, "%c%s", LIGHTBLUE, ClientText);
+			Format(ClientText, size, "%c%s", BLUEGREY, ClientText);
 		case 10:
 			Format(ClientText, size, "%c%s", DARKBLUE, ClientText);
 		case 11:
@@ -675,7 +675,7 @@ public void parseColorsFromString(char[] ParseString, int size)
 	ReplaceString(ParseString, size, "{grey}", "", false);
 	ReplaceString(ParseString, size, "{gray}", "", false);
 	ReplaceString(ParseString, size, "{yellow}", "", false);
-	ReplaceString(ParseString, size, "{lightblue}", "", false);
+	ReplaceString(ParseString, size, "{bluegrey}", "", false);
 	ReplaceString(ParseString, size, "{darkblue}", "", false);
 	ReplaceString(ParseString, size, "{pink}", "", false);
 	ReplaceString(ParseString, size, "{lightred}", "", false);
@@ -1105,7 +1105,7 @@ public void LimitSpeedNew(int client)
 	// Derived from Pythagorean theorem, where the hypotenuse represents the magnitude of velocity,
 	// and the two legs represent the x and y velocity components.
 	// As a side effect, velocity component signs are also handled.
-	float scale = FloatDiv(speedCap, SquareRoot( FloatAdd( Pow(fVel[0], 2.0), Pow(fVel[1], 2.0) ) ) );
+	float scale = speedCap / SquareRoot(Pow(fVel[0], 2.0) + Pow(fVel[1], 2.0));
 
 	// A scale < 1 indicates a magnitude > limit
 	if (scale < 1.0)
@@ -1118,8 +1118,8 @@ public void LimitSpeedNew(int client)
 		// }
 
 		// Reduce each vector by the appropriate amount
-		fVel[0] = FloatMul(fVel[0], scale);
-		fVel[1] = FloatMul(fVel[1], scale);
+		fVel[0] = fVel[0] * scale;
+		fVel[1] = fVel[1] * scale;
 
 		// Impart new velocity onto player
 		if (g_bInBhop[client] || g_bLeftZone[client]) // doesnt always consider player as bhopping when in lg/slw
@@ -1394,7 +1394,7 @@ public void PlayRecordSound(int iRecordtype)
 	char buffer[PLATFORM_MAX_PATH];
 	if (iRecordtype == 1)
 	{
-		for (int i = 1; i <= GetMaxClients(); i++)
+		for (int i = 1; i <= MaxClients; i++)
 		{
 			if (IsValidClient(i) && !IsFakeClient(i) && g_bEnableQuakeSounds[i])
 			{
@@ -1405,7 +1405,7 @@ public void PlayRecordSound(int iRecordtype)
 	}
 	else if (iRecordtype == 2)
 	{
-		for (int i = 1; i <= GetMaxClients(); i++)
+		for (int i = 1; i <= MaxClients; i++)
 		{
 			if (IsValidClient(i) && !IsFakeClient(i) && g_bEnableQuakeSounds[i])
 			{
@@ -1416,7 +1416,7 @@ public void PlayRecordSound(int iRecordtype)
 	}
 	else if (iRecordtype == 3) // top10
 	{
-		for (int i = 1; i <= GetMaxClients(); i++)
+		for (int i = 1; i <= MaxClients; i++)
 		{
 			if (IsValidClient(i) && !IsFakeClient(i) && g_bEnableQuakeSounds[i])
 			{
@@ -1427,7 +1427,7 @@ public void PlayRecordSound(int iRecordtype)
 	}
 	else if (iRecordtype == 4) // Discotime
 	{
-		for (int i = 1; i <= GetMaxClients(); i++)
+		for (int i = 1; i <= MaxClients; i++)
 		{
 			if (IsValidClient(i) && !IsFakeClient(i) && g_bEnableQuakeSounds[i])
 			{
@@ -1717,7 +1717,7 @@ stock void MapFinishedMsgs(int client, int rankThisRun = 0)
 			(GetConVarInt(g_hAnnounceRecord) == 2 && g_bMapSRVRecord[client])) &&
 			(rankThisRun <= GetConVarInt(g_hAnnounceRank) || GetConVarInt(g_hAnnounceRank) == 0))
 		{
-			for (int i = 1; i <= GetMaxClients(); i++)
+			for (int i = 1; i <= MaxClients; i++)
 			{
 				if (IsValidClient(i) && !IsFakeClient(i))
 				{
@@ -3795,7 +3795,7 @@ stock void StyleFinishedMsgs(int client, int style)
 
 		if (GetConVarInt(g_hAnnounceRecord) == 0 || GetConVarInt(g_hAnnounceRecord) == 1)
 		{
-			for (int i = 1; i <= GetMaxClients(); i++)
+			for (int i = 1; i <= MaxClients; i++)
 			{
 				if (IsValidClient(i) && !IsFakeClient(i))
 				{
@@ -3821,7 +3821,7 @@ stock void StyleFinishedMsgs(int client, int style)
 		}
 		else if (GetConVarInt(g_hAnnounceRecord) == 2)
 		{
-			for (int i = 1; i <= GetMaxClients(); i++)
+			for (int i = 1; i <= MaxClients; i++)
 			{
 				if (g_bStyleMapSRVRecord[style][client])
 				{
@@ -4001,7 +4001,7 @@ public void getColourName(int client, char[] buffer, int length, int colour)
 		case 6: Format(buffer, length, "Red");
 		case 7: Format(buffer, length, "Grey");
 		case 8: Format(buffer, length, "Yellow");
-		case 9: Format(buffer, length, "Lightblue");
+		case 9: Format(buffer, length, "Bluegrey");
 		case 10: Format(buffer, length, "Darkblue");
 		case 11: Format(buffer, length, "Pink");
 		case 12: Format(buffer, length, "Light Red");
@@ -4144,7 +4144,7 @@ public void totalTimeForHumans(int unix, char[] buffer, int size)
 	}
 }
 
-public void sendDiscordAnnouncement(char szName[32], char szMapName[128], char szTime[32])
+public void sendDiscordAnnouncement(char szName[MAX_NAME_LENGTH], char szMapName[128], char szTime[32])
 {
 	char webhook[1024];
 	GetConVarString(g_hRecordAnnounceDiscord, webhook, 1024);

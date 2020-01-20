@@ -2341,9 +2341,9 @@ public void GotoMethod(int client, int target)
 		GetClientEyeAngles(target, angles);
 
 		AddVectors(position, angles, g_fTeleLocation[client]);
-		g_fTeleLocation[client][0] = FloatDiv(g_fTeleLocation[client][0], 2.0);
-		g_fTeleLocation[client][1] = FloatDiv(g_fTeleLocation[client][1], 2.0);
-		g_fTeleLocation[client][2] = FloatDiv(g_fTeleLocation[client][2], 2.0);
+		g_fTeleLocation[client][0] = g_fTeleLocation[client][0] / 2.0;
+		g_fTeleLocation[client][1] = g_fTeleLocation[client][1] / 2.0;
+		g_fTeleLocation[client][2] = g_fTeleLocation[client][2] / 2.0;
 
 		g_bRespawnPosition[client] = false;
 		g_specToStage[client] = true;
@@ -3215,7 +3215,7 @@ public Action Command_SetDbNameColour(int client, int args)
 		{
 		 	arg = "8";
 		}
-		else if (StrContains(upperArg, "{LIGHTBLUE}", false)!=-1)
+		else if (StrContains(upperArg, "{BLUEGREY}", false)!=-1)
 		{
 			arg = "9";
 		}
@@ -3308,7 +3308,7 @@ public Action Command_SetDbTextColour(int client, int args)
 		{
 		 	arg = "8";
 		}
-		else if (StrContains(upperArg, "{LIGHTBLUE}", false)!=-1)
+		else if (StrContains(upperArg, "{BLUEGREY}", false)!=-1)
 		{
 			arg = "9";
 		}

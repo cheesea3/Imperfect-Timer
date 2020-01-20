@@ -71,7 +71,7 @@
 #define DARKGREY 0x0A
 #define BLUE 0x0B
 #define DARKBLUE 0x0C
-#define LIGHTBLUE 0x0D
+#define BLUEGREY 0x0D
 #define PINK 0x0E
 #define LIGHTRED 0x0F
 
@@ -1399,7 +1399,7 @@ public void OnPluginStart()
 	Format(szDARKGREY, 12, "%c", DARKGREY);
 	Format(szBLUE, 12, "%c", BLUE);
 	Format(szDARKBLUE, 12, "%c", DARKBLUE);
-	Format(szLIGHTBLUE, 12, "%c", LIGHTBLUE);
+	Format(szBLUEGREY, 12, "%c", BLUEGREY);
 	Format(szPINK, 12, "%c", PINK);
 	Format(szLIGHTRED, 12, "%c", LIGHTRED);
 	Format(szORANGE, 12, "%c", ORANGE);

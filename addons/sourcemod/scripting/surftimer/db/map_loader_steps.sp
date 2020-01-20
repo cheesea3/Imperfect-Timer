@@ -602,7 +602,7 @@ public void SQL_selectMapTierCallback(Handle owner, Handle hndl, const char[] er
 			switch (tier)
 			{
 				case 1:Format(g_sTierString, 512, "%s%cTier %i %c- ", g_sTierString, GRAY, tier, WHITE);
-				case 2:Format(g_sTierString, 512, "%s%cTier %i %c- ", g_sTierString, LIGHTBLUE, tier, WHITE);
+				case 2:Format(g_sTierString, 512, "%s%cTier %i %c- ", g_sTierString, BLUEGREY, tier, WHITE);
 				case 3:Format(g_sTierString, 512, "%s%cTier %i %c- ", g_sTierString, BLUE, tier, WHITE);
 				case 4:Format(g_sTierString, 512, "%s%cTier %i %c- ", g_sTierString, DARKBLUE, tier, WHITE);
 				case 5:Format(g_sTierString, 512, "%s%cTier %i %c- ", g_sTierString, RED, tier, WHITE);

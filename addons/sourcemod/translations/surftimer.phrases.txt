@@ -543,7 +543,7 @@
 	"Commands44"
 	{
 		"#format"	"{1:s}"
-		"en"		"{1} Available Colours: {darkred}darkred {lightred}lightred {red}red {green}green {lime}lime {lightgreen}lightgreen {darkblue}darkblue {lightblue}lightblue {blue}blue {pink}pink {purple}purple {orange}orange {yellow}yellow {grey}grey {grey2}grey2 {default}default"
+		"en"		"{1} Available Colours: {darkred}darkred {lightred}lightred {red}red {green}green {lime}lime {lightgreen}lightgreen {darkblue}darkblue {bluegrey}bluegrey {blue}blue {pink}pink {purple}purple {orange}orange {yellow}yellow {grey}grey {grey2}grey2 {default}default"
 	}
 	"Commands46"
 	{
@@ -768,12 +768,12 @@
 	"StartSpeedNew"
 	{
 		"#format"	"{1:s},{2:i},{3:s}"
-		"en"		"{1} Start speed: {lightblue}{2} u/s {default}[{gray}PB: {3}]"
+		"en"		"{1} Start speed: {bluegrey}{2} u/s {default}[{grey}PB: {3}]"
 	}
 	"StartSpeed"
 	{
 		"#format"	"{1:s},{2:i}"
-		"en"		"{1} Start speed: {lightblue}{2} u/s"
+		"en"		"{1} Start speed: {bluegrey}{2} u/s"
 	}
 	"BotInUse"
 	{

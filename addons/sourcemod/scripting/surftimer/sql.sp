@@ -2292,7 +2292,7 @@ public void db_deleteBonus()
 	SQL_TQuery(g_hDb, SQL_deleteBonusCallback, szQuery);
 }
 
-public void db_insertBonus(int client, char szSteamId[32], char szUName[32], float finalTime, int startSpeed, int zoneGrp)
+public void db_insertBonus(int client, char szSteamId[32], char szUName[MAX_NAME_LENGTH], float finalTime, int startSpeed, int zoneGrp)
 {
 	char szQuery[1024];
 	char szName[MAX_NAME_LENGTH * 2 + 1];
@@ -2304,7 +2304,7 @@ public void db_insertBonus(int client, char szSteamId[32], char szUName[32], flo
 	SQL_TQuery(g_hDb, SQL_updateBonusCallback, szQuery, pack);
 }
 
-public void db_updateBonus(int client, char szSteamId[32], char szUName[32], float finalTime, int startSpeed, int zoneGrp)
+public void db_updateBonus(int client, char szSteamId[32], char szUName[MAX_NAME_LENGTH], float finalTime, int startSpeed, int zoneGrp)
 {
 	char szQuery[1024];
 	char szName[MAX_NAME_LENGTH * 2 + 1];
@@ -2936,7 +2936,7 @@ public int LatestRecordsMenuHandler(Handle menu, MenuAction action, int param1, 
 		CloseHandle(menu);
 }
 
-public void db_InsertLatestRecords(char szSteamID[32], char szName[32], float FinalTime)
+public void db_InsertLatestRecords(char szSteamID[32], char szName[MAX_NAME_LENGTH], float FinalTime)
 {
 	char szQuery[512];
 	Format(szQuery, 512, sql_insertLatestRecords, szSteamID, szName, FinalTime, g_szMapName);
@@ -4121,7 +4121,7 @@ public void db_selectStyleMapTopSurfers(int client, char mapname[128], int style
 }
 
 // Styles for bonuses
-public void db_insertBonusStyle(int client, char szSteamId[32], char szUName[32], float FinalTime, int startSpeed, int zoneGrp, int style)
+public void db_insertBonusStyle(int client, char szSteamId[32], char szUName[MAX_NAME_LENGTH], float FinalTime, int startSpeed, int zoneGrp, int style)
 {
 	char szQuery[1024];
 	char szName[MAX_NAME_LENGTH * 2 + 1];
@@ -4154,7 +4154,7 @@ public void SQL_insertBonusStyleCallback(Handle owner, Handle hndl, const char[]
 	CalculatePlayerRank(client);*/
 }
 
-public void db_updateBonusStyle(int client, char szSteamId[32], char szUName[32], float FinalTime, int startSpeed, int zoneGrp, int style)
+public void db_updateBonusStyle(int client, char szSteamId[32], char szUName[MAX_NAME_LENGTH], float FinalTime, int startSpeed, int zoneGrp, int style)
 {
 	char szQuery[1024];
 	char szName[MAX_NAME_LENGTH * 2 + 1];
