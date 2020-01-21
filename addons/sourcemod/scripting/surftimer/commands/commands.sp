@@ -1916,9 +1916,9 @@ void SpeedMode(int client, bool menu = false)
 
 void CenterSpeedDisplay(int client, bool menu = false)
 {
-	g_bCenterSpeedDisplay[client] = !g_bCenterSpeedDisplay[client];
+	g_players[client].speedDisplay = !g_players[client].speedDisplay;
 
-	if (g_bCenterSpeedDisplay[client])
+	if (g_players[client].speedDisplay)
 	{
 		SetHudTextParams(-1.0, 0.30, 1.0, 255, 255, 255, 255, 0, 0.25, 0.0, 0.0);
 		CreateTimer(0.1, CenterSpeedDisplayTimer, client, TIMER_FLAG_NO_MAPCHANGE|TIMER_REPEAT);
@@ -3016,7 +3016,7 @@ public void MiscellaneousOptions(int client)
 		AddMenuItem(menu, "", "[Z] Speed Mode");
 
 	// Centre Speed Display
-	if (g_bCenterSpeedDisplay[client])
+	if (g_players[client].speedDisplay)
 		AddMenuItem(menu, "", "[ON] Centre Speed Display");
 	else
 		AddMenuItem(menu, "", "[OFF] Centre Speed Display");
@@ -3498,67 +3498,6 @@ public Action Command_GoBack(int client, int args)
 	return Plugin_Handled;
 }
 
-// Styles
-public Action Client_SetStyleNormal(int client, int args)
-{
-	// check for hsw -> normal and bw -> normal
-	if (g_players[client].currentStyle != 0 || (g_players[client].currentStyle == 0 && g_players[client].initialStyle == 2) || (g_players[client].initialStyle == 0 && g_players[client].initialStyle == 3))
-	{
-		g_players[client].SetStyle(client, 0, STYLE_NORMAL_TEXT, "");
-		CReplyToCommand(client, "%t", "CommandsNormal", g_szChatPrefix);
-	}
-
-	return Plugin_Handled;
-}
-
-public Action Client_SetStyleSideways(int client, int args)
-{
-	g_players[client].SetStyle(client, 1, STYLE_SIDEWAYS_TEXT, "[SW]");
-	CReplyToCommand(client, "%t", "CommandsSideways", g_szChatPrefix);
-	return Plugin_Handled;
-}
-
-public Action Client_SetStyleHalfSideways(int client, int args)
-{
-	g_players[client].SetStyle(client, 2, STYLE_HALFSIDEWAYS_TEXT, "[HSW]");
-	CReplyToCommand(client, "%t", "CommandsHalfSideways", g_szChatPrefix);
-	return Plugin_Handled;
-}
-
-public Action Client_SetStyleBackwards(int client, int args)
-{
-	g_players[client].SetStyle(client, 3, STYLE_BACKWARDS_TEXT, "[BW]");
-	CReplyToCommand(client, "%t", "CommandsBackwards", g_szChatPrefix);
-	return Plugin_Handled;
-}
-
-public Action Client_SetStyleLowGrav(int client, int args)
-{
-	g_players[client].SetStyle(client, 4, STYLE_LOWGRAVITY_TEXT, "[LG]");
-	CReplyToCommand(client, "%t", "CommandsLowGravity", g_szChatPrefix);
-	return Plugin_Handled;
-}
-
-public Action Client_SetStyleSlomo(int client, int args)
-{
-	g_players[client].SetStyle(client, 5, STYLE_SLOMO_TEXT, "[SLW]");
-	CReplyToCommand(client, "%t", "CommandsSlowMotion", g_szChatPrefix);
-	return Plugin_Handled;
-}
-
-public Action Client_SetStyleFastForward(int client, int args)
-{
-	g_players[client].SetStyle(client, 6, STYLE_FASTFORWARD_TEXT, "[FF]");
-	CReplyToCommand(client, "%t", "CommandsFastForward", g_szChatPrefix);
-	return Plugin_Handled;
-}
-
-public Action Client_SelectStyle(int client, int args)
-{
-	styleSelectMenu(client);
-	return Plugin_Handled;
-}
-
 public void styleSelectMenu(int client)
 {
 	Menu styleSelect = CreateMenu(StyleTypeSelectMenuHandler);
@@ -3614,34 +3553,32 @@ public int StyleSelectMenuHandler(Menu menu, MenuAction action, int param1, int 
 		GetMenuItem(menu, param2, info, sizeof(info));
 		if (StrContains(info, "1", false) != -1)
 		{
-			g_players[param1].SetStyle(param1, 1, STYLE_SIDEWAYS_TEXT, "[SW]");
+			SetStyle(param1, STYLE_SW);
 		}
 		else if (StrContains(info, "2", false) != -1)
 		{
-			g_players[param1].SetStyle(param1, 2, STYLE_HALFSIDEWAYS_TEXT, "[HSW]");
+			SetStyle(param1, STYLE_HSW);
 		}
 		else if (StrContains(info, "3", false) != -1)
 		{
-			g_players[param1].SetStyle(param1, 3, STYLE_BACKWARDS_TEXT, "[BW]");
+			SetStyle(param1, STYLE_BW);
 		}
 		else if (StrContains(info, "4", false) != -1)
 		{
-			g_players[param1].SetStyle(param1, 4, STYLE_LOWGRAVITY_TEXT, "[LG]");
+			SetStyle(param1, STYLE_LOWGRAV);
 		}
 		else if (StrContains(info, "5", false) != -1)
 		{
-			g_players[param1].SetStyle(param1, 5, STYLE_SLOMO_TEXT, "[SLW]");
+			SetStyle(param1, STYLE_SLOMO);
 		}
 		else if (StrContains(info, "6", false) != -1)
 		{
-			g_players[param1].SetStyle(param1, 6, STYLE_FASTFORWARD_TEXT, "[FF]");
+			SetStyle(param1, STYLE_FASTFORWARD);
 		}
 		else
 		{
-			g_players[param1].SetStyle(param1, 0, STYLE_NORMAL_TEXT, "");
+			SetStyle(param1, STYLE_NORMAL);
 		}
-
-		Command_Restart(param1, 1);
 	}
 	else
 	{
@@ -3963,14 +3900,14 @@ public Action Command_ToggleMapFinish(int client, int args)
 
 public Action Command_Repeat(int client, int args)
 {
-	if (!g_bRepeat[client])
+	if (!g_players[client].repeatMode)
 	{
-		g_bRepeat[client] = true;
+		g_players[client].repeatMode = true;
 		CPrintToChat(client, "%t", "Commands50", g_szChatPrefix);
 	}
 	else
 	{
-		g_bRepeat[client] = false;
+		g_players[client].repeatMode = false;
 		CPrintToChat(client, "%t", "Commands51", g_szChatPrefix);
 	}
 

@@ -29,10 +29,6 @@
 #include <sourcecomms>
 #include <surftimer>
 
-/*====================================
-=            Declarations            =
-====================================*/
-
 /*===================================
 =            Definitions            =
 ===================================*/
@@ -107,8 +103,6 @@
 #define ZONE_REFRESH_TIME 5.0
 #define OUTLINE_REFRESH_TIME 5.0
 #define BEAM_FRAMERATE 30
-
-#define MAX_STYLES 7
 
 #define VOTE_NO "###no###"
 #define VOTE_YES "###yes###"
@@ -298,23 +292,40 @@ enum struct MapOutline
 }
 
 // style text
-#define STYLE_NORMAL_TEXT "Normal"
-#define STYLE_SIDEWAYS_TEXT "Sideways"
-#define STYLE_HALFSIDEWAYS_TEXT "Half-Sideways"
-#define STYLE_BACKWARDS_TEXT "Backwards"
-#define STYLE_LOWGRAVITY_TEXT "Low Gravity"
-#define STYLE_FASTFORWARD_TEXT "Fast Forward"
-#define STYLE_SLOMO_TEXT "Slow Motion"
-#define STYLE_TEXT_LENGTH 128
-#define STYLE_TEXT_SMALL_LENGTH 32
+#define STYLE_NORMAL_TEXT 			"Normal"
+#define STYLE_SW_TEXT 				"Sideways"
+#define STYLE_HSW_TEXT 				"Half-Sideways"
+#define STYLE_BW_TEXT 				"Backwards"
+#define STYLE_LOWGRAV_TEXT 			"Low Gravity"
+#define STYLE_SLOMO_TEXT 			"Slow Motion"
+#define STYLE_FASTFORWARD_TEXT 		"Fast Forward"
+#define STYLE_TEXT_LENGTH 			128
+#define STYLE_TEXT_SMALL_LENGTH 	32
+
+#define MAX_STYLES                  7
+
+enum
+{
+    STYLE_NORMAL = 0,
+    STYLE_SW,
+    STYLE_HSW,
+    STYLE_BW,
+    STYLE_LOWGRAV,
+    STYLE_SLOMO,
+    STYLE_FASTFORWARD
+};
 
 // new type for player variables
 enum struct SurfPlayer
 {
+	int id; // client id
+
 	int currentStyle;
 	bool isRankedStyle;
 	bool isFunStyle;
 	bool thirdPerson;
+	bool repeatMode; // new g_bRepeat
+	bool speedDisplay; // new g_bCenterSpeedDisplay
 	char styleText[STYLE_TEXT_LENGTH];
 	char styleTextSmall[STYLE_TEXT_SMALL_LENGTH];
 
@@ -324,72 +335,14 @@ enum struct SurfPlayer
 	bool hideWeapons; // weapon visibility/pickup toggle
 
 	float cooldown; // global command cooldown
-
-	// methods
-	void SetStyle(int client, int s, char text[STYLE_TEXT_LENGTH], char textSmall[STYLE_TEXT_SMALL_LENGTH])
-	{
-		if (s > 6 || s < 0 || s == this.currentStyle)
-			return;
-
-		this.currentStyle = s;
-		this.initialStyle = s;
-		this.styleText = text;
-		this.styleTextSmall = textSmall;
-
-		// normal, sw, hsw & bw are ranked
-		if (s < 4)
-		{
-			this.isRankedStyle = true;
-			this.isFunStyle = false;
-
-			SetEntityGravity(client, 1.0);
-			SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", 1.0);
-			SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", 1.0);
-
-			// reset view to first person if in angle surf
-			if (this.thirdPerson)
-			{
-				this.thirdPerson = false;
-				ClientCommand(client, "firstperson");
-			}
-		}
-		else
-		{
-			this.isFunStyle = true;
-			this.isRankedStyle = false;
-
-			switch (s)
-			{
-				case 4: SetEntityGravity(client, 0.5); // low gravity
-				case 5: SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", 0.5); // slow motion
-				case 6: SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", 1.5); // fast forward
-			}
-		}
-
-		Command_Restart(client, 1); // finished, so restart
-	}
 }
 
-/*===================================
-=            Plugin Info            =
-===================================*/
 
-public Plugin myinfo =
-{
-	name = "SurfTimer",
-	author = "fluffys",
-	description = "A fork of ckSurf",
-	version = VERSION,
-	url = ""
-};
-
-/*====================================
-=              Includes              =
-====================================*/
 
 #include "surftimer/globals.sp"
 #include "surftimer/convars.sp"
 #include "surftimer/misc.sp"
+#include "surftimer/styles.sp"
 
 #include "surftimer/db/queries.sp"
 #include "surftimer/sql.sp"
@@ -412,6 +365,16 @@ public Plugin myinfo =
 #include "surftimer/cvote.sp"
 #include "surftimer/func.sp"
 #include "surftimer/natives.sp"
+
+
+public Plugin myinfo =
+{
+	name = "SurfTimer",
+	author = "fluffys",
+	description = "A fork of ckSurf",
+	version = VERSION,
+	url = ""
+};
 
 /*====================================
 =               Events               =
@@ -804,7 +767,7 @@ public void OnClientPutInServer(int client) {
 
 	// fluffys set bools
 	g_bToggleMapFinish[client] = true;
-	g_bRepeat[client] = false;
+	g_players[client].repeatMode = false;
 	g_bNotTeleporting[client] = false;
 
 	if (IsFakeClient(client))

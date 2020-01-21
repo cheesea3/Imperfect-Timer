@@ -568,7 +568,7 @@ public Action AnnouncementTimer(Handle timer)
 
 public Action CenterSpeedDisplayTimer(Handle timer, any client)
 {
-	if (IsValidClient(client) && !IsFakeClient(client) && g_bCenterSpeedDisplay[client])
+	if (IsValidClient(client) && !IsFakeClient(client) && g_players[client].speedDisplay)
 	{
 		char szSpeed[128];
 		if (IsPlayerAlive(client))

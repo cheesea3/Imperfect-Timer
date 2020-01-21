@@ -276,7 +276,7 @@ int g_ProfileStyleSelect[MAXPLAYERS + 1];
 bool g_bTimerEnabled[MAXPLAYERS + 1];
 int g_SpeedGradient[MAXPLAYERS + 1];
 int g_SpeedMode[MAXPLAYERS + 1];
-bool g_bCenterSpeedDisplay[MAXPLAYERS + 1];
+//bool g_bCenterSpeedDisplay[MAXPLAYERS + 1];
 int g_iCenterSpeedEnt[MAXPLAYERS + 1];
 // Handle g_hServerTier;
 // gain/loss speed colour in centre hud
@@ -327,7 +327,7 @@ bool g_bInsertNewTime = false;
 
 /*----------  fluffys tmf & repeat  ----------*/
 bool g_bToggleMapFinish[MAXPLAYERS + 1] = true;
-bool g_bRepeat[MAXPLAYERS + 1] = false;
+//bool g_bRepeat[MAXPLAYERS + 1] = false;
 bool g_bNotTeleporting[MAXPLAYERS + 1] = true;
 
 // Client Side Autobhop

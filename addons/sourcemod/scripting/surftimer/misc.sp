@@ -1286,7 +1286,7 @@ public void SetClientDefaults(int client) {
 	g_bTimerEnabled[client] = true;
 
 	// Style Defaults
-	g_players[client].SetStyle(client, 0, STYLE_NORMAL_TEXT, "");
+	SetStyle(client, STYLE_NORMAL);
 
 	// Show Zones
 	g_bShowZones[client] = false;

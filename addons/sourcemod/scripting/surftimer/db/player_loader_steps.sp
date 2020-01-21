@@ -288,7 +288,7 @@ void db_viewPlayerOptionsCallback(Handle hndl, const char[] error, int client, a
 		g_bCheckpointsEnabled[client] = view_as<bool>(SQL_FetchInt(hndl, 6));
 		g_SpeedGradient[client] = SQL_FetchInt(hndl, 7);
 		g_SpeedMode[client] = SQL_FetchInt(hndl, 8);
-		g_bCenterSpeedDisplay[client] = view_as<bool>(SQL_FetchInt(hndl, 9));
+		g_players[client].speedDisplay = view_as<bool>(SQL_FetchInt(hndl, 9));
 		g_bCentreHud[client] = view_as<bool>(SQL_FetchInt(hndl, 10));
 		g_iTeleSide[client] = SQL_FetchInt(hndl, 11);
 		g_players[client].hideWeapons = view_as<bool>(SQL_FetchInt(hndl, 12));
@@ -333,7 +333,7 @@ void db_viewPlayerOptionsCallback(Handle hndl, const char[] error, int client, a
 		g_bCheckpointsEnabled[client] = true;
 		g_SpeedGradient[client] = 3;
 		g_SpeedMode[client] = 0;
-		g_bCenterSpeedDisplay[client] = false;
+		g_players[client].speedDisplay = false;
 		g_bCentreHud[client] = true;
 		g_iTeleSide[client] = 0;
 		g_players[client].hideWeapons = false;

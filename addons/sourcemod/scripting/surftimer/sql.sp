@@ -3172,7 +3172,7 @@ public void db_updatePlayerOptions(int client)
 								view_as<int>(g_bCheckpointsEnabled[client]),
 								g_SpeedGradient[client],
 								g_SpeedMode[client],
-								view_as<int>(g_bCenterSpeedDisplay[client]),
+								view_as<int>(g_players[client].speedDisplay),
 								view_as<int>(g_bCentreHud[client]),
 								g_iTeleSide[client],
 								view_as<int>(g_players[client].hideWeapons),
@@ -3455,7 +3455,7 @@ public void sql_selectWrcpRecordCallback(Handle owner, Handle hndl, const char[]
 			}
 			CheckpointToSpec(data, szSpecMessage);
 
-			if (g_bRepeat[data])
+			if (g_players[data].repeatMode)
 			{
 				if (stage <= 1)
 					Command_Restart(data, 1);
@@ -3753,7 +3753,7 @@ public void SQL_UpdateWrcpRecordCallback2(Handle owner, Handle hndl, const char[
 
 	db_viewStageRecords();
 
-	if (g_bRepeat[client])
+	if (g_players[data].repeatMode)
 	{
 		if (stage <= 1)
 			Command_Restart(client, 1);
