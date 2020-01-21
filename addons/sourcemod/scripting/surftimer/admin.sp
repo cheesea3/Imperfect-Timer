@@ -35,9 +35,10 @@ public void OnAdminMenuReady(Handle topmenu)
 	if (topmenu == g_hAdminMenu)
 		return;
 
-	g_hAdminMenu = topmenu;
-	TopMenuObject serverCmds = FindTopMenuCategory(g_hAdminMenu, ADMINMENU_SERVERCOMMANDS);
-	AddToTopMenu(g_hAdminMenu, "sm_ckadmin", TopMenuObject_Item, TopMenuHandler2, serverCmds, "sm_ckadmin", ADMFLAG_RCON);
+	g_hAdminMenu = view_as<TopMenu>(topmenu);
+	TopMenuObject serverCmds = g_hAdminMenu.FindCategory(ADMINMENU_SERVERCOMMANDS);
+	//AddToTopMenu(g_hAdminMenu, "sm_ckadmin", TopMenuObject_Item, TopMenuHandler2, serverCmds, "sm_ckadmin", ADMFLAG_RCON);
+	g_hAdminMenu.AddItem("sm_ckadmin", TopMenuHandler2, serverCmds, "sm_ckadmin", ADMFLAG_RCON);
 }
 
 public int TopMenuHandler2(Handle topmenu, TopMenuAction action, TopMenuObject object_id, int param, char[] buffer, int maxlength)
@@ -85,12 +86,12 @@ public Action Admin_insertSpawnLocation(int client, int args)
 	if (!IsValidClient(client) || !IsPlayerZoner(client))
 		return Plugin_Handled;
 
-	Menu menu = CreateMenu(ChooseTeleSideHandler);
-	SetMenuTitle(menu, "Choose side for this spawn location");
-	AddMenuItem(menu, "", "Left");
-	AddMenuItem(menu, "", "Right");
-	SetMenuOptionFlags(menu, MENUFLAG_BUTTON_EXIT);
-	DisplayMenu(menu, client, MENU_TIME_FOREVER);
+	Menu menu = new Menu(ChooseTeleSideHandler);
+	menu.SetTitle("Choose side for this spawn location");
+	menu.AddItem("", "Left");
+	menu.AddItem("", "Right");
+	menu.OptionFlags = MENUFLAG_BUTTON_EXIT;
+	menu.Display(client, MENU_TIME_FOREVER);
 
 	return Plugin_Handled;
 }
@@ -136,21 +137,21 @@ public Action Admin_deleteSpawnLocation(int client, int args)
 
 	if (g_bGotSpawnLocation[g_iClientInZone[client][2]][1][0] || g_bGotSpawnLocation[g_iClientInZone[client][2]][1][1])
 	{
-		Menu menu = CreateMenu(DelSpawnLocationHandler);
-		SetMenuTitle(menu, "Choose side of spawn location to delete");
+		Menu menu = new Menu(DelSpawnLocationHandler);
+		menu.SetTitle("Choose side of spawn location to delete");
 
 		if (g_bGotSpawnLocation[g_iClientInZone[client][2]][1][0])
-			AddMenuItem(menu, "", "Left");
+			menu.AddItem("", "Left");
 		else
-			AddMenuItem(menu, "", "Left", ITEMDRAW_DISABLED);
+			menu.AddItem("", "Left", ITEMDRAW_DISABLED);
 
 		if (g_bGotSpawnLocation[g_iClientInZone[client][2]][1][1])
-			AddMenuItem(menu, "", "Right");
+			menu.AddItem("", "Right");
 		else
-			AddMenuItem(menu, "", "Right", ITEMDRAW_DISABLED);
+			menu.AddItem("", "Right", ITEMDRAW_DISABLED);
 
-		SetMenuOptionFlags(menu, MENUFLAG_BUTTON_EXIT);
-		DisplayMenu(menu, client, MENU_TIME_FOREVER);
+		menu.OptionFlags = MENUFLAG_BUTTON_EXIT;
+		menu.Display(client, MENU_TIME_FOREVER);
 	}
 	else
 		CPrintToChat(client, "%t", "Admin9", g_szChatPrefix);
@@ -210,203 +211,203 @@ public void ckAdminMenu(int client)
 	{
 		char szTmp[128];
 
-		Handle adminmenu = CreateMenu(AdminPanelHandler);
+		Menu adminmenu = new Menu(AdminPanelHandler);
 		if (IsPlayerZoner(client))
 			Format(szTmp, sizeof(szTmp), "Surftimer %s Admin Menu (full access)", VERSION);
 		else
 			Format(szTmp, sizeof(szTmp), "Surftimer %s Admin Menu (limited access)", VERSION);
-		SetMenuTitle(adminmenu, szTmp);
+		adminmenu.SetTitle(szTmp);
 
 		if (!g_pr_RankingRecalc_InProgress)
-			AddMenuItem(adminmenu, "[1.] Recalculate player ranks", "[1.] Recalculate player ranks");
+			adminmenu.AddItem("[1.] Recalculate player ranks", "[1.] Recalculate player ranks");
 		else
-			AddMenuItem(adminmenu, "[1.] Recalculate player ranks", "[1.] Stop the recalculation");
+			adminmenu.AddItem("[1.] Recalculate player ranks", "[1.] Stop the recalculation");
 
-		AddMenuItem(adminmenu, "", "", ITEMDRAW_SPACER);
+		adminmenu.AddItem("", "", ITEMDRAW_SPACER);
 
 		int menuItemNumber = 2;
 
 		if (IsPlayerZoner(client))
 		{
 			Format(szTmp, sizeof(szTmp), "[%i.] Edit or create zones", menuItemNumber);
-			AddMenuItem(adminmenu, szTmp, szTmp);
+			adminmenu.AddItem(szTmp, szTmp);
 		}
 		else
 		{
 			Format(szTmp, sizeof(szTmp), "[%i.] Edit or create zones", menuItemNumber);
-			AddMenuItem(adminmenu, szTmp, szTmp, ITEMDRAW_DISABLED);
+			adminmenu.AddItem(szTmp, szTmp, ITEMDRAW_DISABLED);
 		}
 		menuItemNumber++;
 
-		if (GetConVarBool(g_hCvarGodMode))
+		if (g_hCvarGodMode.BoolValue)
 			Format(szTmp, sizeof(szTmp), "[%i.] Godmode  -  Enabled", menuItemNumber);
 		else
 			Format(szTmp, sizeof(szTmp), "[%i.] Godmode  -  Disabled", menuItemNumber);
-		AddMenuItem(adminmenu, szTmp, szTmp);
+		adminmenu.AddItem(szTmp, szTmp);
 		menuItemNumber++;
 
-		if (GetConVarBool(g_hCvarNoBlock))
+		if (g_hCvarNoBlock.BoolValue)
 			Format(szTmp, sizeof(szTmp), "[%i.] Noblock  -  Enabled", menuItemNumber);
 		else
 			Format(szTmp, sizeof(szTmp), "[%i.] Noblock  -  Disabled", menuItemNumber);
-		AddMenuItem(adminmenu, szTmp, szTmp);
+		adminmenu.AddItem(szTmp, szTmp);
 		menuItemNumber++;
 
-		if (GetConVarBool(g_hAutoRespawn))
+		if (g_hAutoRespawn.BoolValue)
 			Format(szTmp, sizeof(szTmp), "[%i.] Autorespawn  -  Enabled", menuItemNumber);
 		else
 			Format(szTmp, sizeof(szTmp), "[%i.] Autorespawn  -  Disabled", menuItemNumber);
-		AddMenuItem(adminmenu, szTmp, szTmp);
+		adminmenu.AddItem(szTmp, szTmp);
 		menuItemNumber++;
 
-		if (GetConVarBool(g_hCleanWeapons))
+		if (g_hCleanWeapons.BoolValue)
 			Format(szTmp, sizeof(szTmp), "[%i.] Strip weapons  -  Enabled", menuItemNumber);
 		else
 			Format(szTmp, sizeof(szTmp), "[%i.] Strip weapons  -  Disabled", menuItemNumber);
-		AddMenuItem(adminmenu, szTmp, szTmp);
+		adminmenu.AddItem(szTmp, szTmp);
 		menuItemNumber++;
 
-		if (GetConVarBool(g_hcvarRestore))
+		if (g_hcvarRestore.BoolValue)
 			Format(szTmp, sizeof(szTmp), "[%i.] Restore function  -  Enabled", menuItemNumber);
 		else
 			Format(szTmp, sizeof(szTmp), "[%i.] Restore function  -  Disabled", menuItemNumber);
-		AddMenuItem(adminmenu, szTmp, szTmp);
+		adminmenu.AddItem(szTmp, szTmp);
 		menuItemNumber++;
 
-		if (GetConVarBool(g_hPauseServerside))
+		if (g_hPauseServerside.BoolValue)
 			Format(szTmp, sizeof(szTmp), "[%i.] !pause command -  Enabled", menuItemNumber);
 		else
 			Format(szTmp, sizeof(szTmp), "[%i.] !pause command  -  Disabled", menuItemNumber);
-		AddMenuItem(adminmenu, szTmp, szTmp);
+		adminmenu.AddItem(szTmp, szTmp);
 		menuItemNumber++;
 
-		if (GetConVarBool(g_hGoToServer))
+		if (g_hGoToServer.BoolValue)
 			Format(szTmp, sizeof(szTmp), "[%i.] !goto command  -  Enabled", menuItemNumber);
 		else
 			Format(szTmp, sizeof(szTmp), "[%i.] !goto command  -  Disabled", menuItemNumber);
-		AddMenuItem(adminmenu, szTmp, szTmp);
+		adminmenu.AddItem(szTmp, szTmp);
 		menuItemNumber++;
 
-		if (GetConVarBool(g_hRadioCommands))
+		if (g_hRadioCommands.BoolValue)
 			Format(szTmp, sizeof(szTmp), "[%i.] Radio commands  -  Enabled", menuItemNumber);
 		else
 			Format(szTmp, sizeof(szTmp), "[%i.] Radio commands  -  Disabled", menuItemNumber);
-		AddMenuItem(adminmenu, szTmp, szTmp);
+		adminmenu.AddItem(szTmp, szTmp);
 		menuItemNumber++;
 
-		/*if (GetConVarBool(g_hAutoTimer))
+		/*if (g_hAutoTimer.BoolValue)
 			Format(szTmp, sizeof(szTmp), "[%i.] Timer starts at spawn  -  Enabled", menuItemNumber);
 		else
 			Format(szTmp, sizeof(szTmp), "[%i.] Timer starts at spawn  -  Disabled", menuItemNumber);
-		AddMenuItem(adminmenu, szTmp, szTmp);
+		adminmenu.AddItem(szTmp, szTmp);
 		menuItemNumber++;*/
 
-		if (GetConVarBool(g_hReplayBot))
+		if (g_hReplayBot.BoolValue)
 			Format(szTmp, sizeof(szTmp), "[%i.] Replay bot  -  Enabled", menuItemNumber);
 		else
 			Format(szTmp, sizeof(szTmp), "[%i.] Replay bot  -  Disabled", menuItemNumber);
-		AddMenuItem(adminmenu, szTmp, szTmp);
+		adminmenu.AddItem(szTmp, szTmp);
 		menuItemNumber++;
 
-		if (GetConVarBool(g_hPointSystem))
+		if (g_hPointSystem.BoolValue)
 			Format(szTmp, sizeof(szTmp), "[%i.] Player point system  -  Enabled", menuItemNumber);
 		else
 			Format(szTmp, sizeof(szTmp), "[%i.] Player point system  -  Disabled", menuItemNumber);
-		AddMenuItem(adminmenu, szTmp, szTmp);
+		adminmenu.AddItem(szTmp, szTmp);
 		menuItemNumber++;
 
-		if (GetConVarBool(g_hCountry))
+		if (g_hCountry.BoolValue)
 			Format(szTmp, sizeof(szTmp), "[%i.] Player country tag  -  Enabled", menuItemNumber);
 		else
 			Format(szTmp, sizeof(szTmp), "[%i.] Player country tag  -  Disabled", menuItemNumber);
-		AddMenuItem(adminmenu, szTmp, szTmp);
+		adminmenu.AddItem(szTmp, szTmp);
 		menuItemNumber++;
 
-		if (GetConVarBool(g_hPlayerSkinChange))
+		if (g_hPlayerSkinChange.BoolValue)
 			Format(szTmp, sizeof(szTmp), "[%i.] Allow custom models  -  Enabled", menuItemNumber);
 		else
 			Format(szTmp, sizeof(szTmp), "[%i.] Allow custom models  -  Disabled", menuItemNumber);
-		AddMenuItem(adminmenu, szTmp, szTmp);
+		adminmenu.AddItem(szTmp, szTmp);
 		menuItemNumber++;
 
-		if (GetConVarBool(g_hNoClipS))
+		if (g_hNoClipS.BoolValue)
 			Format(szTmp, sizeof(szTmp), "[%i.] +noclip  -  Enabled", menuItemNumber);
 		else
 			Format(szTmp, sizeof(szTmp), "[%i.] +noclip (admin/vip excluded)  -  Disabled", menuItemNumber);
-		AddMenuItem(adminmenu, szTmp, szTmp);
+		adminmenu.AddItem(szTmp, szTmp);
 		menuItemNumber++;
 
-		if (GetConVarBool(g_hAutoBhopConVar))
+		if (g_hAutoBhopConVar.BoolValue)
 			Format(szTmp, sizeof(szTmp), "[%i.] Auto bunnyhop (only surf_/bhop_ maps)  -  Enabled", menuItemNumber);
 		else
 			Format(szTmp, sizeof(szTmp), "[%i.] Auto bunnyhop  -  Disabled", menuItemNumber);
-		AddMenuItem(adminmenu, szTmp, szTmp);
+		adminmenu.AddItem(szTmp, szTmp);
 		menuItemNumber++;
 
-		if (GetConVarBool(g_hMapEnd))
+		if (g_hMapEnd.BoolValue)
 			Format(szTmp, sizeof(szTmp), "[%i.] Allow map changes  -  Enabled", menuItemNumber);
 		else
 			Format(szTmp, sizeof(szTmp), "[i.] Allow map changes  -  Disabled", menuItemNumber);
-		AddMenuItem(adminmenu, szTmp, szTmp);
+		adminmenu.AddItem(szTmp, szTmp);
 		menuItemNumber++;
 
-		if (GetConVarBool(g_hConnectMsg))
+		if (g_hConnectMsg.BoolValue)
 			Format(szTmp, sizeof(szTmp), "[%i.] Connect message  -  Enabled", menuItemNumber);
 		else
 			Format(szTmp, sizeof(szTmp), "[%i.] Connect message  -  Disabled", menuItemNumber);
-		AddMenuItem(adminmenu, szTmp, szTmp);
+		adminmenu.AddItem(szTmp, szTmp);
 		menuItemNumber++;
 
-		if (GetConVarBool(g_hDisconnectMsg))
+		if (g_hDisconnectMsg.BoolValue)
 			Format(szTmp, sizeof(szTmp), "[%i.] Disconnect message - Enabled", menuItemNumber);
 		else
 			Format(szTmp, sizeof(szTmp), "[%i.] Disconnect message - Disabled", menuItemNumber);
-		AddMenuItem(adminmenu, szTmp, szTmp);
+		adminmenu.AddItem(szTmp, szTmp);
 		menuItemNumber++;
 
-		if (GetConVarBool(g_hInfoBot))
+		if (g_hInfoBot.BoolValue)
 			Format(szTmp, sizeof(szTmp), "[%i.] Info bot  -  Enabled", menuItemNumber);
 		else
 			Format(szTmp, sizeof(szTmp), "[%i.] Info bot  -  Disabled", menuItemNumber);
-		AddMenuItem(adminmenu, szTmp, szTmp);
+		adminmenu.AddItem(szTmp, szTmp);
 		menuItemNumber++;
 
-		if (GetConVarBool(g_hAttackSpamProtection))
+		if (g_hAttackSpamProtection.BoolValue)
 			Format(szTmp, sizeof(szTmp), "[%i.] Attack spam protection  -  Enabled", menuItemNumber);
 		else
 			Format(szTmp, sizeof(szTmp), "[%i.] Attack spam protection  -  Disabled", menuItemNumber);
-		AddMenuItem(adminmenu, szTmp, szTmp);
+		adminmenu.AddItem(szTmp, szTmp);
 		menuItemNumber++;
 
-		if (GetConVarBool(g_hAllowRoundEndCvar))
+		if (g_hAllowRoundEndCvar.BoolValue)
 			Format(szTmp, sizeof(szTmp), "[%i.] Allow to end the current round  -  Enabled", menuItemNumber);
 		else
 			Format(szTmp, sizeof(szTmp), "[%i.] Allow to end the current round  -  Disabled", menuItemNumber);
-		AddMenuItem(adminmenu, szTmp, szTmp);
+		adminmenu.AddItem(szTmp, szTmp);
 		menuItemNumber++;
 
-		SetMenuExitButton(adminmenu, true);
-		SetMenuOptionFlags(adminmenu, MENUFLAG_BUTTON_EXIT);
+		adminmenu.ExitButton = true;
+		adminmenu.OptionFlags = MENUFLAG_BUTTON_EXIT;
 		if (g_AdminMenuLastPage[client] < 6)
-			DisplayMenuAtItem(adminmenu, client, 0, MENU_TIME_FOREVER);
+			adminmenu.DisplayAt(client, 0, MENU_TIME_FOREVER);
 		else
 			if (g_AdminMenuLastPage[client] < 12)
-				DisplayMenuAtItem(adminmenu, client, 6, MENU_TIME_FOREVER);
+				adminmenu.DisplayAt(client, 6, MENU_TIME_FOREVER);
 			else
 				if (g_AdminMenuLastPage[client] < 18)
-					DisplayMenuAtItem(adminmenu, client, 12, MENU_TIME_FOREVER);
+					adminmenu.DisplayAt(client, 12, MENU_TIME_FOREVER);
 				else
 					if (g_AdminMenuLastPage[client] < 24)
-						DisplayMenuAtItem(adminmenu, client, 18, MENU_TIME_FOREVER);
+						adminmenu.DisplayAt(client, 18, MENU_TIME_FOREVER);
 					else
 						if (g_AdminMenuLastPage[client] < 30)
-							DisplayMenuAtItem(adminmenu, client, 24, MENU_TIME_FOREVER);
+							adminmenu.DisplayAt(client, 24, MENU_TIME_FOREVER);
 						else
 							if (g_AdminMenuLastPage[client] < 36)
-								DisplayMenuAtItem(adminmenu, client, 30, MENU_TIME_FOREVER);
+								adminmenu.DisplayAt(client, 30, MENU_TIME_FOREVER);
 							else
 								if (g_AdminMenuLastPage[client] < 42)
-									DisplayMenuAtItem(adminmenu, client, 36, MENU_TIME_FOREVER);
+									adminmenu.DisplayAt(client, 36, MENU_TIME_FOREVER);
 	}
 	else
 	{
@@ -449,7 +450,7 @@ public int AdminPanelHandler(Handle menu, MenuAction action, int param1, int par
 
 			case 3:
 			{
-				if (!GetConVarBool(g_hCvarGodMode))
+				if (!g_hCvarGodMode.BoolValue)
 					ServerCommand("ck_godmode 1");
 				else
 					ServerCommand("ck_godmode 0");
@@ -457,7 +458,7 @@ public int AdminPanelHandler(Handle menu, MenuAction action, int param1, int par
 
 			case 4:
 			{
-				if (!GetConVarBool(g_hCvarNoBlock))
+				if (!g_hCvarNoBlock.BoolValue)
 					ServerCommand("ck_noblock 1");
 				else
 					ServerCommand("ck_noblock 0");
@@ -465,7 +466,7 @@ public int AdminPanelHandler(Handle menu, MenuAction action, int param1, int par
 
 			case 5:
 			{
-				if (!GetConVarBool(g_hAutoRespawn))
+				if (!g_hAutoRespawn.BoolValue)
 					ServerCommand("ck_autorespawn 1");
 				else
 					ServerCommand("ck_autorespawn 0");
@@ -473,7 +474,7 @@ public int AdminPanelHandler(Handle menu, MenuAction action, int param1, int par
 
 			case 6:
 			{
-				if (!GetConVarBool(g_hCleanWeapons))
+				if (!g_hCleanWeapons.BoolValue)
 					ServerCommand("ck_clean_weapons 1");
 				else
 					ServerCommand("ck_clean_weapons 0");
@@ -481,7 +482,7 @@ public int AdminPanelHandler(Handle menu, MenuAction action, int param1, int par
 
 			case 7:
 			{
-				if (!GetConVarBool(g_hcvarRestore))
+				if (!g_hcvarRestore.BoolValue)
 					ServerCommand("ck_restore 1");
 				else
 					ServerCommand("ck_restore 0");
@@ -489,7 +490,7 @@ public int AdminPanelHandler(Handle menu, MenuAction action, int param1, int par
 
 			case 8:
 			{
-				if (!GetConVarBool(g_hPauseServerside))
+				if (!g_hPauseServerside.BoolValue)
 					ServerCommand("ck_pause 1");
 				else
 					ServerCommand("ck_pause 0");
@@ -497,7 +498,7 @@ public int AdminPanelHandler(Handle menu, MenuAction action, int param1, int par
 
 			case 9:
 			{
-				if (!GetConVarBool(g_hGoToServer))
+				if (!g_hGoToServer.BoolValue)
 					ServerCommand("ck_goto 1");
 				else
 					ServerCommand("ck_goto 0");
@@ -505,7 +506,7 @@ public int AdminPanelHandler(Handle menu, MenuAction action, int param1, int par
 
 			case 10:
 			{
-				if (!GetConVarBool(g_hRadioCommands))
+				if (!g_hRadioCommands.BoolValue)
 					ServerCommand("ck_use_radio 1");
 				else
 					ServerCommand("ck_use_radio 0");
@@ -513,7 +514,7 @@ public int AdminPanelHandler(Handle menu, MenuAction action, int param1, int par
 
 			case 11:
 			{
-				if (!GetConVarBool(g_hReplayBot))
+				if (!g_hReplayBot.BoolValue)
 					ServerCommand("ck_replay_bot 1");
 				else
 					ServerCommand("ck_replay_bot 0");
@@ -521,7 +522,7 @@ public int AdminPanelHandler(Handle menu, MenuAction action, int param1, int par
 
 			case 12:
 			{
-				if (!GetConVarBool(g_hPointSystem))
+				if (!g_hPointSystem.BoolValue)
 					ServerCommand("ck_point_system 1");
 				else
 					ServerCommand("ck_point_system 0");
@@ -529,7 +530,7 @@ public int AdminPanelHandler(Handle menu, MenuAction action, int param1, int par
 
 			case 13:
 			{
-				if (!GetConVarBool(g_hCountry))
+				if (!g_hCountry.BoolValue)
 					ServerCommand("ck_country_tag 1");
 				else
 					ServerCommand("ck_country_tag 0");
@@ -537,7 +538,7 @@ public int AdminPanelHandler(Handle menu, MenuAction action, int param1, int par
 
 			case 14:
 			{
-				if (!GetConVarBool(g_hPlayerSkinChange))
+				if (!g_hPlayerSkinChange.BoolValue)
 					ServerCommand("ck_custom_models 1");
 				else
 					ServerCommand("ck_custom_models 0");
@@ -545,7 +546,7 @@ public int AdminPanelHandler(Handle menu, MenuAction action, int param1, int par
 
 			case 15:
 			{
-				if (!GetConVarBool(g_hNoClipS))
+				if (!g_hNoClipS.BoolValue)
 					ServerCommand("ck_noclip 1");
 				else
 					ServerCommand("ck_noclip 0");
@@ -553,7 +554,7 @@ public int AdminPanelHandler(Handle menu, MenuAction action, int param1, int par
 
 			case 16:
 			{
-				if (!GetConVarBool(g_hAutoBhopConVar))
+				if (!g_hAutoBhopConVar.BoolValue)
 					ServerCommand("ck_auto_bhop 1");
 				else
 					ServerCommand("ck_auto_bhop 0");
@@ -561,7 +562,7 @@ public int AdminPanelHandler(Handle menu, MenuAction action, int param1, int par
 
 			case 17:
 			{
-				if (!GetConVarBool(g_hMapEnd))
+				if (!g_hMapEnd.BoolValue)
 					ServerCommand("ck_map_end 1");
 				else
 					ServerCommand("ck_map_end 0");
@@ -569,7 +570,7 @@ public int AdminPanelHandler(Handle menu, MenuAction action, int param1, int par
 
 			case 18:
 			{
-				if (!GetConVarBool(g_hConnectMsg))
+				if (!g_hConnectMsg.BoolValue)
 					ServerCommand("ck_connect_msg 1");
 				else
 					ServerCommand("ck_connect_msg 0");
@@ -577,7 +578,7 @@ public int AdminPanelHandler(Handle menu, MenuAction action, int param1, int par
 
 			case 19:
 			{
-				if (!GetConVarBool(g_hDisconnectMsg))
+				if (!g_hDisconnectMsg.BoolValue)
 					ServerCommand("ck_disconnect_msg 1");
 				else
 					ServerCommand("ck_disconnect_msg 0");
@@ -585,7 +586,7 @@ public int AdminPanelHandler(Handle menu, MenuAction action, int param1, int par
 
 			case 20:
 			{
-				if (!GetConVarBool(g_hInfoBot))
+				if (!g_hInfoBot.BoolValue)
 					ServerCommand("ck_info_bot 1");
 				else
 					ServerCommand("ck_info_bot 0");
@@ -593,7 +594,7 @@ public int AdminPanelHandler(Handle menu, MenuAction action, int param1, int par
 
 			case 21:
 			{
-				if (!GetConVarBool(g_hAttackSpamProtection))
+				if (!g_hAttackSpamProtection.BoolValue)
 					ServerCommand("ck_attack_spam_protection 1");
 				else
 					ServerCommand("ck_attack_spam_protection 0");
@@ -601,7 +602,7 @@ public int AdminPanelHandler(Handle menu, MenuAction action, int param1, int par
 
 			case 22:
 			{
-				if (!GetConVarBool(g_hAllowRoundEndCvar))
+				if (!g_hAllowRoundEndCvar.BoolValue)
 					ServerCommand("ck_round_end 1");
 				else
 					ServerCommand("ck_round_end 0");
@@ -610,7 +611,7 @@ public int AdminPanelHandler(Handle menu, MenuAction action, int param1, int par
 
 		g_AdminMenuLastPage[param1] = param2;
 		if (menu != null)
-			CloseHandle(menu);
+			delete menu;
 
 		if (refresh)
 			CreateTimer(0.1, RefreshAdminMenu, param1, TIMER_FLAG_NO_MAPCHANGE);
@@ -622,7 +623,7 @@ public int AdminPanelHandler(Handle menu, MenuAction action, int param1, int par
 		if (IsValidClient(param1))
 		{
 			if (menu != null)
-				CloseHandle(menu);
+				delete menu;
 		}
 	}
 }

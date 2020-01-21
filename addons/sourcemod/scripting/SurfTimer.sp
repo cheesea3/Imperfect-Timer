@@ -364,7 +364,7 @@ public void OnLibraryAdded(const char[] name)
 	if ((StrEqual("mapchooser", name)) || (tmp != null && GetPluginStatus(tmp) == Plugin_Running))
 		g_bMapChooser = true;
 	if (tmp != null)
-		CloseHandle(tmp);
+		delete tmp;
 
 	// botmimic 2
 	if (StrEqual(name, "dhooks") && g_hTeleport == null)
@@ -374,7 +374,7 @@ public void OnLibraryAdded(const char[] name)
 		if (hGameData == null)
 			return;
 		int iOffset = GameConfGetOffset(hGameData, "Teleport");
-		CloseHandle(hGameData);
+		delete hGameData;
 		if (iOffset == -1)
 			return;
 
@@ -496,7 +496,7 @@ public void OnMapStart()
 	CreateTimer(ZONE_REFRESH_TIME, BeamBoxAll, _, TIMER_FLAG_NO_MAPCHANGE | TIMER_REPEAT);
 
 	// AutoBhop
-	if (GetConVarBool(g_hAutoBhopConVar))
+	if (g_hAutoBhopConVar.BoolValue)
 		g_bAutoBhop = true;
 	else
 		g_bAutoBhop = false;
@@ -540,40 +540,40 @@ public void OnMapStart()
 	// Hook Zones
 	iEnt = -1;
 	if (g_hTriggerMultiple != null)
-		CloseHandle(g_hTriggerMultiple);
+		delete g_hTriggerMultiple;
 
-	g_hTriggerMultiple = CreateArray(256);
+	g_hTriggerMultiple = new ArrayList(256);
 	while ((iEnt = FindEntityByClassname(iEnt, "trigger_multiple")) != -1)
 	{
-		PushArrayCell(g_hTriggerMultiple, iEnt);
+		g_hTriggerMultiple.Push(iEnt);
 	}
 
-	g_mTriggerMultipleMenu = CreateMenu(HookZonesMenuHandler);
-	SetMenuTitle(g_mTriggerMultipleMenu, "Select a trigger");
+	g_mTriggerMultipleMenu = new Menu(HookZonesMenuHandler);
+	g_mTriggerMultipleMenu.SetTitle("Select a trigger");
 
-	for (int i = 0; i < GetArraySize(g_hTriggerMultiple); i++)
+	for (int i = 0; i < g_hTriggerMultiple.Length; i++)
 	{
-		iEnt = GetArrayCell(g_hTriggerMultiple, i);
+		iEnt = g_hTriggerMultiple.Get(i);
 
 		if (IsValidEntity(iEnt))
 		{
 			char szTriggerName[128];
 			GetEntPropString(iEnt, Prop_Send, "m_iName", szTriggerName, 128, 0);
-			//PushArrayString(g_TriggerMultipleList, szTriggerName);
-			AddMenuItem(g_mTriggerMultipleMenu, szTriggerName, szTriggerName);
+			//g_TriggerMultipleList.PushString(szTriggerName);
+			g_mTriggerMultipleMenu.AddItem(szTriggerName, szTriggerName);
 		}
 	}
 
-	SetMenuOptionFlags(g_mTriggerMultipleMenu, MENUFLAG_BUTTON_EXIT);
+	g_mTriggerMultipleMenu.OptionFlags = MENUFLAG_BUTTON_EXIT;
 
 	// info_teleport_destinations
 	iEnt = -1;
 	if (g_hDestinations != null)
-		CloseHandle(g_hDestinations);
+		delete g_hDestinations;
 
-	g_hDestinations = CreateArray(128);
+	g_hDestinations = new ArrayList(128);
 	while ((iEnt = FindEntityByClassname(iEnt, "info_teleport_destination")) != -1)
-		PushArrayCell(g_hDestinations, iEnt);
+		g_hDestinations.Push(iEnt);
 
 	// Set default values
 	g_fMapStartTime = GetGameTime();
@@ -588,8 +588,8 @@ public void OnMapStart()
 	// 	LogMessage("Store not found! Timer credits have been disabled");
 
 	// Server Announcements
-	g_iServerID = GetConVarInt(g_hServerID);
-	if (GetConVarBool(g_hRecordAnnounce))
+	g_iServerID = g_hServerID.IntValue;
+	if (g_hRecordAnnounce.BoolValue)
 		CreateTimer(45.0, AnnouncementTimer, INVALID_HANDLE, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
 
 	// Show Triggers
@@ -612,15 +612,15 @@ public void OnMapEnd()
 	db_Cleanup();
 
 	if (g_hSkillGroups != null)
-		CloseHandle(g_hSkillGroups);
+		delete g_hSkillGroups;
 	g_hSkillGroups = null;
 
 	if (g_hBotTrail[0] != null)
-		CloseHandle(g_hBotTrail[0]);
+		delete g_hBotTrail[0];
 	g_hBotTrail[0] = null;
 
 	if (g_hBotTrail[1] != null)
-		CloseHandle(g_hBotTrail[1]);
+		delete g_hBotTrail[1];
 	g_hBotTrail[1] = null;
 
 	Format(g_szMapName, sizeof(g_szMapName), "");
@@ -635,20 +635,20 @@ public void OnMapEnd()
 	// Hook Zones
 	if (g_hTriggerMultiple != null)
 	{
-		ClearArray(g_hTriggerMultiple);
-		CloseHandle(g_hTriggerMultiple);
+		g_hTriggerMultiple.Clear();
+		delete g_hTriggerMultiple;
 	}
 
 	g_hTriggerMultiple = null;
 	delete g_hTriggerMultiple;
 
-	CloseHandle(g_mTriggerMultipleMenu);
+	delete g_mTriggerMultipleMenu;
 
 	// if (g_hStore != null)
-	// 	CloseHandle(g_hStore);
+	// 	delete g_hStore;
 
 	if (g_hDestinations != null)
-		CloseHandle(g_hDestinations);
+		delete g_hDestinations;
 
 	g_hDestinations = null;
 }
@@ -656,8 +656,8 @@ public void OnMapEnd()
 public void OnConfigsExecuted()
 {
 	// Get Chat Prefix
-	GetConVarString(g_hChatPrefix, g_szChatPrefix, sizeof(g_szChatPrefix));
-	GetConVarString(g_hChatPrefix, g_szMenuPrefix, sizeof(g_szMenuPrefix));
+	g_hChatPrefix.GetString(g_szChatPrefix, sizeof(g_szChatPrefix));
+	g_hChatPrefix.GetString(g_szMenuPrefix, sizeof(g_szMenuPrefix));
 	CRemoveColors(g_szMenuPrefix, sizeof(g_szMenuPrefix));
 
 	// Count the amount of bonuses and then set skillgroups
@@ -665,19 +665,19 @@ public void OnConfigsExecuted()
 
 	ServerCommand("sv_pure 0");
 
-	if (GetConVarBool(g_hAllowRoundEndCvar))
+	if (g_hAllowRoundEndCvar.BoolValue)
 		ServerCommand("mp_ignore_round_win_conditions 0");
 	else
 		ServerCommand("mp_ignore_round_win_conditions 1;mp_maxrounds 1");
 
-	if (GetConVarBool(g_hAutoRespawn))
+	if (g_hAutoRespawn.BoolValue)
 		ServerCommand("mp_respawn_on_death_ct 1;mp_respawn_on_death_t 1;mp_respawnwavetime_ct 3.0;mp_respawnwavetime_t 3.0");
 	else
 		ServerCommand("mp_respawn_on_death_ct 0;mp_respawn_on_death_t 0");
 
 	ServerCommand("mp_endmatch_votenextmap 0;mp_do_warmup_period 0;mp_warmuptime 0;mp_match_can_clinch 0;mp_match_end_changelevel 1;mp_match_restart_delay 10;mp_endmatch_votenextleveltime 10;mp_endmatch_votenextmap 0;mp_halftime 0;bot_zombie 1;mp_do_warmup_period 0;mp_maxrounds 1");
 
-	if (GetConVarInt(g_hServerType) == 1)
+	if (g_hServerType.IntValue == 1)
 	{
 		// Bhop
 		ServerCommand("sv_infinite_ammo 1");
@@ -738,7 +738,7 @@ public void OnClientPutInServer(int client) {
 
 	// Footsteps
 	if (!IsFakeClient(client))
-		SendConVarValue(client, g_hFootsteps, "0");
+		g_hFootsteps.ReplicateToClient(client, "0");
 
 	g_bReportSuccess[client] = false;
 	g_fCommandLastUsed[client] = 0.0;
@@ -750,7 +750,7 @@ public void OnClientPutInServer(int client) {
 
 	if (IsFakeClient(client))
 	{
-		g_hRecordingAdditionalTeleport[client] = CreateArray(view_as<int>(AdditionalTeleport));
+		g_hRecordingAdditionalTeleport[client] = new ArrayList(view_as<int>(AdditionalTeleport));
 		CS_SetMVPCount(client, 1);
 		return;
 	}
@@ -773,7 +773,7 @@ public void OnClientPutInServer(int client) {
 	FixPlayerName(client);
 
 	// Position Restoring
-	if (GetConVarBool(g_hcvarRestore))
+	if (g_hcvarRestore.BoolValue)
 		db_selectLastRun(client);
 
 	if (g_bTierFound)
@@ -786,7 +786,7 @@ public void OnClientPutInServer(int client) {
 
 public void OnClientAuthorized(int client)
 {
-	if (GetConVarBool(g_hConnectMsg) && !IsFakeClient(client))
+	if (g_hConnectMsg.BoolValue && !IsFakeClient(client))
 	{
 		char s_Country[32], s_clientName[32], s_address[32];
 		GetClientIP(client, s_address, 32);
@@ -837,7 +837,7 @@ public void OnClientDisconnect(int client)
 {
 	if (g_hRecordingAdditionalTeleport[client] != null)
 	{
-		CloseHandle(g_hRecordingAdditionalTeleport[client]);
+		delete g_hRecordingAdditionalTeleport[client];
 		g_hRecordingAdditionalTeleport[client] = null;
 	}
 
@@ -895,13 +895,13 @@ public void OnSettingChanged(Handle convar, const char[] oldValue, const char[] 
 {
 	if (convar == g_hChatPrefix)
 	{
-		GetConVarString(g_hChatPrefix, g_szChatPrefix, sizeof(g_szChatPrefix));
-		GetConVarString(g_hChatPrefix, g_szMenuPrefix, sizeof(g_szMenuPrefix));
+		g_hChatPrefix.GetString(g_szChatPrefix, sizeof(g_szChatPrefix));
+		g_hChatPrefix.GetString(g_szMenuPrefix, sizeof(g_szMenuPrefix));
 		CRemoveColors(g_szMenuPrefix, sizeof(g_szMenuPrefix));
 	}
 	if (convar == g_hReplayBot)
 	{
-		if (GetConVarBool(g_hReplayBot))
+		if (g_hReplayBot.BoolValue)
 			LoadReplays();
 		else
 		{
@@ -916,28 +916,28 @@ public void OnSettingChanged(Handle convar, const char[] oldValue, const char[] 
 					}
 					else
 					{
-						if (!GetConVarBool(g_hBonusBot) && !GetConVarBool(g_hWrcpBot)) // if both bots are off, no need to record
+						if (!g_hBonusBot.BoolValue && !g_hWrcpBot.BoolValue) // if both bots are off, no need to record
 							if (g_hRecording[i] != null)
 								StopRecording(i);
 					}
 				}
 			}
-			if (GetConVarBool(g_hInfoBot) && GetConVarBool(g_hBonusBot))
+			if (g_hInfoBot.BoolValue && g_hBonusBot.BoolValue)
 				ServerCommand("bot_quota 2");
 			else
-				if (GetConVarBool(g_hInfoBot) || GetConVarBool(g_hBonusBot))
+				if (g_hInfoBot.BoolValue || g_hBonusBot.BoolValue)
 					ServerCommand("bot_quota 1");
 				else
 					ServerCommand("bot_quota 0");
 
 			if (g_hBotTrail[0] != null)
-				CloseHandle(g_hBotTrail[0]);
+				delete g_hBotTrail[0];
 			g_hBotTrail[0] = null;
 		}
 	}
 	else if (convar == g_hBonusBot)
 	{
-		if (GetConVarBool(g_hBonusBot))
+		if (g_hBonusBot.BoolValue)
 			LoadReplays();
 		else
 		{
@@ -952,28 +952,28 @@ public void OnSettingChanged(Handle convar, const char[] oldValue, const char[] 
 					}
 					else
 					{
-						if (!GetConVarBool(g_hReplayBot) && !GetConVarBool(g_hWrcpBot)) // if both bots are off
+						if (!g_hReplayBot.BoolValue && !g_hWrcpBot.BoolValue) // if both bots are off
 							if (g_hRecording[i] != null)
 								StopRecording(i);
 					}
 				}
 			}
-			if (GetConVarBool(g_hInfoBot) && GetConVarBool(g_hReplayBot))
+			if (g_hInfoBot.BoolValue && g_hReplayBot.BoolValue)
 				ServerCommand("bot_quota 2");
 			else
-				if (GetConVarBool(g_hInfoBot) || GetConVarBool(g_hReplayBot))
+				if (g_hInfoBot.BoolValue || g_hReplayBot.BoolValue)
 					ServerCommand("bot_quota 1");
 				else
 					ServerCommand("bot_quota 0");
 
 			if (g_hBotTrail[1] != null)
-				CloseHandle(g_hBotTrail[1]);
+				delete g_hBotTrail[1];
 			g_hBotTrail[1] = null;
 		}
 	}
 	else if (convar == g_hWrcpBot)
 	{
-		if (GetConVarBool(g_hWrcpBot))
+		if (g_hWrcpBot.BoolValue)
 		{
 			LoadReplays();
 		}
@@ -990,7 +990,7 @@ public void OnSettingChanged(Handle convar, const char[] oldValue, const char[] 
 					}
 					else
 					{
-						if (!GetConVarBool(g_hReplayBot) && !GetConVarBool(g_hBonusBot)) // if both bots are off
+						if (!g_hReplayBot.BoolValue && !g_hBonusBot.BoolValue) // if both bots are off
 							if (g_hRecording[i] != null)
 								StopRecording(i);
 					}
@@ -1000,7 +1000,7 @@ public void OnSettingChanged(Handle convar, const char[] oldValue, const char[] 
 	}
 	else if (convar == g_hAutoRespawn)
 	{
-		if (GetConVarBool(g_hAutoRespawn))
+		if (g_hAutoRespawn.BoolValue)
 		{
 			ServerCommand("mp_respawn_on_death_ct 1;mp_respawn_on_death_t 1;mp_respawnwavetime_ct 3.0;mp_respawnwavetime_t 3.0");
 		}
@@ -1011,7 +1011,7 @@ public void OnSettingChanged(Handle convar, const char[] oldValue, const char[] 
 	}
 	else if (convar == g_hPlayerSkinChange)
 	{
-		if (GetConVarBool(g_hPlayerSkinChange))
+		if (g_hPlayerSkinChange.BoolValue)
 		{
 			char szBuffer[256];
 			for (int i = 1; i <= MaxClients; i++)
@@ -1020,19 +1020,19 @@ public void OnSettingChanged(Handle convar, const char[] oldValue, const char[] 
 					if (i == g_RecordBot || i == g_BonusBot || i == g_WrcpBot)
 					{
 						// Player Model
-						GetConVarString(g_hReplayBotPlayerModel, szBuffer, 256);
+						g_hReplayBotPlayerModel.GetString(szBuffer, 256);
 						SetEntityModel(i, szBuffer);
 						// Arm Model
-						GetConVarString(g_hReplayBotArmModel, szBuffer, 256);
+						g_hReplayBotArmModel.GetString(szBuffer, 256);
 						SetEntPropString(i, Prop_Send, "m_szArmsModel", szBuffer);
 						SetEntityModel(i, szBuffer);
 					}
 					else
 					{
-						GetConVarString(g_hArmModel, szBuffer, 256);
+						g_hArmModel.GetString(szBuffer, 256);
 						SetEntPropString(i, Prop_Send, "m_szArmsModel", szBuffer);
 
-						GetConVarString(g_hPlayerModel, szBuffer, 256);
+						g_hPlayerModel.GetString(szBuffer, 256);
 						SetEntityModel(i, szBuffer);
 					}
 				}
@@ -1040,7 +1040,7 @@ public void OnSettingChanged(Handle convar, const char[] oldValue, const char[] 
 	}
 	else if (convar == g_hCvarNoBlock)
 	{
-		if (GetConVarBool(g_hCvarNoBlock))
+		if (g_hCvarNoBlock.BoolValue)
 		{
 			for (int client = 1; client <= MAXPLAYERS; client++)
 				if (IsValidEntity(client))
@@ -1056,7 +1056,7 @@ public void OnSettingChanged(Handle convar, const char[] oldValue, const char[] 
 	}
 	else if (convar == g_hCleanWeapons)
 	{
-		if (GetConVarBool(g_hCleanWeapons))
+		if (g_hCleanWeapons.BoolValue)
 		{
 			char szclass[32];
 			for (int i = 1; i <= MaxClients; i++)
@@ -1086,7 +1086,7 @@ public void OnSettingChanged(Handle convar, const char[] oldValue, const char[] 
 	}
 	else if (convar == g_hInfoBot)
 	{
-		if (GetConVarBool(g_hInfoBot))
+		if (g_hInfoBot.BoolValue)
 		{
 			LoadInfoBot();
 		}
@@ -1114,7 +1114,7 @@ public void OnSettingChanged(Handle convar, const char[] oldValue, const char[] 
 	else if (convar == g_hReplayBotPlayerModel)
 	{
 		char szBuffer[256];
-		GetConVarString(g_hReplayBotPlayerModel, szBuffer, 256);
+		g_hReplayBotPlayerModel.GetString(szBuffer, 256);
 		PrecacheModel(szBuffer, true);
 		AddFileToDownloadsTable(szBuffer);
 		if (IsValidClient(g_RecordBot))
@@ -1127,7 +1127,7 @@ public void OnSettingChanged(Handle convar, const char[] oldValue, const char[] 
 	else if (convar == g_hReplayBotArmModel)
 	{
 		char szBuffer[256];
-		GetConVarString(g_hReplayBotArmModel, szBuffer, 256);
+		g_hReplayBotArmModel.GetString(szBuffer, 256);
 		PrecacheModel(szBuffer, true);
 		AddFileToDownloadsTable(szBuffer);
 		if (IsValidClient(g_RecordBot))
@@ -1141,11 +1141,11 @@ public void OnSettingChanged(Handle convar, const char[] oldValue, const char[] 
 	else if (convar == g_hPlayerModel)
 	{
 		char szBuffer[256];
-		GetConVarString(g_hPlayerModel, szBuffer, 256);
+		g_hPlayerModel.GetString(szBuffer, 256);
 
 		PrecacheModel(szBuffer, true);
 		AddFileToDownloadsTable(szBuffer);
-		if (!GetConVarBool(g_hPlayerSkinChange))
+		if (!g_hPlayerSkinChange.BoolValue)
 			return;
 		for (int i = 1; i <= MaxClients; i++)
 			if (IsValidClient(i) && i != g_RecordBot)
@@ -1158,11 +1158,11 @@ public void OnSettingChanged(Handle convar, const char[] oldValue, const char[] 
 	else if (convar == g_hArmModel)
 	{
 		char szBuffer[256];
-		GetConVarString(g_hArmModel, szBuffer, 256);
+		g_hArmModel.GetString(szBuffer, 256);
 
 		PrecacheModel(szBuffer, true);
 		AddFileToDownloadsTable(szBuffer);
-		if (!GetConVarBool(g_hPlayerSkinChange))
+		if (!g_hPlayerSkinChange.BoolValue)
 			return;
 		for (int i = 1; i <= MaxClients; i++)
 			if (IsValidClient(i) && i != g_RecordBot)
@@ -1280,41 +1280,41 @@ public void OnSettingChanged(Handle convar, const char[] oldValue, const char[] 
 	}
 	else if (convar == g_hServerType)
 	{
-		if (GetConVarInt(g_hServerType) == 1) // Bhop
+		if (g_hServerType.IntValue == 1) // Bhop
 			ServerCommand("sv_infinite_ammo 1");
 		else
 			ServerCommand("sv_infinite_ammo 2"); // Surf
 	}
 	else if (convar == g_hServerID)
-		g_iServerID = GetConVarInt(g_hServerID);
+		g_iServerID = g_hServerID.IntValue;
 	else if (convar == g_hHostName)
 	{
-		GetConVarString(g_hHostName, g_sServerName, sizeof(g_sServerName));
+		g_hHostName.GetString(g_sServerName, sizeof(g_sServerName));
 	}
 	else if (convar == g_hSoundPathWR)
 	{
-		GetConVarString(g_hSoundPathWR, g_szSoundPathWR, sizeof(g_szSoundPathWR));
+		g_hSoundPathWR.GetString(g_szSoundPathWR, sizeof(g_szSoundPathWR));
 		char sBuffer[2][PLATFORM_MAX_PATH];
 		ExplodeString(g_szSoundPathWR, "sound/", sBuffer, 2, PLATFORM_MAX_PATH);
 		Format(g_szRelativeSoundPathWR, sizeof(g_szRelativeSoundPathWR), "*%s", sBuffer[1]);
 	}
 	else if (convar == g_hSoundPathTop)
 	{
-		GetConVarString(g_hSoundPathTop, g_szSoundPathTop, sizeof(g_szSoundPathTop));
+		g_hSoundPathTop.GetString(g_szSoundPathTop, sizeof(g_szSoundPathTop));
 		char sBuffer[2][PLATFORM_MAX_PATH];
 		ExplodeString(g_szSoundPathTop, "sound/", sBuffer, 2, PLATFORM_MAX_PATH);
 		Format(g_szRelativeSoundPathTop, sizeof(g_szRelativeSoundPathTop), "*%s", sBuffer[1]);
 	}
 	else if (convar == g_hSoundPathPB)
 	{
-		GetConVarString(g_hSoundPathPB, g_szSoundPathPB, sizeof(g_szSoundPathPB));
+		g_hSoundPathPB.GetString(g_szSoundPathPB, sizeof(g_szSoundPathPB));
 		char sBuffer[2][PLATFORM_MAX_PATH];
 		ExplodeString(g_szSoundPathPB, "sound/", sBuffer, 2, PLATFORM_MAX_PATH);
 		Format(g_szRelativeSoundPathPB, sizeof(g_szRelativeSoundPathPB), "*%s", sBuffer[1]);
 	}
 	else if (convar == g_hSoundPathWRCP)
 	{
-		GetConVarString(g_hSoundPathWRCP, g_szSoundPathWRCP, sizeof(g_szSoundPathWRCP));
+		g_hSoundPathWRCP.GetString(g_szSoundPathWRCP, sizeof(g_szSoundPathWRCP));
 		char sBuffer[2][PLATFORM_MAX_PATH];
 		ExplodeString(g_szSoundPathWRCP, "sound/", sBuffer, 2, PLATFORM_MAX_PATH);
 		Format(g_szRelativeSoundPathWRCP, sizeof(g_szRelativeSoundPathWRCP), "*%s", sBuffer[1]);
@@ -1353,7 +1353,7 @@ public void OnPluginStart()
 	// Optionally setup a hook on CBaseEntity::Teleport to keep track of sudden place changes
 	CheatFlag("bot_zombie", false, true);
 	CheatFlag("bot_mimic", false, true);
-	g_hLoadedRecordsAdditionalTeleport = CreateTrie();
+	g_hLoadedRecordsAdditionalTeleport = new StringMap();
 	Handle hGameData = LoadGameConfigFile("sdktools.games");
 	if (hGameData == null)
 	{
@@ -1361,7 +1361,7 @@ public void OnPluginStart()
 		return;
 	}
 	int iOffset = GameConfGetOffset(hGameData, "Teleport");
-	CloseHandle(hGameData);
+	delete hGameData;
 	if (iOffset == -1)
 		return;
 

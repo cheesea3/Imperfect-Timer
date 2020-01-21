@@ -58,11 +58,11 @@ public Action PlayerRanksTimer(Handle timer)
 }
 
 // Recounts players time
-public Action UpdatePlayerProfile(Handle timer, Handle pack)
+public Action UpdatePlayerProfile(Handle timer, DataPack pack)
 {
-	ResetPack(pack);
-	int client = GetClientOfUserId(ReadPackCell(pack));
-	int style = ReadPackCell(pack);
+	pack.Reset();
+	int client = GetClientOfUserId(pack.ReadCell());
+	int style = pack.ReadCell();
 
 	if (IsValidClient(client) && !IsFakeClient(client))
 		db_updateStat(client, style);
@@ -148,11 +148,11 @@ public Action CKTimer2(Handle timer)
 	if (g_bRoundEnd)
 		return Plugin_Continue;
 
-	if (GetConVarBool(g_hMapEnd))
+	if (g_hMapEnd.BoolValue)
 	{
 		ConVar hTmp = FindConVar("mp_timelimit");
 		int iTimeLimit;
-		iTimeLimit = GetConVarInt(hTmp);
+		iTimeLimit = hTmp.IntValue;
 		// Emergency reset timelimit if it's 0
 		if (iTimeLimit == 0)
 		{
@@ -161,7 +161,7 @@ public Action CKTimer2(Handle timer)
 			GameRules_SetProp("m_iRoundTime", 1800, 4, 0, true);
 		}
 		if (hTmp != null)
-			CloseHandle(hTmp);
+			delete hTmp;
 		if (iTimeLimit > 0)
 		{
 			int timeleft;
@@ -248,7 +248,7 @@ public Action CKTimer2(Handle timer)
 	int maxEntities;
 	maxEntities = GetMaxEntities();
 	char classx[20];
-	if (GetConVarBool(g_hCleanWeapons))
+	if (g_hCleanWeapons.BoolValue)
 	{
 		int j;
 		for (j = MaxClients + 1; j < maxEntities; j++)
@@ -278,11 +278,11 @@ public Action ReplayTimer(Handle timer, any userid)
 	return Plugin_Handled;
 }
 
-public Action BonusReplayTimer(Handle timer, Handle pack)
+public Action BonusReplayTimer(Handle timer, DataPack pack)
 {
-	ResetPack(pack);
-	int client = GetClientOfUserId(ReadPackCell(pack));
-	int zGrp = ReadPackCell(pack);
+	pack.Reset();
+	int client = GetClientOfUserId(pack.ReadCell());
+	int zGrp = pack.ReadCell();
 
 	if (IsValidClient(client) && !IsFakeClient(client))
 		SaveRecording(client, zGrp, 0);
@@ -293,11 +293,11 @@ public Action BonusReplayTimer(Handle timer, Handle pack)
 	return Plugin_Handled;
 }
 
-public Action StyleReplayTimer(Handle timer, Handle pack)
+public Action StyleReplayTimer(Handle timer, DataPack pack)
 {
-	ResetPack(pack);
-	int client = GetClientOfUserId(ReadPackCell(pack));
-	int style = ReadPackCell(pack);
+	pack.Reset();
+	int client = GetClientOfUserId(pack.ReadCell());
+	int style = pack.ReadCell();
 
 	if (IsValidClient(client) && !IsFakeClient(client))
 		SaveRecording(client, 0, style);
@@ -307,12 +307,12 @@ public Action StyleReplayTimer(Handle timer, Handle pack)
 	return Plugin_Handled;
 }
 
-public Action StyleBonusReplayTimer(Handle timer, Handle pack)
+public Action StyleBonusReplayTimer(Handle timer, DataPack pack)
 {
-	ResetPack(pack);
-	int client = GetClientOfUserId(ReadPackCell(pack));
-	int zGrp = ReadPackCell(pack);
-	int style = ReadPackCell(pack);
+	pack.Reset();
+	int client = GetClientOfUserId(pack.ReadCell());
+	int zGrp = pack.ReadCell();
+	int style = pack.ReadCell();
 
 	if (IsValidClient(client) && !IsFakeClient(client))
 		SaveRecording(client, zGrp, style);
@@ -390,7 +390,7 @@ public Action ForceNextMap(Handle timer) {
 public Action WelcomeMsgTimer(Handle timer, any client)
 {
 	char szBuffer[512];
-	GetConVarString(g_hWelcomeMsg, szBuffer, 512);
+	g_hWelcomeMsg.GetString(szBuffer, 512);
 	if (IsValidClient(client) && !IsFakeClient(client) && szBuffer[0])
 		CPrintToChat(client, "%s", szBuffer);
 
@@ -589,16 +589,16 @@ public Action SetArmsModel(Handle timer, any client)
 	if (IsValidClient(client) && IsPlayerAlive(client))
 	{
 		char szBuffer[256];
-		GetConVarString(g_hArmModel, szBuffer, 256);
+		g_hArmModel.GetString(szBuffer, 256);
 		SetEntPropString(client, Prop_Send, "m_szArmsModel", szBuffer);
 	}
 }
 
-public Action SpecBot(Handle timer, Handle pack)
+public Action SpecBot(Handle timer, DataPack pack)
 {
-	ResetPack(pack);
-	int client = GetClientOfUserId(ReadPackCell(pack));
-	int bot = ReadPackCell(pack);
+	pack.Reset();
+	int client = GetClientOfUserId(pack.ReadCell());
+	int bot = pack.ReadCell();
 
 	ChangeClientTeam(client, 1);
 	SetEntPropEnt(client, Prop_Send, "m_hObserverTarget", bot);

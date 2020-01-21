@@ -333,8 +333,8 @@ bool g_bRepeat[MAXPLAYERS + 1] = false;
 bool g_bNotTeleporting[MAXPLAYERS + 1] = true;
 
 // Client Side Autobhop
-Handle g_hAutoBhop = INVALID_HANDLE;
-Handle g_hEnableBhop = INVALID_HANDLE;
+ConVar g_hAutoBhop = null;
+ConVar g_hEnableBhop = null;
 
 /*----------  Flag Varibles  ----------*/
 // ConVar g_hCustomTitlesFlag = null;
@@ -866,7 +866,7 @@ int g_AdminMenuFlag;
 ConVar g_hAdminMenuFlag = null;
 
 // Add !ckadmin to !admin
-Handle g_hAdminMenu = null;
+TopMenu g_hAdminMenu = null;
 
 // Weird admin menu trickery TODO: wtf
 int g_AdminMenuLastPage[MAXPLAYERS + 1];
@@ -945,7 +945,7 @@ bool g_bReportSuccess[MAXPLAYERS + 1];
 char szWHITE[12], szDARKRED[12], szPURPLE[12], szGREEN[12], szLIGHTGREEN[12], szLIMEGREEN[12], szRED[12], szGRAY[12], szYELLOW[12], szDARKGREY[12], szBLUE[12], szDARKBLUE[12], szBLUEGREY[12], szPINK[12], szLIGHTRED[12], szORANGE[12];
 
 // hook zones
-Handle g_hTriggerMultiple;
+ArrayList g_hTriggerMultiple;
 int g_iTeleportingZoneId[MAXPLAYERS + 1];
 int g_iZonegroupHook[MAXPLAYERS + 1];
 int g_iSelectedTrigger[MAXPLAYERS + 1];
@@ -956,7 +956,7 @@ bool g_bRankedMap;
 // Handle g_hStore;
 
 // Late Load Linux fix
-Handle g_cvar_sv_hibernate_when_empty = INVALID_HANDLE;
+ConVar g_cvar_sv_hibernate_when_empty = null;
 
 // Fix prehopping in zones
 bool g_bJumpedInZone[MAXPLAYERS + 1];
@@ -1025,7 +1025,7 @@ char g_sBugType[MAXPLAYERS + 1][32];
 char g_sBugMsg[MAXPLAYERS + 1][256];
 
 // Teleport Destinations
-Handle g_hDestinations;
+ArrayList g_hDestinations;
 
 // CPR command
 float g_fClientCPs[MAXPLAYERS + 1][36];
