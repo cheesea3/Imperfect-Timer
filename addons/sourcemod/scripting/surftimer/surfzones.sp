@@ -214,7 +214,7 @@ public Action StartTouchTrigger(int caller, int activator)
 		g_Stage[g_iClientInZone[client][2]][client] = 1;
 		g_bInStartZone[client] = true;
 		g_bInStageZone[client] = false;
-		g_iCurrentStyle[client] = g_iInitalStyle[client];
+		g_players[client].currentStyle = g_players[client].initialStyle;
 		lastCheckpoint[g_iClientInZone[client][2]][client] = 1;
 
 		if (g_bhasStages)
@@ -226,7 +226,7 @@ public Action StartTouchTrigger(int caller, int activator)
 		if (g_iClientInZone[client][2] == iZoneGroup) // Cant end bonus timer in this zone && in the having the same timer on
 		{
 			// fluffys gravity
-			if (g_iCurrentStyle[client] != 4) // low grav
+			if (g_players[client].currentStyle != 4) // low grav
 				ResetGravity(client);
 
 			g_bInJump[client] = false;
@@ -299,13 +299,13 @@ public Action StartTouchTrigger(int caller, int activator)
 				if (g_iCheckpointsPassed[client] == g_TotalStages)
 					g_bIsValidRun[client] = true;
 
-				if (g_iCurrentStyle[client] == 0)
+				if (g_players[client].currentStyle == 0)
 					Checkpoint(client, iZoneTypeId, g_iClientInZone[client][2], time);
 
 				lastCheckpoint[g_iClientInZone[client][2]][client] = iZoneTypeId;
 			}
 			else if (!g_bTimerRunning[client])
-				g_iCurrentStyle[client] = g_iInitalStyle[client];
+				g_players[client].currentStyle = g_players[client].initialStyle;
 
 			if (g_bWrcpTimeractivated[client])
 				g_bWrcpTimeractivated[client] = false;
@@ -324,7 +324,7 @@ public Action StartTouchTrigger(int caller, int activator)
 			}
 
 			// Announcing checkpoint in linear maps
-			if (g_iCurrentStyle[client] == 0)
+			if (g_players[client].currentStyle == 0)
 			{
 				float time = g_fCurrentRunTime[client];
 				Checkpoint(client, iZoneTypeId, g_iClientInZone[client][2], time);
@@ -421,7 +421,7 @@ public Action EndTouchTrigger(int caller, int activator)
 			if (speed > 0)
 			{
 				char szSpeed[64];
-				int style = g_iCurrentStyle[client];
+				int style = g_players[client].currentStyle;
 				int recSpeed = 0;
 				int pbSpeed = 0;
 
@@ -495,7 +495,7 @@ public Action EndTouchTrigger(int caller, int activator)
 				if (speed > 0)
 				{
 					char szSpeed[80];
-					int style = g_iCurrentStyle[client];
+					int style = g_players[client].currentStyle;
 					int recSpeed = 0;
 					int pbSpeed = 0;
 
@@ -712,7 +712,7 @@ public Action ThrottledOutlineBeamsAll(Handle timer)
 		if (!IsValidClient(i) || IsFakeClient(i))
 			continue;
 
-		if (g_playerOptions[i].outlines)
+		if (g_players[i].outlines)
 		{
 			for (int j = 0; j < g_iOutlineBoxCount; j++)
 			{

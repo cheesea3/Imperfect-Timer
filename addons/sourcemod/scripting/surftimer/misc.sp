@@ -103,7 +103,7 @@ public void teleportClient(int client, int zonegroup, int zone, bool stopTime)
 	// fluffys gravity
 	ResetGravity(client);
 
-	if (g_iInitalStyle[client] != 5 && g_iInitalStyle[client] != 6)
+	if (g_players[client].initialStyle != 5 && g_players[client].initialStyle != 6)
 	 	SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", 1.0);
 
 	// Hack fix for b1 of surf_aircontrol_ksf
@@ -1213,7 +1213,7 @@ public void SetClientDefaults(int client) {
 	g_bOverlay[client] = false;
 	g_bClientOwnReason[client] = false;
 	g_wrcpGlitchStopper[client] = true;
-	g_bThirdPerson[client] = false;
+	g_players[client].thirdPerson = false;
 	g_AdminMenuLastPage[client] = 0;
 	g_MenuLevel[client] = -1;
 	g_AttackCounter[client] = 0;
@@ -1286,9 +1286,7 @@ public void SetClientDefaults(int client) {
 	g_bTimerEnabled[client] = true;
 
 	// Style Defaults
-	g_iCurrentStyle[client] = 0;
-	g_iInitalStyle[client] = 0;
-	g_szInitalStyle[client] = "Normal";
+	g_players[client].SetStyle(client, 0, STYLE_NORMAL_TEXT, "");
 
 	// Show Zones
 	g_bShowZones[client] = false;
@@ -1309,9 +1307,9 @@ public void SetClientDefaults(int client) {
 
 	// Hide/Show Weapons
 
-	g_playerOptions[client].cooldown = GameTime;
-	g_playerOptions[client].hideWeapons = false;
-	g_playerOptions[client].outlines = true;
+	g_players[client].cooldown = GameTime;
+	g_players[client].hideWeapons = false;
+	g_players[client].outlines = true;
 
 	// Goose Start Pos
 	for (int i = 0; i < MAXZONEGROUPS; i++)
@@ -2538,7 +2536,7 @@ public void CheckRun(int client)
 	if (g_bTimerRunning[client])
 	{
 		int zoneGroup = g_iClientInZone[client][2];
-		int style = g_iCurrentStyle[client];
+		int style = g_players[client].currentStyle;
 		/*
 		if (g_fCurrentRunTime[client] > g_fPersonalRecord[client] && !g_bMissedMapBest[client] && !g_bPause[client] && zoneGroup == 0)
 		{
@@ -3025,8 +3023,8 @@ public void CenterHudDead(int client)
 				Format(timerText, 32, "[%s] ", g_szZoneGroupName[g_iClientInZone[ObservedUser][2]]);
 			if (g_bPracticeMode[ObservedUser])
 				Format(timerText, 32, "[P] ");
-			else if (g_iCurrentStyle[ObservedUser] != 0)
-				Format(timerText, 32, "%s ", g_szStyleHud[ObservedUser]);
+			else if (g_players[ObservedUser].currentStyle != 0)
+				Format(timerText, 32, "%s ", g_players[ObservedUser].styleTextSmall);
 				// fluffys come back here
 
 			PrintHintText(client, "<pre><font face=''>%s <font color='#00ff00'>%s</font>\nSpeed: <font color='#66bbff'>%i</font> u/s\nKeys: %s</pre>", timerText, obsAika, RoundToNearest(g_fLastSpeed[ObservedUser]), sResult);
@@ -3068,7 +3066,7 @@ public void CenterHudAlive(int client)
 
 	if (g_bCentreHud[client])
 	{
-		int style = g_iCurrentStyle[client];
+		int style = g_players[client].currentStyle;
 		char module[6][1024];
 		char pAika[54];
 
@@ -3129,9 +3127,9 @@ public void CenterHudAlive(int client)
 					Format(module[i], 128, "<font color='#FF0000'>00:00:00       </font>");
 				}
 
-				if (g_iCurrentStyle[client] != 0)
+				if (g_players[client].currentStyle != 0)
 				{
-					switch (g_iCurrentStyle[client])
+					switch (g_players[client].currentStyle)
 					{
 						case 1: Format(module[i], 128, "SW %s", module[i]);
 						case 2: Format(module[i], 128, "HSW %s", module[i]);
@@ -3160,7 +3158,7 @@ public void CenterHudAlive(int client)
 						else
 							Format(g_szLastSRDifference[client], 64, "WR: N/A");
 					}
-					else if (g_iClientInZone[client][2] == 0 && g_iCurrentStyle[client] != 0) // Styles
+					else if (g_iClientInZone[client][2] == 0 && g_players[client].currentStyle != 0) // Styles
 					{
 						if (g_fRecordStyleMapTime[style] != 9999999.0)
 						{
@@ -3175,9 +3173,9 @@ public void CenterHudAlive(int client)
 					}
 					else
 					{
-						if (g_iCurrentStyle[client] == 0)
+						if (g_players[client].currentStyle == 0)
 							Format(g_szLastSRDifference[client], 64, "WR: %s", g_szBonusFastestTime[g_iClientInZone[client][2]]);
-						else if (g_iCurrentStyle[client] != 0) // Styles
+						else if (g_players[client].currentStyle != 0) // Styles
 							Format(g_szLastSRDifference[client], 64, "WR: %s", g_szStyleBonusFastestTime[style][g_iClientInZone[client][2]]);
 					}
 				}
@@ -3200,7 +3198,7 @@ public void CenterHudAlive(int client)
 						else
 							Format(g_szLastPBDifference[client], 64, "PB: N/A");
 					}
-					else if (g_iClientInZone[client][2] == 0 && g_iCurrentStyle[client] != 0) // Styles
+					else if (g_iClientInZone[client][2] == 0 && g_players[client].currentStyle != 0) // Styles
 					{
 						if (g_fRecordStyleMapTime[style] != 9999999.0)
 						{
@@ -3214,9 +3212,9 @@ public void CenterHudAlive(int client)
 					}
 					else
 					{
-						if (g_iCurrentStyle[client] == 0)
+						if (g_players[client].currentStyle == 0)
 							Format(g_szLastPBDifference[client], 64, "PB: %s", g_szPersonalRecordBonus[g_iClientInZone[client][2]][client]);
-						else if (g_iCurrentStyle[client] != 0) // Styles
+						else if (g_players[client].currentStyle != 0) // Styles
 							Format(g_szLastPBDifference[client], 64, "PB: %s", g_szStylePersonalRecordBonus[style][g_iClientInZone[client][2]][client]);
 					}
 				}
@@ -3228,7 +3226,7 @@ public void CenterHudAlive(int client)
 				char szRank[32];
 				if (g_iClientInZone[client][2] > 0) // if in bonus stage, get bonus times
 				{
-					if (g_iCurrentStyle[client] == 0) // Normal
+					if (g_players[client].currentStyle == 0) // Normal
 					{
 						if (g_fPersonalRecordBonus[g_iClientInZone[client][2]][client] > 0.0)
 							Format(szRank, 64, "Rank: %i / %i", g_MapRankBonus[g_iClientInZone[client][2]][client], g_iBonusCount[g_iClientInZone[client][2]]);
@@ -3238,7 +3236,7 @@ public void CenterHudAlive(int client)
 							else
 								Format(szRank, 64, "Rank: N/A");
 					}
-					else if (g_iCurrentStyle[client] != 0) // Styles
+					else if (g_players[client].currentStyle != 0) // Styles
 					{
 						if (g_fStylePersonalRecordBonus[style][g_iClientInZone[client][2]][client] > 0.0)
 							Format(szRank, 64, "Rank: %i / %i", g_StyleMapRankBonus[style][g_iClientInZone[client][2]][client], g_iStyleBonusCount[style][g_iClientInZone[client][2]]);
@@ -3251,7 +3249,7 @@ public void CenterHudAlive(int client)
 				}
 				else // if in normal map, get normal times
 				{
-					if (g_iCurrentStyle[client] == 0) // Normal
+					if (g_players[client].currentStyle == 0) // Normal
 					{
 						if (g_fPersonalRecord[client] > 0.0)
 							Format(szRank, 64, "Rank: %i / %i", g_MapRank[client], g_MapTimesCount);
@@ -3261,7 +3259,7 @@ public void CenterHudAlive(int client)
 							else
 								Format(szRank, 64, "Rank: N/A");
 					}
-					else if (g_iCurrentStyle[client] != 0) // Styles
+					else if (g_players[client].currentStyle != 0) // Styles
 					{
 						if (g_fPersonalStyleRecord[style][client] > 0.0)
 							Format(szRank, 64, "Rank: %i / %i", g_StyleMapRank[style][client], g_StyleMapTimesCount[style]);
@@ -3313,8 +3311,8 @@ public void CenterHudAlive(int client)
 			}
 		}
 
-		// if (g_iCurrentStyle[client] > 0)
-		// 	Format(timerText, sizeof(timerText), "%s%s", g_szStyleHud[client], timerColour);
+		// if (g_players[client].currentStyle > 0)
+		// 	Format(timerText, sizeof(timerText), "%s%s", g_players[ObservedUser].styleTextSmall, timerColour);
 		// else
 		// 	Format(timerText, sizeof(timerText), "%s", timerColour);
 
@@ -3331,7 +3329,7 @@ public void SideHudAlive(int client)
 	if (g_bSideHud[client])
 	{
 		char szPanel[1280], szBuffer[2][256], szModule[5][1280];
-		int style = g_iCurrentStyle[client];
+		int style = g_players[client].currentStyle;
 		int moduleCount = 0;
 
 		for (int i = 0; i < 5; i++)
@@ -3409,7 +3407,7 @@ public void SideHudAlive(int client)
 				char szRank[32];
 				if (g_iClientInZone[client][2] > 0) // if in bonus stage, get bonus times
 				{
-					if (g_iCurrentStyle[client] == 0) // Normal
+					if (g_players[client].currentStyle == 0) // Normal
 					{
 						if (g_fPersonalRecordBonus[g_iClientInZone[client][2]][client] > 0.0)
 							Format(szRank, 64, "Rank: %i / %i", g_MapRankBonus[g_iClientInZone[client][2]][client], g_iBonusCount[g_iClientInZone[client][2]]);
@@ -3419,7 +3417,7 @@ public void SideHudAlive(int client)
 							else
 								Format(szRank, 64, "Rank: N/A");
 					}
-					else if (g_iCurrentStyle[client] != 0) // Styles
+					else if (g_players[client].currentStyle != 0) // Styles
 					{
 						if (g_fStylePersonalRecordBonus[style][g_iClientInZone[client][2]][client] > 0.0)
 							Format(szRank, 64, "Rank: %i / %i", g_StyleMapRankBonus[style][g_iClientInZone[client][2]][client], g_iStyleBonusCount[style][g_iClientInZone[client][2]]);
@@ -3432,7 +3430,7 @@ public void SideHudAlive(int client)
 				}
 				else // if in normal map, get normal times
 				{
-					if (g_iCurrentStyle[client] == 0) // Normal
+					if (g_players[client].currentStyle == 0) // Normal
 					{
 						if (g_fPersonalRecord[client] > 0.0)
 							Format(szRank, 64, "Rank: %i / %i", g_MapRank[client], g_MapTimesCount);
@@ -3442,7 +3440,7 @@ public void SideHudAlive(int client)
 							else
 								Format(szRank, 64, "Rank: N/A");
 					}
-					else if (g_iCurrentStyle[client] != 0) // Styles
+					else if (g_players[client].currentStyle != 0) // Styles
 					{
 						if (g_fPersonalStyleRecord[style][client] > 0.0)
 							Format(szRank, 64, "Rank: %i / %i", g_StyleMapRank[style][client], g_StyleMapTimesCount[style]);
@@ -3621,7 +3619,7 @@ public void Checkpoint(int client, int zone, int zonegroup, float time)
 			Format(sz_srDiff, 128, "%cWR: %c+%s%c", WHITE, RED, sz_srDiff, WHITE);
 			if (zonegroup > 0)
 				Format(g_szLastSRDifference[client], 64, "WR: <font color='#FF0000'>%s</font>", sz_srDiff_colorless);
-			else if (g_iCurrentStyle[client] > 0)
+			else if (g_players[client].currentStyle > 0)
 				Format(g_szLastSRDifference[client], 64, "\tWR: <font color='#FF0000'>%s</font>", sz_srDiff_colorless);
 			else
 				Format(g_szLastSRDifference[client], 64, "WR: <font color='#FF0000'>%s</font>", sz_srDiff_colorless);
@@ -3775,7 +3773,7 @@ public void ResetGravity(int client)
 	if (IsValidClient(client) && !IsFakeClient(client))
 	{
 		float gravity = GetEntityGravity(client);
-		if (g_iCurrentStyle[client] != 4)
+		if (g_players[client].currentStyle != 4)
 		{
 			if (gravity != 1.0)
 				SetEntityGravity(client, 1.0);

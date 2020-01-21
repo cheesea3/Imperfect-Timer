@@ -1374,7 +1374,7 @@ public Action UnNoClip(int client, int args)
 	if (g_bNoClip[client])
 		Action_UnNoClip(client);
 
-	if (g_iInitalStyle[client] != 4 && IsValidClient(client))
+	if (g_players[client].initialStyle != 4 && IsValidClient(client))
 		ResetGravity(client);
 	else
 		SetEntityGravity(client, 0.5);
@@ -3502,16 +3502,10 @@ public Action Command_GoBack(int client, int args)
 public Action Client_SetStyleNormal(int client, int args)
 {
 	// check for hsw -> normal and bw -> normal
-	if (g_iCurrentStyle[client] != 0 || (g_iCurrentStyle[client] == 0 && g_iInitalStyle[client] == 2) || (g_iCurrentStyle[client] == 0 && g_iInitalStyle[client] == 3))
+	if (g_players[client].currentStyle != 0 || (g_players[client].currentStyle == 0 && g_players[client].initialStyle == 2) || (g_players[client].initialStyle == 0 && g_players[client].initialStyle == 3))
 	{
-		g_iCurrentStyle[client] = 0;
-		g_iInitalStyle[client] = 0;
-		Format(g_szInitalStyle[client], 128, "Normal");
-		Format(g_szStyleHud[client], 32, "");
-		g_bRankedStyle[client] = true;
-		g_bFunStyle[client] = false;
+		g_players[client].SetStyle(client, 0, STYLE_NORMAL_TEXT, "");
 		CReplyToCommand(client, "%t", "CommandsNormal", g_szChatPrefix);
-		Command_Restart(client, 1);
 	}
 
 	return Plugin_Handled;
@@ -3519,123 +3513,43 @@ public Action Client_SetStyleNormal(int client, int args)
 
 public Action Client_SetStyleSideways(int client, int args)
 {
-	if (g_iCurrentStyle[client] != 1)
-	{
-		g_iCurrentStyle[client] = 1;
-		g_iInitalStyle[client] = 1;
-		Format(g_szInitalStyle[client], 128, "Sideways");
-		Format(g_szStyleHud[client], 32, "[SW]");
-		g_bRankedStyle[client] = true;
-		g_bFunStyle[client] = false;
-		CReplyToCommand(client, "%t", "CommandsSideways", g_szChatPrefix);
-		Command_Restart(client, 1);
-
-		if (g_bThirdPerson[client])
-		{
-			g_bThirdPerson[client] = false;
-			ClientCommand(client, "firstperson");
-		}
-	}
-
+	g_players[client].SetStyle(client, 1, STYLE_SIDEWAYS_TEXT, "[SW]");
+	CReplyToCommand(client, "%t", "CommandsSideways", g_szChatPrefix);
 	return Plugin_Handled;
 }
 
 public Action Client_SetStyleHalfSideways(int client, int args)
 {
-	if (g_iCurrentStyle[client] != 2)
-	{
-		g_iCurrentStyle[client] = 2;
-		g_iInitalStyle[client] = 2;
-		Format(g_szInitalStyle[client], 128, "Half-Sideways");
-		Format(g_szStyleHud[client], 32, "[HSW]");
-		g_bRankedStyle[client] = true;
-		g_bFunStyle[client] = false;
-		CReplyToCommand(client, "%t", "CommandsHalfSideways", g_szChatPrefix);
-		Command_Restart(client, 1);
-
-		if (g_bThirdPerson[client])
-		{
-			g_bThirdPerson[client] = false;
-			ClientCommand(client, "firstperson");
-		}
-	}
-
+	g_players[client].SetStyle(client, 2, STYLE_HALFSIDEWAYS_TEXT, "[HSW]");
+	CReplyToCommand(client, "%t", "CommandsHalfSideways", g_szChatPrefix);
 	return Plugin_Handled;
 }
 
 public Action Client_SetStyleBackwards(int client, int args)
 {
-	if (g_iCurrentStyle[client] != 3)
-	{
-		g_iCurrentStyle[client] = 3;
-		g_iInitalStyle[client] = 3;
-		Format(g_szInitalStyle[client], 128, "Backwards");
-		Format(g_szStyleHud[client], 32, "[BW]");
-		g_bRankedStyle[client] = true;
-		g_bFunStyle[client] = false;
-		CReplyToCommand(client, "%t", "CommandsBackwards", g_szChatPrefix);
-		Command_Restart(client, 1);
-
-		if (g_bThirdPerson[client])
-		{
-			g_bThirdPerson[client] = false;
-			ClientCommand(client, "firstperson");
-		}
-	}
-
+	g_players[client].SetStyle(client, 3, STYLE_BACKWARDS_TEXT, "[BW]");
+	CReplyToCommand(client, "%t", "CommandsBackwards", g_szChatPrefix);
 	return Plugin_Handled;
 }
 
 public Action Client_SetStyleLowGrav(int client, int args)
 {
-	if (g_iCurrentStyle[client] != 4)
-	{
-		g_iCurrentStyle[client] = 4;
-		g_iInitalStyle[client] = 4;
-		Format(g_szInitalStyle[client], 128, "Low Gravity");
-		Format(g_szStyleHud[client], 32, "[LG]");
-		g_bRankedStyle[client] = false;
-		g_bFunStyle[client] = true;
-		CReplyToCommand(client, "%t", "CommandsLowGravity", g_szChatPrefix);
-		Command_Restart(client, 1);
-	}
-
+	g_players[client].SetStyle(client, 4, STYLE_LOWGRAVITY_TEXT, "[LG]");
+	CReplyToCommand(client, "%t", "CommandsLowGravity", g_szChatPrefix);
 	return Plugin_Handled;
 }
 
 public Action Client_SetStyleSlomo(int client, int args)
 {
-	if (g_iCurrentStyle[client] != 5)
-	{
-		g_iCurrentStyle[client] = 5;
-		g_iInitalStyle[client] = 5;
-		Format(g_szInitalStyle[client], 128, "Slow Motion");
-		Format(g_szStyleHud[client], 32, "[SLW]");
-		SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", 0.5);
-		g_bRankedStyle[client] = false;
-		g_bFunStyle[client] = true;
-		CReplyToCommand(client, "%t", "CommandsSlowMotion", g_szChatPrefix);
-		Command_Restart(client, 1);
-	}
-
+	g_players[client].SetStyle(client, 5, STYLE_SLOMO_TEXT, "[SLW]");
+	CReplyToCommand(client, "%t", "CommandsSlowMotion", g_szChatPrefix);
 	return Plugin_Handled;
 }
 
 public Action Client_SetStyleFastForward(int client, int args)
 {
-	if (g_iCurrentStyle[client] != 6)
-	{
-		g_iCurrentStyle[client] = 6;
-		g_iInitalStyle[client] = 6;
-		Format(g_szInitalStyle[client], 128, "Fast Forward");
-		Format(g_szStyleHud[client], 32, "[FF]");
-		SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", 1.5);
-		g_bRankedStyle[client] = false;
-		g_bFunStyle[client] = true;
-		CReplyToCommand(client, "%t", "CommandsFastForward", g_szChatPrefix);
-		Command_Restart(client, 1);
-	}
-
+	g_players[client].SetStyle(client, 6, STYLE_FASTFORWARD_TEXT, "[FF]");
+	CReplyToCommand(client, "%t", "CommandsFastForward", g_szChatPrefix);
 	return Plugin_Handled;
 }
 
@@ -3648,7 +3562,7 @@ public Action Client_SelectStyle(int client, int args)
 public void styleSelectMenu(int client)
 {
 	Menu styleSelect = CreateMenu(StyleTypeSelectMenuHandler);
-	SetMenuTitle(styleSelect, "Current Style: %s\n------------------------------\n", g_szInitalStyle[client]);
+	SetMenuTitle(styleSelect, "Current Style: %s\n------------------------------\n", g_players[client].styleText);
 	AddMenuItem(styleSelect, "ranked", "Ranked Styles");
 	AddMenuItem(styleSelect, "fun", "Fun Styles");
 	SetMenuOptionFlags(styleSelect, MENUFLAG_BUTTON_EXIT);
@@ -3664,7 +3578,7 @@ public int StyleTypeSelectMenuHandler(Menu styleSelect, MenuAction action, int p
 			case 0:
 			{
 				Menu styleSelect2 = CreateMenu(StyleSelectMenuHandler);
-				SetMenuTitle(styleSelect2, "Current Style: %s\n------------------------------\n", g_szInitalStyle[param1]);
+				SetMenuTitle(styleSelect2, "Current Style: %s\n------------------------------\n", g_players[param1].styleText);
 				AddMenuItem(styleSelect2, "0", "Normal");
 				AddMenuItem(styleSelect2, "1", "Sideways");
 				AddMenuItem(styleSelect2, "2", "Half-Sideways");
@@ -3675,9 +3589,9 @@ public int StyleTypeSelectMenuHandler(Menu styleSelect, MenuAction action, int p
 			case 1:
 			{
 				Menu styleSelect2 = CreateMenu(StyleSelectMenuHandler);
-				SetMenuTitle(styleSelect2, "Current Style: %s\n------------------------------\n", g_szInitalStyle[param1]);
+				SetMenuTitle(styleSelect2, "Current Style: %s\n------------------------------\n", g_players[param1].styleText);
 				AddMenuItem(styleSelect2, "0", "Normal - Ranked");
-				AddMenuItem(styleSelect2, "4", "Low-Gravity");
+				AddMenuItem(styleSelect2, "4", "Low Gravity");
 				AddMenuItem(styleSelect2, "5", "Slow Motion");
 				AddMenuItem(styleSelect2, "6", "Fast Forward");
 				SetMenuOptionFlags(styleSelect2, MENUFLAG_BUTTON_EXIT);
@@ -3698,71 +3612,33 @@ public int StyleSelectMenuHandler(Menu menu, MenuAction action, int param1, int 
 	{
 		char info[32];
 		GetMenuItem(menu, param2, info, sizeof(info));
-		if (StrContains(info, "1", false)!= -1)
+		if (StrContains(info, "1", false) != -1)
 		{
-			g_iCurrentStyle[param1] = 1;
-			g_iInitalStyle[param1] = 1;
-			Format(g_szInitalStyle[param1], 128, "Sideways");
-			Format(g_szStyleHud[param1], 32, "[SW]");
-			g_bRankedStyle[param1] = true;
-			g_bFunStyle[param1] = false;
+			g_players[param1].SetStyle(param1, 1, STYLE_SIDEWAYS_TEXT, "[SW]");
 		}
-		else if (StrContains(info, "2", false)!= -1)
+		else if (StrContains(info, "2", false) != -1)
 		{
-			g_iCurrentStyle[param1] = 2;
-			g_iInitalStyle[param1] = 2;
-			Format(g_szInitalStyle[param1], 128, "Half-Sideways");
-			Format(g_szStyleHud[param1], 32, "[HSW]");
-			g_bRankedStyle[param1] = true;
-			g_bFunStyle[param1] = false;
+			g_players[param1].SetStyle(param1, 2, STYLE_HALFSIDEWAYS_TEXT, "[HSW]");
 		}
-		else if (StrContains(info, "3", false)!= -1)
+		else if (StrContains(info, "3", false) != -1)
 		{
-			g_iCurrentStyle[param1] = 3;
-			g_iInitalStyle[param1] = 3;
-			Format(g_szInitalStyle[param1], 128, "Backwards");
-			Format(g_szStyleHud[param1], 32, "[BW]");
-			g_bRankedStyle[param1] = true;
-			g_bFunStyle[param1] = false;
+			g_players[param1].SetStyle(param1, 3, STYLE_BACKWARDS_TEXT, "[BW]");
 		}
-		else if (StrContains(info, "4", false)!= -1)
+		else if (StrContains(info, "4", false) != -1)
 		{
-			g_iCurrentStyle[param1] = 4;
-			g_iInitalStyle[param1] = 4;
-			Format(g_szInitalStyle[param1], 128, "Low Gravity");
-			Format(g_szStyleHud[param1], 32, "[LG]");
-			SetEntityGravity(param1, 0.5);
-			g_bRankedStyle[param1] = false;
-			g_bFunStyle[param1] = true;
+			g_players[param1].SetStyle(param1, 4, STYLE_LOWGRAVITY_TEXT, "[LG]");
 		}
-		else if (StrContains(info, "5", false)!= -1)
+		else if (StrContains(info, "5", false) != -1)
 		{
-			g_iCurrentStyle[param1] = 5;
-			g_iInitalStyle[param1] = 5;
-			Format(g_szInitalStyle[param1], 128, "Slow Motion");
-			Format(g_szStyleHud[param1], 32, "[SLW]");
-			SetEntPropFloat(param1, Prop_Data, "m_flLaggedMovementValue", 0.5);
-			g_bRankedStyle[param1] = false;
-			g_bFunStyle[param1] = true;
+			g_players[param1].SetStyle(param1, 5, STYLE_SLOMO_TEXT, "[SLW]");
 		}
-		else if (StrContains(info, "6", false)!= -1)
+		else if (StrContains(info, "6", false) != -1)
 		{
-			g_iCurrentStyle[param1] = 6;
-			g_iInitalStyle[param1] = 6;
-			Format(g_szInitalStyle[param1], 128, "Fast Forward");
-			Format(g_szStyleHud[param1], 32, "[FF]");
-			SetEntPropFloat(param1, Prop_Data, "m_flLaggedMovementValue", 1.5);
-			g_bRankedStyle[param1] = false;
-			g_bFunStyle[param1] = true;
+			g_players[param1].SetStyle(param1, 6, STYLE_FASTFORWARD_TEXT, "[FF]");
 		}
 		else
 		{
-			g_iCurrentStyle[param1] = 0;
-			g_iInitalStyle[param1] = 0;
-			Format(g_szInitalStyle[param1], 128, "Normal");
-			Format(g_szStyleHud[param1], 32, "");
-			g_bRankedStyle[param1] = true;
-			g_bFunStyle[param1] = false;
+			g_players[param1].SetStyle(param1, 0, STYLE_NORMAL_TEXT, "");
 		}
 
 		Command_Restart(param1, 1);
@@ -4989,11 +4865,11 @@ public Action Command_ShowSpeed(int client, int args)
 public Action Command_ToggleThirdPerson(int client, int args)
 {
 	// prevent spam
-	if ((GetGameTime() - g_playerOptions[client].cooldown) < OPTION_COOLDOWN)
+	if ((GetGameTime() - g_players[client].cooldown) < OPTION_COOLDOWN)
 		return Plugin_Handled;
 
-	int style = g_iCurrentStyle[client];
-	if (!g_bThirdPerson[client] && (style == 1 || style == 2 || style == 3))
+	int style = g_players[client].currentStyle;
+	if (!g_players[client].thirdPerson && (style == 1 || style == 2 || style == 3))
 	{
 		CPrintToChat(client, "%t", "ThirdPersonUnavailable", g_szChatPrefix);
 		return Plugin_Handled;
@@ -5004,14 +4880,14 @@ public Action Command_ToggleThirdPerson(int client, int args)
 		int team = GetClientTeam(client);
 		if (team == 2 || team == 3)
 		{
-			if (!g_bThirdPerson[client])
+			if (!g_players[client].thirdPerson)
 			{
-				g_bThirdPerson[client] = true;
+				g_players[client].thirdPerson = true;
 				ClientCommand(client, "thirdperson");
 			}
 			else
 			{
-				g_bThirdPerson[client] = false;
+				g_players[client].thirdPerson = false;
 				ClientCommand(client, "firstperson");
 			}
 		}
@@ -5023,15 +4899,15 @@ public Action Command_ToggleThirdPerson(int client, int args)
 public Action Command_HideWeapons(int client, int args)
 {
 	// prevent spam
-	if ((GetGameTime() - g_playerOptions[client].cooldown) < OPTION_COOLDOWN)
+	if ((GetGameTime() - g_players[client].cooldown) < OPTION_COOLDOWN)
 		return Plugin_Handled;
 
-	g_playerOptions[client].cooldown = GetGameTime();
-	g_playerOptions[client].hideWeapons = !g_playerOptions[client].hideWeapons;
+	g_players[client].cooldown = GetGameTime();
+	g_players[client].hideWeapons = !g_players[client].hideWeapons;
 
 	if (IsValidClient(client) && !IsFakeClient(client) && IsPlayerAlive(client))
 	{
-		if (g_playerOptions[client].hideWeapons)
+		if (g_players[client].hideWeapons)
 		{
 			StripAllWeapons(client, true);
 		}
@@ -5048,14 +4924,14 @@ public Action Command_HideWeapons(int client, int args)
 public Action Command_ShowWeapons(int client, int args)
 {
 	// prevent spam
-	if ((GetGameTime() - g_playerOptions[client].cooldown) < OPTION_COOLDOWN)
+	if ((GetGameTime() - g_players[client].cooldown) < OPTION_COOLDOWN)
 		return Plugin_Handled;
 
-	g_playerOptions[client].cooldown = GetGameTime();
+	g_players[client].cooldown = GetGameTime();
 
-	if (IsValidClient(client) && !IsFakeClient(client) && g_playerOptions[client].hideWeapons)
+	if (IsValidClient(client) && !IsFakeClient(client) && g_players[client].hideWeapons)
 	{
-		g_playerOptions[client].hideWeapons = false;
+		g_players[client].hideWeapons = false;
 
 		if (IsPlayerAlive(client))
 		{
@@ -5076,12 +4952,12 @@ public Action Command_Outlines(int client, int args)
 public Action Command_ToggleOutlines(int client, int args)
 {
 	// prevent spam
-	if ((GetGameTime() - g_playerOptions[client].cooldown) < OPTION_COOLDOWN)
+	if ((GetGameTime() - g_players[client].cooldown) < OPTION_COOLDOWN)
 		return Plugin_Handled;
 
-	g_playerOptions[client].outlines = !g_playerOptions[client].outlines;
+	g_players[client].outlines = !g_players[client].outlines;
 
-	if (g_playerOptions[client].outlines)
+	if (g_players[client].outlines)
 		CPrintToChat(client, "%t", "OutlinesEnabled", g_szChatPrefix);
 	else
 		CPrintToChat(client, "%t", "OutlinesDisabled", g_szChatPrefix);

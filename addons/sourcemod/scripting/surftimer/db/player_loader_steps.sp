@@ -291,8 +291,8 @@ void db_viewPlayerOptionsCallback(Handle hndl, const char[] error, int client, a
 		g_bCenterSpeedDisplay[client] = view_as<bool>(SQL_FetchInt(hndl, 9));
 		g_bCentreHud[client] = view_as<bool>(SQL_FetchInt(hndl, 10));
 		g_iTeleSide[client] = SQL_FetchInt(hndl, 11);
-		g_playerOptions[client].hideWeapons = view_as<bool>(SQL_FetchInt(hndl, 12));
-		g_playerOptions[client].outlines = view_as<bool>(SQL_FetchInt(hndl, 13));
+		g_players[client].hideWeapons = view_as<bool>(SQL_FetchInt(hndl, 12));
+		g_players[client].outlines = view_as<bool>(SQL_FetchInt(hndl, 13));
 		g_iCentreHudModule[client][0] = SQL_FetchInt(hndl, 14);
 		g_iCentreHudModule[client][1] = SQL_FetchInt(hndl, 15);
 		g_iCentreHudModule[client][2] = SQL_FetchInt(hndl, 16);
@@ -336,8 +336,8 @@ void db_viewPlayerOptionsCallback(Handle hndl, const char[] error, int client, a
 		g_bCenterSpeedDisplay[client] = false;
 		g_bCentreHud[client] = true;
 		g_iTeleSide[client] = 0;
-		g_playerOptions[client].hideWeapons = false;
-		g_playerOptions[client].outlines = true;
+		g_players[client].hideWeapons = false;
+		g_players[client].outlines = true;
 		g_iCentreHudModule[client][0] = 1;
 		g_iCentreHudModule[client][1] = 2;
 		g_iCentreHudModule[client][2] = 3;

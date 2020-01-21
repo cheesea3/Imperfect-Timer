@@ -160,7 +160,7 @@ public int Native_GetMapStages(Handle plugin, int numParams)
 public int Native_IsPlayerInTP(Handle plugin, int numParams)
 {
 	int client = GetNativeCell(1);
-	return g_bThirdPerson[client];
+	return g_players[client].thirdPerson;
 }
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)

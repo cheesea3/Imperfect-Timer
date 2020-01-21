@@ -228,12 +228,10 @@ ConVar g_hGravityFix;
 /*----------  Style Variables  ----------*/
 
 // 0 = normal, 1 = SW, 2 = HSW, 3 = BW, 4 = Low-Gravity, 5 = Slow Motion, 6 = Fast Forward
-int g_iCurrentStyle[MAXPLAYERS + 1];
-int g_iInitalStyle[MAXPLAYERS + 1];
-char g_szInitalStyle[MAXPLAYERS + 1][256];
-char g_szStyleHud[MAXPLAYERS + 1][32];
-bool g_bRankedStyle[MAXPLAYERS + 1];
-bool g_bFunStyle[MAXPLAYERS + 1];
+//int g_iCurrentStyle[MAXPLAYERS + 1];
+//int g_iInitalStyle[MAXPLAYERS + 1];
+//char g_szInitalStyle[MAXPLAYERS + 1][256];
+//char g_szStyleHud[MAXPLAYERS + 1][32];
 int g_KeyCount[MAXPLAYERS + 1] = 0;
 
 // Map Styles
@@ -483,8 +481,7 @@ bool g_bNoClip[MAXPLAYERS + 1];
 
 #define OPTION_COOLDOWN 1.5
 
-SurfPlayer g_players[MAXPLAYERS +1];
-PlayerOptions g_playerOptions[MAXPLAYERS + 1];
+SurfPlayer g_players[MAXPLAYERS + 1];
 
 // org variables track the original setting status, on disconnect, check if changed, if so, update new settings to database
 
@@ -821,9 +818,6 @@ bool g_wrcpGlitchStopper[MAXPLAYERS + 1];
 
 // Checks for vmutes on a player
 bool g_bIsVmuted[MAXPLAYERS + 1];
-
-// Zephyrus' third person plugin
-bool g_bThirdPerson[MAXPLAYERS + 1];
 
 /*----------  Player location restoring  ----------*/
 

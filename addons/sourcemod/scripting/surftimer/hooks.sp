@@ -101,14 +101,14 @@ public Action Event_OnPlayerSpawn(Handle event, const char[] name, bool dontBroa
 		g_Stage[0][client] = 1;
 	}
 
-	if (g_iCurrentStyle[client] == 4) // 4 low gravity
+	if (g_players[client].currentStyle == 4) // 4 low gravity
 		SetEntityGravity(client, 0.5);
-	else if (g_iCurrentStyle[client] == 5)// 5 slowmo
+	else if (g_players[client].currentStyle == 5)// 5 slowmo
 		SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", 0.5);
-	else if (g_iCurrentStyle[client] == 6)// 6 fastforward
+	else if (g_players[client].currentStyle == 6)// 6 fastforward
 		SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", 1.5);
 
-	if (g_iCurrentStyle[client] < 4) // 0 normal, 1 hsw, 2 sw, 3 bw
+	if (g_players[client].currentStyle < 4) // 0 normal, 1 hsw, 2 sw, 3 bw
 	{
 		SetEntityGravity(client, 1.0); // normal gravity
 		SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", 1.0); // normal speed
@@ -117,7 +117,7 @@ public Action Event_OnPlayerSpawn(Handle event, const char[] name, bool dontBroa
 	// Strip Weapons
 	if ((GetClientTeam(client) > 1) && IsValidClient(client))
 	{
-		if (g_playerOptions[client].hideWeapons)
+		if (g_players[client].hideWeapons)
 		{
 			StripAllWeapons(client);
 			if (!IsFakeClient(client))
@@ -261,7 +261,7 @@ public Action Event_OnPlayerSpawn(Handle event, const char[] name, bool dontBroa
 	GivePlayerItem(client, "item_assaultsuit");
 
 	// Zephyrus' third person plugin
-	if (g_bThirdPerson[client])
+	if (g_players[client].thirdPerson)
 		Command_ToggleThirdPerson(client, 0);
 
 	return Plugin_Continue;
@@ -816,7 +816,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 	}
 
 	/*------ Styles ------*/
-	if (g_iCurrentStyle[client] == 1) 	// Sideways
+	if (g_players[client].currentStyle == 1) 	// Sideways
 	{
 		if (!g_bInStartZone[client] && !g_bInStageZone[client])
 		{
@@ -824,13 +824,13 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 			{
 				if (buttons & IN_MOVELEFT)
 				{
-					g_iCurrentStyle[client] = 0;
+					g_players[client].currentStyle = 0;
 					CPrintToChat(client, "%t", "Hooks12", g_szChatPrefix);
 				}
 
 				if (buttons & IN_MOVERIGHT)
 				{
-					g_iCurrentStyle[client] = 0;
+					g_players[client].currentStyle = 0;
 					CPrintToChat(client, "%t", "Hooks13", g_szChatPrefix);
 				}
 			}
@@ -850,7 +850,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 			}
 		}
 	}
-	else if (g_iCurrentStyle[client] == 2) // Half-sideways
+	else if (g_players[client].currentStyle == 2) // Half-sideways
 	{
 		if (!g_bInStartZone[client] && !g_bInStageZone[client])
 		{
@@ -859,7 +859,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 				g_KeyCount[client]++;
 				if (g_KeyCount[client] == 60)
 				{
-					g_iCurrentStyle[client] = 0;
+					g_players[client].currentStyle = 0;
 					g_KeyCount[client] = 0;
 					CPrintToChat(client, "%t", "CommandsNormal", g_szChatPrefix);
 				}
@@ -872,7 +872,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 					g_KeyCount[client]++;
 					if (g_KeyCount[client] == 60)
 					{
-						g_iCurrentStyle[client] = 0;
+						g_players[client].currentStyle = 0;
 						g_KeyCount[client] = 0;
 						CPrintToChat(client, "%t", "CommandsNormal", g_szChatPrefix);
 					}
@@ -885,7 +885,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 					g_KeyCount[client]++;
 					if (g_KeyCount[client] == 60)
 					{
-						g_iCurrentStyle[client] = 0;
+						g_players[client].currentStyle = 0;
 						g_KeyCount[client] = 0;
 						CPrintToChat(client, "%t", "CommandsNormal", g_szChatPrefix);
 					}
@@ -898,7 +898,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 					g_KeyCount[client]++;
 					if (g_KeyCount[client] == 60)
 					{
-						g_iCurrentStyle[client] = 0;
+						g_players[client].currentStyle = 0;
 						g_KeyCount[client] = 0;
 						CPrintToChat(client, "%t", "CommandsNormal", g_szChatPrefix);
 					}
@@ -907,7 +907,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 					g_KeyCount[client] = 0;
 		}
 	}
-	else if (g_iCurrentStyle[client] == 3) // Backwards
+	else if (g_players[client].currentStyle == 3) // Backwards
 	{
 		float eye[3];
 		float velocity[3];
@@ -936,7 +936,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 			g_KeyCount[client]++;
 			if (g_KeyCount[client] == 60)
 			{
-				g_iCurrentStyle[client] = 0;
+				g_players[client].currentStyle = 0;
 				g_KeyCount[client] = 0;
 				CPrintToChat(client, "%t", "CommandsNormal", g_szChatPrefix);
 			}
@@ -944,7 +944,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 		else if (!g_bInStartZone[client] && !g_bInStageZone[client] && val < -0.75)
 		g_KeyCount[client] = 0;
 	}
-	else if (g_iCurrentStyle[client] == 5) // Slow Motion
+	else if (g_players[client].currentStyle == 5) // Slow Motion
 	{
 		// Maybe fix ramp glitches in slow motion, using https://forums.alliedmods.net/showthread.php?t=277523
 
@@ -1145,7 +1145,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 					fDirectionAngle = -fDirectionAngle;
 				}
 
-				if (g_iCurrentStyle[client] != 2)
+				if (g_players[client].currentStyle != 2)
 				{
 					if (fDirectionAngle < 22.5 || fDirectionAngle > 337.5)
 					{
@@ -1408,7 +1408,7 @@ public Action Event_PlayerJump(Handle event, char[] name, bool dontBroadcast)
 			g_iTicksOnGround[client] = 0;
 			int time = GetTime();
 			int cTime = time - g_iLastJump[client];
-			int style = g_iCurrentStyle[client];
+			int style = g_players[client].currentStyle;
 
 			if (style == 4 || style == 5)
 				cTime--;
@@ -1608,7 +1608,7 @@ public Action Hook_ShotgunShot(const char[] te_name, const int[] players, int nu
 
 public Action OnWeaponCanUse(int client, int other)
 {
-	if (g_playerOptions[client].hideWeapons)
+	if (g_players[client].hideWeapons)
 	{
 		return Plugin_Handled;
 	}

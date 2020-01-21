@@ -179,6 +179,7 @@
 // Max map load steps
 #define MAX_MAP_LOAD_STEPS 21
 
+
 /*====================================
 =            Enumerations            =
 ====================================*/
@@ -296,19 +297,77 @@ enum struct MapOutline
 	}
 }
 
-// could put this in SurfPlayer, but would it be worth it?
-enum struct PlayerOptions
-{
-	bool outlines; // outline toggle
-	bool hideWeapons; // weapon visibility/pickup toggle
-	float cooldown; // global command cooldown
-}
+// style text
+#define STYLE_NORMAL_TEXT "Normal"
+#define STYLE_SIDEWAYS_TEXT "Sideways"
+#define STYLE_HALFSIDEWAYS_TEXT "Half-Sideways"
+#define STYLE_BACKWARDS_TEXT "Backwards"
+#define STYLE_LOWGRAVITY_TEXT "Low Gravity"
+#define STYLE_FASTFORWARD_TEXT "Fast Forward"
+#define STYLE_SLOMO_TEXT "Slow Motion"
+#define STYLE_TEXT_LENGTH 128
+#define STYLE_TEXT_SMALL_LENGTH 32
 
 // new type for player variables
 enum struct SurfPlayer
 {
 	int currentStyle;
-	int initialStyle;
+	bool isRankedStyle;
+	bool isFunStyle;
+	bool thirdPerson;
+	char styleText[STYLE_TEXT_LENGTH];
+	char styleTextSmall[STYLE_TEXT_SMALL_LENGTH];
+
+	// options that save to db
+	int initialStyle; // @todo: set up saving
+	bool outlines; // outline toggle
+	bool hideWeapons; // weapon visibility/pickup toggle
+
+	float cooldown; // global command cooldown
+
+	// methods
+	void SetStyle(int client, int s, char text[STYLE_TEXT_LENGTH], char textSmall[STYLE_TEXT_SMALL_LENGTH])
+	{
+		if (s > 6 || s < 0 || s == this.currentStyle)
+			return;
+
+		this.currentStyle = s;
+		this.initialStyle = s;
+		this.styleText = text;
+		this.styleTextSmall = textSmall;
+
+		// normal, sw, hsw & bw are ranked
+		if (s < 4)
+		{
+			this.isRankedStyle = true;
+			this.isFunStyle = false;
+
+			SetEntityGravity(client, 1.0);
+			SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", 1.0);
+			SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", 1.0);
+
+			// reset view to first person if in angle surf
+			if (this.thirdPerson)
+			{
+				this.thirdPerson = false;
+				ClientCommand(client, "firstperson");
+			}
+		}
+		else
+		{
+			this.isFunStyle = true;
+			this.isRankedStyle = false;
+
+			switch (s)
+			{
+				case 4: SetEntityGravity(client, 0.5); // low gravity
+				case 5: SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", 0.5); // slow motion
+				case 6: SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", 1.5); // fast forward
+			}
+		}
+
+		Command_Restart(client, 1); // finished, so restart
+	}
 }
 
 /*===================================
