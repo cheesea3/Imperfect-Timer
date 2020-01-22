@@ -458,7 +458,7 @@ Handle g_PracticeFinishForward;
 /*----------  SQL Variables  ----------*/
 
 // SQL driver
-Handle g_hDb = null;
+Database g_hDb = null;
 
 // Database type
 int g_DbType;
@@ -639,7 +639,7 @@ Handle g_hRecording[MAXPLAYERS + 1];
 
 // Fix for trigger_push affecting bots
 Handle g_hLoadedRecordsAdditionalTeleport = null;
-Handle g_hRecordingAdditionalTeleport[MAXPLAYERS + 1];
+ArrayList g_hRecordingAdditionalTeleport[MAXPLAYERS + 1];
 
 // Is mimicing a record
 Handle g_hBotMimicsRecord[MAXPLAYERS + 1] = { null, ... };

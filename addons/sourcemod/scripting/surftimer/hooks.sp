@@ -51,7 +51,7 @@ public Action SayText2(UserMsg msg_id, Handle bf, int[] players, int playersNum,
 }
 
 // Attack Spam Protection
-public Action Event_OnFire(Handle event, const char[] name, bool dontBroadcast)
+public Action Event_OnFire(Event event, const char[] name, bool dontBroadcast)
 {
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	if (client > 0 && IsClientInGame(client) && g_hAttackSpamProtection.BoolValue)
@@ -75,7 +75,7 @@ public Action Event_OnFire(Handle event, const char[] name, bool dontBroadcast)
 }
 
 // Player Spawns
-public Action Event_OnPlayerSpawn(Handle event, const char[] name, bool dontBroadcast) {
+public Action Event_OnPlayerSpawn(Event event, const char[] name, bool dontBroadcast) {
 	int client = GetClientOfUserId(event.GetInt("userid"));
 
 	if (client == 0) {
@@ -502,7 +502,7 @@ public Action Say_Hook(int client, const char[] command, int argc)
 	return Plugin_Handled;
 }
 
-public Action Event_OnPlayerTeam(Handle event, const char[] name, bool dontBroadcast)
+public Action Event_OnPlayerTeam(Event event, const char[] name, bool dontBroadcast)
 {
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	if (!IsValidClient(client) || IsFakeClient(client))
@@ -529,7 +529,7 @@ public Action Event_OnPlayerTeam(Handle event, const char[] name, bool dontBroad
 	return Plugin_Continue;
 }
 
-public Action Event_PlayerDisconnect(Handle event, const char[] name, bool dontBroadcast)
+public Action Event_PlayerDisconnect(Event event, const char[] name, bool dontBroadcast)
 {
 	if (g_hDisconnectMsg.BoolValue)
 	{
@@ -566,7 +566,7 @@ public Action Hook_SetTransmit(int entity, int client)
 	return Plugin_Continue;
 }
 
-public Action Event_OnPlayerDeath(Handle event, const char[] name, bool dontBroadcast)
+public Action Event_OnPlayerDeath(Event event, const char[] name, bool dontBroadcast)
 {
 	int client = event.GetInt("userid");
 	if (IsValidClient(client))
@@ -600,7 +600,7 @@ public Action CS_OnTerminateRound(float &delay, CSRoundEndReason &reason)
 	return Plugin_Continue;
 }
 
-public Action Event_OnRoundEnd(Handle event, const char[] name, bool dontBroadcast)
+public Action Event_OnRoundEnd(Event event, const char[] name, bool dontBroadcast)
 {
 	g_bRoundEnd = true;
 	// UnhookEntityOutput("trigger_teleport", "OnStartTouch", OnTouchTriggerTeleport);
@@ -617,7 +617,7 @@ public void OnPlayerThink(int entity)
 
 
 // OnRoundRestart
-public Action Event_OnRoundStart(Handle event, const char[] name, bool dontBroadcast)
+public Action Event_OnRoundStart(Event event, const char[] name, bool dontBroadcast)
 {
 	int iEnt;
 	for (int i = 0; i < sizeof(EntityList); i++)
@@ -747,7 +747,7 @@ public Action OnEndTouchGravityTrigger(int entity, int other)
 }
 
 // PlayerHurt
-public Action Event_OnPlayerHurt(Handle event, const char[] name, bool dontBroadcast)
+public Action Event_OnPlayerHurt(Event event, const char[] name, bool dontBroadcast)
 {
 	if (!g_hCvarGodMode.BoolValue && g_hAutohealing_Hp.IntValue > 0)
 	{
@@ -1372,7 +1372,7 @@ public void Hook_PostThinkPost(int entity)
 	SetEntProp(entity, Prop_Send, "m_bInBuyZone", 0);
 }
 
-public Action Event_PlayerJump(Handle event, char[] name, bool dontBroadcast)
+public Action Event_PlayerJump(Event event, char[] name, bool dontBroadcast)
 {
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	if (client == 0 && !IsPlayerAlive(client) && !IsClientObserver(client))
@@ -1391,7 +1391,7 @@ public Action Event_PlayerJump(Handle event, char[] name, bool dontBroadcast)
 			{
 				CreateTimer(1.0, StartJumpZonePrintTimer, client);
 				CPrintToChat(client, "%t", "Hooks10", g_szChatPrefix);
-				Handle pack;
+				DataPack pack;
 				CreateDataTimer(0.05, DelayedVelocityCap, pack);
 				pack.WriteCell(client);
 				pack.WriteFloat(0.0);
@@ -1459,7 +1459,7 @@ public Action Event_PlayerJump(Handle event, char[] name, bool dontBroadcast)
 						if (time2 <= 0.9)
 						{
 							CPrintToChat(client, "%t", "Hooks15", g_szChatPrefix);
-							Handle pack;
+							DataPack pack;
 							CreateDataTimer(0.05, DelayedVelocityCap, pack);
 							pack.WriteCell(client);
 							pack.WriteFloat(0.0);
@@ -1482,7 +1482,7 @@ public Action ResetOneJump(Handle timer, any client)
 	}
 }
 
-public Action DelayedVelocityCap(Handle timer, Handle pack)
+public Action DelayedVelocityCap(Handle timer, DataPack pack)
 {
 	pack.Reset();
 	int client = pack.ReadCell();
