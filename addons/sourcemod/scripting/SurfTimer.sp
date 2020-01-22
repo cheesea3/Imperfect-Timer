@@ -33,7 +33,7 @@
 =            Definitions            =
 ===================================*/
 
-//#define DEBUG
+#define DEBUG // debug definition for logging
 
 #define MAX_STEAMID_LENGTH 32
 #define MAX_MAPNAME_LENGTH 128

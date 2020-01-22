@@ -53,11 +53,11 @@ public Action SayText2(UserMsg msg_id, Handle bf, int[] players, int playersNum,
 // Attack Spam Protection
 public Action Event_OnFire(Handle event, const char[] name, bool dontBroadcast)
 {
-	int client = GetClientOfUserId(GetEventInt(event, "userid"));
-	if (client > 0 && IsClientInGame(client) && GetConVarBool(g_hAttackSpamProtection))
+	int client = GetClientOfUserId(event.GetInt("userid"));
+	if (client > 0 && IsClientInGame(client) && g_hAttackSpamProtection.BoolValue)
 	{
 		char weapon[64];
-		GetEventString(event, "weapon", weapon, 64);
+		event.GetString("weapon", weapon, 64);
 		if (StrContains(weapon, "knife", true) == -1 && g_AttackCounter[client] < 41)
 		{
 			if (g_AttackCounter[client] < 41)
@@ -76,7 +76,7 @@ public Action Event_OnFire(Handle event, const char[] name, bool dontBroadcast)
 
 // Player Spawns
 public Action Event_OnPlayerSpawn(Handle event, const char[] name, bool dontBroadcast) {
-	int client = GetClientOfUserId(GetEventInt(event, "userid"));
+	int client = GetClientOfUserId(event.GetInt("userid"));
 
 	if (client == 0) {
 		if (IsFakeClient(client)) {
@@ -135,7 +135,7 @@ public Action Event_OnPlayerSpawn(Handle event, const char[] name, bool dontBroa
 	}
 
 	// NoBlock
-	if (GetConVarBool(g_hCvarNoBlock))
+	if (g_hCvarNoBlock.BoolValue)
 		SetEntData(client, FindSendPropInfo("CBaseEntity", "m_CollisionGroup"), 2, 4, true);
 	else
 		SetEntData(client, FindSendPropInfo("CBaseEntity", "m_CollisionGroup"), 5, 4, true);
@@ -171,13 +171,13 @@ public Action Event_OnPlayerSpawn(Handle event, const char[] name, bool dontBroa
 	}
 
 	// Change Player Skin
-	if (GetConVarBool(g_hPlayerSkinChange) && (GetClientTeam(client) > 1))
+	if (g_hPlayerSkinChange.BoolValue && (GetClientTeam(client) > 1))
 	{
 		char szBuffer[256];
-		// GetConVarString(g_hArmModel, szBuffer, 256);
+		// g_hArmModel.GetString(szBuffer, 256);
 		// SetEntPropString(client, Prop_Send, "m_szArmsModel", szBuffer);
 
-		GetConVarString(g_hPlayerModel, szBuffer, 256);
+		g_hPlayerModel.GetString(szBuffer, 256);
 		SetEntityModel(client, szBuffer);
 		CreateTimer(1.0, SetArmsModel, client, TIMER_FLAG_NO_MAPCHANGE);
 		//SetEntPropString(client, Prop_Send, "m_szArmsModel", "models/weapons/ct_arms.mdl");
@@ -233,7 +233,7 @@ public Action Event_OnPlayerSpawn(Handle event, const char[] name, bool dontBroa
 					g_fCurrentRunTime[client] = -1.0;
 
 					// Spawn Client To The Start Zone.
-					if (GetConVarBool(g_hSpawnToStartZone))
+					if (g_hSpawnToStartZone.BoolValue)
 						Command_Restart(client, 1);
 				}
 			}
@@ -288,7 +288,7 @@ public Action Say_Hook(int client, const char[] command, int argc)
 		return Plugin_Handled;
 	}
 
-	if (!GetConVarBool(g_henableChatProcessing))
+	if (!g_henableChatProcessing.BoolValue)
 		return Plugin_Continue;
 
 	if (!IsValidClient(client))
@@ -401,7 +401,7 @@ public Action Say_Hook(int client, const char[] command, int argc)
 					}
 				}
 
-				SQL_TQuery(g_hDb, sql_DeleteMenuView, szQuery, GetClientSerial(client));
+				g_hDb.Query(sql_DeleteMenuView, szQuery, GetClientSerial(client));
 			}
 		}
 
@@ -485,7 +485,7 @@ public Action Say_Hook(int client, const char[] command, int argc)
 	}
 
 	char szCountry[1024] = "";
-	if (GetConVarBool(g_hCountry) && (GetConVarBool(g_hPointSystem))) {
+	if (g_hCountry.BoolValue && (g_hPointSystem.BoolValue)) {
 		Format(szCountry, sizeof(szCountry), "{green}{1} ", g_szCountryCode[client]);
 	}
 
@@ -504,10 +504,10 @@ public Action Say_Hook(int client, const char[] command, int argc)
 
 public Action Event_OnPlayerTeam(Handle event, const char[] name, bool dontBroadcast)
 {
-	int client = GetClientOfUserId(GetEventInt(event, "userid"));
+	int client = GetClientOfUserId(event.GetInt("userid"));
 	if (!IsValidClient(client) || IsFakeClient(client))
 		return Plugin_Continue;
-	int team = GetEventInt(event, "team");
+	int team = event.GetInt("team");
 	if (team == 1)
 	{
 		SpecListMenuDead(client);
@@ -531,16 +531,16 @@ public Action Event_OnPlayerTeam(Handle event, const char[] name, bool dontBroad
 
 public Action Event_PlayerDisconnect(Handle event, const char[] name, bool dontBroadcast)
 {
-	if (GetConVarBool(g_hDisconnectMsg))
+	if (g_hDisconnectMsg.BoolValue)
 	{
 		char szName[64];
 		char disconnectReason[64];
-		int clientid = GetEventInt(event, "userid");
+		int clientid = event.GetInt("userid");
 		int client = GetClientOfUserId(clientid);
 		if (!IsValidClient(client) || IsFakeClient(client))
 			return Plugin_Handled;
-		GetEventString(event, "name", szName, sizeof(szName));
-		GetEventString(event, "reason", disconnectReason, sizeof(disconnectReason));
+		event.GetString("name", szName, sizeof(szName));
+		event.GetString("reason", disconnectReason, sizeof(disconnectReason));
 		for (int i = 1; i <= MaxClients; i++)
 			if (IsValidClient(i) && i != client && !IsFakeClient(i))
 				CPrintToChat(i, "%t", "Disconnected1", szName, disconnectReason);
@@ -548,7 +548,7 @@ public Action Event_PlayerDisconnect(Handle event, const char[] name, bool dontB
 	}
 	else
 	{
-		SetEventBroadcast(event, true);
+		event.BroadcastDisabled = true;
 		return Plugin_Handled;
 	}
 }
@@ -568,7 +568,7 @@ public Action Hook_SetTransmit(int entity, int client)
 
 public Action Event_OnPlayerDeath(Handle event, const char[] name, bool dontBroadcast)
 {
-	int client = GetEventInt(event, "userid");
+	int client = event.GetInt("userid");
 	if (IsValidClient(client))
 	{
 		if (!IsFakeClient(client))
@@ -595,7 +595,7 @@ public Action CS_OnTerminateRound(float &delay, CSRoundEndReason &reason)
 		return Plugin_Handled;
 	int timeleft;
 	GetMapTimeLeft(timeleft);
-	if (timeleft >= -1 && !GetConVarBool(g_hAllowRoundEndCvar))
+	if (timeleft >= -1 && !g_hAllowRoundEndCvar.BoolValue)
 		return Plugin_Handled;
 	return Plugin_Continue;
 }
@@ -647,10 +647,10 @@ public Action Event_OnRoundStart(Handle event, const char[] name, bool dontBroad
 
 	// Hook zones
 	iEnt = -1;
-	g_hTriggerMultiple = CreateArray(128);
+	g_hTriggerMultiple = new ArrayList(128);
 	while ((iEnt = FindEntityByClassname(iEnt, "trigger_multiple")) != -1)
 	{
-		PushArrayCell(g_hTriggerMultiple, iEnt);
+		g_hTriggerMultiple.Push(iEnt);
 	}
 
 	// iEnt = -1;
@@ -662,9 +662,9 @@ public Action Event_OnRoundStart(Handle event, const char[] name, bool dontBroad
 
 	// Teleport Destinations (goose)
 	iEnt = -1;
-	g_hDestinations = CreateArray(128);
+	g_hDestinations = new ArrayList(128);
 	while ((iEnt = FindEntityByClassname(iEnt, "info_teleport_destination")) != -1)
-		PushArrayCell(g_hDestinations, iEnt);
+		g_hDestinations.Push(iEnt);
 
 	RefreshZones();
 
@@ -690,7 +690,7 @@ public Action OnEndTouchAllTriggers(int entity, int other)
 // https://forums.alliedmods.net/showthread.php?t=267131
 public Action OnTouchPushTrigger(int entity, int other)
 {
-	if (IsValidClient(other) && GetConVarBool(g_hTriggerPushFixEnable))
+	if (IsValidClient(other) && g_hTriggerPushFixEnable.BoolValue)
 	{
 		if (IsFakeClient(other))
 			return Plugin_Handled;
@@ -721,7 +721,7 @@ public Action OnTouchPushTrigger(int entity, int other)
 
 public Action OnEndTouchPushTrigger(int entity, int other)
 {
-	if (IsValidClient(other) && GetConVarBool(g_hTriggerPushFixEnable))
+	if (IsValidClient(other) && g_hTriggerPushFixEnable.BoolValue)
 	{
 		if (IsFakeClient(other))
 			return Plugin_Handled;
@@ -740,7 +740,7 @@ public Action OnEndTouchGravityTrigger(int entity, int other)
 {
 	if (IsValidClient(other) && !IsFakeClient(other))
 	{
-		if (!g_bNoClip[other] && GetConVarBool(g_hGravityFix))
+		if (!g_bNoClip[other] && g_hGravityFix.BoolValue)
 			return Plugin_Handled;
 	}
 	return Plugin_Continue;
@@ -749,16 +749,16 @@ public Action OnEndTouchGravityTrigger(int entity, int other)
 // PlayerHurt
 public Action Event_OnPlayerHurt(Handle event, const char[] name, bool dontBroadcast)
 {
-	if (!GetConVarBool(g_hCvarGodMode) && GetConVarInt(g_hAutohealing_Hp) > 0)
+	if (!g_hCvarGodMode.BoolValue && g_hAutohealing_Hp.IntValue > 0)
 	{
-		int client = GetClientOfUserId(GetEventInt(event, "userid"));
-		int remainingHeatlh = GetEventInt(event, "health");
+		int client = GetClientOfUserId(event.GetInt("userid"));
+		int remainingHeatlh = event.GetInt("health");
 		if (remainingHeatlh > 0)
 		{
-			if ((remainingHeatlh + GetConVarInt(g_hAutohealing_Hp)) > 100)
+			if ((remainingHeatlh + g_hAutohealing_Hp.IntValue) > 100)
 				SetEntData(client, FindSendPropInfo("CBasePlayer", "m_iHealth"), 100);
 			else
-				SetEntData(client, FindSendPropInfo("CBasePlayer", "m_iHealth"), remainingHeatlh + GetConVarInt(g_hAutohealing_Hp));
+				SetEntData(client, FindSendPropInfo("CBasePlayer", "m_iHealth"), remainingHeatlh + g_hAutohealing_Hp.IntValue);
 		}
 	}
 	return Plugin_Continue;
@@ -767,7 +767,7 @@ public Action Event_OnPlayerHurt(Handle event, const char[] name, bool dontBroad
 // PlayerDamage (if godmode 0)
 public Action Hook_OnTakeDamage(int victim, int &attacker, int &inflictor, float &damage, int &damagetype)
 {
-	if (GetConVarBool(g_hCvarGodMode))
+	if (g_hCvarGodMode.BoolValue)
 	{
 		return Plugin_Handled;
 	}
@@ -820,7 +820,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 	{
 		if (!g_bInStartZone[client] && !g_bInStageZone[client])
 		{
-			if (!GetConVarBool(g_hSidewaysBlockKeys))
+			if (!g_hSidewaysBlockKeys.BoolValue)
 			{
 				if (buttons & IN_MOVELEFT)
 				{
@@ -1004,8 +1004,8 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 		float newVelocity[3];
 		// Slope Boost Fix by Mev, & Blacky
 		// https://forums.alliedmods.net/showthread.php?t=266888
-		// if (GetConVarBool(g_hSlopeFixEnable))
-		if (GetConVarBool(g_hSlopeFixEnable) && !IsFakeClient(client))
+		// if (g_hSlopeFixEnable.BoolValue)
+		if (g_hSlopeFixEnable.BoolValue && !IsFakeClient(client))
 		{
 			g_vLast[client][0] = g_vCurrent[client][0];
 			g_vLast[client][1] = g_vCurrent[client][1];
@@ -1362,7 +1362,7 @@ public MRESReturn DHooks_OnTeleport(int client, Handle hParams)
 		iAT[atFlags] |= ADDITIONAL_FIELD_TELEPORTED_VELOCITY;
 
 	if (g_hRecordingAdditionalTeleport[client] != null)
-		PushArrayArray(g_hRecordingAdditionalTeleport[client], iAT, AT_SIZE);
+		g_hRecordingAdditionalTeleport[client].PushArray(iAT, AT_SIZE);
 
 	return MRES_Ignored;
 }
@@ -1374,7 +1374,7 @@ public void Hook_PostThinkPost(int entity)
 
 public Action Event_PlayerJump(Handle event, char[] name, bool dontBroadcast)
 {
-	int client = GetClientOfUserId(GetEventInt(event, "userid"));
+	int client = GetClientOfUserId(event.GetInt("userid"));
 	if (client == 0 && !IsPlayerAlive(client) && !IsClientObserver(client))
 		return Plugin_Continue;
 
@@ -1393,14 +1393,14 @@ public Action Event_PlayerJump(Handle event, char[] name, bool dontBroadcast)
 				CPrintToChat(client, "%t", "Hooks10", g_szChatPrefix);
 				Handle pack;
 				CreateDataTimer(0.05, DelayedVelocityCap, pack);
-				WritePackCell(pack, client);
-				WritePackFloat(pack, 0.0);
+				pack.WriteCell(client);
+				pack.WriteFloat(0.0);
 				g_bJumpZoneTimer[client] = true;
 			}
 		}
 
 		// surftimer method
-		if (GetConVarInt(g_hLimitSpeedType) == 1)
+		if (g_hLimitSpeedType.IntValue == 1)
 		{
 			if (!g_bInStartZone[client] && !g_bInStageZone[client])
 				return Plugin_Continue;
@@ -1434,7 +1434,7 @@ public Action Event_PlayerJump(Handle event, char[] name, bool dontBroadcast)
 
 			g_iLastJump[client] = GetTime();
 		}
-		else if (GetConVarBool(g_hOneJumpLimit)) // cksurf method
+		else if (g_hOneJumpLimit.BoolValue) // cksurf method
 		{
 			if (g_bInStartZone[client] || g_bInStageZone[client])
 			{
@@ -1461,8 +1461,8 @@ public Action Event_PlayerJump(Handle event, char[] name, bool dontBroadcast)
 							CPrintToChat(client, "%t", "Hooks15", g_szChatPrefix);
 							Handle pack;
 							CreateDataTimer(0.05, DelayedVelocityCap, pack);
-							WritePackCell(pack, client);
-							WritePackFloat(pack, 0.0);
+							pack.WriteCell(client);
+							pack.WriteFloat(0.0);
 						}
 					}
 				}
@@ -1484,9 +1484,9 @@ public Action ResetOneJump(Handle timer, any client)
 
 public Action DelayedVelocityCap(Handle timer, Handle pack)
 {
-	ResetPack(pack);
-	int client = ReadPackCell(pack);
-	float speedCap = ReadPackFloat(pack);
+	pack.Reset();
+	int client = pack.ReadCell();
+	float speedCap = pack.ReadFloat();
 	float CurVelVec[3];
 
 	GetEntPropVector(client, Prop_Data, "m_vecVelocity", CurVelVec);

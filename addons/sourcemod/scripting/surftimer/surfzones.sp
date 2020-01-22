@@ -814,7 +814,7 @@ public void BeamBox_OnPlayerRunCmd(int client)
 	}
 
 	// @IG outlines
-	if (g_bCreatingOutline[client] && g_bStartPointPlaced[client] && g_bEndPointPlaced[client] && IsValidClient(client) && IsClientInGame(client))
+	if (g_bCreatingOutline[client] && g_bStartPointPlaced[client] && g_bEndPointPlaced[client] && IsValidClient(client))
 	{
 		if (g_iOutlineStyle[client] == 0)
 		{
