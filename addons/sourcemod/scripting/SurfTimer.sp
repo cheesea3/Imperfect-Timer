@@ -33,6 +33,8 @@
 =            Definitions            =
 ===================================*/
 
+//#define DEBUG
+
 #define MAX_STEAMID_LENGTH 32
 #define MAX_MAPNAME_LENGTH 128
 #define MAX_TITLE_LENGTH 128
@@ -648,7 +650,7 @@ public void OnMapEnd()
 	Format(g_szMapName, sizeof(g_szMapName), "");
 
 	// wrcps
-	for (int client = 1; client <= MAXPLAYERS; client++)
+	for (int client = 1; client <= MaxClients; client++)
 	{
 		g_fWrcpMenuLastQuery[client] = 0.0;
 		g_bWrcpTimeractivated[client] = false;
@@ -1064,14 +1066,14 @@ public void OnSettingChanged(Handle convar, const char[] oldValue, const char[] 
 	{
 		if (g_hCvarNoBlock.BoolValue)
 		{
-			for (int client = 1; client <= MAXPLAYERS; client++)
+			for (int client = 1; client <= MaxClients; client++)
 				if (IsValidEntity(client))
 					SetEntData(client, FindSendPropInfo("CBaseEntity", "m_CollisionGroup"), 2, 4, true);
 
 		}
 		else
 		{
-			for (int client = 1; client <= MAXPLAYERS; client++)
+			for (int client = 1; client <= MaxClients; client++)
 				if (IsValidEntity(client))
 					SetEntData(client, FindSendPropInfo("CBaseEntity", "m_CollisionGroup"), 5, 4, true);
 		}

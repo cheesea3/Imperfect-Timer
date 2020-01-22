@@ -129,7 +129,7 @@ void CreateConVars()
 	g_hWelcomeMsg = CreateConVar("ck_welcome_msg", "{yellow}>>{default} {grey}Welcome! This server is using {lime}SurfTimer", "Welcome message (supported color tags: {default}, {darkred}, {green}, {lightgreen}, {blue} {olive}, {lime}, {red}, {purple}, {grey}, {yellow}, {bluegrey}, {darkblue}, {pink}, {lightred})", FCVAR_NOTIFY);
 	g_hZoneDisplayType = CreateConVar("ck_zone_drawstyle", "1", "0 = Do not display zones, 1 = display the lower edges of zones, 2 = display whole zones", FCVAR_NOTIFY);
 	g_hZonesToDisplay = CreateConVar("ck_zone_drawzones", "2", "Which zones are visible for players. 1 = draw start & end zones, 2 = draw start, end, stage and bonus zones, 3 = draw all zones.", FCVAR_NOTIFY);
-	g_hShowOutlines = CreateConVar("ck_outlines", "1", "Toggle outline visibility", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hShowOutlines = CreateConVar("ck_outlines", "1", "Toggle outline visibility", FCVAR_NOTIFY, true, 0.0, true, 1.0); // @todo: implement
 
 	// g_hStartPreSpeed = CreateConVar("ck_pre_start_speed", "350.0", "The maximum prespeed for start zones. 0.0 = No cap", FCVAR_NOTIFY, true, 0.0, true, 3500.0);
 	// g_hSpeedPreSpeed = CreateConVar("ck_pre_speed_speed", "3000.0", "The maximum prespeed for speed start zones. 0.0 = No cap", FCVAR_NOTIFY, true, 0.0, true, 3500.0);

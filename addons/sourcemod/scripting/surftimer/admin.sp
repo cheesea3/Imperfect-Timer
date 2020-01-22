@@ -183,7 +183,7 @@ public Action Admin_ClearAssists(int client, int args)
 	if (IsPlayerTimerAdmin(client))
 		return Plugin_Handled;
 
-	for (int i = 1; i <= MAXPLAYERS; i++)
+	for (int i = 1; i <= MaxClients; i++)
 	{
 		if (IsValidClient(i))
 		{

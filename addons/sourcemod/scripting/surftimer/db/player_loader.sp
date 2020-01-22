@@ -17,7 +17,7 @@ void LoadPlayerNext() {
 		return;
 	}
 	int found = 0;
-	for (int client = 1; client <= MAXPLAYERS; client++) {
+	for (int client = 1; client <= MaxClients; client++) {
 		if (g_playerLoadState[client] == PLS_LOADING) {
 			// some other player already loading
 			return;

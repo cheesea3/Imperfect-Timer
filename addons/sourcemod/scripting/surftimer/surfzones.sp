@@ -707,7 +707,7 @@ public Action OutlineBeamsAll(Handle timer)
 public Action ThrottledOutlineBeamsAll(Handle timer)
 {
 	// @IG Outlines
-	for (int i = 1; i <= MAXPLAYERS; i++)
+	for (int i = 1; i <= MaxClients; i++)
 	{
 		if (!IsValidClient(i) || IsFakeClient(i))
 			continue;
