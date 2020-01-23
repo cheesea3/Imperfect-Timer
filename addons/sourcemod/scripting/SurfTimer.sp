@@ -33,7 +33,8 @@
 =            Definitions            =
 ===================================*/
 
-#define DEBUG // debug definition for logging
+#define DEBUG // debug definition for debug stuff
+#define DEBUG_LOGGING // logging definition
 
 #define MAX_STEAMID_LENGTH 32
 #define MAX_MAPNAME_LENGTH 128
@@ -344,7 +345,6 @@ enum struct SurfPlayer
 #include "surftimer/globals.sp"
 #include "surftimer/convars.sp"
 #include "surftimer/misc.sp"
-#include "surftimer/styles.sp"
 
 #include "surftimer/db/queries.sp"
 #include "surftimer/sql.sp"
@@ -358,6 +358,8 @@ enum struct SurfPlayer
 #include "surftimer/commands/commands.sp"
 #include "surftimer/commands/mapsettings.sp"
 #include "surftimer/commands/titles.sp"
+#include "surftimer/styles.sp"
+#include "surftimer/tests.sp"
 #include "surftimer/hooks.sp"
 #include "surftimer/buttonpress.sp"
 #include "surftimer/sqltime.sp"

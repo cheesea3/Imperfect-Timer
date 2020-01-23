@@ -215,6 +215,7 @@ public void LoadReplays()
 	// Init Variables:
 	for (int i = 0; i < MAX_STYLES; i++)
 		g_bMapReplay[i] = false;
+
 	for (int i = 0; i < MAXZONEGROUPS; i++)
 	{
 		for (int j = 0; j < MAX_STYLES; j++)

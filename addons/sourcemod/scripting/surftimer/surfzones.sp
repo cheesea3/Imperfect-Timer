@@ -488,7 +488,7 @@ public Action EndTouchTrigger(int caller, int activator)
 					CL_OnStartWrcpTimerPress(client); // fluffys only start stage timer if not in prac mode
 
 				if (g_bTimerEnabled[client])
-					CL_OnStartTimerPress(client);
+					CL_OnStartTimerPress(client); // this gets triggered for everyone on first bot load sometimes? idk why
 
 				g_iStartSpeed[client] = RoundToNearest(g_fLastSpeed[client]); // store it, will save it if the run is a pb
 				int speed = g_iStartSpeed[client];

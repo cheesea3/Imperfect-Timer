@@ -193,10 +193,6 @@ void CreateCommands()
 	RegConsoleCmd("sm_btopff", Client_FFBonusTop, "[surftimer] displays a local bonus top (fast forwards) for a given map");
 	RegConsoleCmd("sm_ffbtop", Client_FFBonusTop, "[surftimer] displays a local bonus top (fast forwards) for a given map");*/
 
-	// Test
-	RegAdminCmd("sm_test", sm_test, ADMFLAG_CUSTOM6);
-	RegAdminCmd("sm_vel", Client_GetVelocity, ADMFLAG_ROOT);
-	RegAdminCmd("sm_targetname", Client_TargetName, ADMFLAG_ROOT);
 
 	// !Startpos -- Goose
 	RegConsoleCmd("sm_startpos", Command_Startpos, "[surftimer] Saves current location as the new spawn position");
@@ -219,6 +215,10 @@ void CreateCommands()
 	// Delete records
 	RegAdminCmd("sm_deleterecords", Command_DeleteRecords, g_ZonerFlag, "[surftimer] [zoner] Delete records");
 	RegAdminCmd("sm_dr", Command_DeleteRecords, g_ZonerFlag, "[surftimer] [zoner] Delete records");
+
+#if defined DEBUG
+	CreateTestCommands();
+#endif
 }
 
 public Action Command_DeleteRecords(int client, int args)
@@ -301,39 +301,6 @@ void CreateCommandListeners()
 	// Hook radio commands
 	for (int g; g < sizeof(RadioCMDS); g++)
 		AddCommandListener(BlockRadio, RadioCMDS[g]);
-}
-
-public Action sm_test(int client, int args)
-{
-	// CPrintToChatAll("stage: %d : wrcp: %d", g_Stage[0][client], g_WrcpStage[client]);
-	// CPrintToChatAll("zoneid: %d", g_iClientInZone[client][3]);
-	char arg[128];
-	char found[128];
-	GetCmdArg(1, arg, 128);
-	FindMap(arg, found, 128);
-	CPrintToChat(client, "arg: %s | found: %s", arg, found);
-	return Plugin_Handled;
-}
-
-public Action Client_GetVelocity(int client, int args)
-{
-	float CurVelVec[3];
-	GetEntPropVector(client, Prop_Data, "m_vecVelocity", CurVelVec);
-	CPrintToChat(client, "%t", "Commands1", g_szChatPrefix, CurVelVec[0], CurVelVec[1], CurVelVec[2]);
-
-	return Plugin_Handled;
-}
-
-public Action Client_TargetName(int client, int args)
-{
-	char szTargetName[128];
-	char szClassName[128];
-	GetEntPropString(client, Prop_Data, "m_iName", szTargetName, sizeof(szTargetName));
-	GetEntityClassname(client, szClassName, 128);
-	CPrintToChat(client, "%t", "Commands2", g_szChatPrefix, szTargetName);
-	CPrintToChat(client, "%t", "Commands3", g_szChatPrefix, szClassName);
-
-	return Plugin_Handled;
 }
 
 public Action Command_Vip(int client, int args)
