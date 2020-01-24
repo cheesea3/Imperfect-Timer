@@ -578,7 +578,7 @@ public Action EndTouchTrigger(int caller, int activator)
 
 			// not saving stage speeds yet
 			int speed = RoundToNearest(g_fLastSpeed[client]);
-			if (speed > 0)
+			if (speed > 0 && g_players[client].repeatMode)
 				CPrintToChat(client, "%t", "StartSpeed", g_szChatPrefix, speed);
 		}
 	}

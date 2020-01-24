@@ -1246,7 +1246,7 @@
 	"CPDisplayNoPB"
 	{
 		"#format"	"{1:s},{2:i},{3:s},{4:s}"
-		"en"		"{1} CP [{lightgreen}{2}{default}]: {lightgreen}{3} {default}[PB: {lightgreen}N/A{default} | {5}{default}]"
+		"en"		"{1} CP [{lightgreen}{2}{default}]: {lightgreen}{3} {default}[PB: {lightgreen}N/A{default} | {4}{default}]"
 	}
 	"CPDisplayLinear"
 	{
