@@ -816,45 +816,130 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 	}
 
 	/*------ Styles ------*/
-	if (g_players[client].currentStyle == STYLE_SW) 	// Sideways
+
+	switch (g_players[client].currentStyle)
 	{
-		if (!g_bInStartZone[client] && !g_bInStageZone[client])
+		// Sideways buttons
+		case STYLE_SW:
 		{
-			if (!g_hSidewaysBlockKeys.BoolValue)
+			if (!g_bInStartZone[client] && !g_bInStageZone[client])
 			{
-				if (buttons & IN_MOVELEFT)
+				if (!g_hSidewaysBlockKeys.BoolValue)
 				{
-					g_players[client].currentStyle = STYLE_NORMAL;
-					CPrintToChat(client, "%t", "Hooks12", g_szChatPrefix);
-				}
+					if (buttons & IN_MOVELEFT)
+					{
+						g_players[client].currentStyle = STYLE_NORMAL;
+						CPrintToChat(client, "%t", "Hooks12", g_szChatPrefix);
+					}
 
-				if (buttons & IN_MOVERIGHT)
-				{
-					g_players[client].currentStyle = STYLE_NORMAL;
-					CPrintToChat(client, "%t", "Hooks13", g_szChatPrefix);
+					if (buttons & IN_MOVERIGHT)
+					{
+						g_players[client].currentStyle = STYLE_NORMAL;
+						CPrintToChat(client, "%t", "Hooks13", g_szChatPrefix);
+					}
 				}
-			}
-			else
-			{
-				if (buttons & IN_MOVELEFT)
+				else
 				{
-					vel[1] = 0.0;
-					buttons &= ~IN_MOVELEFT;
-				}
+					if (buttons & IN_MOVELEFT)
+					{
+						vel[1] = 0.0;
+						buttons &= ~IN_MOVELEFT;
+					}
 
-				if (buttons & IN_MOVERIGHT)
-				{
-					vel[1] = 0.0;
-					buttons &= ~IN_MOVERIGHT;
+					if (buttons & IN_MOVERIGHT)
+					{
+						vel[1] = 0.0;
+						buttons &= ~IN_MOVERIGHT;
+					}
 				}
 			}
 		}
-	}
-	else if (g_players[client].currentStyle == STYLE_HSW) // Half-sideways
-	{
-		if (!g_bInStartZone[client] && !g_bInStageZone[client])
+
+		// HSW buttons
+		case STYLE_HSW:
 		{
-			if (buttons & IN_BACK && !(buttons & IN_MOVELEFT || buttons & IN_MOVERIGHT))
+			if (!g_bInStartZone[client] && !g_bInStageZone[client])
+			{
+				if (buttons & IN_BACK && !(buttons & IN_MOVELEFT || buttons & IN_MOVERIGHT))
+				{
+					g_KeyCount[client]++;
+					if (g_KeyCount[client] == 60)
+					{
+						g_players[client].currentStyle = STYLE_NORMAL;
+						g_KeyCount[client] = 0;
+						CPrintToChat(client, "%t", "CommandsNormal", g_szChatPrefix);
+					}
+				}
+				else if (buttons & IN_BACK && (buttons & IN_MOVELEFT || buttons & IN_MOVERIGHT))
+					g_KeyCount[client] = 0;
+
+				if (buttons & IN_FORWARD && !(buttons & IN_MOVELEFT || buttons & IN_MOVERIGHT))
+					{
+						g_KeyCount[client]++;
+						if (g_KeyCount[client] == 60)
+						{
+							g_players[client].currentStyle = STYLE_NORMAL;
+							g_KeyCount[client] = 0;
+							CPrintToChat(client, "%t", "CommandsNormal", g_szChatPrefix);
+						}
+					}
+				else if (buttons & IN_FORWARD && (buttons & IN_MOVELEFT || buttons & IN_MOVERIGHT))
+					g_KeyCount[client] = 0;
+
+				if (buttons & IN_MOVELEFT && !(buttons & IN_FORWARD || buttons & IN_BACK))
+					{
+						g_KeyCount[client]++;
+						if (g_KeyCount[client] == 60)
+						{
+							g_players[client].currentStyle = STYLE_NORMAL;
+							g_KeyCount[client] = 0;
+							CPrintToChat(client, "%t", "CommandsNormal", g_szChatPrefix);
+						}
+					}
+				else if (buttons & IN_MOVELEFT && (buttons & IN_FORWARD || buttons & IN_BACK))
+					g_KeyCount[client] = 0;
+
+				if (buttons & IN_MOVERIGHT && !(buttons & IN_FORWARD || buttons & IN_BACK))
+					{
+						g_KeyCount[client]++;
+						if (g_KeyCount[client] == 60)
+						{
+							g_players[client].currentStyle = STYLE_NORMAL;
+							g_KeyCount[client] = 0;
+							CPrintToChat(client, "%t", "CommandsNormal", g_szChatPrefix);
+						}
+					}
+					else if (buttons & IN_MOVELEFT && (buttons & IN_FORWARD || buttons & IN_BACK))
+						g_KeyCount[client] = 0;
+			}
+		}
+
+		// BW buttons
+		case STYLE_BW:
+		{
+			float eye[3];
+			float velocity[3];
+
+			GetClientEyeAngles(client, eye);
+
+			eye[0] = Cosine( DegToRad( eye[1] ) );
+			eye[1] = Sine( DegToRad( eye[1] ) );
+			eye[2] = 0.0;
+
+			GetEntPropVector(client, Prop_Data, "m_vecVelocity", velocity);
+
+			velocity[2] = 0.0;
+
+			float len = SquareRoot( velocity[0] * velocity[0] + velocity[1] * velocity[1] );
+
+			velocity[0] /= len;
+			velocity[1] /= len;
+
+			float val = GetVectorDotProduct( eye, velocity );
+
+			// CPrintToChat(client, "%.2f", val); // for testing
+
+			if (!g_bInStartZone[client] && !g_bInStageZone[client] && val > -0.75)
 			{
 				g_KeyCount[client]++;
 				if (g_KeyCount[client] == 60)
@@ -864,176 +949,101 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 					CPrintToChat(client, "%t", "CommandsNormal", g_szChatPrefix);
 				}
 			}
-			else if (buttons & IN_BACK && (buttons & IN_MOVELEFT || buttons & IN_MOVERIGHT))
-				g_KeyCount[client] = 0;
+			else if (!g_bInStartZone[client] && !g_bInStageZone[client] && val < -0.75)
+			g_KeyCount[client] = 0;
+		}
 
-			if (buttons & IN_FORWARD && !(buttons & IN_MOVELEFT || buttons & IN_MOVERIGHT))
+		// W Only buttons
+		case STYLE_WONLY:
+		{
+			if (!g_bInStartZone[client] && !g_bInStageZone[client])
+			{
+				if (!g_hSidewaysBlockKeys.BoolValue)
 				{
-					g_KeyCount[client]++;
-					if (g_KeyCount[client] == 60)
+					if (buttons & IN_MOVELEFT)
 					{
 						g_players[client].currentStyle = STYLE_NORMAL;
-						g_KeyCount[client] = 0;
-						CPrintToChat(client, "%t", "CommandsNormal", g_szChatPrefix);
+						CPrintToChat(client, "%t", "Hooks12", g_szChatPrefix);
 					}
-				}
-			else if (buttons & IN_FORWARD && (buttons & IN_MOVELEFT || buttons & IN_MOVERIGHT))
-				g_KeyCount[client] = 0;
 
-			if (buttons & IN_MOVELEFT && !(buttons & IN_FORWARD || buttons & IN_BACK))
-				{
-					g_KeyCount[client]++;
-					if (g_KeyCount[client] == 60)
+					if (buttons & IN_MOVERIGHT)
 					{
 						g_players[client].currentStyle = STYLE_NORMAL;
-						g_KeyCount[client] = 0;
-						CPrintToChat(client, "%t", "CommandsNormal", g_szChatPrefix);
+						CPrintToChat(client, "%t", "Hooks13", g_szChatPrefix);
 					}
-				}
-			else if (buttons & IN_MOVELEFT && (buttons & IN_FORWARD || buttons & IN_BACK))
-				g_KeyCount[client] = 0;
 
-			if (buttons & IN_MOVERIGHT && !(buttons & IN_FORWARD || buttons & IN_BACK))
-				{
-					g_KeyCount[client]++;
-					if (g_KeyCount[client] == 60)
+					if (buttons & IN_BACK)
 					{
-						g_players[client].currentStyle = STYLE_NORMAL;
-						g_KeyCount[client] = 0;
-						CPrintToChat(client, "%t", "CommandsNormal", g_szChatPrefix);
+						CPrintToChat(client, "%t", "Hooks13", g_szChatPrefix); // update
 					}
 				}
-				else if (buttons & IN_MOVELEFT && (buttons & IN_FORWARD || buttons & IN_BACK))
-					g_KeyCount[client] = 0;
+				else
+				{
+					if (buttons & IN_MOVELEFT)
+					{
+						vel[1] = 0.0;
+						buttons &= ~IN_MOVELEFT;
+					}
+
+					if (buttons & IN_MOVERIGHT)
+					{
+						vel[1] = 0.0;
+						buttons &= ~IN_MOVERIGHT;
+					}
+
+					if (buttons & IN_BACK)
+					{
+						vel[0] = 0.0;
+						buttons &= ~IN_BACK;
+					}
+				}
+			}
 		}
-	}
-	else if (g_players[client].currentStyle == STYLE_BW) // Backwards
-	{
-		float eye[3];
-		float velocity[3];
 
-		GetClientEyeAngles(client, eye);
-
-		eye[0] = Cosine( DegToRad( eye[1] ) );
-		eye[1] = Sine( DegToRad( eye[1] ) );
-		eye[2] = 0.0;
-
-		GetEntPropVector(client, Prop_Data, "m_vecVelocity", velocity);
-
-		velocity[2] = 0.0;
-
-		float len = SquareRoot( velocity[0] * velocity[0] + velocity[1] * velocity[1] );
-
-		velocity[0] /= len;
-		velocity[1] /= len;
-
-		float val = GetVectorDotProduct( eye, velocity );
-
-		// CPrintToChat(client, "%.2f", val); // for testing
-
-		if (!g_bInStartZone[client] && !g_bInStageZone[client] && val > -0.75)
+		// Slomo - this doesn't work at all
+		case STYLE_SLOMO:
 		{
-			g_KeyCount[client]++;
-			if (g_KeyCount[client] == 60)
+			// Maybe fix ramp glitches in slow motion, using https://forums.alliedmods.net/showthread.php?t=277523
+			// Set up and do tracehull to find out if the player landed on a surf
+			float vPos[3];
+			GetEntPropVector(client, Prop_Data, "m_vecOrigin", vPos);
+
+			float vMins[3];
+			GetEntPropVector(client, Prop_Send, "m_vecMins", vMins);
+
+			float vMaxs[3];
+			GetEntPropVector(client, Prop_Send, "m_vecMaxs", vMaxs);
+
+			// Fix weird shit that made people go through the roof
+			vPos[2] += 1.0;
+			vMaxs[2] -= 1.0;
+
+			float vEndPos[3];
+
+			// Take account for the client already being stuck
+			vEndPos[0] = vPos[0];
+			vEndPos[1] = vPos[1];
+			vEndPos[2] = vPos[2] - g_fMaxVelocity;
+
+			TR_TraceHullFilter(vPos, vEndPos, vMins, vMaxs, MASK_PLAYERSOLID_BRUSHONLY, TraceRayDontHitSelf, client);
+
+			if (TR_DidHit())
 			{
-				g_players[client].currentStyle = STYLE_NORMAL;
-				g_KeyCount[client] = 0;
-				CPrintToChat(client, "%t", "CommandsNormal", g_szChatPrefix);
-			}
-		}
-		else if (!g_bInStartZone[client] && !g_bInStageZone[client] && val < -0.75)
-		g_KeyCount[client] = 0;
-	}
-	else if (g_players[client].currentStyle == STYLE_WONLY) // W Only
-	{
-		if (!g_bInStartZone[client] && !g_bInStageZone[client])
-		{
-			if (!g_hSidewaysBlockKeys.BoolValue)
-			{
-				if (buttons & IN_MOVELEFT)
-				{
-					g_players[client].currentStyle = STYLE_NORMAL;
-					CPrintToChat(client, "%t", "Hooks12", g_szChatPrefix);
-				}
+				// Gets the normal vector of the surface under the player
+				float vPlane[3], vRealEndPos[3];
 
-				if (buttons & IN_MOVERIGHT)
-				{
-					g_players[client].currentStyle = STYLE_NORMAL;
-					CPrintToChat(client, "%t", "Hooks13", g_szChatPrefix);
-				}
+				TR_GetPlaneNormal(INVALID_HANDLE, vPlane);
+				TR_GetEndPosition(vRealEndPos);
 
-				if (buttons & IN_BACK)
+				// Check if client is on a surf ramp, and if he is stuck
+				if (0.7 > vPlane[2] && vPos[2] - vRealEndPos[2] < 0.975)
 				{
-					CPrintToChat(client, "%t", "Hooks13", g_szChatPrefix); // update
-				}
-			}
-			else
-			{
-				if (buttons & IN_MOVELEFT)
-				{
-					vel[1] = 0.0;
-					buttons &= ~IN_MOVELEFT;
-				}
-
-				if (buttons & IN_MOVERIGHT)
-				{
-					vel[1] = 0.0;
-					buttons &= ~IN_MOVERIGHT;
-				}
-
-				if (buttons & IN_BACK)
-				{
-					vel[0] = 0.0;
-					buttons &= ~IN_BACK;
+					// Player was stuck, lets put him back on the ramp
+					TeleportEntity(client, vRealEndPos, NULL_VECTOR, NULL_VECTOR);
 				}
 			}
 		}
 	}
-	else if (g_players[client].currentStyle == STYLE_SLOMO) // Slow Motion
-	{
-		// Maybe fix ramp glitches in slow motion, using https://forums.alliedmods.net/showthread.php?t=277523
-
-		// Set up and do tracehull to find out if the player landed on a surf
-		float vPos[3];
-		GetEntPropVector(client, Prop_Data, "m_vecOrigin", vPos);
-
-		float vMins[3];
-		GetEntPropVector(client, Prop_Send, "m_vecMins", vMins);
-
-		float vMaxs[3];
-		GetEntPropVector(client, Prop_Send, "m_vecMaxs", vMaxs);
-
-		// Fix weird shit that made people go through the roof
-		vPos[2] += 1.0;
-		vMaxs[2] -= 1.0;
-
-		float vEndPos[3];
-
-		// Take account for the client already being stuck
-		vEndPos[0] = vPos[0];
-		vEndPos[1] = vPos[1];
-		vEndPos[2] = vPos[2] - g_fMaxVelocity;
-
-		TR_TraceHullFilter(vPos, vEndPos, vMins, vMaxs, MASK_PLAYERSOLID_BRUSHONLY, TraceRayDontHitSelf, client);
-
-		if (TR_DidHit())
-		{
-			// Gets the normal vector of the surface under the player
-			float vPlane[3], vRealEndPos[3];
-
-			TR_GetPlaneNormal(INVALID_HANDLE, vPlane);
-			TR_GetEndPosition(vRealEndPos);
-
-			// Check if client is on a surf ramp, and if he is stuck
-			if (0.7 > vPlane[2] && vPos[2] - vRealEndPos[2] < 0.975)
-			{
-				// Player was stuck, lets put him back on the ramp
-				TeleportEntity(client, vRealEndPos, NULL_VECTOR, NULL_VECTOR);
-			}
-		}
-	}
-
-	// Backwards
 
 	if (g_bRoundEnd || !IsValidClient(client))
 		return Plugin_Continue;
@@ -1049,7 +1059,6 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 		float newVelocity[3];
 		// Slope Boost Fix by Mev, & Blacky
 		// https://forums.alliedmods.net/showthread.php?t=266888
-		// if (g_hSlopeFixEnable.BoolValue)
 		if (g_hSlopeFixEnable.BoolValue && !IsFakeClient(client))
 		{
 			g_vLast[client][0] = g_vCurrent[client][0];
@@ -1239,7 +1248,6 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 
 		speed = GetSpeed(client);
 
-
 		// @IG outlines
 		if (g_bCreatingOutline[client] && (buttons & IN_ATTACK || buttons & IN_ATTACK2))
 		{
@@ -1251,7 +1259,6 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 				GetClientEyeAngles(client, oAng);
 				TR_TraceRayFilter(oPos, oAng, MASK_PLAYERSOLID, RayType_Infinite, TraceRayDontHitSelf, client);
 				TR_GetEndPosition(g_fOutlineStartPos[client]);
-				//PrintToChat(client, "point a placed");
 				g_bStartPointPlaced[client] = true;
 			}
 			else if (buttons & IN_ATTACK2 && !(buttons & IN_ATTACK)) // end pos of outline
@@ -1260,13 +1267,9 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 				GetClientEyeAngles(client, oAng);
 				TR_TraceRayFilter(oPos, oAng, MASK_PLAYERSOLID, RayType_Infinite, TraceRayDontHitSelf, client);
 				TR_GetEndPosition(g_fOutlineEndPos[client]);
-				//PrintToChat(client, "point b placed");
 				g_bEndPointPlaced[client] = true;
 			}
-
-
 		}
-
 
 		// Menu Refreshing
 		CheckRun(client);
@@ -1283,50 +1286,6 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 		g_LastButton[client] = buttons;
 
 		BeamBox_OnPlayerRunCmd(client);
-
-		// if (!IsFakeClient(client))
-		// {
-		// 	float vVelocity[3];
-		// 	GetEntPropVector(client, Prop_Data, "m_vecVelocity", vVelocity);
-		// 	float velocity = GetVectorLength(vVelocity);
-
-		// 	if (velocity == 0.0)
-		// 	{
-		// 		if (g_iClientInZone[client][0] == 1 || g_iClientInZone[client][0] == 5) // Start & Start Speed zones
-		// 		{
-		// 			if (g_hRecording[client] != null)
-		// 			{
-		// 				StopRecording(client);
-		// 			}
-
-		// 			if (g_StageRecStartFrame[client] != -1)
-		// 				g_StageRecStartFrame[client] = -1;
-		// 		}
-		// 		else if (g_iClientInZone[client][0] == 3) // Stage zones
-		// 		{
-		// 			// Check if the stage replay is being recorded
-		// 			if (g_StageRecStartFrame[client] != -1)
-		// 				g_StageRecStartFrame[client] = -1;
-		// 		}
-		// 	}
-		// 	else
-		// 	{
-		// 		if (g_iClientInZone[client][0] == 1 || g_iClientInZone[client][0] == 5) // Start & Start Speed zones
-		// 		{
-		// 			if (g_hRecording[client] == null)
-		// 				StartRecording(client);
-
-		// 			// Check if the map has stages
-		// 			if (g_bhasStages && g_StageRecStartFrame[client] == -1)
-		// 				Stage_StartRecording(client);
-		// 		}
-		// 		else if (g_iClientInZone[client][0] == 3) // Stage zones
-		// 		{
-		// 			if (g_StageRecStartFrame[client] == -1)
-		// 				Stage_StartRecording(client);
-		// 		}
-		// 	}
-		// }
 	}
 
 	// Strafe Sync taken from shavit's bhop timer
