@@ -302,6 +302,7 @@ enum struct MapOutline
 #define STYLE_LOWGRAV_TEXT 			"Low Gravity"
 #define STYLE_SLOMO_TEXT 			"Slow Motion"
 #define STYLE_FASTFORWARD_TEXT 		"Fast Forward"
+#define STYLE_WONLY_TEXT 			"W Only"
 #define STYLE_TEXT_LENGTH 			128
 #define STYLE_TEXT_SMALL_LENGTH 	32
 
@@ -315,7 +316,8 @@ enum
     STYLE_BW,
     STYLE_LOWGRAV,
     STYLE_SLOMO,
-    STYLE_FASTFORWARD
+    STYLE_FASTFORWARD,
+	STYLE_WONLY
 };
 
 // new type for player variables

@@ -101,11 +101,11 @@ public Action Event_OnPlayerSpawn(Event event, const char[] name, bool dontBroad
 		g_Stage[0][client] = 1;
 	}
 
-	if (g_players[client].currentStyle == 4) // 4 low gravity
+	if (g_players[client].currentStyle == STYLE_LOWGRAV) // 4 low gravity
 		SetEntityGravity(client, 0.5);
-	else if (g_players[client].currentStyle == 5)// 5 slowmo
+	else if (g_players[client].currentStyle == STYLE_SLOMO)// 5 slowmo
 		SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", 0.5);
-	else if (g_players[client].currentStyle == 6)// 6 fastforward
+	else if (g_players[client].currentStyle == STYLE_FASTFORWARD)// 6 fastforward
 		SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", 1.5);
 
 	if (g_players[client].currentStyle < 4) // 0 normal, 1 hsw, 2 sw, 3 bw
@@ -816,7 +816,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 	}
 
 	/*------ Styles ------*/
-	if (g_players[client].currentStyle == 1) 	// Sideways
+	if (g_players[client].currentStyle == STYLE_SW) 	// Sideways
 	{
 		if (!g_bInStartZone[client] && !g_bInStageZone[client])
 		{
@@ -824,13 +824,13 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 			{
 				if (buttons & IN_MOVELEFT)
 				{
-					g_players[client].currentStyle = 0;
+					g_players[client].currentStyle = STYLE_NORMAL;
 					CPrintToChat(client, "%t", "Hooks12", g_szChatPrefix);
 				}
 
 				if (buttons & IN_MOVERIGHT)
 				{
-					g_players[client].currentStyle = 0;
+					g_players[client].currentStyle = STYLE_NORMAL;
 					CPrintToChat(client, "%t", "Hooks13", g_szChatPrefix);
 				}
 			}
@@ -850,7 +850,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 			}
 		}
 	}
-	else if (g_players[client].currentStyle == 2) // Half-sideways
+	else if (g_players[client].currentStyle == STYLE_HSW) // Half-sideways
 	{
 		if (!g_bInStartZone[client] && !g_bInStageZone[client])
 		{
@@ -859,7 +859,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 				g_KeyCount[client]++;
 				if (g_KeyCount[client] == 60)
 				{
-					g_players[client].currentStyle = 0;
+					g_players[client].currentStyle = STYLE_NORMAL;
 					g_KeyCount[client] = 0;
 					CPrintToChat(client, "%t", "CommandsNormal", g_szChatPrefix);
 				}
@@ -872,7 +872,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 					g_KeyCount[client]++;
 					if (g_KeyCount[client] == 60)
 					{
-						g_players[client].currentStyle = 0;
+						g_players[client].currentStyle = STYLE_NORMAL;
 						g_KeyCount[client] = 0;
 						CPrintToChat(client, "%t", "CommandsNormal", g_szChatPrefix);
 					}
@@ -885,7 +885,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 					g_KeyCount[client]++;
 					if (g_KeyCount[client] == 60)
 					{
-						g_players[client].currentStyle = 0;
+						g_players[client].currentStyle = STYLE_NORMAL;
 						g_KeyCount[client] = 0;
 						CPrintToChat(client, "%t", "CommandsNormal", g_szChatPrefix);
 					}
@@ -898,7 +898,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 					g_KeyCount[client]++;
 					if (g_KeyCount[client] == 60)
 					{
-						g_players[client].currentStyle = 0;
+						g_players[client].currentStyle = STYLE_NORMAL;
 						g_KeyCount[client] = 0;
 						CPrintToChat(client, "%t", "CommandsNormal", g_szChatPrefix);
 					}
@@ -907,7 +907,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 					g_KeyCount[client] = 0;
 		}
 	}
-	else if (g_players[client].currentStyle == 3) // Backwards
+	else if (g_players[client].currentStyle == STYLE_BW) // Backwards
 	{
 		float eye[3];
 		float velocity[3];
@@ -936,7 +936,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 			g_KeyCount[client]++;
 			if (g_KeyCount[client] == 60)
 			{
-				g_players[client].currentStyle = 0;
+				g_players[client].currentStyle = STYLE_NORMAL;
 				g_KeyCount[client] = 0;
 				CPrintToChat(client, "%t", "CommandsNormal", g_szChatPrefix);
 			}
@@ -944,7 +944,52 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 		else if (!g_bInStartZone[client] && !g_bInStageZone[client] && val < -0.75)
 		g_KeyCount[client] = 0;
 	}
-	else if (g_players[client].currentStyle == 5) // Slow Motion
+	else if (g_players[client].currentStyle == STYLE_WONLY) // W Only
+	{
+		if (!g_bInStartZone[client] && !g_bInStageZone[client])
+		{
+			if (!g_hSidewaysBlockKeys.BoolValue)
+			{
+				if (buttons & IN_MOVELEFT)
+				{
+					g_players[client].currentStyle = STYLE_NORMAL;
+					CPrintToChat(client, "%t", "Hooks12", g_szChatPrefix);
+				}
+
+				if (buttons & IN_MOVERIGHT)
+				{
+					g_players[client].currentStyle = STYLE_NORMAL;
+					CPrintToChat(client, "%t", "Hooks13", g_szChatPrefix);
+				}
+
+				if (buttons & IN_BACK)
+				{
+					CPrintToChat(client, "%t", "Hooks13", g_szChatPrefix);
+				}
+			}
+			else
+			{
+				if (buttons & IN_MOVELEFT)
+				{
+					vel[1] = 0.0;
+					buttons &= ~IN_MOVELEFT;
+				}
+
+				if (buttons & IN_MOVERIGHT)
+				{
+					vel[1] = 0.0;
+					buttons &= ~IN_MOVERIGHT;
+				}
+
+				if (buttons & IN_BACK)
+				{
+					vel[1] = 0.0;
+					buttons &= ~IN_BACK;
+				}
+			}
+		}
+	}
+	else if (g_players[client].currentStyle == STYLE_SLOMO) // Slow Motion
 	{
 		// Maybe fix ramp glitches in slow motion, using https://forums.alliedmods.net/showthread.php?t=277523
 

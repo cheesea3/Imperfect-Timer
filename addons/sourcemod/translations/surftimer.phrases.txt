@@ -765,6 +765,11 @@
 		"#format"	"{1:s}"
 		"en"		"{1} Style set to {green}Low Gravity"
 	}
+	"CommandsWOnly"
+	{
+		"#format"	"{1:s}"
+		"en"		"{1} Style set to {green}W Only"
+	}
 	"StartSpeedNew"
 	{
 		"#format"	"{1:s},{2:i},{3:s}"

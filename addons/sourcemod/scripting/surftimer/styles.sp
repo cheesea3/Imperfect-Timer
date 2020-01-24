@@ -1,4 +1,27 @@
 
+void CreateStyleCommands()
+{
+	RegConsoleCmd("sm_style", Client_SelectStyle, "[surftimer] Open style select menu");
+	RegConsoleCmd("sm_styles", Client_SelectStyle, "[surftimer] Open style select menu");
+	RegConsoleCmd("sm_normal", Client_SetStyleNormal, "[surftimer] Switch to the normal surf style");
+	RegConsoleCmd("sm_nrm", Client_SetStyleNormal, "[surftimer] Switch to the normal surf style");
+	RegConsoleCmd("sm_sideways", Client_SetStyleSideways, "[surftimer] Switch to the sideways surf style");
+	RegConsoleCmd("sm_sw", Client_SetStyleSideways, "[surftimer] Switch to the sideways surf style");
+	RegConsoleCmd("sm_halfsideways", Client_SetStyleHalfSideways, "[surftimer] Switch to the half-sideways surf style");
+	RegConsoleCmd("sm_hsw", Client_SetStyleHalfSideways, "[surftimer] Switch to the half-sideways surf style");
+	RegConsoleCmd("sm_backwards", Client_SetStyleBackwards, "[surftimer] Switch to the backwards surf style");
+	RegConsoleCmd("sm_bw", Client_SetStyleBackwards, "[surftimer] Switch to the backwards surf style");
+	RegConsoleCmd("sm_fastforward", Client_SetStyleFastForward, "[surftimer] Switch to the fast forwards surf style");
+	RegConsoleCmd("sm_slowmotion", Client_SetStyleSlomo, "[surftimer] Switch to the slow motion surf style");
+	RegConsoleCmd("sm_slowmo", Client_SetStyleSlomo, "[surftimer] Switch to the slow motion surf style");
+	RegConsoleCmd("sm_slw", Client_SetStyleSlomo, "[surftimer] Switch to the slow motion surf style");
+	RegConsoleCmd("sm_lowgravity", Client_SetStyleLowGrav, "[surftimer] Switch to the low gravity surf style");
+	RegConsoleCmd("sm_lowgrav", Client_SetStyleLowGrav, "[surftimer] Switch to the low gravity surf style");
+	RegConsoleCmd("sm_lg", Client_SetStyleLowGrav, "[surftimer] Switch to the low gravity surf style");
+	RegConsoleCmd("sm_wo", Client_SetStyleWOnly, "[surftimer] Switch to the W only surf style");
+	RegConsoleCmd("sm_wonly", Client_SetStyleWOnly, "[surftimer] Switch to the W only surf style");
+}
+
 // set the style for a player
 void SetStyle(int client, int style)
 {
@@ -53,7 +76,7 @@ stock void SetPlayerStyleProperties(int client, int style)
 // sets style text for player
 stock void SetPlayerStyleText(int client, int style)
 {
-    if (style > 6 || style < 0)
+    if (style > 7 || style < 0)
         return;
 
     switch (style)
@@ -93,6 +116,11 @@ stock void SetPlayerStyleText(int client, int style)
             g_players[client].styleText = STYLE_FASTFORWARD_TEXT;
             g_players[client].styleTextSmall = "[FF]";
         }
+        case STYLE_WONLY:
+        {
+            g_players[client].styleText = STYLE_WONLY_TEXT;
+            g_players[client].styleTextSmall = "[WO]";
+        }
     }
 }
 
@@ -101,8 +129,11 @@ stock void SetPlayerStyleText(int client, int style)
 public Action Client_SetStyleNormal(int client, int args)
 {
 	// check for hsw -> normal and bw -> normal
-	if (g_players[client].currentStyle != STYLE_NORMAL || (g_players[client].currentStyle == STYLE_NORMAL
-        && g_players[client].initialStyle == STYLE_HSW) || (g_players[client].initialStyle == STYLE_NORMAL && g_players[client].initialStyle == STYLE_SW))
+	if (g_players[client].currentStyle != STYLE_NORMAL
+        || (g_players[client].currentStyle == STYLE_NORMAL && g_players[client].initialStyle == STYLE_HSW)
+        || (g_players[client].currentStyle == STYLE_NORMAL && g_players[client].initialStyle == STYLE_SW)
+        || (g_players[client].currentStyle == STYLE_NORMAL && g_players[client].initialStyle == STYLE_BW)
+        || (g_players[client].currentStyle == STYLE_NORMAL && g_players[client].initialStyle == STYLE_WONLY))
 	{
 		SetStyle(client, STYLE_NORMAL);
 		CReplyToCommand(client, "%t", "CommandsNormal", g_szChatPrefix);
@@ -150,6 +181,13 @@ public Action Client_SetStyleFastForward(int client, int args)
 {
 	SetStyle(client, STYLE_FASTFORWARD);
 	CReplyToCommand(client, "%t", "CommandsFastForward", g_szChatPrefix);
+	return Plugin_Handled;
+}
+
+public Action Client_SetStyleWOnly(int client, int args)
+{
+	SetStyle(client, STYLE_WONLY);
+	CReplyToCommand(client, "%t", "CommandsWOnly", g_szChatPrefix);
 	return Plugin_Handled;
 }
 

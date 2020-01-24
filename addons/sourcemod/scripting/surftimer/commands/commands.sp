@@ -160,24 +160,7 @@ void CreateCommands()
 	RegConsoleCmd("sm_outliner", Command_Outlines, "[surftimer] [Zoner] Open the outlines menu");
 	RegConsoleCmd("sm_outlines", Command_ToggleOutlines, "[surftimer] Toggle the visibility of outlines");
 
-	// Styles
-	RegConsoleCmd("sm_style", Client_SelectStyle, "[surftimer] Open style select menu");
-	RegConsoleCmd("sm_styles", Client_SelectStyle, "[surftimer] Open style select menu");
-	RegConsoleCmd("sm_normal", Client_SetStyleNormal, "[surftimer] Switch to the normal surf style");
-	RegConsoleCmd("sm_nrm", Client_SetStyleNormal, "[surftimer] Switch to the normal surf style");
-	RegConsoleCmd("sm_sideways", Client_SetStyleSideways, "[surftimer] Switch to the sideways surf style");
-	RegConsoleCmd("sm_sw", Client_SetStyleSideways, "[surftimer] Switch to the sideways surf style");
-	RegConsoleCmd("sm_halfsideways", Client_SetStyleHalfSideways, "[surftimer] Switch to the half-sideways surf style");
-	RegConsoleCmd("sm_hsw", Client_SetStyleHalfSideways, "[surftimer] Switch to the half-sideways surf style");
-	RegConsoleCmd("sm_backwards", Client_SetStyleBackwards, "[surftimer] Switch to the backwards surf style");
-	RegConsoleCmd("sm_bw", Client_SetStyleBackwards, "[surftimer] Switch to the backwards surf style");
-	RegConsoleCmd("sm_fastforward", Client_SetStyleFastForward, "[surftimer] Switch to the fast forwards surf style");
-	RegConsoleCmd("sm_slowmotion", Client_SetStyleSlomo, "[surftimer] Switch to the slow motion surf style");
-	RegConsoleCmd("sm_slowmo", Client_SetStyleSlomo, "[surftimer] Switch to the slow motion surf style");
-	RegConsoleCmd("sm_slw", Client_SetStyleSlomo, "[surftimer] Switch to the slow motion surf style");
-	RegConsoleCmd("sm_lowgravity", Client_SetStyleLowGrav, "[surftimer] Switch to the low gravity surf style");
-	RegConsoleCmd("sm_lowgrav", Client_SetStyleLowGrav, "[surftimer] Switch to the low gravity surf style");
-	RegConsoleCmd("sm_lg", Client_SetStyleLowGrav, "[surftimer] Switch to the low gravity surf style");
+	CreateStyleCommands();
 
 	// style btop if i ever get around to it
 	/*RegConsoleCmd("sm_btopsw", Client_SWBonusTop, "[surftimer] displays a local bonus top (sw) for a given map");
@@ -3489,6 +3472,7 @@ public int StyleTypeSelectMenuHandler(Menu styleSelect, MenuAction action, int p
 				AddMenuItem(styleSelect2, "1", "Sideways");
 				AddMenuItem(styleSelect2, "2", "Half-Sideways");
 				AddMenuItem(styleSelect2, "3", "Backwards");
+				AddMenuItem(styleSelect2, "7", "W Only");
 				SetMenuOptionFlags(styleSelect2, MENUFLAG_BUTTON_EXIT);
 				DisplayMenu(styleSelect2, param1, MENU_TIME_FOREVER);
 			}
@@ -3541,6 +3525,10 @@ public int StyleSelectMenuHandler(Menu menu, MenuAction action, int param1, int 
 		else if (StrContains(info, "6", false) != -1)
 		{
 			SetStyle(param1, STYLE_FASTFORWARD);
+		}
+		else if (StrContains(info, "7", false) != -1)
+		{
+			SetStyle(param1, STYLE_WONLY);
 		}
 		else
 		{

@@ -3175,7 +3175,7 @@ public void CenterHudAlive(int client)
 					}
 					else
 					{
-						if (g_players[client].currentStyle == 0)
+						if (g_players[client].currentStyle == STYLE_NORMAL)
 							Format(g_szLastSRDifference[client], 64, "WR: %s", g_szBonusFastestTime[g_iClientInZone[client][2]]);
 						else if (g_players[client].currentStyle != 0) // Styles
 							Format(g_szLastSRDifference[client], 64, "WR: %s", g_szStyleBonusFastestTime[style][g_iClientInZone[client][2]]);
@@ -3188,7 +3188,7 @@ public void CenterHudAlive(int client)
 				// PB
 				if (gametime - g_fLastDifferenceTime[client] > 5.0)
 				{
-					if (g_iClientInZone[client][2] == 0 && style == 0)
+					if (g_iClientInZone[client][2] == 0 && style == STYLE_NORMAL)
 					{
 						if (g_fRecordMapTime != 9999999.0)
 						{
@@ -3214,7 +3214,7 @@ public void CenterHudAlive(int client)
 					}
 					else
 					{
-						if (g_players[client].currentStyle == 0)
+						if (g_players[client].currentStyle == STYLE_NORMAL)
 							Format(g_szLastPBDifference[client], 64, "PB: %s", g_szPersonalRecordBonus[g_iClientInZone[client][2]][client]);
 						else if (g_players[client].currentStyle != 0) // Styles
 							Format(g_szLastPBDifference[client], 64, "PB: %s", g_szStylePersonalRecordBonus[style][g_iClientInZone[client][2]][client]);
@@ -3228,7 +3228,7 @@ public void CenterHudAlive(int client)
 				char szRank[32];
 				if (g_iClientInZone[client][2] > 0) // if in bonus stage, get bonus times
 				{
-					if (g_players[client].currentStyle == 0) // Normal
+					if (g_players[client].currentStyle == STYLE_NORMAL) // Normal
 					{
 						if (g_fPersonalRecordBonus[g_iClientInZone[client][2]][client] > 0.0)
 							Format(szRank, 64, "Rank: %i / %i", g_MapRankBonus[g_iClientInZone[client][2]][client], g_iBonusCount[g_iClientInZone[client][2]]);
@@ -3251,7 +3251,7 @@ public void CenterHudAlive(int client)
 				}
 				else // if in normal map, get normal times
 				{
-					if (g_players[client].currentStyle == 0) // Normal
+					if (g_players[client].currentStyle == STYLE_NORMAL) // Normal
 					{
 						if (g_fPersonalRecord[client] > 0.0)
 							Format(szRank, 64, "Rank: %i / %i", g_MapRank[client], g_MapTimesCount);
@@ -3261,7 +3261,7 @@ public void CenterHudAlive(int client)
 							else
 								Format(szRank, 64, "Rank: N/A");
 					}
-					else if (g_players[client].currentStyle != 0) // Styles
+					else if (g_players[client].currentStyle != STYLE_NORMAL) // Styles
 					{
 						if (g_fPersonalStyleRecord[style][client] > 0.0)
 							Format(szRank, 64, "Rank: %i / %i", g_StyleMapRank[style][client], g_StyleMapTimesCount[style]);
@@ -3409,7 +3409,7 @@ public void SideHudAlive(int client)
 				char szRank[32];
 				if (g_iClientInZone[client][2] > 0) // if in bonus stage, get bonus times
 				{
-					if (g_players[client].currentStyle == 0) // Normal
+					if (g_players[client].currentStyle == STYLE_NORMAL) // Normal
 					{
 						if (g_fPersonalRecordBonus[g_iClientInZone[client][2]][client] > 0.0)
 							Format(szRank, 64, "Rank: %i / %i", g_MapRankBonus[g_iClientInZone[client][2]][client], g_iBonusCount[g_iClientInZone[client][2]]);
@@ -3419,7 +3419,7 @@ public void SideHudAlive(int client)
 							else
 								Format(szRank, 64, "Rank: N/A");
 					}
-					else if (g_players[client].currentStyle != 0) // Styles
+					else if (g_players[client].currentStyle != STYLE_NORMAL) // Styles
 					{
 						if (g_fStylePersonalRecordBonus[style][g_iClientInZone[client][2]][client] > 0.0)
 							Format(szRank, 64, "Rank: %i / %i", g_StyleMapRankBonus[style][g_iClientInZone[client][2]][client], g_iStyleBonusCount[style][g_iClientInZone[client][2]]);
@@ -3432,7 +3432,7 @@ public void SideHudAlive(int client)
 				}
 				else // if in normal map, get normal times
 				{
-					if (g_players[client].currentStyle == 0) // Normal
+					if (g_players[client].currentStyle == STYLE_NORMAL) // Normal
 					{
 						if (g_fPersonalRecord[client] > 0.0)
 							Format(szRank, 64, "Rank: %i / %i", g_MapRank[client], g_MapTimesCount);
@@ -3442,7 +3442,7 @@ public void SideHudAlive(int client)
 							else
 								Format(szRank, 64, "Rank: N/A");
 					}
-					else if (g_players[client].currentStyle != 0) // Styles
+					else if (g_players[client].currentStyle != STYLE_NORMAL) // Styles
 					{
 						if (g_fPersonalStyleRecord[style][client] > 0.0)
 							Format(szRank, 64, "Rank: %i / %i", g_StyleMapRank[style][client], g_StyleMapTimesCount[style]);

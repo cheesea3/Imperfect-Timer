@@ -299,7 +299,7 @@ public Action StartTouchTrigger(int caller, int activator)
 				if (g_iCheckpointsPassed[client] == g_TotalStages)
 					g_bIsValidRun[client] = true;
 
-				if (g_players[client].currentStyle == 0)
+				if (g_players[client].currentStyle == STYLE_NORMAL)
 					Checkpoint(client, iZoneTypeId, g_iClientInZone[client][2], time);
 
 				lastCheckpoint[g_iClientInZone[client][2]][client] = iZoneTypeId;
@@ -324,7 +324,7 @@ public Action StartTouchTrigger(int caller, int activator)
 			}
 
 			// Announcing checkpoint in linear maps
-			if (g_players[client].currentStyle == 0)
+			if (g_players[client].currentStyle == STYLE_NORMAL)
 			{
 				float time = g_fCurrentRunTime[client];
 				Checkpoint(client, iZoneTypeId, g_iClientInZone[client][2], time);
