@@ -102,7 +102,7 @@ public Action Command_ListEntities(int client, int args)
 	char propName[128];
 	for (int i = MaxClients; i < entities; i++)
 	{
-		if (IsValidEntity(i) && IsValidEdict(i)
+		if (IsValidEntity(i)
 			&& GetEdictClassname(i, sClassName, 128)
 			&& GetEntPropString(i, Prop_Data, "m_iName", propName, 128))
 		{

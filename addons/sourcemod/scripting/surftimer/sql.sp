@@ -520,28 +520,26 @@ public void sql_CalcuatePlayerRankCallback(Handle owner, Handle hndl, const char
 	getSteamIDFromClient(client, szSteamId, 32);
 
 	if (IsValidClient(client))
+	{
 		GetClientAuthId(client, AuthId_SteamID64, szSteamId64, MAX_NAME_LENGTH, true);
 
-	if (SQL_HasResultSet(hndl) && SQL_FetchRow(hndl))
-	{
-		if (IsValidClient(client))
+		if (SQL_HasResultSet(hndl) && SQL_FetchRow(hndl))
 		{
-			if (GetClientTime(client) < (GetEngineTime() - g_fMapStartTime))
-				db_UpdateLastSeen(client); // Update last seen on server
+			if (IsValidClient(client))
+			{
+				if (GetClientTime(client) < (GetEngineTime() - g_fMapStartTime))
+					db_UpdateLastSeen(client); // Update last seen on server
+			}
+
+			if (IsValidClient(client))
+				g_pr_Calculating[client] = true;
+
+			// Next up, calculate bonus points:
+			char szQuery[512];
+			Format(szQuery, 512, "SELECT a.mapname, (SELECT count(1)+1 FROM ck_bonus b WHERE a.mapname=b.mapname AND a.runtime > b.runtime AND a.zonegroup = b.zonegroup AND b.style = %i) AS rank, (SELECT count(1) FROM ck_bonus b WHERE a.mapname = b.mapname AND a.zonegroup = b.zonegroup AND b.style = %i) as total FROM ck_bonus a INNER JOIN ck_maptier tier ON a.mapname=tier.mapname WHERE steamid = '%s' AND style = %i AND tier.ranked = 1 AND tier.tier > 0;", style, style, szSteamId, style);
+			SQL_TQuery(g_hDb, sql_CountFinishedBonusCallback, szQuery, pack);
 		}
-
-		if (IsValidClient(client))
-			g_pr_Calculating[client] = true;
-
-		// Next up, calculate bonus points:
-		char szQuery[512];
-		Format(szQuery, 512, "SELECT a.mapname, (SELECT count(1)+1 FROM ck_bonus b WHERE a.mapname=b.mapname AND a.runtime > b.runtime AND a.zonegroup = b.zonegroup AND b.style = %i) AS rank, (SELECT count(1) FROM ck_bonus b WHERE a.mapname = b.mapname AND a.zonegroup = b.zonegroup AND b.style = %i) as total FROM ck_bonus a INNER JOIN ck_maptier tier ON a.mapname=tier.mapname WHERE steamid = '%s' AND style = %i AND tier.ranked = 1 AND tier.tier > 0;", style, style, szSteamId, style);
-		SQL_TQuery(g_hDb, sql_CountFinishedBonusCallback, szQuery, pack);
-	}
-	else
-	{
-		// Players first time on server
-		if (client <= MaxClients)
+		else
 		{
 			g_pr_Calculating[client] = false;
 			g_pr_AllPlayers[style]++;
