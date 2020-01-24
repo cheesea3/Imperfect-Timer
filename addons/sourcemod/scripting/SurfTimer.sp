@@ -306,7 +306,8 @@ enum struct MapOutline
 #define STYLE_TEXT_LENGTH 			128
 #define STYLE_TEXT_SMALL_LENGTH 	32
 
-#define MAX_STYLES                  7
+// always update with new styles
+#define MAX_STYLES                  8
 
 enum
 {

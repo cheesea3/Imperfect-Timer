@@ -196,7 +196,7 @@ public void CL_OnEndTimerPress(int client)
 
 	if (zGroup == 0)
 	{
-		if (style == 0)
+		if (style == STYLE_NORMAL)
 		{
 			// Make a new record bot?
 			if (g_hReplaceReplayTime.BoolValue && (g_fFinalTime[client] < g_fReplayTimes[0][0] || g_fReplayTimes[0][0] == 0.0))
@@ -320,10 +320,10 @@ public void CL_OnEndTimerPress(int client)
 				db_currentRunRank(client);
 			}
 		}
-		else if (style != 0)
+		else if (style != STYLE_NORMAL)
 		{
 			// Third person angle surfing check. Do not record these times
-			if ((style > 0 && style < 4 && !g_players[client].thirdPerson) || style > 3)
+			if (style == STYLE_SW || style == STYLE_BW || style == STYLE_HSW || style == STYLE_WONLY)
 			{
 				// Make a new record bot?
 				if (g_hReplaceReplayTime.BoolValue && (g_fFinalTime[client] < g_fReplayTimes[0][style] || g_fReplayTimes[0][style] == 0.0))
@@ -455,7 +455,7 @@ public void CL_OnEndTimerPress(int client)
 		/*====================================
 		=            Handle Bonus            =
 		====================================*/
-		if (style == 0)
+		if (style == STYLE_NORMAL)
 		{
 			if (g_hReplaceReplayTime.BoolValue && (g_fFinalTime[client] < g_fReplayTimes[zGroup][0] || g_fReplayTimes[zGroup][0] == 0.0))
 			{
@@ -589,10 +589,10 @@ public void CL_OnEndTimerPress(int client)
 				db_currentBonusRunRank(client, zGroup);
 			}
 		}
-		else if (style != 0)
+		else if (style != STYLE_NORMAL)
 		{
 			// Third person angle surfing check. Do not record these times
-			if ((style > 0 && style < 4 && !g_players[client].thirdPerson) || style > 3)
+			if (style == STYLE_SW || style == STYLE_BW || style == STYLE_HSW || style == STYLE_WONLY)
 			{
 				if (g_hReplaceReplayTime.BoolValue && (g_fFinalTime[client] < g_fReplayTimes[zGroup][style] || g_fReplayTimes[zGroup][style] == 0.0))
 				{

@@ -25,7 +25,7 @@ void CreateStyleCommands()
 // set the style for a player
 void SetStyle(int client, int style)
 {
-    if (style > 6 || style < 0 || style == g_players[client].currentStyle)
+    if (style > 7 || style < 0 || style == g_players[client].currentStyle)
         return;
 
     g_players[client].currentStyle = style;

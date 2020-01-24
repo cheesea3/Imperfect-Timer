@@ -1173,7 +1173,8 @@ char g_szStyleRecordPrint[][] =
 	"Backwards",
 	"Low Gravity",
 	"Slow Motion",
-	"Fast Forward"
+	"Fast Forward",
+	"W Only"
 };
 
 char g_szStyleMenuPrint[][] =
@@ -1184,7 +1185,8 @@ char g_szStyleMenuPrint[][] =
 	"Backwards",
 	"Low-Gravity",
 	"Slow Motion",
-	"Fast Forward"
+	"Fast Forward",
+	"W Only"
 };
 
 char g_szStyleAcronyms[][] =
@@ -1195,7 +1197,8 @@ char g_szStyleAcronyms[][] =
 	"bw",
 	"lg",
 	"sm",
-	"ff"
+	"ff",
+	"wo"
 };
 
 char EntityList[][] = 													// Disable entities that often break maps

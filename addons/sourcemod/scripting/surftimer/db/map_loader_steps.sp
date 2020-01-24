@@ -381,7 +381,7 @@ public void sql_selectMapRecordCallback(Handle owner, Handle hndl, const char[] 
 		while (SQL_FetchRow(hndl)) {
 			style = SQL_FetchInt(hndl, 3);
 
-			if (style == 0) {
+			if (style == STYLE_NORMAL) {
 				g_fRecordMapTime = SQL_FetchFloat(hndl, 0);
 
 				if (g_fRecordMapTime > -1.0 && !SQL_IsFieldNull(hndl, 0))
@@ -447,7 +447,7 @@ void sql_selectPlayerProCountCallback(Handle owner, Handle hndl, const char[] er
 		{
 			style = SQL_FetchInt(hndl, 0);
 			count = SQL_FetchInt(hndl, 1);
-			if (style == 0)
+			if (style == STYLE_NORMAL)
 				g_MapTimesCount = count;
 			else
 				g_StyleMapTimesCount[style] = count;
@@ -500,7 +500,7 @@ public void SQL_selectFastestBonusCallback(Handle owner, Handle hndl, const char
 			zonegroup = SQL_FetchInt(hndl, 2);
 			style = SQL_FetchInt(hndl, 3);
 
-			if (style == 0)
+			if (style == STYLE_NORMAL)
 			{
 				SQL_FetchString(hndl, 0, g_szBonusFastest[zonegroup], MAX_NAME_LENGTH);
 				g_fBonusFastest[zonegroup] = SQL_FetchFloat(hndl, 1);
@@ -559,7 +559,7 @@ void SQL_selectBonusTotalCountCallback(Handle owner, Handle hndl, const char[] e
 		{
 			zonegroup = SQL_FetchInt(hndl, 0);
 			style = SQL_FetchInt(hndl, 1);
-			if (style == 0)
+			if (style == STYLE_NORMAL)
 				g_iBonusCount[zonegroup] = SQL_FetchInt(hndl, 2);
 			else
 				g_iStyleBonusCount[style][zonegroup] = SQL_FetchInt(hndl, 2);
@@ -967,7 +967,7 @@ void sql_viewStageRecordsCallback(Handle owner, Handle hndl, const char[] error,
 			stage = SQL_FetchInt(hndl, 2);
 			style = SQL_FetchInt(hndl, 3);
 
-			if (style == 0) {
+			if (style == STYLE_NORMAL) {
 				g_fStageRecord[stage] = SQL_FetchFloat(hndl, 1);
 				if (g_fStageRecord[stage] > -1.0 && !SQL_IsFieldNull(hndl, 1)) {
 					g_fStageRecord[stage] = SQL_FetchFloat(hndl, 1);
@@ -1033,7 +1033,7 @@ void sql_viewTotalStageRecordsCallback(Handle owner, Handle hndl, const char[] e
 			stage = SQL_FetchInt(hndl, 0);
 			style = SQL_FetchInt(hndl, 1);
 
-			if (style == 0) {
+			if (style == STYLE_NORMAL) {
 				g_TotalStageRecords[stage] = SQL_FetchInt(hndl, 2);
 				if (g_TotalStageRecords[stage] > -1.0 && !SQL_IsFieldNull(hndl, 2)) {
 					g_TotalStageRecords[stage] = SQL_FetchInt(hndl, 2);

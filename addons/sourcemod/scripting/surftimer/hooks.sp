@@ -964,7 +964,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 
 				if (buttons & IN_BACK)
 				{
-					CPrintToChat(client, "%t", "Hooks13", g_szChatPrefix);
+					CPrintToChat(client, "%t", "Hooks13", g_szChatPrefix); // update
 				}
 			}
 			else
@@ -983,7 +983,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 
 				if (buttons & IN_BACK)
 				{
-					vel[1] = 0.0;
+					vel[0] = 0.0;
 					buttons &= ~IN_BACK;
 				}
 			}

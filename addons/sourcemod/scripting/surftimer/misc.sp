@@ -3133,12 +3133,13 @@ public void CenterHudAlive(int client)
 				{
 					switch (g_players[client].currentStyle)
 					{
-						case 1: Format(module[i], 128, "SW %s", module[i]);
-						case 2: Format(module[i], 128, "HSW %s", module[i]);
-						case 3: Format(module[i], 128, "BW %s", module[i]);
-						case 4: Format(module[i], 128, "LG %s", module[i]);
-						case 5: Format(module[i], 128, "SM %s", module[i]);
-						case 6: Format(module[i], 128, "FF %s", module[i]);
+						case STYLE_SW:			Format(module[i], 128, "SW %s", module[i]);
+						case STYLE_HSW:			Format(module[i], 128, "HSW %s", module[i]);
+						case STYLE_BW:			Format(module[i], 128, "BW %s", module[i]);
+						case STYLE_LOWGRAV:		Format(module[i], 128, "LG %s", module[i]);
+						case STYLE_SLOMO:		Format(module[i], 128, "SM %s", module[i]);
+						case STYLE_FASTFORWARD:	Format(module[i], 128, "FF %s", module[i]);
+						case STYLE_WONLY:		Format(module[i], 128, "WO %s", module[i]);
 					}
 				}
 			}
@@ -3147,7 +3148,7 @@ public void CenterHudAlive(int client)
 				// WR
 				if (gametime - g_fLastDifferenceTime[client] > 5.0)
 				{
-					if (g_iClientInZone[client][2] == 0 && style == 0)
+					if (g_iClientInZone[client][2] == 0 && style == STYLE_NORMAL)
 					{
 						if (g_fRecordMapTime != 9999999.0)
 						{
@@ -3160,7 +3161,7 @@ public void CenterHudAlive(int client)
 						else
 							Format(g_szLastSRDifference[client], 64, "WR: N/A");
 					}
-					else if (g_iClientInZone[client][2] == 0 && g_players[client].currentStyle != 0) // Styles
+					else if (g_iClientInZone[client][2] == 0 && g_players[client].currentStyle != STYLE_NORMAL) // Styles
 					{
 						if (g_fRecordStyleMapTime[style] != 9999999.0)
 						{
@@ -3373,7 +3374,7 @@ public void SideHudAlive(int client)
 				else
 					Format(szWR, 128, "%s", g_szLastSRDifference[client]);
 				char szWRHolder[64];
-				if (style == 0)
+				if (style == STYLE_NORMAL)
 				{
 					if (g_iClientInZone[client][2] == 0)
 						Format(szWRHolder, 64, g_szRecordPlayer);

@@ -1216,7 +1216,7 @@ public void sql_updatePlayerRankPointsCallback(Handle owner, Handle hndl, const 
 			ProfileMenu2(data, style, "", g_szSteamID[data]);
 			if (IsValidClient(data))
 			{
-				if (style == 0)
+				if (style == STYLE_NORMAL)
 					CPrintToChat(data, "%t", "Rc_PlayerRankFinished", g_szChatPrefix, g_pr_points[data][style]);
 				else
 					CPrintToChat(data, "%t", "Rc_PlayerRankFinished2", g_szChatPrefix, g_szStyleMenuPrint[style], g_pr_points[data][style]);
@@ -1236,7 +1236,7 @@ public void sql_updatePlayerRankPointsCallback(Handle owner, Handle hndl, const 
 				{
 					if (IsValidClient(i))
 					{
-						if (style == 0)
+						if (style == STYLE_NORMAL)
 							CPrintToChat(i, "%t", "EarnedPoints", g_szChatPrefix, szName, diff, g_pr_points[data][0]);
 						else
 							CPrintToChat(i, "%t", "EarnedPoints2", g_szChatPrefix, szName, diff, g_szStyleRecordPrint[style], g_pr_points[data][style]);
@@ -1464,7 +1464,7 @@ public void completionMenu(int client)
 {
 	int style = g_ProfileStyleSelect[client];
 	char szTitle[128];
-	if (style == 0)
+	if (style == STYLE_NORMAL)
 		Format(szTitle, 128, "[%s | Completion Menu]\n \n", g_szProfileName[client]);
 	else
 		Format(szTitle, 128, "[%s | %s | Completion Menu]\n \n", g_szProfileName[client], g_szStyleMenuPrint[style]);
@@ -3230,7 +3230,7 @@ public void db_selectTop100PlayersCallback(Handle owner, Handle hndl, const char
 	int points;
 	Menu menu = new Menu(TopPlayersMenuHandler1);
 	char szTitle[256];
-	if (style == 0)
+	if (style == STYLE_NORMAL)
 		Format(szTitle, sizeof(szTitle), "Top 100 Players\n    Rank   Points       Maps            Player");
 	else
 		Format(szTitle, sizeof(szTitle), "Top 100 Players - %s\n    Rank   Points       Maps            Player", g_szStyleMenuPrint[style]);
@@ -3363,9 +3363,9 @@ public void db_selectWrcpRecord(int client, int style, int stage)
 	WritePackCell(pack, stage);
 
 	char szQuery[255];
-	if (style == 0)
+	if (style == STYLE_NORMAL)
 		Format(szQuery, 255, "SELECT runtimepro FROM ck_wrcps WHERE steamid = '%s' AND mapname = '%s' AND stage = %i AND style = 0", g_szSteamID[client], g_szMapName, stage);
-	else if (style != 0)
+	else if (style != STYLE_NORMAL)
 		Format(szQuery, 255, "SELECT runtimepro FROM ck_wrcps WHERE steamid = '%s' AND mapname = '%s' AND stage = %i AND style = %i", g_szSteamID[client], g_szMapName, stage, style);
 
 	SQL_TQuery(g_hDb, sql_selectWrcpRecordCallback, szQuery, pack);
@@ -3413,7 +3413,7 @@ public void sql_selectWrcpRecordCallback(Handle owner, Handle hndl, const char[]
 		Format(szDiff, 128, "%cPB: %c+%s%c", WHITE, RED, szDiff, WHITE);
 
 	// SR
-	if (style == 0)
+	if (style == STYLE_NORMAL)
 		f_srDiff = (g_fStageRecord[stage] - time);
 	else // styles
 		f_srDiff = (g_fStyleStageRecord[style][stage] - time);
@@ -3440,13 +3440,13 @@ public void sql_selectWrcpRecordCallback(Handle owner, Handle hndl, const char[]
 			char szSpecMessage[512];
 
 			g_bStageSRVRecord[data][stage] = false;
-			if (style == 0)
+			if (style == STYLE_NORMAL)
 			{
 				CPrintToChat(data, "%t", "SQL11", g_szChatPrefix, stage, g_szFinalWrcpTime[data], szDiff, sz_srDiff);
 
 				Format(szSpecMessage, sizeof(szSpecMessage), "%t", "SQL12", g_szChatPrefix, szName, stage, g_szFinalWrcpTime[data], szDiff, sz_srDiff);
 			}
-			else if (style != 0) // styles
+			else if (style != STYLE_NORMAL) // styles
 			{
 				CPrintToChat(data, "%t", "SQL13", g_szChatPrefix, stage, g_szStyleRecordPrint[style], g_szFinalWrcpTime[data], sz_srDiff, g_StyleStageRank[style][data][stage], g_TotalStageStyleRecords[style][stage]);
 				Format(szSpecMessage, sizeof(szSpecMessage), "%t", "SQL13", g_szChatPrefix, stage, g_szStyleRecordPrint[style], g_szFinalWrcpTime[data], sz_srDiff, g_StyleStageRank[style][data][stage], g_TotalStageStyleRecords[style][stage]);
@@ -3478,9 +3478,9 @@ public void sql_selectWrcpRecordCallback(Handle owner, Handle hndl, const char[]
 		WritePackCell(pack, 1);
 		WritePackCell(pack, data);
 
-		if (style == 0)
+		if (style == STYLE_NORMAL)
 			Format(szQuery, 512, "INSERT INTO ck_wrcps (steamid, name, mapname, runtimepro, stage) VALUES ('%s', '%s', '%s', '%f', %i);", g_szSteamID[data], szName, g_szMapName, g_fFinalWrcpTime[data], stage);
-		else if (style != 0)
+		else if (style != STYLE_NORMAL)
 			Format(szQuery, 512, "INSERT INTO ck_wrcps (steamid, name, mapname, runtimepro, stage, style) VALUES ('%s', '%s', '%s', '%f', %i, %i);", g_szSteamID[data], szName, g_szMapName, g_fFinalWrcpTime[data], stage, style);
 
 		SQL_TQuery(g_hDb, SQL_UpdateWrcpRecordCallback, szQuery, pack);
@@ -3513,7 +3513,7 @@ public void db_updateWrcpRecord(int client, int style, int stage)
 
 	char szQuery[1024];
 	// "UPDATE ck_playertimes SET name = '%s', runtimepro = '%f' WHERE steamid = '%s' AND mapname = '%s';";
-	if (style == 0)
+	if (style == STYLE_NORMAL)
 		Format(szQuery, 1024, "UPDATE ck_wrcps SET name = '%s', runtimepro = '%f' WHERE steamid = '%s' AND mapname = '%s' AND stage = %i AND style = 0;", szName, g_fFinalWrcpTime[client], g_szSteamID[client], g_szMapName, stage);
 	if (style > 0)
 		Format(szQuery, 1024, "UPDATE ck_wrcps SET name = '%s', runtimepro = '%f' WHERE steamid = '%s' AND mapname = '%s' AND stage = %i AND style = %i;", szName, g_fFinalWrcpTime[client], g_szSteamID[client], g_szMapName, stage, style);
@@ -3537,9 +3537,9 @@ public void SQL_UpdateWrcpRecordCallback(Handle owner, Handle hndl, const char[]
 
 	// Find out how many times are are faster than the players time
 	char szQuery[512];
-	if (style == 0)
+	if (style == STYLE_NORMAL)
 		Format(szQuery, 512, "SELECT count(runtimepro) FROM ck_wrcps WHERE `mapname` = '%s' AND stage = %i AND style = 0 AND runtimepro < %f AND runtimepro > -1.0;", g_szMapName, stage, stagetime);
-	else if (style != 0)
+	else if (style != STYLE_NORMAL)
 		Format(szQuery, 512, "SELECT count(runtimepro) FROM ck_wrcps WHERE mapname = '%s' AND runtimepro < %f AND stage = %i AND style = %i AND runtimepro > -1.0;", g_szMapName, stagetime, stage, style);
 
 	SQL_TQuery(g_hDb, SQL_UpdateWrcpRecordCallback2, szQuery, data);
@@ -3567,7 +3567,7 @@ public void SQL_UpdateWrcpRecordCallback2(Handle owner, Handle hndl, const char[
 
 	if (bInsert) // fluffys FIXME
 	{
-		if (style == 0)
+		if (style == STYLE_NORMAL)
 			g_TotalStageRecords[stage]++;
 		else
 			g_TotalStageStyleRecords[style][stage]++;
@@ -3584,7 +3584,7 @@ public void SQL_UpdateWrcpRecordCallback2(Handle owner, Handle hndl, const char[
 	if (stage > g_TotalStages) // Hack Fix for multiple end zone issue
 		stage = g_TotalStages;
 
-	if (style == 0)
+	if (style == STYLE_NORMAL)
 		g_StageRank[client][stage] = stagerank;
 	else
 		g_StyleStageRank[style][client][stage] = stagerank;
@@ -3616,9 +3616,9 @@ public void SQL_UpdateWrcpRecordCallback2(Handle owner, Handle hndl, const char[
 
 	// SR
 	float f_srDiff;
-	if (style == 0)
+	if (style == STYLE_NORMAL)
 		f_srDiff = (g_fStageRecord[stage] - time);
-	else if (style != 0)
+	else if (style != STYLE_NORMAL)
 		f_srDiff = (g_fStyleStageRecord[style][stage] - time);
 
 	FormatTimeFloat(client, f_srDiff, 3, sz_srDiff, 128);
@@ -3630,7 +3630,7 @@ public void SQL_UpdateWrcpRecordCallback2(Handle owner, Handle hndl, const char[
 
 	// Check for SR
 	bool newRecordHolder = false;
-	if (style == 0)
+	if (style == STYLE_NORMAL)
 	{
 		// Compare against 1, since the player has completed the stage already
 		if (g_TotalStageRecords[stage] > 1)
@@ -3672,7 +3672,7 @@ public void SQL_UpdateWrcpRecordCallback2(Handle owner, Handle hndl, const char[
 			PlayWRCPRecord(client);
 		}
 	}
-	else if (style != 0) // styles
+	else if (style != STYLE_NORMAL) // styles
 	{
 		// Compare against 1, since the player has completed the stage already
 		if (g_TotalStageStyleRecords[style][stage] > 1)
@@ -3719,7 +3719,7 @@ public void SQL_UpdateWrcpRecordCallback2(Handle owner, Handle hndl, const char[
 	if (g_bStageSRVRecord[client][stage])
 	{
 		int points = GetConVarInt(g_hWrcpPoints);
-		if (style == 0)
+		if (style == STYLE_NORMAL)
 		{
 			if (newRecordHolder)
 			{
@@ -5189,7 +5189,7 @@ public void sql_selectMapNameEqualsCallback(Handle owner, Handle hndl, const cha
 	if (SQL_HasResultSet(hndl) && SQL_FetchRow(hndl))
 	{
 		SQL_FetchString(hndl, 0, g_szMapNameFromDatabase[client], sizeof(g_szMapNameFromDatabase));
-		if (style == 0)
+		if (style == STYLE_NORMAL)
 		{
 			g_ProfileStyleSelect[client] = 0;
 			db_selectMapTopSurfers(client, g_szMapNameFromDatabase[client]);
@@ -5248,7 +5248,7 @@ public void sql_selectMapNameLikeCallback(Handle owner, Handle hndl, const char[
 			if (SQL_FetchRow(hndl))
 			{
 				SQL_FetchString(hndl, 0, g_szMapNameFromDatabase[client], sizeof(g_szMapNameFromDatabase));
-				if (style == 0)
+				if (style == STYLE_NORMAL)
 				{
 					g_ProfileStyleSelect[client] = 0;
 					db_selectMapTopSurfers(client, g_szMapNameFromDatabase[client]);
@@ -5273,7 +5273,7 @@ public int ChooseMapMenuHandler(Menu menu, MenuAction action, int param1, int pa
 	{
 		GetMenuItem(menu, param2, g_szMapNameFromDatabase[param1], sizeof(g_szMapNameFromDatabase));
 		int style = g_ProfileStyleSelect[param1];
-		if (style == 0)
+		if (style == STYLE_NORMAL)
 		{
 			g_ProfileStyleSelect[param1] = 0;
 			db_selectMapTopSurfers(param1, g_szMapNameFromDatabase[param1]);

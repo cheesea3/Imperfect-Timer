@@ -7,7 +7,7 @@ void setReplayTime(int zGrp, int stage, int style)
 	char sPath[256], sTime[54], sBuffer[4][54];
 	if (zGrp > 0)
 	{
-		if (style == 0)
+		if (style == STYLE_NORMAL)
 			BuildPath(Path_SM, sPath, sizeof(sPath), "%s%s_bonus_%d.rec", CK_REPLAY_PATH, g_szMapName, zGrp);
 		else
 			BuildPath(Path_SM, sPath, sizeof(sPath), "%s%s_bonus_%d_style_%d.rec", CK_REPLAY_PATH, g_szMapName, zGrp, style);
@@ -16,7 +16,7 @@ void setReplayTime(int zGrp, int stage, int style)
 		BuildPath(Path_SM, sPath, sizeof(sPath), "%s%s_stage_%d.rec", CK_REPLAY_PATH, g_szMapName, stage);
 	else
 	{
-		if (style == 0)
+		if (style == STYLE_NORMAL)
 			BuildPath(Path_SM, sPath, sizeof(sPath), "%s%s.rec", CK_REPLAY_PATH, g_szMapName);
 		else
 			BuildPath(Path_SM, sPath, sizeof(sPath), "%s%s_style_%d.rec", CK_REPLAY_PATH, g_szMapName, style);
@@ -33,7 +33,7 @@ void setReplayTime(int zGrp, int stage, int style)
 	if (zGrp == 0 && stage == 0)
 	{
 		// Map
-		if (style == 0)
+		if (style == STYLE_NORMAL)
 		{
 			if ((g_fRecordMapTime - 0.01) < time < (g_fRecordMapTime) + 0.01)
 				time = g_fRecordMapTime;
@@ -56,7 +56,7 @@ void setReplayTime(int zGrp, int stage, int style)
 	else
 	{
 		// Bonus
-		if (style == 0)
+		if (style == STYLE_NORMAL)
 		{
 			if ((g_fBonusFastest[zGrp] - 0.01) < time < (g_fBonusFastest[zGrp]) + 0.01)
 				time = g_fBonusFastest[zGrp];
@@ -420,7 +420,7 @@ public void PlayRecord(int client, int type, int style)
 			bonus = g_iBonusToReplay[g_iCurrentBonusReplayIndex];
 	}
 
-	if (style == 0)
+	if (style == STYLE_NORMAL)
 	{
 		if (type == 0)
 			Format(sPath, sizeof(sPath), "%s%s.rec", CK_REPLAY_PATH, g_szMapName);
@@ -447,7 +447,7 @@ public void PlayRecord(int client, int type, int style)
 	{
 		Format(g_szReplayTime, sizeof(g_szReplayTime), "%s", iFileHeader[view_as<int>(FH_Time)]);
 		Format(g_szReplayName, sizeof(g_szReplayName), "%s", iFileHeader[view_as<int>(FH_Playername)]);
-		if (style == 0)
+		if (style == STYLE_NORMAL)
 		{
 			Format(buffer, sizeof(buffer), "%s (%s)", g_szReplayName, g_szReplayTime);
 			CS_SetClientClanTag(client, "WR Replay");
@@ -481,7 +481,7 @@ public void PlayRecord(int client, int type, int style)
 	{
 		Format(g_szBonusTime, sizeof(g_szBonusTime), "%s", iFileHeader[view_as<int>(FH_Time)]);
 		Format(g_szBonusName, sizeof(g_szBonusName), "%s", iFileHeader[view_as<int>(FH_Playername)]);
-		if (style == 0)
+		if (style == STYLE_NORMAL)
 		{
 			Format(buffer, sizeof(buffer), "%s (%s)", g_szBonusName, g_szBonusTime);
 			CS_SetClientClanTag(client, "WRB Replay");

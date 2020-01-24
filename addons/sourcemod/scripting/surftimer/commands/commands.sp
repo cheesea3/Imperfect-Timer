@@ -3367,12 +3367,12 @@ public void WrcpMenu(int client, int args, int style)
 
 		g_szWrcpMapSelect[client] = g_szMapName;
 		Menu menu;
-		if (style == 0)
+		if (style == STYLE_NORMAL)
 		{
 			menu = CreateMenu(StageSelectMenuHandler);
 			SetMenuTitle(menu, "%s: select a stage \n------------------------------\n", g_szMapName);
 		}
-		else if (style != 0)
+		else if (style != STYLE_NORMAL)
 		{
 			g_StyleStageSelect[client] = style;
 			menu = CreateMenu(StageStyleSelectMenuHandler);

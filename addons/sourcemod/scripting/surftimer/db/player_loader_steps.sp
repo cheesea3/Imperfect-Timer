@@ -91,7 +91,7 @@ void db_refreshPlayerMapRecordsCb(Handle hndl, const char[] error, int client, a
 			{
 				g_fWrcpRecord[client][zgroup][style] = time;
 
-				if (style == 0)
+				if (style == STYLE_NORMAL)
 					g_StageRank[client][zgroup] = rank;
 				else
 					g_StyleStageRank[style][client][zgroup] = rank;
@@ -103,7 +103,7 @@ void db_refreshPlayerMapRecordsCb(Handle hndl, const char[] error, int client, a
 				g_printRecord[client][zgroup][style] = false;
 				if (zgroup == 0) // main map
 				{
-					if (style == 0)
+					if (style == STYLE_NORMAL)
 					{
 						g_fPersonalRecord[client] = time;
 						FormatTimeFloat(client, time, 3, g_szPersonalRecord[client], 64);
@@ -121,7 +121,7 @@ void db_refreshPlayerMapRecordsCb(Handle hndl, const char[] error, int client, a
 				}
 				else // bonuses
 				{
-					if (style == 0) // normal
+					if (style == STYLE_NORMAL) // normal
 					{
 						g_fPersonalRecordBonus[zgroup][client] = time;
 						FormatTimeFloat(client, time, 3, g_szPersonalRecordBonus[zgroup][client], 64);
@@ -184,7 +184,7 @@ void db_refreshPlayerPointsCallback(Handle hndl, const char[] error, int client,
 
 		g_pr_points[client][style] = points;
 		g_pr_finishedmaps[client][style] = finishedMaps;
-		if (style == 0) {
+		if (style == STYLE_NORMAL) {
 			normalPoints = points;
 			g_iPlayTimeAlive[client] = SQL_FetchInt(hndl, 6);
 			g_iPlayTimeSpec[client] = SQL_FetchInt(hndl, 7);
@@ -236,12 +236,12 @@ void sql_getPlayerRankCallback(Handle hndl, const char[] error, int client, any 
 		int rank = SQL_FetchInt(hndl, 1);
 
 		g_PlayerRank[client][style] = rank;
-		if (style == 0) {
+		if (style == STYLE_NORMAL) {
 			normalRank = rank;
 		}
 
 		// Sort players by rank in scoreboard
-		if (style == 0) {
+		if (style == STYLE_NORMAL) {
 			if (g_pr_AllPlayers[style] < g_PlayerRank[client][style])
 				CS_SetClientContributionScore(client, -99998);
 			else
