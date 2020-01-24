@@ -323,7 +323,8 @@ public void CL_OnEndTimerPress(int client)
 		else if (style != STYLE_NORMAL)
 		{
 			// Third person angle surfing check. Do not record these times
-			if (style == STYLE_SW || style == STYLE_BW || style == STYLE_HSW || style == STYLE_WONLY)
+			if (((style == STYLE_SW || style == STYLE_BW || style == STYLE_HSW || style == STYLE_WONLY) && !g_players[client].thirdPerson)
+				|| (style == STYLE_LOWGRAV || style == STYLE_FASTFORWARD || style == STYLE_SLOMO))
 			{
 				// Make a new record bot?
 				if (g_hReplaceReplayTime.BoolValue && (g_fFinalTime[client] < g_fReplayTimes[0][style] || g_fReplayTimes[0][style] == 0.0))
@@ -591,8 +592,9 @@ public void CL_OnEndTimerPress(int client)
 		}
 		else if (style != STYLE_NORMAL)
 		{
-			// Third person angle surfing check. Do not record these times
-			if (style == STYLE_SW || style == STYLE_BW || style == STYLE_HSW || style == STYLE_WONLY)
+			// Third person angle surfing check. Do not record these times if the player is in third person
+			if (((style == STYLE_SW || style == STYLE_BW || style == STYLE_HSW || style == STYLE_WONLY) && !g_players[client].thirdPerson)
+				|| (style == STYLE_LOWGRAV || style == STYLE_FASTFORWARD || style == STYLE_SLOMO))
 			{
 				if (g_hReplaceReplayTime.BoolValue && (g_fFinalTime[client] < g_fReplayTimes[zGroup][style] || g_fReplayTimes[zGroup][style] == 0.0))
 				{
