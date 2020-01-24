@@ -2,7 +2,7 @@ public int Handle_VoteMenuExtend(Menu menu, MenuAction action, int param1, int p
 {
 	if (action == MenuAction_End) {
 		/* This is called after VoteEnd */
-		CloseHandle(menu);
+		delete menu;
 	} else if (action == MenuAction_VoteEnd) {
 		char item[64], display[64];
 		float percent, limit;

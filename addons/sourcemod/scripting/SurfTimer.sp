@@ -360,6 +360,7 @@ enum struct SurfPlayer
 #include "surftimer/commands/titles.sp"
 #include "surftimer/styles.sp"
 #include "surftimer/tests.sp"
+#include "surftimer/beams.sp"
 #include "surftimer/hooks.sp"
 #include "surftimer/buttonpress.sp"
 #include "surftimer/sqltime.sp"
@@ -481,7 +482,9 @@ public void OnMapStart()
 	if (!DirExists("addons/sourcemod/logs/surftimer"))
 		CreateDirectory("addons/sourcemod/logs/surftimer", 511);
 
+#if defined DEBUG_LOGGING
 	BuildPath(Path_SM, g_szLogFile, sizeof(g_szLogFile), "logs/surftimer/%s.log", g_szMapName);
+#endif
 
 	// Get map maxvelocity
 	g_hMaxVelocity = FindConVar("sv_maxvelocity");

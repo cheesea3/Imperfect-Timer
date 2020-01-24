@@ -406,7 +406,7 @@ public void db_editSpawnLocationsCallback(Handle owner, Handle hndl, const char[
 // Players points have changed in game, make changes in database and recalculate points
 public void db_updateStat(int client, int style)
 {
-	Handle pack = CreateDataPack();
+	DataPack pack = CreateDataPack();
 	WritePackCell(pack, client);
 	WritePackCell(pack, style);
 
@@ -418,19 +418,19 @@ public void db_updateStat(int client, int style)
 
 }
 
-public void SQL_UpdateStatCallback(Handle owner, Handle hndl, const char[] error, any pack)
+public void SQL_UpdateStatCallback(Handle owner, Handle hndl, const char[] error, DataPack pack)
 {
 	if (hndl == null)
 	{
 		LogError("[Surftimer] SQL Error (SQL_UpdateStatCallback): %s", error);
-		CloseHandle(pack);
+		delete pack;
 		return;
 	}
 
 	ResetPack(pack);
 	int client = ReadPackCell(pack);
 	int style = ReadPackCell(pack);
-	CloseHandle(pack);
+	delete pack;
 
 	// Calculating starts here:
 	CalculatePlayerRank(client, style);
@@ -448,7 +448,7 @@ public void RecalcPlayerRank(int client, char steamid[128])
 		SQL_EscapeString(g_hDb, steamid, szsteamid, 128 * 2 + 1);
 		Format(g_pr_szSteamID[i], 32, "%s", steamid);
 		Format(szQuery, 255, sql_selectPlayerName, szsteamid);
-		Handle pack = CreateDataPack();
+		DataPack pack = CreateDataPack();
 		WritePackCell(pack, i);
 		WritePackCell(pack, client);
 		SQL_TQuery(g_hDb, sql_selectPlayerNameCallback, szQuery, pack);
@@ -491,7 +491,7 @@ public void CalculatePlayerRank(int client, int style)
 
 	getSteamIDFromClient(client, szSteamId, 32);
 
-	Handle pack = CreateDataPack();
+	DataPack pack = CreateDataPack();
 	WritePackCell(pack, client);
 	WritePackCell(pack, style);
 
@@ -502,12 +502,12 @@ public void CalculatePlayerRank(int client, int style)
 // 2. See if player exists, insert new player into the database
 // Fetched values:
 // name
-public void sql_CalcuatePlayerRankCallback(Handle owner, Handle hndl, const char[] error, any pack)
+public void sql_CalcuatePlayerRankCallback(Handle owner, Handle hndl, const char[] error, DataPack pack)
 {
 	if (hndl == null)
 	{
 		LogError("[Surftimer] SQL Error (sql_CalcuatePlayerRankCallback): %s", error);
-		CloseHandle(pack);
+		delete pack;
 		return;
 	}
 
@@ -579,12 +579,12 @@ public void sql_CalcuatePlayerRankCallback(Handle owner, Handle hndl, const char
 // Fetched values
 // mapname, rank, total
 //
-public void sql_CountFinishedBonusCallback(Handle owner, Handle hndl, const char[] error, any pack)
+public void sql_CountFinishedBonusCallback(Handle owner, Handle hndl, const char[] error, DataPack pack)
 {
 	if (hndl == null)
 	{
 		LogError("[Surftimer] SQL Error (sql_CountFinishedBonusCallback): %s", error);
-		CloseHandle(pack);
+		delete pack;
 		return;
 	}
 
@@ -737,12 +737,12 @@ public void sql_CountFinishedBonusCallback(Handle owner, Handle hndl, const char
 // Fetched values
 // mapname, stage, rank, total
 //
-public void sql_CountFinishedStagesCallback(Handle owner, Handle hndl, const char[] error, any pack)
+public void sql_CountFinishedStagesCallback(Handle owner, Handle hndl, const char[] error, DataPack pack)
 {
 	if (hndl == null)
 	{
 		LogError("[Surftimer] SQL Error (sql_CountFinishedStagesCallback): %s", error);
-		CloseHandle(pack);
+		delete pack;
 		return;
 	}
 
@@ -793,19 +793,19 @@ public void sql_CountFinishedStagesCallback(Handle owner, Handle hndl, const cha
 // 5. Count the points gained from regular maps
 // Fetching:
 // mapname, rank, total, tier
-public void sql_CountFinishedMapsCallback(Handle owner, Handle hndl, const char[] error, any pack)
+public void sql_CountFinishedMapsCallback(Handle owner, Handle hndl, const char[] error, DataPack pack)
 {
 	if (hndl == null)
 	{
 		LogError("[Surftimer] SQL Error (sql_CountFinishedMapsCallback): %s", error);
-		CloseHandle(pack);
+		delete pack;
 		return;
 	}
 
 	ResetPack(pack);
 	int client = ReadPackCell(pack);
 	int style = ReadPackCell(pack);
-	CloseHandle(pack);
+	delete pack;
 
 	char szMap[128];
 	int finishedMaps = 0, totalplayers, rank, tier, wrs;
@@ -1119,7 +1119,7 @@ public void sql_CountFinishedMapsCallback(Handle owner, Handle hndl, const char[
 // 6. Updating points to database
 public void db_updatePoints(int client, int style)
 {
-	Handle pack = CreateDataPack();
+	DataPack pack = CreateDataPack();
 	WritePackCell(pack, client);
 	WritePackCell(pack, style);
 
@@ -1151,19 +1151,19 @@ public void db_updatePoints(int client, int style)
 }
 
 // 7. Calculations done, if calculating all, move forward, if not announce changes.
-public void sql_updatePlayerRankPointsCallback(Handle owner, Handle hndl, const char[] error, any pack)
+public void sql_updatePlayerRankPointsCallback(Handle owner, Handle hndl, const char[] error, DataPack pack)
 {
 	if (hndl == null)
 	{
 		LogError("[Surftimer] SQL Error (sql_updatePlayerRankPointsCallback): %s", error);
-		CloseHandle(pack);
+		delete pack;
 		return;
 	}
 
 	ResetPack(pack);
 	int data = ReadPackCell(pack);
 	int style = ReadPackCell(pack);
-	CloseHandle(pack);
+	delete pack;
 
 	// If was recalculating points, go to the next player, announce or end calculating
 	if (data > MAXPLAYERS && g_pr_RankingRecalc_InProgress || data > MAXPLAYERS && g_bProfileRecalc[data])
@@ -1458,7 +1458,7 @@ public int ProfileMenuHandler(Handle menu, MenuAction action, int client, int it
 	}
 	else if (action == MenuAction_End)
 	{
-		CloseHandle(menu);
+		delete menu;
 	}
 }
 
@@ -1496,7 +1496,7 @@ public int CompletionMenuHandler(Handle menu, MenuAction action, int client, int
 	else if (action == MenuAction_Cancel)
 		db_viewPlayerProfileBySteamid(client, g_ProfileStyleSelect[client], g_szProfileSteamId[client]);
 	else if (action == MenuAction_End)
-		CloseHandle(menu);
+		delete menu;
 }
 
 /*==================================
@@ -1507,7 +1507,7 @@ public void db_selectTopSurfers(int client, char mapname[128])
 {
 	char szQuery[1024];
 	Format(szQuery, 1024, sql_selectTopSurfers, mapname);
-	Handle pack = CreateDataPack();
+	DataPack pack = CreateDataPack();
 	WritePackCell(pack, client);
 	WritePackString(pack, mapname);
 	WritePackCell(pack, 0);
@@ -1520,14 +1520,14 @@ public void db_selectMapTopSurfers(int client, char mapname[128])
 	char type[128];
 	type = "normal";
 	Format(szQuery, 1024, sql_selectTopSurfers3, mapname);
-	Handle pack = CreateDataPack();
+	DataPack pack = CreateDataPack();
 	WritePackCell(pack, client);
 	WritePackString(pack, mapname);
 	WritePackString(pack, type);
 	SQL_TQuery(g_hDb, sql_selectTopSurfersCallback, szQuery, pack);
 }
 
-public void sql_selectTopSurfersCallback(Handle owner, Handle hndl, const char[] error, any data)
+public void sql_selectTopSurfersCallback(Handle owner, Handle hndl, const char[] error, DataPack data)
 {
 	if (hndl == null)
 	{
@@ -1540,7 +1540,7 @@ public void sql_selectTopSurfersCallback(Handle owner, Handle hndl, const char[]
 	char szMap[128];
 	ReadPackString(data, szMap, 128);
 	int style = ReadPackCell(data);
-	CloseHandle(data);
+	delete data;
 
 	char szFirstMap[128];
 	char szValue[128];
@@ -1618,7 +1618,7 @@ public void sql_selectTopSurfersCallback(Handle owner, Handle hndl, const char[]
 		default: Format(title, 256, "Top 50 Times on %s \n    Rank    Time               Player", szFirstMap);
 	}
 
-	CloseHandle(stringArray);
+	delete stringArray;
 	SetMenuTitle(menu, title);
 	SetMenuOptionFlags(menu, MENUFLAG_BUTTON_EXIT);
 	DisplayMenu(menu, client, MENU_TIME_FOREVER);
@@ -1717,14 +1717,14 @@ public void db_selectBonusTopSurfers(int client, char mapname[128], int zGrp)
 {
 	char szQuery[1024];
 	Format(szQuery, 1024, sql_selectTopBonusSurfers, mapname, zGrp);
-	Handle pack = CreateDataPack();
+	DataPack pack = CreateDataPack();
 	WritePackCell(pack, client);
 	WritePackString(pack, mapname);
 	WritePackCell(pack, zGrp);
 	SQL_TQuery(g_hDb, sql_selectTopBonusSurfersCallback, szQuery, pack);
 }
 
-public void sql_selectTopBonusSurfersCallback(Handle owner, Handle hndl, const char[] error, any data)
+public void sql_selectTopBonusSurfersCallback(Handle owner, Handle hndl, const char[] error, DataPack data)
 {
 	if (hndl == null)
 	{
@@ -1737,7 +1737,7 @@ public void sql_selectTopBonusSurfersCallback(Handle owner, Handle hndl, const c
 	char szMap[128];
 	ReadPackString(data, szMap, 128);
 	int zGrp = ReadPackCell(data);
-	CloseHandle(data);
+	delete data;
 
 	char szFirstMap[128], szValue[128], szName[64], szSteamID[32], lineBuf[256], title[256];
 	float time;
@@ -1799,7 +1799,7 @@ public void sql_selectTopBonusSurfersCallback(Handle owner, Handle hndl, const c
 	topMenu.SetTitle(title);
 	topMenu.OptionFlags = MENUFLAG_BUTTON_EXIT;
 	topMenu.Display(client, MENU_TIME_FOREVER);
-	CloseHandle(stringArray);
+	delete stringArray;
 }
 
 public void db_currentRunRank(int client)
@@ -1896,7 +1896,7 @@ public void SQL_UpdateRecordProCallback(Handle owner, Handle hndl, const char[] 
 	ResetPack(data);
 	float time = ReadPackFloat(data);
 	int client = ReadPackCell(data);
-	CloseHandle(data);
+	delete data;
 
 	if (hndl == null) {
 		LogError("[Surftimer] SQL Error (SQL_UpdateRecordProCallback): %s", error);
@@ -1991,10 +1991,10 @@ public void SQL_ViewAllRecordsCallback(Handle owner, Handle hndl, const char[] e
 {
 	ResetPack(pack);
 	int client = ReadPackCell(pack);
-	int rankedOnly = ReadPackCell(pack);
+	ReadPackCell(pack); // int rankedOnly
 	int finishedOnly = ReadPackCell(pack);
 	int top = ReadPackCell(pack);
-	CloseHandle(pack);
+	delete pack;
 
 	if (hndl == null) { LogError("[Surftimer] SQL Error (SQL_ViewAllRecordsCallback): %s", error); return; }
 	if (!SQL_HasResultSet(hndl)) return;
@@ -2063,7 +2063,7 @@ public void SQL_ViewAllRecordsCallback(Handle owner, Handle hndl, const char[] e
 		WritePackCell(out, msgs);
 		ThrottledConsolePrint(out);
 	} else {
-		CloseHandle(msgs);
+		delete msgs;
 	}
 }
 
@@ -2202,7 +2202,7 @@ public void SQL_LastRunCallback(Handle owner, Handle hndl, const char[] error, a
 
 public void db_UpdateCheckpoints(int client, char szSteamID[32], int zGroup)
 {
-	Handle pack = CreateDataPack();
+	DataPack pack = CreateDataPack();
 	WritePackCell(pack, client);
 	WritePackCell(pack, zGroup);
 	if (g_bCheckpointsFound[zGroup][client])
@@ -2219,7 +2219,7 @@ public void db_UpdateCheckpoints(int client, char szSteamID[32], int zGroup)
 	}
 }
 
-public void SQL_updateCheckpointsCallback(Handle owner, Handle hndl, const char[] error, any data)
+public void SQL_updateCheckpointsCallback(Handle owner, Handle hndl, const char[] error, DataPack data)
 {
 	if (hndl == null)
 	{
@@ -2228,8 +2228,8 @@ public void SQL_updateCheckpointsCallback(Handle owner, Handle hndl, const char[
 	}
 	ResetPack(data);
 	int client = ReadPackCell(data);
-	int zonegrp = ReadPackCell(data);
-	CloseHandle(data);
+	ReadPackCell(data); // int zonegrp
+	delete data;
 
 	db_refreshCheckpoints(client);
 }
@@ -2257,14 +2257,14 @@ public void SQL_deleteCheckpointsCallback(Handle owner, Handle hndl, const char[
 public void db_currentBonusRunRank(int client, int zGroup)
 {
 	char szQuery[512];
-	Handle pack = CreateDataPack();
+	DataPack pack = CreateDataPack();
 	WritePackCell(pack, client);
 	WritePackCell(pack, zGroup);
 	Format(szQuery, 512, "SELECT count(runtime)+1 FROM ck_bonus WHERE mapname = '%s' AND zonegroup = '%i' AND runtime < %f", g_szMapName, zGroup, g_fFinalTime[client]);
 	SQL_TQuery(g_hDb, db_viewBonusRunRank, szQuery, pack);
 }
 
-public void db_viewBonusRunRank(Handle owner, Handle hndl, const char[] error, any pack)
+public void db_viewBonusRunRank(Handle owner, Handle hndl, const char[] error, DataPack pack)
 {
 	if (hndl == null)
 	{
@@ -2275,7 +2275,7 @@ public void db_viewBonusRunRank(Handle owner, Handle hndl, const char[] error, a
 	ResetPack(pack);
 	int client = ReadPackCell(pack);
 	int zGroup = ReadPackCell(pack);
-	CloseHandle(pack);
+	delete pack;
 	int rank;
 	if (SQL_HasResultSet(hndl) && SQL_FetchRow(hndl))
 	{
@@ -2297,7 +2297,7 @@ public void db_insertBonus(int client, char szSteamId[32], char szUName[MAX_NAME
 	char szQuery[1024];
 	char szName[MAX_NAME_LENGTH * 2 + 1];
 	SQL_EscapeString(g_hDb, szUName, szName, MAX_NAME_LENGTH * 2 + 1);
-	Handle pack = CreateDataPack();
+	DataPack pack = CreateDataPack();
 	WritePackCell(pack, client);
 	WritePackCell(pack, zoneGrp);
 	Format(szQuery, 1024, sql_insertBonus, szSteamId, szName, g_szMapName, finalTime, startSpeed, zoneGrp);
@@ -2317,19 +2317,19 @@ public void db_updateBonus(int client, char szSteamId[32], char szUName[MAX_NAME
 }
 
 
-public void SQL_updateBonusCallback(Handle owner, Handle hndl, const char[] error, any data)
+public void SQL_updateBonusCallback(Handle owner, Handle hndl, const char[] error, DataPack data)
 {
 	ResetPack(data);
 	int client = ReadPackCell(data);
 	int zgroup = ReadPackCell(data);
-	CloseHandle(data);
+	delete data;
 
 	if (hndl == null) {
 		LogError("[Surftimer] SQL Error (SQL_updateBonusCallback): %s", error);
 		return;
 	}
 
-    db_viewBonusTotalCount();
+	db_viewBonusTotalCount();
 	RefreshAndPrintRecord(client, zgroup, 0);
 	CalculatePlayerRank(client, 0);
 }
@@ -2356,12 +2356,12 @@ public void DB_InsertOutline(MapOutline outline)
 	SQL_TQuery(g_hDb, SQL_InsertOutlineCallback, szQuery);
 }
 
-public void SQL_InsertOutlineCallback(Handle owner, Handle hndl, const char[] error, any data)
+public void SQL_InsertOutlineCallback(Handle owner, Handle hndl, const char[] error, DataPack data)
 {
 	if (hndl == null)
 	{
 		LogError("[Surftimer] SQL Error (SQL_InsertOutlineCallback): %s", error);
-		CloseHandle(data);
+		delete data;
 		return;
 	}
 
@@ -2377,7 +2377,7 @@ public void db_setZoneNames(int client, char szName[128])
 {
 	char szQuery[512], szEscapedName[128 * 2 + 1];
 	SQL_EscapeString(g_hDb, szName, szEscapedName, 128 * 2 + 1);
-	Handle pack = CreateDataPack();
+	DataPack pack = CreateDataPack();
 	WritePackCell(pack, client);
 	WritePackCell(pack, g_CurrentSelectedZoneGroup[client]);
 	WritePackString(pack, szEscapedName);
@@ -2386,12 +2386,12 @@ public void db_setZoneNames(int client, char szName[128])
 	SQL_TQuery(g_hDb, sql_setZoneNamesCallback, szQuery, pack);
 }
 
-public void sql_setZoneNamesCallback(Handle owner, Handle hndl, const char[] error, any data)
+public void sql_setZoneNamesCallback(Handle owner, Handle hndl, const char[] error, DataPack data)
 {
 	if (hndl == null)
 	{
 		LogError("[Surftimer] SQL Error (sql_setZoneNamesCallback): %s", error);
-		CloseHandle(data);
+		delete data;
 		return;
 	}
 
@@ -2400,7 +2400,7 @@ public void sql_setZoneNamesCallback(Handle owner, Handle hndl, const char[] err
 	int client = ReadPackCell(data);
 	int zonegrp = ReadPackCell(data);
 	ReadPackString(data, szName, 64);
-	CloseHandle(data);
+	delete data;
 
 	for (int i = 0; i < g_mapZonesCount; i++)
 	{
@@ -2817,7 +2817,7 @@ public void db_insertLastPosition(int client, char szMapName[128], int stage, in
 {
 	if (GetConVarBool(g_hcvarRestore) && !g_bRoundEnd && (StrContains(g_szSteamID[client], "STEAM_") != -1) && g_bTimerRunning[client])
 	{
-		Handle pack = CreateDataPack();
+		DataPack pack = CreateDataPack();
 		WritePackCell(pack, client);
 		WritePackString(pack, szMapName);
 		WritePackString(pack, g_szSteamID[client]);
@@ -2829,7 +2829,7 @@ public void db_insertLastPosition(int client, char szMapName[128], int stage, in
 	}
 }
 
-public void db_insertLastPositionCallback(Handle owner, Handle hndl, const char[] error, any data)
+public void db_insertLastPositionCallback(Handle owner, Handle hndl, const char[] error, DataPack data)
 {
 	if (hndl == null)
 	{
@@ -2847,7 +2847,7 @@ public void db_insertLastPositionCallback(Handle owner, Handle hndl, const char[
 	ReadPackString(data, szSteamID, 32);
 	int stage = ReadPackCell(data);
 	int zgroup = ReadPackCell(data);
-	CloseHandle(data);
+	delete data;
 
 	if (1 <= client <= MaxClients)
 	{
@@ -2916,7 +2916,7 @@ public void sql_selectLatestRecordsCallback(Handle owner, Handle hndl, const cha
 		if (i == 1)
 		{
 			PrintToConsole(data, "No records found.");
-			CloseHandle(menu);
+			delete menu;
 		}
 		else
 		{
@@ -2933,7 +2933,7 @@ public void sql_selectLatestRecordsCallback(Handle owner, Handle hndl, const cha
 public int LatestRecordsMenuHandler(Handle menu, MenuAction action, int param1, int param2)
 {
 	if (action == MenuAction_End)
-		CloseHandle(menu);
+		delete menu;
 }
 
 public void db_InsertLatestRecords(char szSteamID[32], char szName[MAX_NAME_LENGTH], float FinalTime)
@@ -2943,7 +2943,7 @@ public void db_InsertLatestRecords(char szSteamID[32], char szName[MAX_NAME_LENG
 	SQL_TQuery(g_hDb, SQL_CheckCallback, szQuery);
 }
 
-public void sql_selectPlayerNameCallback(Handle owner, Handle hndl, const char[] error, any data)
+public void sql_selectPlayerNameCallback(Handle owner, Handle hndl, const char[] error, DataPack data)
 {
 	if (hndl == null)
 	{
@@ -2954,7 +2954,7 @@ public void sql_selectPlayerNameCallback(Handle owner, Handle hndl, const char[]
 	ResetPack(data);
 	int clientid = ReadPackCell(data);
 	int client = ReadPackCell(data);
-	CloseHandle(data);
+	delete data;
 
 	if (SQL_HasResultSet(hndl) && SQL_FetchRow(hndl))
 	{
@@ -3115,7 +3115,7 @@ public void SQL_CheckCallback2(Handle owner, Handle hndl, const char[] error, an
 	db_GetMapRecord_Pro();
 }
 
-public void SQL_CheckCallback3(Handle owner, Handle hndl, const char[] error, any data)
+public void SQL_CheckCallback3(Handle owner, Handle hndl, const char[] error, DataPack data)
 {
 	if (hndl == null)
 	{
@@ -3128,14 +3128,14 @@ public void SQL_CheckCallback3(Handle owner, Handle hndl, const char[] error, an
 	ResetPack(data);
 	int client = ReadPackCell(data);
 	ReadPackString(data, steamid, 128);
-	CloseHandle(data);
+	delete data;
 
 	RecalcPlayerRank(client, steamid);
 	db_viewMapProRankCount();
 	db_GetMapRecord_Pro();
 }
 
-public void SQL_CheckCallback4(Handle owner, Handle hndl, const char[] error, any data)
+public void SQL_CheckCallback4(Handle owner, Handle hndl, const char[] error, DataPack data)
 {
 	if (hndl == null)
 	{
@@ -3147,7 +3147,7 @@ public void SQL_CheckCallback4(Handle owner, Handle hndl, const char[] error, an
 	ResetPack(data);
 	int client = ReadPackCell(data);
 	ReadPackString(data, steamid, 128);
-	CloseHandle(data);
+	delete data;
 
 	RecalcPlayerRank(client, steamid);
 }
@@ -3201,7 +3201,7 @@ public void db_updatePlayerOptions(int client)
 
 public void db_selectTopPlayers(int client, int style)
 {
-	Handle pack = CreateDataPack();
+	DataPack pack = CreateDataPack();
 	WritePackCell(pack, client);
 	WritePackCell(pack, style);
 
@@ -3210,19 +3210,19 @@ public void db_selectTopPlayers(int client, int style)
 	SQL_TQuery(g_hDb, db_selectTop100PlayersCallback, szQuery, pack);
 }
 
-public void db_selectTop100PlayersCallback(Handle owner, Handle hndl, const char[] error, any pack)
+public void db_selectTop100PlayersCallback(Handle owner, Handle hndl, const char[] error, DataPack pack)
 {
 	if (hndl == null)
 	{
 		LogError("[Surftimer] SQL Error (db_selectTop100PlayersCallback): %s", error);
-		CloseHandle(pack);
+		delete pack;
 		return;
 	}
 
 	ResetPack(pack);
 	int data = ReadPackCell(pack);
 	int style = ReadPackCell(pack);
-	CloseHandle(pack);
+	delete pack;
 
 	char szValue[128];
 	char szName[64];
@@ -3254,7 +3254,7 @@ public void db_selectTop100PlayersCallback(Handle owner, Handle hndl, const char
 				Format(szRank, 16, "[%i.]  ", i);
 
 			points = SQL_FetchInt(hndl, 1);
-			int pro = SQL_FetchInt(hndl, 2);
+			SQL_FetchInt(hndl, 2); // int pro
 			SQL_FetchString(hndl, 3, szSteamID, 32);
 			// TODO
 			float fperc = 0.0;
@@ -3316,7 +3316,7 @@ public int TopPlayersMenuHandler1(Handle menu, MenuAction action, int client, in
 	}
 	else if (action == MenuAction_End)
 	{
-		CloseHandle(menu);
+		delete menu;
 	}
 }
 
@@ -3335,7 +3335,7 @@ public int MapMenuHandler1(Handle menu, MenuAction action, int client, int item)
 	}
 	else if (action == MenuAction_End)
 	{
-		CloseHandle(menu);
+		delete menu;
 	}
 }
 
@@ -3347,7 +3347,7 @@ public int FinishedMapsMenuHandler(Handle menu, MenuAction action, int client, i
 	}
 	else if (action == MenuAction_End)
 	{
-		CloseHandle(menu);
+		delete menu;
 	}
 }
 
@@ -3359,7 +3359,7 @@ public void db_selectWrcpRecord(int client, int style, int stage)
 	if (stage > g_TotalStages) // Hack fix for multiple end zones
 		stage = g_TotalStages;
 
-	Handle pack = CreateDataPack();
+	DataPack pack = CreateDataPack();
 	WritePackCell(pack, client);
 	WritePackCell(pack, style);
 	WritePackCell(pack, stage);
@@ -3373,12 +3373,12 @@ public void db_selectWrcpRecord(int client, int style, int stage)
 	SQL_TQuery(g_hDb, sql_selectWrcpRecordCallback, szQuery, pack);
 }
 
-public void sql_selectWrcpRecordCallback(Handle owner, Handle hndl, const char[] error, any packx)
+public void sql_selectWrcpRecordCallback(Handle owner, Handle hndl, const char[] error, DataPack packx)
 {
 	if (hndl == null)
 	{
 		LogError("[Surftimer] SQL Error (sql_selectWrcpRecordCallback): %s", error);
-		CloseHandle(packx);
+		delete packx;
 		return;
 	}
 
@@ -3386,7 +3386,7 @@ public void sql_selectWrcpRecordCallback(Handle owner, Handle hndl, const char[]
 	int data = ReadPackCell(packx);
 	int style = ReadPackCell(packx);
 	int stage = ReadPackCell(packx);
-	CloseHandle(packx);
+	delete packx;
 
 	if (!IsValidClient(data) || IsFakeClient(data))
 		return;
@@ -3473,7 +3473,7 @@ public void sql_selectWrcpRecordCallback(Handle owner, Handle hndl, const char[]
 		SQL_EscapeString(g_hDb, szUName, szName2, MAX_NAME_LENGTH);
 
 		// Move required information in datapack
-		Handle pack = CreateDataPack();
+		DataPack pack = CreateDataPack();
 		WritePackFloat(pack, g_fFinalWrcpTime[data]);
 		WritePackCell(pack, style);
 		WritePackCell(pack, stage);
@@ -3506,7 +3506,7 @@ public void db_updateWrcpRecord(int client, int style, int stage)
 	// int stage = g_CurrentStage[client];
 
 	// Packing required information for later
-	Handle pack = CreateDataPack();
+	DataPack pack = CreateDataPack();
 	WritePackFloat(pack, g_fFinalWrcpTime[client]);
 	WritePackCell(pack, style);
 	WritePackCell(pack, stage);
@@ -3523,12 +3523,12 @@ public void db_updateWrcpRecord(int client, int style, int stage)
 }
 
 
-public void SQL_UpdateWrcpRecordCallback(Handle owner, Handle hndl, const char[] error, any data)
+public void SQL_UpdateWrcpRecordCallback(Handle owner, Handle hndl, const char[] error, DataPack data)
 {
 	if (hndl == null)
 	{
 		LogError("[Surftimer] SQL Error (SQL_UpdateWrcpRecordCallback): %s", error);
-		CloseHandle(data);
+		delete data;
 		return;
 	}
 
@@ -3547,12 +3547,12 @@ public void SQL_UpdateWrcpRecordCallback(Handle owner, Handle hndl, const char[]
 	SQL_TQuery(g_hDb, SQL_UpdateWrcpRecordCallback2, szQuery, data);
 }
 
-public void SQL_UpdateWrcpRecordCallback2(Handle owner, Handle hndl, const char[] error, any data)
+public void SQL_UpdateWrcpRecordCallback2(Handle owner, Handle hndl, const char[] error, DataPack data)
 {
 	if (hndl == null)
 	{
 		LogError("[Surftimer] SQL Error (SQL_UpdateWrcpRecordCallback2): %s", error);
-		CloseHandle(data);
+		delete data;
 		return;
 	}
 
@@ -3562,7 +3562,7 @@ public void SQL_UpdateWrcpRecordCallback2(Handle owner, Handle hndl, const char[
 	int stage = ReadPackCell(data);
 	bool bInsert = view_as<bool>(ReadPackCell(data));
 	int client = ReadPackCell(data);
-	CloseHandle(data);
+	delete data;
 
 	if (!IsValidClient(client))
 		return;
@@ -3799,7 +3799,7 @@ public void db_selectStageTopSurfers(int client, char info[32], char mapname[128
 {
 	char szQuery[1024];
 	Format(szQuery, 1024, "SELECT db2.steamid, db1.name, db2.runtimepro as overall, db1.steamid, db2.mapname FROM ck_wrcps as db2 INNER JOIN ck_playerrank as db1 on db2.steamid = db1.steamid WHERE db2.mapname = '%s' AND db2.runtimepro > -1.0 AND db2.stage = %i AND db1.style = 0 AND db2.style = 0 ORDER BY overall ASC LIMIT 50;", mapname, info);
-	Handle pack = CreateDataPack();
+	DataPack pack = CreateDataPack();
 	WritePackCell(pack, client);
 	// WritePackCell(pack, stage);
 	WritePackString(pack, info);
@@ -3807,7 +3807,7 @@ public void db_selectStageTopSurfers(int client, char info[32], char mapname[128
 	SQL_TQuery(g_hDb, sql_selectStageTopSurfersCallback, szQuery, pack);
 }
 
-public void sql_selectStageTopSurfersCallback(Handle owner, Handle hndl, const char[] error, any pack)
+public void sql_selectStageTopSurfersCallback(Handle owner, Handle hndl, const char[] error, DataPack pack)
 {
 	if (hndl == null)
 	{
@@ -3820,7 +3820,7 @@ public void sql_selectStageTopSurfersCallback(Handle owner, Handle hndl, const c
 	ReadPackString(pack, stage, 32);
 	char mapname[128];
 	ReadPackString(pack, mapname, 128);
-	CloseHandle(pack);
+	delete pack;
 
 	char szSteamID[32];
 	char szName[64];
@@ -3883,7 +3883,7 @@ public void sql_selectStageTopSurfersCallback(Handle owner, Handle hndl, const c
 	SetMenuTitle(menu, title);
 	SetMenuOptionFlags(menu, MENUFLAG_BUTTON_EXIT);
 	DisplayMenu(menu, client, MENU_TIME_FOREVER);
-	CloseHandle(stringArray);
+	delete stringArray;
 }
 
 public int StageTopMenuHandler(Menu menu, MenuAction action, int client, int item)
@@ -3900,7 +3900,7 @@ public int StageTopMenuHandler(Menu menu, MenuAction action, int client, int ite
 		db_viewStyleWrcpMap(client, g_szWrcpMapSelect[client], 0);
 	}
 	else if (action == MenuAction_End)
-		CloseHandle(menu);
+		delete menu;
 }
 
 // Styles for maps
@@ -3918,7 +3918,7 @@ public void db_selectStyleRecord(int client, int style)
 	SQL_TQuery(g_hDb, sql_selectStyleRecordCallback, szQuery, stylepack);
 }
 
-public void sql_selectStyleRecordCallback(Handle owner, Handle hndl, const char[] error, any stylepack)
+public void sql_selectStyleRecordCallback(Handle owner, Handle hndl, const char[] error, DataPack stylepack)
 {
 	if (hndl == null)
 	{
@@ -3929,7 +3929,7 @@ public void sql_selectStyleRecordCallback(Handle owner, Handle hndl, const char[
 	ResetPack(stylepack);
 	int data = ReadPackCell(stylepack);
 	int style = ReadPackCell(stylepack);
-	CloseHandle(stylepack);
+	delete stylepack;
 
 	if (!IsValidClient(data))
 	return;
@@ -3957,7 +3957,7 @@ public void sql_selectStyleRecordCallback(Handle owner, Handle hndl, const char[
 	SQL_EscapeString(g_hDb, szUName, szName, MAX_NAME_LENGTH);
 
 	// Move required information in datapack
-	Handle pack = CreateDataPack();
+	DataPack pack = CreateDataPack();
 	WritePackFloat(pack, g_fFinalTime[data]);
 	WritePackCell(pack, data);
 	WritePackCell(pack, style);
@@ -3984,7 +3984,7 @@ public void db_updateStyleRecord(int client, int style)
 	SQL_EscapeString(g_hDb, szUName, szName, MAX_NAME_LENGTH * 2 + 1);
 
 	// Packing required information for later
-	Handle pack = CreateDataPack();
+	DataPack pack = CreateDataPack();
 	WritePackFloat(pack, g_fFinalTime[client]);
 	WritePackCell(pack, client);
 	WritePackCell(pack, style);
@@ -3995,7 +3995,7 @@ public void db_updateStyleRecord(int client, int style)
 	SQL_TQuery(g_hDb, SQL_UpdateStyleRecordCallback, szQuery, pack);
 }
 
-public void SQL_UpdateStyleRecordCallback(Handle owner, Handle hndl, const char[] error, any pack)
+public void SQL_UpdateStyleRecordCallback(Handle owner, Handle hndl, const char[] error, DataPack pack)
 {
 	if (hndl == null)
 	{
@@ -4007,7 +4007,7 @@ public void SQL_UpdateStyleRecordCallback(Handle owner, Handle hndl, const char[
 	float time = ReadPackFloat(pack);
 	int client = ReadPackCell(pack);
 	int style = ReadPackCell(pack);
-	CloseHandle(pack);
+	delete pack;
 
 	Handle data = CreateDataPack();
 	WritePackCell(data, client);
@@ -4019,7 +4019,7 @@ public void SQL_UpdateStyleRecordCallback(Handle owner, Handle hndl, const char[
 	SQL_TQuery(g_hDb, SQL_UpdateStyleRecordCallback2, szQuery, data);
 }
 
-public void SQL_UpdateStyleRecordCallback2(Handle owner, Handle hndl, const char[] error, any pack)
+public void SQL_UpdateStyleRecordCallback2(Handle owner, Handle hndl, const char[] error, DataPack pack)
 {
 	if (hndl == null)
 	{
@@ -4036,7 +4036,7 @@ public void SQL_UpdateStyleRecordCallback2(Handle owner, Handle hndl, const char
 	ResetPack(pack);
 	int client = ReadPackCell(pack);
 	int style = ReadPackCell(pack);
-	CloseHandle(pack);
+	delete pack;
 
 	g_StyleMapRank[style][client] = rank;
 	StyleFinishedMsgs(client, style);
@@ -4113,7 +4113,7 @@ public void db_selectStyleMapTopSurfers(int client, char mapname[128], int style
 {
 	char szQuery[1024];
 	Format(szQuery, 1024, "SELECT db2.steamid, db1.name, db2.runtimepro as overall, db1.steamid, db2.mapname FROM ck_playertimes as db2 INNER JOIN ck_playerrank as db1 on db2.steamid = db1.steamid WHERE db2.mapname LIKE '%c%s%c' AND db2.style = %i AND db2.runtimepro > -1.0 ORDER BY overall ASC LIMIT 100;", PERCENT, mapname, PERCENT, style);
-	Handle pack = CreateDataPack();
+	DataPack pack = CreateDataPack();
 	WritePackCell(pack, client);
 	WritePackString(pack, mapname);
 	WritePackCell(pack, style);
@@ -4126,7 +4126,7 @@ public void db_insertBonusStyle(int client, char szSteamId[32], char szUName[MAX
 	char szQuery[1024];
 	char szName[MAX_NAME_LENGTH * 2 + 1];
 	SQL_EscapeString(g_hDb, szUName, szName, MAX_NAME_LENGTH * 2 + 1);
-	Handle pack = CreateDataPack();
+	DataPack pack = CreateDataPack();
 	WritePackCell(pack, client);
 	WritePackCell(pack, zoneGrp);
 	WritePackCell(pack, style);
@@ -4134,7 +4134,7 @@ public void db_insertBonusStyle(int client, char szSteamId[32], char szUName[MAX
 	SQL_TQuery(g_hDb, SQL_insertBonusStyleCallback, szQuery, pack);
 }
 
-public void SQL_insertBonusStyleCallback(Handle owner, Handle hndl, const char[] error, any data)
+public void SQL_insertBonusStyleCallback(Handle owner, Handle hndl, const char[] error, DataPack data)
 {
 	if (hndl == null)
 	{
@@ -4146,7 +4146,7 @@ public void SQL_insertBonusStyleCallback(Handle owner, Handle hndl, const char[]
 	int client = ReadPackCell(data);
 	int zgroup = ReadPackCell(data);
 	int style = ReadPackCell(data);
-	CloseHandle(data);
+	delete data;
 
 	db_viewBonusTotalCount();
 	RefreshAndPrintRecord(client, zgroup, style);
@@ -4168,7 +4168,7 @@ public void db_updateBonusStyle(int client, char szSteamId[32], char szUName[MAX
 }
 
 
-public void SQL_updateBonusStyleCallback(Handle owner, Handle hndl, const char[] error, any data)
+public void SQL_updateBonusStyleCallback(Handle owner, Handle hndl, const char[] error, DataPack data)
 {
 	if (hndl == null)
 	{
@@ -4180,7 +4180,7 @@ public void SQL_updateBonusStyleCallback(Handle owner, Handle hndl, const char[]
 	int client = ReadPackCell(data);
 	int zgroup = ReadPackCell(data);
 	int style = ReadPackCell(data);
-	CloseHandle(data);
+	delete data;
 
 	db_viewBonusTotalCount();
 	RefreshAndPrintRecord(client, zgroup, style);
@@ -4189,7 +4189,7 @@ public void SQL_updateBonusStyleCallback(Handle owner, Handle hndl, const char[]
 public void db_currentBonusStyleRunRank(int client, int zGroup, int style)
 {
 	char szQuery[512];
-	Handle pack = CreateDataPack();
+	DataPack pack = CreateDataPack();
 	WritePackCell(pack, client);
 	WritePackCell(pack, zGroup);
 	WritePackCell(pack, style);
@@ -4197,7 +4197,7 @@ public void db_currentBonusStyleRunRank(int client, int zGroup, int style)
 	SQL_TQuery(g_hDb, db_viewBonusStyleRunRank, szQuery, pack);
 }
 
-public void db_viewBonusStyleRunRank(Handle owner, Handle hndl, const char[] error, any pack)
+public void db_viewBonusStyleRunRank(Handle owner, Handle hndl, const char[] error, DataPack pack)
 {
 	if (hndl == null)
 	{
@@ -4209,7 +4209,7 @@ public void db_viewBonusStyleRunRank(Handle owner, Handle hndl, const char[] err
 	int client = ReadPackCell(pack);
 	int zGroup = ReadPackCell(pack);
 	int style = ReadPackCell(pack);
-	CloseHandle(pack);
+	delete pack;
 	int rank;
 	if (SQL_HasResultSet(hndl) && SQL_FetchRow(hndl))
 	{
@@ -4225,14 +4225,14 @@ public void db_viewStyleWrcpMap(int client, char mapname[128], int style)
 {
 	char szQuery[1024];
 	Format(szQuery, 512, "SELECT `mapname`, COUNT(`zonetype`) AS stages FROM `ck_zones` WHERE `zonetype` = '3' AND `mapname` = (SELECT DISTINCT `mapname` FROM `ck_zones` WHERE `zonetype` = '3' AND `mapname` LIKE '%c%s%c' LIMIT 1) GROUP BY mapname LIMIT 1", PERCENT, g_szWrcpMapSelect[client], PERCENT);
-	Handle pack = CreateDataPack();
+	DataPack pack = CreateDataPack();
 	WritePackCell(pack, client);
 	WritePackCell(pack, style);
 	WritePackString(pack, mapname);
 	SQL_TQuery(g_hDb, sql_viewStyleWrcpMapCallback, szQuery, pack);
 }
 
-public void sql_viewStyleWrcpMapCallback(Handle owner, Handle hndl, const char[] error, any pack)
+public void sql_viewStyleWrcpMapCallback(Handle owner, Handle hndl, const char[] error, DataPack pack)
 {
 	if (hndl == null)
 	{
@@ -4248,7 +4248,7 @@ public void sql_viewStyleWrcpMapCallback(Handle owner, Handle hndl, const char[]
 	int style = ReadPackCell(pack);
 	char mapname[128];
 	ReadPackString(pack, mapname, 128);
-	CloseHandle(pack);
+	delete pack;
 
 	if (SQL_HasResultSet(hndl) && SQL_FetchRow(hndl))
 	{
@@ -4287,7 +4287,7 @@ public void db_selectStageStyleTopSurfers(int client, char info[32], char mapnam
 {
 	char szQuery[1024];
 	Format(szQuery, 1024, "SELECT db2.steamid, db1.name, db2.runtimepro as overall, db1.steamid, db2.mapname FROM ck_wrcps as db2 INNER JOIN ck_playerrank as db1 on db2.steamid = db1.steamid WHERE db2.mapname = '%s' AND db2.style = %i AND db2.stage = %i AND db2.runtimepro > -1.0 ORDER BY overall ASC LIMIT 50;", mapname, style, info);
-	Handle pack = CreateDataPack();
+	DataPack pack = CreateDataPack();
 	WritePackCell(pack, client);
 	WritePackCell(pack, style);
 	// WritePackCell(pack, stage);
@@ -4296,7 +4296,7 @@ public void db_selectStageStyleTopSurfers(int client, char info[32], char mapnam
 	SQL_TQuery(g_hDb, sql_selectStageStyleTopSurfersCallback, szQuery, pack);
 }
 
-public void sql_selectStageStyleTopSurfersCallback(Handle owner, Handle hndl, const char[] error, any pack)
+public void sql_selectStageStyleTopSurfersCallback(Handle owner, Handle hndl, const char[] error, DataPack pack)
 {
 	if (hndl == null)
 	{
@@ -4310,7 +4310,7 @@ public void sql_selectStageStyleTopSurfersCallback(Handle owner, Handle hndl, co
 	ReadPackString(pack, stage, 32);
 	char mapname[128];
 	ReadPackString(pack, mapname, 128);
-	CloseHandle(pack);
+	delete pack;
 
 	char szSteamID[32];
 	char szName[64];
@@ -4373,7 +4373,7 @@ public void sql_selectStageStyleTopSurfersCallback(Handle owner, Handle hndl, co
 	SetMenuTitle(menu, title);
 	SetMenuOptionFlags(menu, MENUFLAG_BUTTON_EXIT);
 	DisplayMenu(menu, client, MENU_TIME_FOREVER);
-	CloseHandle(stringArray);
+	delete stringArray;
 }
 
 public int StageStyleTopMenuHandler(Menu menu, MenuAction action, int client, int item)
@@ -4390,7 +4390,7 @@ public int StageStyleTopMenuHandler(Menu menu, MenuAction action, int client, in
 			db_viewStyleWrcpMap(client, g_szWrcpMapSelect[client], g_iWrcpMenuStyleSelect[client]);
 	}
 	else if (action == MenuAction_End)
-		CloseHandle(menu);
+		delete menu;
 }
 
 public void db_selectMapRank(int client, char szSteamId[32], char szMapName[128])
@@ -4425,7 +4425,7 @@ public void db_selectMapRankCallback(Handle owner, Handle hndl, const char[] err
 
 		FormatTimeFloat(client, runtimepro, 3, g_szRuntimepro[client], sizeof(g_szRuntimepro));
 
-		Handle pack = CreateDataPack();
+		DataPack pack = CreateDataPack();
 		WritePackCell(pack, client);
 		WritePackString(pack, szSteamId);
 		WritePackString(pack, playername);
@@ -4442,7 +4442,7 @@ public void db_selectMapRankCallback(Handle owner, Handle hndl, const char[] err
 	}
 }
 
-public void db_SelectTotalMapCompletesCallback(Handle owner, Handle hndl, const char[] error, any pack)
+public void db_SelectTotalMapCompletesCallback(Handle owner, Handle hndl, const char[] error, DataPack pack)
 {
 	if (hndl == null)
 	{
@@ -4469,11 +4469,11 @@ public void db_SelectTotalMapCompletesCallback(Handle owner, Handle hndl, const 
 	}
 	else
 	{
-		CloseHandle(pack);
+		delete pack;
 	}
 }
 
-public void db_SelectPlayersMapRankCallback(Handle owner, Handle hndl, const char[] error, any pack)
+public void db_SelectPlayersMapRankCallback(Handle owner, Handle hndl, const char[] error, DataPack pack)
 {
 	if (hndl == null)
 	{
@@ -4488,7 +4488,7 @@ public void db_SelectPlayersMapRankCallback(Handle owner, Handle hndl, const cha
 	ReadPackString(pack, szSteamId, 32);
 	ReadPackString(pack, playername, sizeof(playername));
 	ReadPackString(pack, mapname, sizeof(mapname));
-	CloseHandle(pack);
+	delete pack;
 
 	if (SQL_HasResultSet(hndl) && SQL_FetchRow(hndl))
 	{
@@ -4523,7 +4523,7 @@ public void db_SelectPlayersMapRankCallback(Handle owner, Handle hndl, const cha
 	}
 	else
 	{
-		CloseHandle(pack);
+		delete pack;
 	}
 }
 
@@ -4531,7 +4531,7 @@ public void db_SelectPlayersMapRankCallback(Handle owner, Handle hndl, const cha
 public void db_selectMapRankUnknown(int client, char szMapName[128], int rank)
 {
 	char szQuery[1024];
-	Handle pack = CreateDataPack();
+	DataPack pack = CreateDataPack();
 	WritePackCell(pack, client);
 	WritePackCell(pack, rank);
 
@@ -4540,7 +4540,7 @@ public void db_selectMapRankUnknown(int client, char szMapName[128], int rank)
 	SQL_TQuery(g_hDb, db_selectMapRankUnknownCallback, szQuery, pack);
 }
 
-public void db_selectMapRankUnknownCallback(Handle owner, Handle hndl, const char[] error, any data)
+public void db_selectMapRankUnknownCallback(Handle owner, Handle hndl, const char[] error, DataPack data)
 {
 	if (hndl == null)
 	{
@@ -4551,7 +4551,7 @@ public void db_selectMapRankUnknownCallback(Handle owner, Handle hndl, const cha
 	ResetPack(data);
 	int client = ReadPackCell(data);
 	int rank = ReadPackCell(data);
-	CloseHandle(data);
+	delete data;
 
 	if (SQL_HasResultSet(hndl) && SQL_FetchRow(hndl))
 	{
@@ -4567,7 +4567,7 @@ public void db_selectMapRankUnknownCallback(Handle owner, Handle hndl, const cha
 
 		FormatTimeFloat(client, runtimepro, 3, g_szRuntimepro[client], sizeof(g_szRuntimepro));
 
-		Handle pack = CreateDataPack();
+		DataPack pack = CreateDataPack();
 		WritePackCell(pack, client);
 		WritePackCell(pack, rank);
 		WritePackString(pack, szSteamId);
@@ -4585,7 +4585,7 @@ public void db_selectMapRankUnknownCallback(Handle owner, Handle hndl, const cha
 	}
 }
 
-public void db_SelectTotalMapCompletesUnknownCallback(Handle owner, Handle hndl, const char[] error, any pack)
+public void db_SelectTotalMapCompletesUnknownCallback(Handle owner, Handle hndl, const char[] error, DataPack pack)
 {
 	if (hndl == null)
 	{
@@ -4601,7 +4601,7 @@ public void db_SelectTotalMapCompletesUnknownCallback(Handle owner, Handle hndl,
 	ReadPackString(pack, szSteamId, 32);
 	ReadPackString(pack, playername, sizeof(playername));
 	ReadPackString(pack, mapname, sizeof(mapname));
-	CloseHandle(pack);
+	delete pack;
 
 	if (SQL_HasResultSet(hndl) && SQL_FetchRow(hndl))
 	{
@@ -4670,7 +4670,7 @@ public void db_selectBonusRankCallback(Handle owner, Handle hndl, const char[] e
 
 		FormatTimeFloat(client, runtimepro, 3, g_szRuntimepro[client], sizeof(g_szRuntimepro));
 
-		Handle pack = CreateDataPack();
+		DataPack pack = CreateDataPack();
 		WritePackCell(pack, client);
 		WritePackString(pack, szSteamId);
 		WritePackString(pack, playername);
@@ -4688,7 +4688,7 @@ public void db_selectBonusRankCallback(Handle owner, Handle hndl, const char[] e
 	}
 }
 
-public void db_SelectTotalBonusCompletesCallback(Handle owner, Handle hndl, const char[] error, any pack)
+public void db_SelectTotalBonusCompletesCallback(Handle owner, Handle hndl, const char[] error, DataPack pack)
 {
 	if (hndl == null)
 	{
@@ -4716,11 +4716,11 @@ public void db_SelectTotalBonusCompletesCallback(Handle owner, Handle hndl, cons
 	}
 	else
 	{
-		CloseHandle(pack);
+		delete pack;
 	}
 }
 
-public void db_SelectPlayersBonusRankCallback(Handle owner, Handle hndl, const char[] error, any pack)
+public void db_SelectPlayersBonusRankCallback(Handle owner, Handle hndl, const char[] error, DataPack pack)
 {
 	if (hndl == null)
 	{
@@ -4736,7 +4736,7 @@ public void db_SelectPlayersBonusRankCallback(Handle owner, Handle hndl, const c
 	ReadPackString(pack, playername, sizeof(playername));
 	ReadPackString(pack, mapname, sizeof(mapname));
 	int bonus = ReadPackCell(pack);
-	CloseHandle(pack);
+	delete pack;
 
 	if (SQL_HasResultSet(hndl) && SQL_FetchRow(hndl))
 	{
@@ -4751,7 +4751,7 @@ public void db_selectMapRecordTime(int client, char szMapName[128])
 {
 	char szQuery[1024];
 
-	Handle pack = CreateDataPack();
+	DataPack pack = CreateDataPack();
 	WritePackCell(pack, client);
 	WritePackString(pack, szMapName);
 
@@ -4759,7 +4759,7 @@ public void db_selectMapRecordTime(int client, char szMapName[128])
 	SQL_TQuery(g_hDb, db_selectMapRecordTimeCallback, szQuery, pack);
 }
 
-public void db_selectMapRecordTimeCallback(Handle owner, Handle hndl, const char[] error, any pack)
+public void db_selectMapRecordTimeCallback(Handle owner, Handle hndl, const char[] error, DataPack pack)
 {
 	if (hndl == null)
 	{
@@ -4771,7 +4771,7 @@ public void db_selectMapRecordTimeCallback(Handle owner, Handle hndl, const char
 	int client = ReadPackCell(pack);
 	char szMapNameArg[128];
 	ReadPackString(pack, szMapNameArg, sizeof(szMapNameArg));
-	CloseHandle(pack);
+	delete pack;
 
 	if (SQL_HasResultSet(hndl) && SQL_FetchRow(hndl))
 	{
@@ -5145,7 +5145,7 @@ public int MapImprovementMenuHandler(Menu mi, MenuAction action, int param1, int
 		db_selectMapImprovement(param1, szMapName);
 	}
 	if (action == MenuAction_End)
-		CloseHandle(mi);
+		delete mi;
 }
 
 public int MapImprovementTop10MenuHandler(Menu mi, MenuAction action, int param1, int param2)
@@ -5157,7 +5157,7 @@ public int MapImprovementTop10MenuHandler(Menu mi, MenuAction action, int param1
 	}
 	if (action == MenuAction_End)
 	{
-		CloseHandle(mi);
+		delete mi;
 	}
 }
 
@@ -5166,7 +5166,7 @@ public void db_selectMapNameEquals(int client, char[] szMapName, int style)
 	char szQuery[256];
 	Format(szQuery, sizeof(szQuery), "SELECT DISTINCT mapname FROM ck_zones WHERE mapname = '%s' LIMIT 1;", szMapName);
 
-	Handle pack = CreateDataPack();
+	DataPack pack = CreateDataPack();
 	WritePackCell(pack, client);
 	WritePackCell(pack, style);
 	WritePackString(pack, szMapName);
@@ -5174,7 +5174,7 @@ public void db_selectMapNameEquals(int client, char[] szMapName, int style)
 	SQL_TQuery(g_hDb, sql_selectMapNameEqualsCallback, szQuery, pack);
 }
 
-public void sql_selectMapNameEqualsCallback(Handle owner, Handle hndl, const char[] error, any pack)
+public void sql_selectMapNameEqualsCallback(Handle owner, Handle hndl, const char[] error, DataPack pack)
 {
 	if (hndl == null)
 	{
@@ -5211,7 +5211,7 @@ public void sql_selectMapNameEqualsCallback(Handle owner, Handle hndl, const cha
 	}
 }
 
-public void sql_selectMapNameLikeCallback(Handle owner, Handle hndl, const char[] error, any pack)
+public void sql_selectMapNameLikeCallback(Handle owner, Handle hndl, const char[] error, DataPack pack)
 {
 	if (hndl == null)
 	{
@@ -5224,7 +5224,7 @@ public void sql_selectMapNameLikeCallback(Handle owner, Handle hndl, const char[
 	int style = ReadPackCell(pack);
 	char szMapName[128];
 	ReadPackString(pack, szMapName, sizeof(szMapName));
-	CloseHandle(pack);
+	delete pack;
 
 	if (SQL_HasResultSet(hndl))
 	{

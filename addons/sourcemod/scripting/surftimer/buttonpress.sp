@@ -80,7 +80,7 @@ public void CL_OnStartTimerPress(int client) {
 	PlayButtonSound(client);
 
 	// Start recording for record bot
-	if ((!IsFakeClient(client) && GetConVarBool(g_hReplayBot)) || (!IsFakeClient(client) && GetConVarBool(g_hBonusBot)))
+	if ((!IsFakeClient(client) && g_hReplayBot.BoolValue) || (!IsFakeClient(client) && g_hBonusBot.BoolValue))
 	{
 		if (!IsPlayerAlive(client) || GetClientTeam(client) == 1)
 		{
@@ -199,9 +199,9 @@ public void CL_OnEndTimerPress(int client)
 		if (style == 0)
 		{
 			// Make a new record bot?
-			if (GetConVarBool(g_hReplaceReplayTime) && (g_fFinalTime[client] < g_fReplayTimes[0][0] || g_fReplayTimes[0][0] == 0.0))
+			if (g_hReplaceReplayTime.BoolValue && (g_fFinalTime[client] < g_fReplayTimes[0][0] || g_fReplayTimes[0][0] == 0.0))
 			{
-				if (GetConVarBool(g_hReplayBot) && !g_bPositionRestored[client])
+				if (g_hReplayBot.BoolValue && !g_bPositionRestored[client])
 				{
 					g_fReplayTimes[0][0] = g_fFinalTime[client];
 					g_bNewReplay[client] = true;
@@ -251,7 +251,7 @@ public void CL_OnEndTimerPress(int client)
 						g_bCheckpointRecordFound[zGroup] = true;
 					}
 
-					if (GetConVarBool(g_hReplayBot) && !g_bPositionRestored[client] && !g_bNewReplay[client])
+					if (g_hReplayBot.BoolValue && !g_bPositionRestored[client] && !g_bNewReplay[client])
 					{
 						g_bNewReplay[client] = true;
 						g_fReplayTimes[0][0] = g_fFinalTime[client];
@@ -263,7 +263,7 @@ public void CL_OnEndTimerPress(int client)
 			else
 			{
 				// Has to be the new record, since it is the first completion
-				if (GetConVarBool(g_hReplayBot) && !g_bPositionRestored[client] && !g_bNewReplay[client])
+				if (g_hReplayBot.BoolValue && !g_bPositionRestored[client] && !g_bNewReplay[client])
 				{
 					g_fReplayTimes[0][0] = g_fFinalTime[client];
 					g_bNewReplay[client] = true;
@@ -326,9 +326,9 @@ public void CL_OnEndTimerPress(int client)
 			if ((style > 0 && style < 4 && !g_players[client].thirdPerson) || style > 3)
 			{
 				// Make a new record bot?
-				if (GetConVarBool(g_hReplaceReplayTime) && (g_fFinalTime[client] < g_fReplayTimes[0][style] || g_fReplayTimes[0][style] == 0.0))
+				if (g_hReplaceReplayTime.BoolValue && (g_fFinalTime[client] < g_fReplayTimes[0][style] || g_fReplayTimes[0][style] == 0.0))
 				{
-					if (GetConVarBool(g_hReplayBot) && !g_bPositionRestored[client])
+					if (g_hReplayBot.BoolValue && !g_bPositionRestored[client])
 					{
 						g_fReplayTimes[0][style] = g_fFinalTime[client];
 						g_bNewReplay[client] = true;
@@ -369,7 +369,7 @@ public void CL_OnEndTimerPress(int client)
 						Format(g_szRecordStylePlayer[style], MAX_NAME_LENGTH, "%s", szName);
 						FormatTimeFloat(1, g_fRecordStyleMapTime[style], 3, g_szRecordStyleMapTime[style], 64);
 
-						if (GetConVarBool(g_hReplayBot) && !g_bPositionRestored[client] && !g_bNewReplay[client])
+						if (g_hReplayBot.BoolValue && !g_bPositionRestored[client] && !g_bNewReplay[client])
 						{
 							g_bNewReplay[client] = true;
 							g_fReplayTimes[0][style] = g_fFinalTime[client];
@@ -385,7 +385,7 @@ public void CL_OnEndTimerPress(int client)
 				}
 				else
 				{
-					if (GetConVarBool(g_hReplayBot) && !g_bPositionRestored[client] && !g_bNewReplay[client])
+					if (g_hReplayBot.BoolValue && !g_bPositionRestored[client] && !g_bNewReplay[client])
 					{
 						g_bNewReplay[client] = true;
 						g_fReplayTimes[0][style] = g_fFinalTime[client];
@@ -457,9 +457,9 @@ public void CL_OnEndTimerPress(int client)
 		====================================*/
 		if (style == 0)
 		{
-			if (GetConVarBool(g_hReplaceReplayTime) && (g_fFinalTime[client] < g_fReplayTimes[zGroup][0] || g_fReplayTimes[zGroup][0] == 0.0))
+			if (g_hReplaceReplayTime.BoolValue && (g_fFinalTime[client] < g_fReplayTimes[zGroup][0] || g_fReplayTimes[zGroup][0] == 0.0))
 			{
-				if (GetConVarBool(g_hBonusBot) && !g_bPositionRestored[client])
+				if (g_hBonusBot.BoolValue && !g_bPositionRestored[client])
 				{
 					g_fReplayTimes[zGroup][0] = g_fFinalTime[client];
 					g_bNewBonus[client] = true;
@@ -514,7 +514,7 @@ public void CL_OnEndTimerPress(int client)
 					}
 
 					g_bBonusSRVRecord[client] = true;
-					if (GetConVarBool(g_hBonusBot) && !g_bPositionRestored[client] && !g_bNewBonus[client])
+					if (g_hBonusBot.BoolValue && !g_bPositionRestored[client] && !g_bNewBonus[client])
 					{
 						g_bNewBonus[client] = true;
 						g_fReplayTimes[zGroup][0] = g_fFinalTime[client];
@@ -528,7 +528,7 @@ public void CL_OnEndTimerPress(int client)
 			else
 			{
 				// Has to be the new bonus record, since it is the first completion
-				if (GetConVarBool(g_hBonusBot) && !g_bPositionRestored[client] && !g_bNewBonus[client])
+				if (g_hBonusBot.BoolValue && !g_bPositionRestored[client] && !g_bNewBonus[client])
 				{
 					g_bNewBonus[client] = true;
 					g_fReplayTimes[zGroup][0] = g_fFinalTime[client];
@@ -594,9 +594,9 @@ public void CL_OnEndTimerPress(int client)
 			// Third person angle surfing check. Do not record these times
 			if ((style > 0 && style < 4 && !g_players[client].thirdPerson) || style > 3)
 			{
-				if (GetConVarBool(g_hReplaceReplayTime) && (g_fFinalTime[client] < g_fReplayTimes[zGroup][style] || g_fReplayTimes[zGroup][style] == 0.0))
+				if (g_hReplaceReplayTime.BoolValue && (g_fFinalTime[client] < g_fReplayTimes[zGroup][style] || g_fReplayTimes[zGroup][style] == 0.0))
 				{
-					if (GetConVarBool(g_hBonusBot) && !g_bPositionRestored[client])
+					if (g_hBonusBot.BoolValue && !g_bPositionRestored[client])
 					{
 						g_fReplayTimes[zGroup][style] = g_fFinalTime[client];
 						g_bNewBonus[client] = true;
@@ -643,7 +643,7 @@ public void CL_OnEndTimerPress(int client)
 						FormatTimeFloat(1, g_fStyleBonusFastest[style][zGroup], 3, g_szStyleBonusFastestTime[style][zGroup], 64);
 
 						g_bBonusSRVRecord[client] = true;
-						if (GetConVarBool(g_hBonusBot) && !g_bPositionRestored[client] && !g_bNewBonus[client])
+						if (g_hBonusBot.BoolValue && !g_bPositionRestored[client] && !g_bNewBonus[client])
 						{
 							g_bNewBonus[client] = true;
 							g_fReplayTimes[zGroup][style] = g_fFinalTime[client];
@@ -657,7 +657,7 @@ public void CL_OnEndTimerPress(int client)
 				}
 				else
 				{
-					if (GetConVarBool(g_hBonusBot) && !g_bPositionRestored[client] && !g_bNewBonus[client])
+					if (g_hBonusBot.BoolValue && !g_bPositionRestored[client] && !g_bNewBonus[client])
 					{
 						g_bNewBonus[client] = true;
 						g_fReplayTimes[zGroup][style] = g_fFinalTime[client];
@@ -822,7 +822,7 @@ public void CL_OnEndWrcpTimerPress(int client, float time2)
 
 		FormatTimeFloat(client, g_fFinalWrcpTime[client], 3, g_szFinalWrcpTime[client], 32);
 		// Make a new stage replay bot?
-		if (GetConVarBool(g_hReplaceReplayTime) && (!g_bStageReplay[stage] || g_fFinalWrcpTime[client] < g_fStageReplayTimes[stage]))
+		if (g_hReplaceReplayTime.BoolValue && (!g_bStageReplay[stage] || g_fFinalWrcpTime[client] < g_fStageReplayTimes[stage]))
 		{
 			Stage_SaveRecording(client, stage, g_szFinalWrcpTime[client]);
 		}

@@ -353,7 +353,7 @@ public int CustomTitleMenuHandler(Handle menu, MenuAction action, int param1, in
 		}
 	}
 	else if (action == MenuAction_End)
-		CloseHandle(menu);
+		delete menu;
 }
 
 public void ChangeColorsMenu(int client, int type) {
@@ -441,7 +441,7 @@ public int changeColoursMenuHandler(Handle menu, MenuAction action, int client, 
 	}
 	else if (action == MenuAction_End)
 	{
-		CloseHandle(menu);
+		delete menu;
 	}
 }
 
@@ -894,7 +894,7 @@ public int MenuHandler_SelectStage(Menu tMenu, MenuAction action, int client, in
 		}
 		case MenuAction_End:
 		{
-			CloseHandle(tMenu);
+			delete tMenu;
 		}
 	}
 }
@@ -938,7 +938,7 @@ public Action Command_ToEnd(int client, int args)
 	if (!IsValidClient(client))
 		return Plugin_Handled;
 
-	if (!GetConVarBool(g_hCommandToEnd))
+	if (!g_hCommandToEnd.BoolValue)
 	{
 		CReplyToCommand(client, "%t", "Commands71", g_szChatPrefix);
 		return Plugin_Handled;
@@ -949,7 +949,7 @@ public Action Command_ToEnd(int client, int args)
 
 public Action Command_Restart(int client, int args)
 {
-	if (GetConVarBool(g_hDoubleRestartCommand) && args == 0)
+	if (g_hDoubleRestartCommand.BoolValue && args == 0)
 	{
 		if (GetGameTime() - g_fClientRestarting[client] > 5.0)
 			g_bClientRestarting[client] = false;
@@ -995,10 +995,10 @@ public Action Client_HideChat(int client, int args)
 
 void HideChat(int client, bool menu = false)
 {
-    if (!g_bHideChat[client])
-        SetEntProp(client, Prop_Send, "m_iHideHUD", GetEntProp(client, Prop_Send, "m_iHideHUD") | HIDE_RADAR | HIDE_CHAT); // Hiding
-    else
-        SetEntProp(client, Prop_Send, "m_iHideHUD", HIDE_RADAR); // Displaying
+	if (!g_bHideChat[client])
+		SetEntProp(client, Prop_Send, "m_iHideHUD", GetEntProp(client, Prop_Send, "m_iHideHUD") | HIDE_RADAR | HIDE_CHAT); // Hiding
+	else
+		SetEntProp(client, Prop_Send, "m_iHideHUD", HIDE_RADAR); // Displaying
 
 	g_bHideChat[client] = !g_bHideChat[client];
 	if (menu)
@@ -1408,7 +1408,7 @@ public int TopMenuStyleSelectHandler(Handle menu, MenuAction action, int param1,
 		ckTopMenu(param1, param2);
 	}
 	else if (action == MenuAction_End)
-		CloseHandle(menu);
+		delete menu;
 }
 
 public Action Client_MapTop(int client, int args)
@@ -1806,7 +1806,7 @@ public int SpecMenuHandler(Menu menu, MenuAction action, int param1, int param2)
 	else
 		if (action == MenuAction_End)
 		{
-			CloseHandle(menu);
+			delete menu;
 		}
 }
 
@@ -1831,9 +1831,9 @@ public void AutoBhop(int client)
 	g_bAutoBhopClient[client] = !g_bAutoBhopClient[client];
 
 	if (g_bAutoBhopClient[client])
-		SendConVarValue(client, g_hAutoBhop, "1");
+		g_hAutoBhop.ReplicateToClient(client, "1");
 	else
-		SendConVarValue(client, g_hAutoBhop, "0");
+		g_hAutoBhop.ReplicateToClient(client, "0");
 }
 
 // fluffys Kismet
@@ -1970,7 +1970,7 @@ public Action Client_Help(int client, int args)
 public int HelpMenuHandler(Menu menu, MenuAction action, int param1, int param2)
 {
 	if (action == MenuAction_End)
-		CloseHandle(menu);
+		delete menu;
 }
 
 // old client_ranks
@@ -2033,7 +2033,7 @@ public int ShowRanksMenuHandler(Menu menu, MenuAction action, int param1, int pa
 {
 	if (action == MenuAction_End)
 	{
-		CloseHandle(menu);
+		delete menu;
 	}
 }
 
@@ -2210,7 +2210,7 @@ public void PauseMethod(int client)
 	if (GetClientTeam(client) == 1)return;
 	if (!g_bPause[client] && IsValidEntity(client))
 	{
-		if (!GetConVarBool(g_hPauseServerside) && client != g_RecordBot && client != g_BonusBot)
+		if (!g_hPauseServerside.BoolValue && client != g_RecordBot && client != g_BonusBot)
 		{
 			CPrintToChat(client, "%t", "Pause1", g_szChatPrefix);
 			return;
@@ -2248,7 +2248,7 @@ public void PauseMethod(int client)
 
 		SetEntityRenderMode(client, RENDER_NORMAL);
 
-		if (GetConVarBool(g_hCvarNoBlock))
+		if (g_hCvarNoBlock.BoolValue)
 			SetEntData(client, FindSendPropInfo("CBaseEntity", "m_CollisionGroup"), 2, 4, true);
 		else
 			SetEntData(client, FindSendPropInfo("CBaseEntity", "m_CollisionGroup"), 2, 5, true);
@@ -2287,7 +2287,7 @@ public int GoToMenuHandler(Menu menu, MenuAction action, int param1, int param2)
 	else
 		if (action == MenuAction_End)
 	{
-		CloseHandle(menu);
+		delete menu;
 	}
 }
 
@@ -2330,10 +2330,10 @@ public void GotoMethod(int client, int target)
 
 public Action Client_GoTo(int client, int args)
 {
-	if (!GetConVarBool(g_hGoToServer))
+	if (!g_hGoToServer.BoolValue)
 		CPrintToChat(client, "%t", "Goto1", g_szChatPrefix);
 	else
-		if (!GetConVarBool(g_hCvarNoBlock))
+		if (!g_hCvarNoBlock.BoolValue)
 			CPrintToChat(client, "%t", "Goto2", g_szChatPrefix);
 		else
 			if (g_bTimerRunning[client])
@@ -2365,7 +2365,7 @@ public Action Client_GoTo(int client, int args)
 					}
 					else
 					{
-						CloseHandle(menu);
+						delete menu;
 					}
 				}
 				else
@@ -2445,7 +2445,7 @@ public Action Client_Stop(int client, int args)
 
 public void Action_NoClip(int client)
 {
-	if (IsValidClient(client) && !IsFakeClient(client) && IsPlayerAlive(client) && GetConVarBool(g_hNoClipS))
+	if (IsValidClient(client) && !IsFakeClient(client) && IsPlayerAlive(client) && g_hNoClipS.BoolValue)
 	{
 		g_fLastTimeNoClipUsed[client] = GetGameTime();
 		int team = GetClientTeam(client);
@@ -2485,7 +2485,7 @@ public void Action_UnNoClip(int client)
 			{
 				SetEntityMoveType(client, MOVETYPE_WALK);
 				SetEntityRenderMode(client, RENDER_NORMAL);
-				if (GetConVarBool(g_hCvarNoBlock))
+				if (g_hCvarNoBlock.BoolValue)
 					SetEntData(client, FindSendPropInfo("CBaseEntity", "m_CollisionGroup"), 2, 4, true);
 				else
 					SetEntData(client, FindSendPropInfo("CBaseEntity", "m_CollisionGroup"), 5, 4, true);
@@ -2506,7 +2506,7 @@ public void ckTopMenu(int client, int style)
 	SetMenuTitle(cktopmenu, szTitle);
 	IntToString(style, szStyle, sizeof(szStyle));
 
-	if (GetConVarBool(g_hPointSystem))
+	if (g_hPointSystem.BoolValue)
 		AddMenuItem(cktopmenu, szStyle, "Top 100 Players");
 
 	AddMenuItem(cktopmenu, szStyle, "Map Top");
@@ -2532,7 +2532,7 @@ public int TopMenuHandler(Menu menu, MenuAction action, int param1, int param2)
 	}
 	else
 		if (action == MenuAction_End)
-		CloseHandle(menu);
+		delete menu;
 }
 
 public void SelectMapTop(int client, int style)
@@ -2621,7 +2621,7 @@ public int OptionMenuHandler(Menu menu, MenuAction action, int param1, int param
 	else
 		if (action == MenuAction_End)
 	{
-		CloseHandle(menu);
+		delete menu;
 	}
 }
 
@@ -2700,7 +2700,7 @@ public int CentreHudOptionsHandler(Menu menu, MenuAction action, int param1, int
 	else if (action == MenuAction_Cancel)
 		OptionMenu(param1);
 	else if (action == MenuAction_End)
-		CloseHandle(menu);
+		delete menu;
 }
 
 public void CentreHudModulesMenu(int client, int module, const char[] szTitle)
@@ -2785,7 +2785,7 @@ public int CentreHudModulesMenuHandler(Menu menu, MenuAction action, int param1,
 		else
 		{
 			CPrintToChat(param1, "%t", "Commands37", g_szChatPrefix);
-			CloseHandle(menu);
+			delete menu;
 		}
 
 		g_iCentreHudModule[param1][module] = param2;
@@ -2794,7 +2794,7 @@ public int CentreHudModulesMenuHandler(Menu menu, MenuAction action, int param1,
 	else if (action == MenuAction_Cancel)
 		CentreHudOptions(param1, 0);
 	else if (action == MenuAction_End)
-		CloseHandle(menu);
+		delete menu;
 }
 
 public void SideHudOptions(int client, int item)
@@ -2850,7 +2850,7 @@ public int SideHudOptionsHandler(Menu menu, MenuAction action, int param1, int p
 	else if (action == MenuAction_Cancel)
 		OptionMenu(param1);
 	else if (action == MenuAction_End)
-		CloseHandle(menu);
+		delete menu;
 }
 
 public void SideHudModulesMenu(int client, int module, char[] szTitle)
@@ -2923,7 +2923,7 @@ public int SideHudModulesMenuHandler(Menu menu, MenuAction action, int param1, i
 		else
 		{
 			CPrintToChat(param1, "%t", "Commands39", g_szChatPrefix);
-			CloseHandle(menu);
+			delete menu;
 		}
 
 		g_iSideHudModule[param1][module] = param2;
@@ -2938,7 +2938,7 @@ public int SideHudModulesMenuHandler(Menu menu, MenuAction action, int param1, i
 	else if (action == MenuAction_Cancel)
 		SideHudOptions(param1, 0);
 	else if (action == MenuAction_End)
-		CloseHandle(menu);
+		delete menu;
 }
 
 public void MiscellaneousOptions(int client)
@@ -3024,7 +3024,7 @@ public int MiscellaneousOptionsHandler(Menu menu, MenuAction action, int param1,
 	else if (action == MenuAction_Cancel)
 		OptionMenu(param1);
 	else if (action == MenuAction_End)
-		CloseHandle(menu);
+		delete menu;
 }
 
 // fluffys
@@ -3428,7 +3428,7 @@ public int StageSelectMenuHandler(Menu menu, MenuAction action, int param1, int 
 		{
 			if (IsValidClient(param1))
 				g_bSelectWrcp[param1] = false;
-			CloseHandle(menu);
+			delete menu;
 		}
 	}
 }
@@ -3449,7 +3449,7 @@ public int StageStyleSelectMenuHandler(Menu menu, MenuAction action, int param1,
 		{
 			if (IsValidClient(param1))
 				g_bSelectWrcp[param1] = false;
-			CloseHandle(menu);
+			delete menu;
 		}
 	}
 }
@@ -3508,7 +3508,7 @@ public int StyleTypeSelectMenuHandler(Menu styleSelect, MenuAction action, int p
 	else
 	{
 		if (action == MenuAction_End)
-			CloseHandle(styleSelect);
+			delete styleSelect;
 	}
 }
 
@@ -3552,7 +3552,7 @@ public int StyleSelectMenuHandler(Menu menu, MenuAction action, int param1, int 
 		if (action == MenuAction_Cancel)
 			styleSelectMenu(param1);
 		if (action == MenuAction_End)
-			CloseHandle(menu);
+			delete menu;
 	}
 }
 
@@ -4429,7 +4429,7 @@ public int ReportBugHandler(Menu menu, MenuAction action, int param1, int param2
 		CPrintToChat(param1, "%t", "Commands70", g_szChatPrefix);
 	}
 	else if (action == MenuAction_End)
-		CloseHandle(menu);
+		delete menu;
 }
 
 public Action Command_Calladmin(int client, int args)
@@ -4499,7 +4499,7 @@ public Action Command_CPR(int client, int args)
 }
 
 public Action Command_PlayRecord(int client, int args) {
-	if (GetConVarBool(g_hPlayReplayVipOnly)) {
+	if (g_hPlayReplayVipOnly.BoolValue) {
 		if (!IsPlayerVip(client)) {
 			CReplyToCommand(client, "%t", "Misc43", g_szChatPrefix);
 			return Plugin_Handled;

@@ -22,7 +22,7 @@ public void MapSettingsMenu(int client)
 	else
 		AddMenuItem(menu, "", "Unranked");
 
-	Format(szBuffer, sizeof(szBuffer), "Max Velocity: %f", GetConVarFloat(g_hMaxVelocity));
+	Format(szBuffer, sizeof(szBuffer), "Max Velocity: %f", g_hMaxVelocity.FloatValue);
 	AddMenuItem(menu, "", szBuffer);
 
 	if (g_fAnnounceRecord == 1)

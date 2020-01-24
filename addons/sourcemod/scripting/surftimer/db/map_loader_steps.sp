@@ -839,7 +839,7 @@ void db_ClearLatestRecords(any cb=0) {
 // 14
 
 void db_GetDynamicTimelimit(any cb=0) {
-	if (!GetConVarBool(g_hDynamicTimelimit)) {
+	if (!g_hDynamicTimelimit.BoolValue) {
 		RunCallback(cb);
 		return;
 	}

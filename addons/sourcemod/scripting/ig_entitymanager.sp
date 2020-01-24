@@ -11,19 +11,19 @@ public Plugin myinfo =
 	url = "http://www.imperfectgamers.org/"
 };
 
-
-// @TODO: REWRITE TO MAKE ENTITY NAMES THE KEY VALUES WITH EMPTY KEYS, WHO CARES
-
-
-#define DEBUG_LOGGING
+#define ENTITY_LOGGING
+#define ENTITY_LOGGING_PATH "logs/ig_entities"
 #define ENTITY_CONFIG_PATH "configs/ig_entities"
 
 char g_szMapName[128];
-char g_szLogFile[PLATFORM_MAX_PATH];
 char g_szConfigPath[PLATFORM_MAX_PATH];
 char g_szConfigFilePath[PLATFORM_MAX_PATH];
 ArrayList g_hDeletedEnts = null;
 
+#if defined ENTITY_LOGGING
+char g_szLogFile[PLATFORM_MAX_PATH];
+char g_szLogFilePath[PLATFORM_MAX_PATH];
+#endif
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
@@ -37,6 +37,10 @@ public void OnPluginStart()
 	if (!DirExists(g_szConfigPath))
 		CreateDirectory(g_szConfigPath, 511);
 
+	BuildPath(Path_SM, g_szLogFilePath, sizeof(g_szLogFilePath), ENTITY_LOGGING_PATH);
+	if (!DirExists(g_szLogFilePath))
+		CreateDirectory(g_szLogFilePath, 511);
+
 
 	// list all entities in console
 	RegAdminCmd("sm_listentities", Command_ListEntities, ADMFLAG_ROOT);
@@ -48,28 +52,46 @@ public void OnPluginStart()
 	RegAdminCmd("sm_listdeletedents", Command_ListDeletedEntities, ADMFLAG_ROOT);
 	RegAdminCmd("sm_lde", Command_ListDeletedEntities, ADMFLAG_ROOT);
 
-	// delete an entity by INDEX
+	// delete an entity by INDEX (should do by name instead)
 	RegAdminCmd("sm_deleteentity", Command_DeleteEntity, ADMFLAG_ROOT);
 	RegAdminCmd("sm_deleteent", Command_DeleteEntity, ADMFLAG_ROOT);
+	RegAdminCmd("sm_delent", Command_DeleteEntity, ADMFLAG_ROOT);
 	RegAdminCmd("sm_dent", Command_DeleteEntity, ADMFLAG_ROOT);
 
 	// remove a deleted entity from the config (restore it)
 	RegAdminCmd("sm_restoreentity", Command_RestoreEntity, ADMFLAG_ROOT);
 	RegAdminCmd("sm_restoreent", Command_RestoreEntity, ADMFLAG_ROOT);
 	RegAdminCmd("sm_rent", Command_RestoreEntity, ADMFLAG_ROOT);
+
+	if (g_hDeletedEnts == null)
+		g_hDeletedEnts = new ArrayList(128);
+}
+
+public void OnPluginStop()
+{
+	if (g_hDeletedEnts != null)
+		delete g_hDeletedEnts;
 }
 
 public void OnMapStart()
 {
 	GetCurrentMap(g_szMapName, 128);
 	FormatEx(g_szConfigFilePath, sizeof(g_szConfigFilePath), "%s/%s.cfg", g_szConfigPath, g_szMapName);
-	BuildPath(Path_SM, g_szLogFile, sizeof(g_szLogFile), "logs/surftimer/%s.log", g_szMapName);
-	g_hDeletedEnts = new ArrayList();
+#if defined ENTITY_LOGGING
+	FormatEx(g_szLogFile, sizeof(g_szLogFile), "%s/%s.log", g_szLogFilePath, g_szMapName);
+#endif
+
+	if (g_hDeletedEnts == null)
+		g_hDeletedEnts = new ArrayList(128);
 
 	if (FileExists(g_szConfigFilePath))
-	{
 		DeleteEntities(g_szConfigFilePath);
-	}
+}
+
+public void OnMapEnd()
+{
+	if (g_hDeletedEnts != null)
+		delete g_hDeletedEnts;
 }
 
 // list all valid entities in the map
@@ -92,94 +114,66 @@ public Action Command_ListEntities(int client, int args)
 }
 
 // list all deleted entities as per the config file
+// @todo: support map argument
+// should this read from config? refreshing the plugin will result in an empty list
 public Action Command_ListDeletedEntities(int client, int args)
 {
-	char arg1[128];
-	GetCmdArg(1, arg1, sizeof(arg1));
-
-	char szMap[128];
-	char szPath[PLATFORM_MAX_PATH];
-
-	if (!arg1[0])
-	{
-		szPath = g_szConfigFilePath;
-		szMap = g_szMapName;
-	}
-	else
-	{
-		FormatEx(szPath, sizeof(szPath), "%s/%s.cfg", g_szConfigPath, arg1);
-		szMap = arg1;
-	}
-
 	// check if the entity list for the map exists
-	if (FileExists(szPath))
+	PrintToConsole(client, "# IGEntityManager | %i Deleted entities:", g_hDeletedEnts.Length);
+	for (int i = 0; i < g_hDeletedEnts.Length; i++)
 	{
-		File file = OpenFile(szPath, "r");
-
-		PrintToConsole(client, "# IGEntityManager | Deleted entities:");
 		char szName[128];
-		int i;
-		while (file.ReadLine(szName, sizeof(szName)))
-		{
-			if (strlen(szName) > 1)
-				PrintToConsole(client, "  %i  %s", i++, szName);
-		}
-		PrintToConsole(client, "#end");
-		delete file; // close file handle
+		g_hDeletedEnts.GetString(i, szName, sizeof(szName));
+		PrintToConsole(client, "  %i  %s", i, szName);
 	}
-	else
-	{
-		PrintToConsole(client, "[IGEntityManager] %s has no deleted entities", szMap);
-	}
+
+	PrintToConsole(client, "#end");
 
 	return Plugin_Handled;
 }
 
-// delete an entity by id
+// delete an entity by name
 public Action Command_DeleteEntity(int client, int args)
 {
-	char arg[4];
-	GetCmdArg(1, arg, sizeof(arg));
-
-	int iEnt = StringToInt(arg);
 	char szEnt[128];
+	GetCmdArg(1, szEnt, sizeof(szEnt));
+	StringMap hEntities = GetEntityMap();
+
+	int iEnt;
+	if (!hEntities.GetValue(szEnt, iEnt))
+	{
+		PrintToConsole(client, "[IGEntityManager] Unable to find entity '%s'", szEnt);
+		delete hEntities;
+		return Plugin_Handled;
+	}
 
 	if (IsValidEntity(iEnt) && IsValidEdict(iEnt))
 	{
-		GetEntPropString(iEnt, Prop_Data, "m_iName", szEnt, 128);
 		AcceptEntityInput(iEnt, "Kill");
 		PrintToConsole(client, "[IGEntityManager] Entity deleted: %s", szEnt);
 
-#if defined DEBUG_LOGGING
-		LogToFileEx(g_szLogFile, "[IGEntityManager] Entity '%s' deleted", szEnt);
+#if defined ENTITY_LOGGING
+		LogToFileEx(g_szLogFile, "Entity '%s' deleted", szEnt);
 #endif
 
 		g_hDeletedEnts.PushString(szEnt);
 
-		// append or write?
-		File file;
-		if (FileExists(g_szConfigFilePath))
-			file = OpenFile(g_szConfigFilePath, "a+");
-		else
-			file = OpenFile(g_szConfigFilePath, "w+");
-
-#if defined DEBUG_LOGGING
-	LogToFileEx(g_szLogFile, "[IGEntityManager] WRITE %s", szEnt);
-#endif
-		file.WriteLine(szEnt);
-#if defined DEBUG_LOGGING
-	LogToFileEx(g_szLogFile, "[IGEntityManager] WROTE %s", szEnt);
-#endif
-		delete file;
+		// rewrite the config
+		WriteConfigFile();
+	}
+	else
+	{
+		PrintToConsole(client, "[IGEntityManager] Entity '%s' was found but was not valid!", szEnt);
 	}
 
+	delete hEntities;
 	return Plugin_Handled;
 }
 
 // restore a deleted entity (only supports current map)
 public Action Command_RestoreEntity(int client, int args)
 {
-	char szEnt[64];
+	char szEnt[128];
 	GetCmdArg(1, szEnt, sizeof(szEnt));
 
 	// require an argument
@@ -197,21 +191,13 @@ public Action Command_RestoreEntity(int client, int args)
 	// delete the entity, we don't want it anymore
 	g_hDeletedEnts.Erase(index);
 
-#if defined DEBUG_LOGGING
-	LogToFileEx(g_szLogFile, "[IGEntityManager] Entity '%s' restored", szEnt);
+#if defined ENTITY_LOGGING
+	LogToFileEx(g_szLogFile, "Entity '%s' restored", szEnt);
 #endif
 	PrintToConsole(client, "[IGEntityManager] Entity '%s' restored (requires map reload)", szEnt);
 
 	// write the new entity list
-	File file = OpenFile(g_szConfigFilePath, "w");
-	for (int i = 0; i < g_hDeletedEnts.Length; i++)
-	{
-		char szName[64];
-		g_hDeletedEnts.GetString(i, szName, sizeof(szName));
-		file.WriteLine(szName);
-	}
-
-	delete file; // close file handle
+	WriteConfigFile();
 	return Plugin_Handled;
 }
 
@@ -222,21 +208,29 @@ void DeleteEntities(const char[] path)
 	File file = OpenFile(path, "r");
 	StringMap hEntities = GetEntityMap();
 
+#if defined ENTITY_LOGGING
+			LogToFileEx(g_szLogFile, "Attempting to delete entities...");
+#endif
+
 	// read the associated config file, delete the entities as they are found
-	char szEnt[128]
+	char szEnt[128];
 	while (file.ReadLine(szEnt, sizeof(szEnt)))
 	{
+		SplitString(szEnt, "\n", szEnt, sizeof(szEnt))
+
 		int iEnt; // variable to store the entity index in
 		if (hEntities.GetValue(szEnt, iEnt))
 		{
 			AcceptEntityInput(iEnt, "Kill");
 			g_hDeletedEnts.PushString(szEnt);
-#if defined DEBUG_LOGGING
-			LogToFileEx(g_szLogFile, "[IGEntityManager] Entity %i deleted: %s", iEnt, szEnt);
+
+#if defined ENTITY_LOGGING
+			LogToFileEx(g_szLogFile, "%s deleted", szEnt);
 #endif
 		}
 	}
 
+	delete hEntities;
 	delete file;
 }
 
@@ -252,10 +246,24 @@ StringMap GetEntityMap()
 		if (IsValidEntity(i) && IsValidEdict(i))
 		{
 			char szName[128];
-			GetEntPropString(i, Prop_Data, "m_iName", szName, 128);
+			GetEntPropString(i, Prop_Data, "m_iName", szName, sizeof(szName));
 			entities.SetValue(szName, i);
 		}
 	}
 
 	return entities;
+}
+
+// write config file
+stock void WriteConfigFile()
+{
+	File file = OpenFile(g_szConfigFilePath, "w");
+	for (int i = 0; i < g_hDeletedEnts.Length; i++)
+	{
+		char szName[128];
+		g_hDeletedEnts.GetString(i, szName, sizeof(szName));
+		file.WriteLine(szName);
+	}
+
+	delete file;
 }

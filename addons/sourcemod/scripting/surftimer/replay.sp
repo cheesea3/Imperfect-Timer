@@ -118,8 +118,8 @@ public void StopRecording(int client)
 	if (g_hRecording[client] == null)
 		return;
 
-	CloseHandle(g_hRecording[client]);
-	CloseHandle(g_hRecordingAdditionalTeleport[client]);
+	delete g_hRecording[client];
+	delete g_hRecordingAdditionalTeleport[client];
 	g_hRecording[client] = null;
 	g_hRecordingAdditionalTeleport[client] = null;
 
@@ -170,7 +170,7 @@ public void SaveRecording(int client, int zgroup, int style)
 	// 		BuildPath(Path_SM, sPath2, sizeof(sPath2), "%s%s_bonus_%i.rec", CK_REPLAY_PATH, g_szMapName, zgroup);
 	// }
 
-	if (FileExists(sPath2) && GetConVarBool(g_hBackupReplays))
+	if (FileExists(sPath2) && g_hBackupReplays.BoolValue)
 	{
 		char newPath[256];
 		Format(newPath, 256, "%s.bak", sPath2);
@@ -193,7 +193,7 @@ public void SaveRecording(int client, int zgroup, int style)
 	if (GetArraySize(g_hRecordingAdditionalTeleport[client]) > 0)
 		SetTrieValue(g_hLoadedRecordsAdditionalTeleport, sPath2, g_hRecordingAdditionalTeleport[client]);
 	else
-		CloseHandle(g_hRecordingAdditionalTeleport[client]);
+		delete g_hRecordingAdditionalTeleport[client];
 
 	g_hRecordingAdditionalTeleport[client] = null;
 
@@ -209,7 +209,7 @@ public void SaveRecording(int client, int zgroup, int style)
 
 public void LoadReplays()
 {
-	if (!GetConVarBool(g_hReplayBot) && !GetConVarBool(g_hBonusBot) && !GetConVarBool(g_hWrcpBot))
+	if (!g_hReplayBot.BoolValue && !g_hBonusBot.BoolValue && !g_hWrcpBot.BoolValue)
 		return;
 
 	// Init Variables:
@@ -246,7 +246,7 @@ public void LoadReplays()
 		GetTrieValue(g_hLoadedRecordsAdditionalTeleport, sKey, hAT);
 		delete hAT;
 	}
-	CloseHandle(hSnapshot);
+	delete hSnapshot;
 	ClearTrie(g_hLoadedRecordsAdditionalTeleport);
 
 	g_bFirstStageReplay = false;
@@ -311,7 +311,7 @@ public void LoadReplays()
 			if (RenameFile(newPath, sPath))
 				PrintToServer("surftimer | Succesfully renamed bonus record file to: %s", newPath);
 		}
-		CloseHandle(hFilex);
+		delete hFilex;
 	}
 	hFilex = null;
 	delete hFilex;
@@ -517,7 +517,7 @@ public void PlayRecord(int client, int type, int style)
 	if (IsValidClient(client) && !IsPlayerAlive(client) && GetClientTeam(client) >= CS_TEAM_T)
 	{
 		CS_RespawnPlayer(client);
-		if (GetConVarBool(g_hForceCT))
+		if (g_hForceCT.BoolValue)
 			TeamChangeActual(client, 2);
 	}
 }
@@ -569,7 +569,7 @@ public void WriteRecordToDisk(const char[] sPath, iFileHeader[FILE_HEADER_LENGTH
 		}
 	}
 
-	CloseHandle(hFile);
+	delete hFile;
 	LoadReplays();
 }
 
@@ -582,7 +582,7 @@ public void LoadRecordFromFile(const char[] path, int headerInfo[FILE_HEADER_LEN
 	ReadFileCell(hFile, iMagic, 4);
 	if (iMagic != BM_MAGIC)
 	{
-		CloseHandle(hFile);
+		delete hFile;
 		return;
 	}
 	int iBinaryFormatVersion;
@@ -591,7 +591,7 @@ public void LoadRecordFromFile(const char[] path, int headerInfo[FILE_HEADER_LEN
 
 	if (iBinaryFormatVersion > BINARY_FORMAT_VERSION)
 	{
-		CloseHandle(hFile);
+		delete hFile;
 		return;
 	}
 
@@ -624,7 +624,7 @@ public void LoadRecordFromFile(const char[] path, int headerInfo[FILE_HEADER_LEN
 
 	if (headerOnly)
 	{
-		CloseHandle(hFile);
+		delete hFile;
 		return;
 	}
 
@@ -664,9 +664,9 @@ public void LoadRecordFromFile(const char[] path, int headerInfo[FILE_HEADER_LEN
 	if (GetArraySize(hAdditionalTeleport) > 0)
 		SetTrieValue(g_hLoadedRecordsAdditionalTeleport, path, hAdditionalTeleport);
 	else
-		CloseHandle(hAdditionalTeleport);
+		delete hAdditionalTeleport;
 
-	CloseHandle(hFile);
+	delete hFile;
 
 	return;
 }
@@ -688,7 +688,7 @@ public void LoadRecordReplay()
 		if (!IsPlayerAlive(i))
 		{
 			CS_RespawnPlayer(i);
-			if (GetConVarBool(g_hForceCT))
+			if (g_hForceCT.BoolValue)
 				TeamChangeActual(i, 2);
 		}
 
@@ -715,13 +715,13 @@ public void LoadRecordReplay()
 		PlayRecord(g_RecordBot, 0, 0);
 		// We can start multiple bots but first we need to get if bot has finished playing???
 		SetEntityRenderColor(g_RecordBot, g_ReplayBotColor[0], g_ReplayBotColor[1], g_ReplayBotColor[2], 50);
-		if (GetConVarBool(g_hPlayerSkinChange))
+		if (g_hPlayerSkinChange.BoolValue)
 		{
 			char szBuffer[256];
-			GetConVarString(g_hReplayBotPlayerModel, szBuffer, 256);
+			g_hReplayBotPlayerModel.GetString(szBuffer, 256);
 			SetEntityModel(g_RecordBot, szBuffer);
 
-			GetConVarString(g_hReplayBotArmModel, szBuffer, 256);
+			g_hReplayBotArmModel.GetString(szBuffer, 256);
 			SetEntPropString(g_RecordBot, Prop_Send, "m_szArmsModel", szBuffer);
 		}
 	}
@@ -749,7 +749,7 @@ public void LoadBonusReplay()
 		{
 			CS_RespawnPlayer(i);
 
-			if (GetConVarBool(g_hForceCT))
+			if (g_hForceCT.BoolValue)
 				TeamChangeActual(i, 2);
 		}
 
@@ -774,13 +774,13 @@ public void LoadBonusReplay()
 
 		PlayRecord(g_BonusBot, 1, 0);
 		SetEntityRenderColor(g_BonusBot, g_BonusBotColor[0], g_BonusBotColor[1], g_BonusBotColor[2], 50);
-		if (GetConVarBool(g_hPlayerSkinChange))
+		if (g_hPlayerSkinChange.BoolValue)
 		{
 			char szBuffer[256];
-			GetConVarString(g_hReplayBotPlayerModel, szBuffer, 256);
+			g_hReplayBotPlayerModel.GetString(szBuffer, 256);
 			SetEntityModel(g_BonusBot, szBuffer);
 
-			GetConVarString(g_hReplayBotArmModel, szBuffer, 256);
+			g_hReplayBotArmModel.GetString(szBuffer, 256);
 			SetEntPropString(g_BonusBot, Prop_Send, "m_szArmsModel", szBuffer);
 		}
 	}
@@ -810,7 +810,7 @@ public void LoadWrcpReplay()
 		{
 			CS_RespawnPlayer(i);
 
-			if (GetConVarBool(g_hForceCT))
+			if (g_hForceCT.BoolValue)
 				TeamChangeActual(i, 2);
 		}
 
@@ -834,13 +834,13 @@ public void LoadWrcpReplay()
 
 		PlayRecord(g_WrcpBot, -g_StageReplayCurrentStage, 0);
 		SetEntityRenderColor(g_WrcpBot, 255, 0, 255, 50);
-		if (GetConVarBool(g_hPlayerSkinChange))
+		if (g_hPlayerSkinChange.BoolValue)
 		{
 			char szBuffer[256];
-			GetConVarString(g_hReplayBotPlayerModel, szBuffer, 256);
+			g_hReplayBotPlayerModel.GetString(szBuffer, 256);
 			SetEntityModel(g_WrcpBot, szBuffer);
 
-			GetConVarString(g_hReplayBotArmModel, szBuffer, 256);
+			g_hReplayBotArmModel.GetString(szBuffer, 256);
 			SetEntPropString(g_WrcpBot, Prop_Send, "m_szArmsModel", szBuffer);
 		}
 	}
@@ -1226,7 +1226,7 @@ public void Stage_SaveRecording(int client, int stage, char[] time)
 	BuildPath(Path_SM, sPath2, sizeof(sPath2), "%s%s_stage_%d.rec", CK_REPLAY_PATH, g_szMapName, stage);
 
 
-	if (FileExists(sPath2) && GetConVarBool(g_hBackupReplays))
+	if (FileExists(sPath2) && g_hBackupReplays.BoolValue)
 	{
 		char newPath[256];
 		Format(newPath, 256, "%s.bak", sPath2);

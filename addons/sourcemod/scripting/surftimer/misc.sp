@@ -10,11 +10,11 @@ void setBotQuota()
 	int count = 0;
 	if (g_bMapReplay[0])
 		count++;
-	if (GetConVarBool(g_hInfoBot))
+	if (g_hInfoBot.BoolValue)
 		count++;
 	if (g_BonusBotCount > 0)
 		count++;
-	if (GetConVarBool(g_hWrcpBot) && g_bhasStages && g_bFirstStageReplay)
+	if (g_hWrcpBot.BoolValue && g_bhasStages && g_bFirstStageReplay)
 		count++;
 
 	if (count == 0)
@@ -25,7 +25,7 @@ void setBotQuota()
 		SetConVarInt(hBotQuota, count, false, false);
 	}
 
-	CloseHandle(hBotQuota);
+	delete hBotQuota;
 
 	return;
 }
@@ -75,7 +75,7 @@ public void getSteamIDFromClient(int client, char[] buffer, int length)
 	}
 	else // Get steamid - Normal point increase
 	{
-		if (!GetConVarBool(g_hPointSystem) || !IsValidClient(client))
+		if (!g_hPointSystem.BoolValue || !IsValidClient(client))
 			return;
 		GetClientAuthId(client, AuthId_Steam2, buffer, length, true);
 	}
@@ -521,7 +521,7 @@ bool DoesClientPassFilter(int entity, int client)
 // https://forums.alliedmods.net/showthread.php?t=206308
 void TeamChangeActual(int client, int toteam)
 {
-	if (GetConVarBool(g_hForceCT)) {
+	if (g_hForceCT.BoolValue) {
 		if (toteam == 0 || toteam == 2) {
 			toteam = 3;
 		}
@@ -714,7 +714,7 @@ public void checkSpawnPoints() {
 				f_spawnAngle[1] = SQL_FetchFloat(query, 4);
 				f_spawnAngle[2] = SQL_FetchFloat(query, 5);
 			}
-			CloseHandle(query);
+			delete query;
 		}
 
 		if (f_spawnLocation[0] == 0.0 && f_spawnLocation[1] == 0.0 && f_spawnLocation[2] == 0.0) // No spawnpoint added to map with !addspawn, try to find spawns from map
@@ -842,7 +842,7 @@ public Action CallAdmin_OnDrawOwnReason(int client)
 public bool checkSpam(int client)
 {
 	float time = GetGameTime();
-	if (GetConVarFloat(g_hChatSpamFilter) == 0.0)
+	if (g_hChatSpamFilter.FloatValue == 0.0)
 		return false;
 
 	if (!IsValidClient(client) || (GetUserFlagBits(client) & ADMFLAG_ROOT) || (GetUserFlagBits(client) & ADMFLAG_GENERIC))
@@ -850,7 +850,7 @@ public bool checkSpam(int client)
 
 	bool result = false;
 
-	if (time - g_fLastChatMessage[client] < GetConVarFloat(g_hChatSpamFilter))
+	if (time - g_fLastChatMessage[client] < g_hChatSpamFilter.FloatValue)
 	{
 		result = true;
 		g_messages[client]++;
@@ -885,7 +885,7 @@ stock void FakePrecacheSound(const char[] szPath)
 
 public Action BlockRadio(int client, const char[] command, int args)
 {
-	if (!GetConVarBool(g_hRadioCommands) && IsValidClient(client))
+	if (!g_hRadioCommands.BoolValue && IsValidClient(client))
 	{
 		CPrintToChat(client, "%t", "RadioCommandsDisabled", g_szChatPrefix);
 		return Plugin_Handled;
@@ -976,14 +976,14 @@ public void MovementCheck(int client)
 
 public void PlayButtonSound(int client)
 {
-	if (!GetConVarBool(g_hSoundEnabled))
+	if (!g_hSoundEnabled.BoolValue)
 		return;
 
 	// Players button sound
 	if (!IsFakeClient(client))
 	{
 		char buffer[255];
-		GetConVarString(g_hSoundPath, buffer, 255);
+		g_hSoundPath.GetString(buffer, 255);
 		Format(buffer, sizeof(buffer), "play %s", buffer);
 		ClientCommand(client, buffer);
 	}
@@ -1000,7 +1000,7 @@ public void PlayButtonSound(int client)
 				if (Target == client)
 				{
 					char szsound[255];
-					GetConVarString(g_hSoundPath, szsound, 256);
+					g_hSoundPath.GetString(szsound, 256);
 					Format(szsound, sizeof(szsound), "play %s", szsound);
 					ClientCommand(i, szsound);
 				}
@@ -1033,7 +1033,7 @@ public void LimitSpeed(int client)
 	 * Checkpoint Zone
 	 * Misc Zones
 	*/
-	if (!IsValidClient(client) || !IsPlayerAlive(client) || IsFakeClient(client) || g_bPracticeMode[client] || g_mapZonesTypeCount[g_iClientInZone[client][2]][2] == 0 || g_iClientInZone[client][3] < 0 || g_iClientInZone[client][0] == 2 || g_iClientInZone[client][0] == 4 || g_iClientInZone[client][0] >= 6 || GetConVarInt(g_hLimitSpeedType) == 1)
+	if (!IsValidClient(client) || !IsPlayerAlive(client) || IsFakeClient(client) || g_bPracticeMode[client] || g_mapZonesTypeCount[g_iClientInZone[client][2]][2] == 0 || g_iClientInZone[client][3] < 0 || g_iClientInZone[client][0] == 2 || g_iClientInZone[client][0] == 4 || g_iClientInZone[client][0] >= 6 || g_hLimitSpeedType.IntValue == 1)
 		return;
 
 	float speedCap = 0.0, CurVelVec[3];
@@ -1071,10 +1071,10 @@ public void LimitSpeed(int client)
 public void LimitSpeedNew(int client)
 {
 	if (!IsValidClient(client) || !IsPlayerAlive(client) || IsFakeClient(client) || g_mapZonesCount <= 0 || g_bPracticeMode[client] || g_mapZonesTypeCount[g_iClientInZone[client][2]][2] == 0
-		|| g_iClientInZone[client][3] < 0 || g_iClientInZone[client][0] == 2 || g_iClientInZone[client][0] == 4 || g_iClientInZone[client][0] >= 6 || GetConVarInt(g_hLimitSpeedType) == 0)
+		|| g_iClientInZone[client][3] < 0 || g_iClientInZone[client][0] == 2 || g_iClientInZone[client][0] == 4 || g_iClientInZone[client][0] >= 6 || g_hLimitSpeedType.IntValue == 0)
 		return;
 
-	if (GetConVarInt(g_hLimitSpeedType) == 0 || !g_bInStartZone[client] && !g_bInStageZone[client])
+	if (g_hLimitSpeedType.IntValue == 0 || !g_bInStartZone[client] && !g_bInStageZone[client])
 		return;
 
 	float speedCap = 0.0;
@@ -1481,39 +1481,39 @@ public void InitPrecache()
 	// AddFileToDownloadsTable(CP_FULL_SOUND_PATH);
 	// FakePrecacheSound(CP_RELATIVE_SOUND_PATH);
 
-	GetConVarString(g_hSoundPathWR, szBuffer, sizeof(szBuffer));
+	g_hSoundPathWR.GetString(szBuffer, sizeof(szBuffer));
 	AddFileToDownloadsTable(szBuffer);
 	FakePrecacheSound(g_szRelativeSoundPathWR);
 
-	GetConVarString(g_hSoundPathPB, szBuffer, sizeof(szBuffer));
+	g_hSoundPathPB.GetString(szBuffer, sizeof(szBuffer));
 	AddFileToDownloadsTable(szBuffer);
 	FakePrecacheSound(g_szRelativeSoundPathPB);
 
-	GetConVarString(g_hSoundPathTop, szBuffer, sizeof(szBuffer));
+	g_hSoundPathTop.GetString(szBuffer, sizeof(szBuffer));
 	AddFileToDownloadsTable(szBuffer);
 	FakePrecacheSound(g_szRelativeSoundPathTop);
 
-	GetConVarString(g_hSoundPathWRCP, szBuffer, sizeof(szBuffer));
+	g_hSoundPathWRCP.GetString(szBuffer, sizeof(szBuffer));
 	AddFileToDownloadsTable(szBuffer);
 	FakePrecacheSound(g_szRelativeSoundPathWRCP);
 
 	// Replay Player Model
-	GetConVarString(g_hReplayBotPlayerModel, szBuffer, 256);
+	g_hReplayBotPlayerModel.GetString(szBuffer, 256);
 	AddFileToDownloadsTable(szBuffer);
 	PrecacheModel(szBuffer, true);
 
 	// Replay Arm Model
-	GetConVarString(g_hReplayBotArmModel, szBuffer, 256);
+	g_hReplayBotArmModel.GetString(szBuffer, 256);
 	AddFileToDownloadsTable(szBuffer);
 	PrecacheModel(szBuffer, true);
 
 	// Player Arm Model
-	GetConVarString(g_hArmModel, szBuffer, 256);
+	g_hArmModel.GetString(szBuffer, 256);
 	AddFileToDownloadsTable(szBuffer);
 	PrecacheModel(szBuffer, true);
 
 	// Player Model
-	GetConVarString(g_hPlayerModel, szBuffer, 256);
+	g_hPlayerModel.GetString(szBuffer, 256);
 	AddFileToDownloadsTable(szBuffer);
 	PrecacheModel(szBuffer, true);
 
@@ -1539,10 +1539,10 @@ stock int TraceClientViewEntity(int client)
 	if (TR_DidHit(tr))
 	{
 		pEntity = TR_GetEntityIndex(tr);
-		CloseHandle(tr);
+		delete tr;
 		return pEntity;
 	}
-	CloseHandle(tr);
+	delete tr;
 	return -1;
 }
 
@@ -1710,10 +1710,10 @@ stock void MapFinishedMsgs(int client, int rankThisRun = 0)
 			Format(szGroup, 128, "");
 
 		// Check that ck_chat_record_type matches and ck_min_rank_announce matches
-		if ((GetConVarInt(g_hAnnounceRecord) == 0 ||
-			(GetConVarInt(g_hAnnounceRecord) == 1 && g_bMapPBRecord[client] || g_bMapSRVRecord[client] || g_bMapFirstRecord[client]) ||
-			(GetConVarInt(g_hAnnounceRecord) == 2 && g_bMapSRVRecord[client])) &&
-			(rankThisRun <= GetConVarInt(g_hAnnounceRank) || GetConVarInt(g_hAnnounceRank) == 0))
+		if ((g_hAnnounceRecord.IntValue == 0 ||
+			(g_hAnnounceRecord.IntValue == 1 && g_bMapPBRecord[client] || g_bMapSRVRecord[client] || g_bMapFirstRecord[client]) ||
+			(g_hAnnounceRecord.IntValue == 2 && g_bMapSRVRecord[client])) &&
+			(rankThisRun <= g_hAnnounceRank.IntValue || g_hAnnounceRank.IntValue == 0))
 		{
 			for (int i = 1; i <= MaxClients; i++)
 			{
@@ -1780,10 +1780,10 @@ stock void MapFinishedMsgs(int client, int rankThisRun = 0)
 		// Send Announcements
 		if (g_bMapSRVRecord[client] && count > 10)
 		{
-			if (GetConVarBool(g_hRecordAnnounce))
+			if (g_hRecordAnnounce.BoolValue)
 				db_insertAnnouncement(szName, g_szMapName, g_szFinalTime[client]);
 			char buffer[1024];
-			GetConVarString(g_hRecordAnnounceDiscord, buffer, 1024);
+			g_hRecordAnnounceDiscord.GetString(buffer, 1024);
 			if (!StrEqual(buffer, ""))
 				sendDiscordAnnouncement(szName, g_szMapName, g_szFinalTime[client]);
 		}
@@ -1838,10 +1838,10 @@ stock void PrintChatBonus(int client, int zGroup, int rank = 0)
 	GetClientName(client, szName, MAX_NAME_LENGTH);
 
 	bool printToAll = false;
-	if ((GetConVarInt(g_hAnnounceRecord) == 0 ||
-		(GetConVarInt(g_hAnnounceRecord) == 1 && g_bBonusSRVRecord[client] || g_bBonusPBRecord[client] || g_bBonusFirstRecord[client]) ||
-		(GetConVarInt(g_hAnnounceRecord) == 2 && g_bBonusSRVRecord[client])) &&
-		(rank <= GetConVarInt(g_hAnnounceRank) || GetConVarInt(g_hAnnounceRank) == 0))
+	if ((g_hAnnounceRecord.IntValue == 0 ||
+		(g_hAnnounceRecord.IntValue == 1 && g_bBonusSRVRecord[client] || g_bBonusPBRecord[client] || g_bBonusFirstRecord[client]) ||
+		(g_hAnnounceRecord.IntValue == 2 && g_bBonusSRVRecord[client])) &&
+		(rank <= g_hAnnounceRank.IntValue || g_hAnnounceRank.IntValue == 0))
 	{
 		printToAll = true;
 	}
@@ -2276,7 +2276,7 @@ public void SetSkillGroups()
 			} while (KvGotoNextKey(hKeyValues));
 		}
 		if (hKeyValues != null)
-			CloseHandle(hKeyValues);
+			delete hKeyValues;
 	}
 	else
 		SetFailState("[surftimer] %s not found.", SKILLGROUP_PATH);
@@ -2304,7 +2304,7 @@ public void SetPlayerRank(int client)
 
 	if (!g_bDbCustomTitleInUse[client]) {
 		// Player is not using a title
-		if (GetConVarBool(g_hPointSystem))
+		if (g_hPointSystem.BoolValue)
 		{
 			char szName[MAX_NAME_LENGTH];
 			GetClientName(client, szName, sizeof(szName));
@@ -2384,10 +2384,10 @@ public bool CheatFlag(const char[] voice_inputfromfile, bool isCommand, bool rem
 	{
 		if (!isCommand)
 		{
-			Handle hConVar = FindConVar(voice_inputfromfile);
+			ConVar hConVar = FindConVar(voice_inputfromfile);
 			if (hConVar != null)
 			{
-				int flags = GetConVarFlags(hConVar);
+				int flags = hConVar.Flags;
 				SetConVarFlags(hConVar, flags &= ~FCVAR_CHEAT);
 				return true;
 			}
@@ -2407,10 +2407,10 @@ public bool CheatFlag(const char[] voice_inputfromfile, bool isCommand, bool rem
 	{
 		if (!isCommand)
 		{
-			Handle hConVar = FindConVar(voice_inputfromfile);
+			ConVar hConVar = FindConVar(voice_inputfromfile);
 			if (hConVar != null)
 			{
-				int flags = GetConVarFlags(hConVar);
+				int flags = hConVar.Flags;
 				SetConVarFlags(hConVar, flags & FCVAR_CHEAT);
 				return true;
 			}
@@ -2477,7 +2477,7 @@ public void SpecList(int client)
 		Handle panel = CreatePanel();
 		DrawPanelText(panel, g_szPlayerPanelText[client]);
 		SendPanelToClient(panel, client, PanelHandler, 1);
-		CloseHandle(panel);
+		delete panel;
 	}
 }
 
@@ -2511,7 +2511,7 @@ public void PlayQuakeSound_Spec(int client, char[] buffer)
 
 public void AttackProtection(int client, int &buttons)
 {
-	if (GetConVarBool(g_hAttackSpamProtection))
+	if (g_hAttackSpamProtection.BoolValue)
 	{
 		char classnamex[64];
 		GetClientWeapon(client, classnamex, 64);
@@ -2675,7 +2675,7 @@ public void SpecListMenuDead(int client) // What Spectators see
 			}
 
 			// Rank
-			if (GetConVarBool(g_hPointSystem))
+			if (g_hPointSystem.BoolValue)
 			{
 				if (g_pr_points[ObservedUser][0] != 0)
 				{
@@ -2848,7 +2848,7 @@ public void SpecListMenuAlive(int client) // What player sees
 
 public void LoadInfoBot()
 {
-	if (!GetConVarBool(g_hInfoBot))
+	if (!g_hInfoBot.BoolValue)
 		return;
 
 	g_InfoBot = -1;
@@ -2908,7 +2908,7 @@ public void SetInfoBotName(int ent)
 {
 	char szBuffer[64];
 	char sNextMap[128];
-	if (!IsValidClient(g_InfoBot) || !GetConVarBool(g_hInfoBot))
+	if (!IsValidClient(g_InfoBot) || !g_hInfoBot.BoolValue)
 		return;
 	if (g_bMapChooser && EndOfMapVoteEnabled() && !HasEndOfMapVoteFinished())
 		Format(sNextMap, sizeof(sNextMap), "Pending Vote");
@@ -2924,12 +2924,12 @@ public void SetInfoBotName(int ent)
 	float ftime = float(iInfoBotTimeleft);
 	char szTime[32];
 	FormatTimeFloat(g_InfoBot, ftime, 4, szTime, sizeof(szTime));
-	Handle hTmp;
+	ConVar hTmp;
 	hTmp = FindConVar("mp_timelimit");
-	int iTimeLimit = GetConVarInt(hTmp);
+	int iTimeLimit = hTmp.IntValue;
 	if (hTmp != null)
-		CloseHandle(hTmp);
-	if (GetConVarBool(g_hMapEnd) && iTimeLimit > 0)
+		delete hTmp;
+	if (g_hMapEnd.BoolValue && iTimeLimit > 0)
 		Format(szBuffer, sizeof(szBuffer), "%s (in %s)", sNextMap, szTime);
 	else
 		Format(szBuffer, sizeof(szBuffer), "Pending Vote (no time limit)");
@@ -3552,7 +3552,7 @@ public void SideHudAlive(int client)
 		DrawPanelText(panel, szPanel);
 
 		SendPanelToClient(panel, client, PanelHandler, 1);
-		CloseHandle(panel);
+		delete panel;
 	}
 }
 
@@ -3791,7 +3791,7 @@ stock void StyleFinishedMsgs(int client, int style)
 		GetClientName(client, szName, MAX_NAME_LENGTH);
 		int count = g_StyleMapTimesCount[style];
 
-		if (GetConVarInt(g_hAnnounceRecord) == 0 || GetConVarInt(g_hAnnounceRecord) == 1)
+		if (g_hAnnounceRecord.IntValue == 0 || g_hAnnounceRecord.IntValue == 1)
 		{
 			for (int i = 1; i <= MaxClients; i++)
 			{
@@ -3817,7 +3817,7 @@ stock void StyleFinishedMsgs(int client, int style)
 				}
 			}
 		}
-		else if (GetConVarInt(g_hAnnounceRecord) == 2)
+		else if (g_hAnnounceRecord.IntValue == 2)
 		{
 			for (int i = 1; i <= MaxClients; i++)
 			{
@@ -3941,7 +3941,7 @@ public void GetSpeedColour(int client, int speed, int type)
 		}
 		else if (type == 3 && g_SpeedMode[client] == 0) // gain/loss
 		{
-			if (speed >= GetConVarInt(g_hMaxVelocity))
+			if (speed >= g_hMaxVelocity.IntValue)
 				Format(g_szSpeedColour[client], sizeof(g_szSpeedColour), "#a300ff");
 			else if (g_iPreviousSpeed[client] < speed || g_iPreviousSpeed[client] == speed)
 				Format(g_szSpeedColour[client], sizeof(g_szSpeedColour), "#66bbff");
@@ -3972,7 +3972,7 @@ public void GetSpeedColour(int client, int speed, int type)
 		}
 		else if (type == 3 && g_SpeedMode[client] == 0) // gain/loss
 		{
-			if (speed >= GetConVarInt(g_hMaxVelocity))
+			if (speed >= g_hMaxVelocity.IntValue)
 				Format(g_szSpeedColour[client], sizeof(g_szSpeedColour), "#a300ff");
 			else if (g_iPreviousSpeed[client] < speed || g_iPreviousSpeed[client] == speed)
 				Format(g_szSpeedColour[client], sizeof(g_szSpeedColour), "#66bbff");
@@ -4145,7 +4145,7 @@ public void totalTimeForHumans(int unix, char[] buffer, int size)
 public void sendDiscordAnnouncement(char szName[MAX_NAME_LENGTH], char szMapName[128], char szTime[32])
 {
 	char webhook[1024];
-	GetConVarString(g_hRecordAnnounceDiscord, webhook, 1024);
+	g_hRecordAnnounceDiscord.GetString(webhook, 1024);
 	if (StrEqual(webhook, ""))
 		return;
 
@@ -4255,7 +4255,7 @@ public void TeleportToSaveloc(int client, int id)
 public void SendBugReport(int client)
 {
 	char webhook[1024];
-	GetConVarString(g_hReportBugsDiscord, webhook, 1024);
+	g_hReportBugsDiscord.GetString(webhook, 1024);
 	if (StrEqual(webhook, ""))
 		return;
 
@@ -4291,7 +4291,7 @@ public void SendBugReport(int client)
 public void CallAdmin(int client, char[] sText)
 {
 	char webhook[1024];
-	GetConVarString(g_hCalladminDiscord, webhook, 1024);
+	g_hCalladminDiscord.GetString(webhook, 1024);
 	if (StrEqual(webhook, ""))
 		return;
 
@@ -4374,10 +4374,10 @@ public Action ThrottledConsolePrint2(Handle timer, DataPack pack) {
 	int client = ReadPackCell(pack);
 	int offset = ReadPackCell(pack);
 	ArrayList msgs = ReadPackCell(pack);
-	CloseHandle(pack);
+	delete pack;
 
 	if (!IsValidClient(client)) {
-		CloseHandle(msgs);
+		delete msgs;
 		return;
 	}
 
@@ -4392,7 +4392,7 @@ public Action ThrottledConsolePrint2(Handle timer, DataPack pack) {
 	}
 
 	if (offset >= size) {
-		CloseHandle(msgs);
+		delete msgs;
 		return;
 	}
 

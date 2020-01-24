@@ -392,10 +392,6 @@ int g_CurrentZoneTypeId[MAXPLAYERS + 1];
 // Is client renaming zone?
 bool g_ClientRenamingZone[MAXPLAYERS + 1];
 
-// Zone beam colors
-int beamColorEdit[] = { 255, 255, 0, 210 };
-int beamColorOther[] = { 255, 255, 255, 128 };
-
 // Zone Default Names
 char g_szZoneDefaultNames[ZONEAMOUNT][128] = { "Stop", "Start", "End", "Stage", "Checkpoint", "SpeedStart", "TeleToStart", "Validator", "Checker", "AntiJump", "AntiDuck", "MaxSpeed" };
 
@@ -421,9 +417,6 @@ float g_fOutlineStartPos[MAXPLAYERS + 1][3];
 
 // Outline end position
 float g_fOutlineEndPos[MAXPLAYERS + 1][3];
-
-// Outline colour (white)
-int g_outlineBeamColor[] = { 255, 255, 255, 200 };
 
 int g_iOutlineBoxCount;
 int g_iOutlineLineCount;

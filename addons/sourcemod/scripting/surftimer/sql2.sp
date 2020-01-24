@@ -29,7 +29,7 @@ public void db_viewPlayerPr(int client, char szSteamId[32], char szMapName[128])
 	}
 }
 
-public void SQL_ViewMapNamePrCallback(Handle owner, Handle hndl, const char[] error, any pack)
+public void SQL_ViewMapNamePrCallback(Handle owner, Handle hndl, const char[] error, DataPack pack)
 {
 	if (hndl == null)
 	{
@@ -53,12 +53,12 @@ public void SQL_ViewMapNamePrCallback(Handle owner, Handle hndl, const char[] er
 	}
 	else
 	{
-		CloseHandle(pack);
+		delete pack;
 		CPrintToChat(client, "%t", "SQLTwo1", g_szChatPrefix);
 	}
 }
 
-public void SQL_ViewPlayerPrMapInfoCallback(Handle owner, Handle hndl, const char[] error, any pack)
+public void SQL_ViewPlayerPrMapInfoCallback(Handle owner, Handle hndl, const char[] error, DataPack pack)
 {
 	if (hndl == null)
 	{
@@ -89,11 +89,11 @@ public void SQL_ViewPlayerPrMapInfoCallback(Handle owner, Handle hndl, const cha
 	}
 	else
 	{
-		CloseHandle(pack);
+		delete pack;
 	}
 }
 
-public void SQL_ViewPlayerPrMaptimeCallback(Handle owner, Handle hndl, const char[] error, any pack)
+public void SQL_ViewPlayerPrMaptimeCallback(Handle owner, Handle hndl, const char[] error, DataPack pack)
 {
 	if (hndl == null)
 	{
@@ -148,7 +148,7 @@ public void SQL_ViewPlayerPrMaptimeCallback(Handle owner, Handle hndl, const cha
 	SQL_TQuery(g_hDb, SQL_ViewPlayerPrMaptimeCallback2, szQuery, pack);
 }
 
-public void SQL_ViewPlayerPrMaptimeCallback2(Handle owner, Handle hndl, const char[] error, any pack)
+public void SQL_ViewPlayerPrMaptimeCallback2(Handle owner, Handle hndl, const char[] error, DataPack pack)
 {
 	if (hndl == null)
 	{
@@ -165,7 +165,7 @@ public void SQL_ViewPlayerPrMaptimeCallback2(Handle owner, Handle hndl, const ch
 	float time = ReadPackFloat(pack);
 	int total = ReadPackCell(pack);
 	int rank = ReadPackCell(pack);
-	CloseHandle(pack);
+	delete pack;
 
 	int target = g_iPrTarget[client];
 	int stage;
@@ -270,7 +270,7 @@ public int PrMenuHandler(Menu menu, MenuAction action, int param1, int param2)
 	}
 	else if (action == MenuAction_End)
 	{
-		CloseHandle(menu);
+		delete menu;
 	}
 }
 
@@ -287,7 +287,7 @@ public void db_checkCustomPlayerNameColour(int client, char[] szSteamID, char[] 
 
 }
 
-public void SQL_checkCustomPlayerNameColourCallback(Handle owner, Handle hndl, const char[] error, any pack)
+public void SQL_checkCustomPlayerNameColourCallback(Handle owner, Handle hndl, const char[] error, DataPack pack)
 {
 	if (hndl == INVALID_HANDLE)
 	{
@@ -300,7 +300,7 @@ public void SQL_checkCustomPlayerNameColourCallback(Handle owner, Handle hndl, c
 	char arg[128];
 	ReadPackString(pack, szSteamID, 32);
 	ReadPackString(pack, arg, 128);
-	CloseHandle(pack);
+	delete pack;
 
 	if (SQL_HasResultSet(hndl) && SQL_FetchRow(hndl))
 	{
@@ -325,7 +325,7 @@ public void db_checkCustomPlayerTextColour(int client, char[] szSteamID, char[] 
 
 }
 
-public void SQL_checkCustomPlayerTextColourCallback(Handle owner, Handle hndl, const char[] error, any pack)
+public void SQL_checkCustomPlayerTextColourCallback(Handle owner, Handle hndl, const char[] error, DataPack pack)
 {
 	if (hndl == INVALID_HANDLE)
 	{
@@ -338,7 +338,7 @@ public void SQL_checkCustomPlayerTextColourCallback(Handle owner, Handle hndl, c
 	char arg[128];
 	ReadPackString(pack, szSteamID, 32);
 	ReadPackString(pack, arg, 128);
-	CloseHandle(pack);
+	delete pack;
 
 	if (SQL_HasResultSet(hndl) && SQL_FetchRow(hndl))
 	{
@@ -361,13 +361,13 @@ public void db_updateCustomPlayerNameColour(int client, char[] szSteamID, char[]
 	SQL_TQuery(g_hDb, SQL_updateCustomPlayerNameColourCallback, szQuery, pack);
 }
 
-public void SQL_updateCustomPlayerNameColourCallback(Handle owner, Handle hndl, const char[] error, any pack)
+public void SQL_updateCustomPlayerNameColourCallback(Handle owner, Handle hndl, const char[] error, DataPack pack)
 {
 	ResetPack(pack);
 	int client = ReadPackCell(pack);
 	char szSteamID[32];
 	ReadPackString(pack, szSteamID, 32);
-	CloseHandle(pack);
+	delete pack;
 
 	PrintToServer("Successfully updated custom player colour");
 	db_refreshCustomTitles(client);
@@ -384,13 +384,13 @@ public void db_updateCustomPlayerTextColour(int client, char[] szSteamID, char[]
 	SQL_TQuery(g_hDb, SQL_updateCustomPlayerTextColourCallback, szQuery, pack);
 }
 
-public void SQL_updateCustomPlayerTextColourCallback(Handle owner, Handle hndl, const char[] error, any pack)
+public void SQL_updateCustomPlayerTextColourCallback(Handle owner, Handle hndl, const char[] error, DataPack pack)
 {
 	ResetPack(pack);
 	int client = ReadPackCell(pack);
 	char szSteamID[32];
 	ReadPackString(pack, szSteamID, 32);
-	CloseHandle(pack);
+	delete pack;
 
 	PrintToServer("Successfully updated custom player text colour");
 	db_refreshCustomTitles(client);
@@ -484,12 +484,12 @@ public void db_selectCPR(int client, int rank, const char szMapName[128], const 
 	SQL_TQuery(g_hDb, SQL_SelectCPRTimeCallback, szQuery, pack);
 }
 
-public void SQL_SelectCPRTimeCallback(Handle owner, Handle hndl, const char[] error, any pack)
+public void SQL_SelectCPRTimeCallback(Handle owner, Handle hndl, const char[] error, DataPack pack)
 {
 	if (hndl == null)
 	{
 		LogError("[surftimer] SQL Error (SQL_SelectCPRTimeCallback): %s", error);
-		CloseHandle(pack);
+		delete pack;
 		return;
 	}
 
@@ -508,16 +508,16 @@ public void SQL_SelectCPRTimeCallback(Handle owner, Handle hndl, const char[] er
 	else
 	{
 		CPrintToChat(client, "%t", "SQLTwo7", g_szChatPrefix);
-		CloseHandle(pack);
+		delete pack;
 	}
 }
 
-public void SQL_SelectCPRCallback(Handle owner, Handle hndl, const char[] error, any pack)
+public void SQL_SelectCPRCallback(Handle owner, Handle hndl, const char[] error, DataPack pack)
 {
 	if (hndl == null)
 	{
 		LogError("[surftimer] SQL Error (SQL_SelectCPRCallback): %s", error);
-		CloseHandle(pack);
+		delete pack;
 		return;
 	}
 
@@ -534,7 +534,7 @@ public void SQL_SelectCPRCallback(Handle owner, Handle hndl, const char[] error,
 	}
 }
 
-public void db_selectCPRTarget(any pack)
+public void db_selectCPRTarget(DataPack pack)
 {
 	ResetPack(pack);
 	int client = ReadPackCell(pack);
@@ -553,12 +553,12 @@ public void db_selectCPRTarget(any pack)
 	SQL_TQuery(g_hDb, SQL_SelectCPRTargetCallback, szQuery, pack);
 }
 
-public void SQL_SelectCPRTargetCallback(Handle owner, Handle hndl, const char[] error, any pack)
+public void SQL_SelectCPRTargetCallback(Handle owner, Handle hndl, const char[] error, DataPack pack)
 {
 	if (hndl == null)
 	{
 		LogError("[surftimer] SQL Error (SQL_SelectCPRTargetCallback): %s", error);
-		CloseHandle(pack);
+		delete pack;
 		return;
 	}
 
@@ -575,7 +575,7 @@ public void SQL_SelectCPRTargetCallback(Handle owner, Handle hndl, const char[] 
 	}
 }
 
-public void db_selectCPRTargetCPs(const char[] szSteamId, any pack)
+public void db_selectCPRTargetCPs(const char[] szSteamId, DataPack pack)
 {
 	ResetPack(pack);
 	int client = ReadPackCell(pack);
@@ -585,12 +585,12 @@ public void db_selectCPRTargetCPs(const char[] szSteamId, any pack)
 	SQL_TQuery(g_hDb, SQL_SelectCPRTargetCPsCallback, szQuery, pack);
 }
 
-public void SQL_SelectCPRTargetCPsCallback(Handle owner, Handle hndl, const char[] error, any pack)
+public void SQL_SelectCPRTargetCPsCallback(Handle owner, Handle hndl, const char[] error, DataPack pack)
 {
 	if (hndl == null)
 	{
 		LogError("[surftimer] SQL Error (SQL_SelectCPRTargetCPsCallback): %s", error);
-		CloseHandle(pack);
+		delete pack;
 		return;
 	}
 
@@ -632,11 +632,11 @@ public void SQL_SelectCPRTargetCPsCallback(Handle owner, Handle hndl, const char
 		DisplayMenu(menu, client, MENU_TIME_FOREVER);
 	}
 
-	CloseHandle(pack);
+	delete pack;
 }
 
 public int CPRMenuHandler(Menu menu, MenuAction action, int param1, int param2)
 {
 	if (action == MenuAction_End)
-		CloseHandle(menu);
+		delete menu;
 }

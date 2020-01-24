@@ -29,9 +29,12 @@ void LoadPlayerNext() {
 		int client = found;
 		g_playerLoadState[client] = PLS_LOADING;
 		g_playerLoadStep[client] = 0;
+
+#if defined DEBUG_LOGGING
 		char sName[MAX_NAME_LENGTH];
 		GetClientName(client, sName, MAX_NAME_LENGTH);
 		LogToFileEx(g_szLogFile, "[surftimer] Starting to load player settings for %s", sName);
+#endif
 		g_playerLoadStart[client] = GetGameTime();
 		LoadPlayerStep(client);
 	}
@@ -45,7 +48,7 @@ void LoadPlayerContinue(DataPack cb, bool error) {
 	int client = cb.ReadCell();
 	int completedPlayerUid = cb.ReadCell();
 	int completedStep = cb.ReadCell();
-	CloseHandle(cb);
+	delete cb;
 
 	if (completedStep != g_playerLoadStep[client] || completedPlayerUid != g_playerLoadUid[client]) {
 		// Outdated step -- just stop here
@@ -57,10 +60,13 @@ void LoadPlayerContinue(DataPack cb, bool error) {
 		return;
 	}
 
+#if defined DEBUG_LOGGING
 	char szName[MAX_NAME_LENGTH];
 	GetClientName(client, szName, sizeof(szName));
 	float time = GetGameTime() - g_playerLoadTick[client];
 	LogToFileEx(g_szLogFile, "[Surftimer] %s<%s>: Finished load step %i in %fs", szName, g_szSteamID[client], g_playerLoadStep[client], time);
+#endif
+
 	g_playerLoadStep[client]++;
 	SetClanTag(client);
 
@@ -95,15 +101,17 @@ Action LoadPlayerStep2(Handle timer, int client) {
 	}
 }
 void LoadPlayerFinished(int client) {
+#if defined DEBUG_LOGGING
 	char szName[MAX_NAME_LENGTH];
 	GetClientName(client, szName, MAX_NAME_LENGTH);
 	float time = GetGameTime() - g_playerLoadStart[client];
 	LogToFileEx(g_szLogFile, "[Surftimer] %s<%s>: Finished loading in %fs", szName, g_szSteamID[client], time);
+#endif
 
 	g_playerLoadState[client] = PLS_LOADED;
 	db_UpdateLastSeen(client);
 
-	if (GetConVarBool(g_hTeleToStartWhenSettingsLoaded) && IsPlayerAlive(client)) {
+	if (g_hTeleToStartWhenSettingsLoaded.BoolValue && IsPlayerAlive(client)) {
 		Command_Restart(client, 1);
 		CreateTimer(0.1, RestartPlayer, client);
 	}
@@ -154,7 +162,7 @@ void SQL_PlayerQueryCb(Handle owner, Handle hndl, const char[] error, DataPack n
 	int client = newData.ReadCell();
 	int olduid = newData.ReadCell();
 	any data = newData.ReadCell();
-	CloseHandle(newData);
+	delete newData;
 	if (olduid != g_playerLoadUid[client]) {
 		return;
 	}

@@ -15,7 +15,7 @@ void LoadMapStart() {
 void LoadMapContinue(DataPack cb, bool error) {
     int completedMapUid = cb.ReadCell();
     int completedStep = cb.ReadCell();
-    CloseHandle(cb);
+    delete cb;
 
     if (completedStep != g_mapLoadStep || completedMapUid != g_mapLoadUid) {
         // Outdated step -- just stop here
@@ -26,8 +26,10 @@ void LoadMapContinue(DataPack cb, bool error) {
         return;
     }
 
+#if defined DEBUG_LOGGING
     float time = GetGameTime() - g_mapLoadTick;
     LogToFileEx(g_szLogFile, "[Surftimer] Finished map load step %i in %fs", g_mapLoadStep, time);
+#endif
     g_mapLoadStep++;
     LoadMapStep();
 }
