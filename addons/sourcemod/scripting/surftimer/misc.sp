@@ -98,6 +98,12 @@ public void teleportClient(int client, int zonegroup, int zone, bool stopTime)
 		return;
 	}
 
+	// fix array out of bounds
+	if (zonegroup == 0 && zone > g_TotalStages)
+	{
+		return;
+	}
+
 	// Set Defaults
 
 	// fluffys gravity
@@ -105,10 +111,6 @@ public void teleportClient(int client, int zonegroup, int zone, bool stopTime)
 
 	if (g_players[client].initialStyle != 5 && g_players[client].initialStyle != 6)
 	 	SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", 1.0);
-
-	// Hack fix for b1 of surf_aircontrol_ksf
-	if (StrEqual(g_szMapName, "surf_aircontrol_ksf_123") && zonegroup == 1)
-		SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", 2.0);
 
 	if (g_bPracticeMode[client])
 		Command_normalMode(client, 1);

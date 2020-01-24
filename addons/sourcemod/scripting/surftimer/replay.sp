@@ -927,7 +927,7 @@ public void RecordReplay (int client, int &buttons, int &subtype, int &seed, int
 
 public void PlayReplay(int client, int &buttons, int &subtype, int &seed, int &impulse, int &weapon, float angles[3], float vel[3])
 {
-	if (g_hBotMimicsRecord[client] != null)
+	if (g_hBotMimicsRecord[client] != null && GetArraySize(g_hBotMimicsRecord[client]) > 0)
 	{
 		if (!IsPlayerAlive(client) || GetClientTeam(client) < CS_TEAM_T)
 			return;
