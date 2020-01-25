@@ -1240,7 +1240,7 @@ public void SetClientDefaults(int client) {
 	// 	g_fCheckpointAngle_undo[client][x] = 0.0;
 	// }
 
-	for (int x = 0; x < MAXZONEGROUPS; x++)
+	for (int x = 0; x < MAX_ZONEGROUPS; x++)
 	{
 		Format(g_szPersonalRecordBonus[x][client], 64, "-");
 		g_bCheckpointsFound[x][client] = false;
@@ -1295,7 +1295,7 @@ public void SetClientDefaults(int client) {
 	g_players[client].outlines = true;
 
 	// Goose Start Pos
-	for (int i = 0; i < MAXZONEGROUPS; i++)
+	for (int i = 0; i < MAX_ZONEGROUPS; i++)
 		g_bStartposUsed[client][i] = false;
 
 	// Save loc
@@ -1310,7 +1310,7 @@ public void SetClientDefaults(int client) {
 	g_iMenuPosition[client] = 0;
 
 	// Set default stage maybe
-	for (int i = 0; i < MAXZONEGROUPS; i++)
+	for (int i = 0; i < MAX_ZONEGROUPS; i++)
 		g_Stage[i][client] = 1;
 
 	g_bInBhop[client] = false;

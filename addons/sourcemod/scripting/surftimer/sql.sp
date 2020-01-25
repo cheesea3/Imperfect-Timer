@@ -2341,13 +2341,15 @@ public void SQL_deleteBonusCallback(Handle owner, Handle hndl, const char[] erro
 /*===================================
 =            SQL Outlines           =
 ===================================*/
-// char mapName[128], int id, int type, float pointax, float pointay, float pointaz, float pointbx, float pointby, float pointbz
 public void DB_InsertOutline(MapOutline ol)
 {
 	char szQuery[1024];
 
-	// INSERT INTO `ck_outlines` (mapname, id, type, pointa_x, pointa_y, pointa_z, pointb_x, pointb_y, pointb_z, name) VALUES ('%s', '%i', '%i', '%f', '%f', '%f', '%f', '%f', '%f')
-	Format(szQuery, 1024, sql_insertOutline, g_szMapName, ol.id, ol.type, ol.startPos[0], ol.startPos[1], ol.startPos[2], ol.endPos[0], ol.endPos[1], ol.endPos[2]);
+	Format(szQuery, 1024, sql_insertOutline, g_szMapName, ol.id, ol.type,
+			ol.startPos[0], ol.startPos[1], ol.startPos[2],
+			ol.endPos[0], ol.endPos[1], ol.endPos[2],
+			ol.angles[0], ol.angles[1], ol.angles[2],
+			ol.origin[0], ol.origin[1], ol.origin[2]);
 	SQL_TQuery(g_hDb, SQL_InsertOutlineCallback, szQuery);
 }
 
@@ -2484,7 +2486,7 @@ public void ZoneDefaultName(int zonetype, int zonegroup, char zName[128])
 {
 	if (zonegroup > 0)
 		Format(zName, 64, "Bonus %i", zonegroup);
-	else if (-1 < zonetype < ZONEAMOUNT)
+	else if (-1 < zonetype < MAX_ZONETYPES)
 		Format(zName, 128, "%s %i", g_szZoneDefaultNames[zonetype], zonegroup);
 	else
 		Format(zName, 64, "Unknown");
@@ -2682,11 +2684,11 @@ public void SQL_selectzoneTypeIdsCallback(Handle owner, Handle hndl, const char[
 
 	if (SQL_HasResultSet(hndl))
 	{
-		int availableids[MAXZONES] = { 0, ... }, i;
+		int availableids[MAX_ZONES] = { 0, ... }, i;
 		while (SQL_FetchRow(hndl))
 		{
 			i = SQL_FetchInt(hndl, 0);
-			if (i < MAXZONES)
+			if (i < MAX_ZONES)
 				availableids[i] = 1;
 		}
 		Menu TypeMenu = new Menu(Handle_EditZoneTypeId);

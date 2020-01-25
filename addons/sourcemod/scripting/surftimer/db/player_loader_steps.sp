@@ -1,6 +1,6 @@
 // 0
 
-static bool g_printRecord[MAXPLAYERS][MAXZONEGROUPS][MAX_STYLES];
+static bool g_printRecord[MAXPLAYERS][MAX_ZONEGROUPS][MAX_STYLES];
 
 void db_refreshPlayerMapRecords(int client, any cb=0) {
 	char szQuery[] = " \
@@ -42,7 +42,7 @@ void db_refreshPlayerMapRecordsCb(Handle hndl, const char[] error, int client, a
 	}
 
 	if (!IsPlayerLoaded(client)) {
-		for (int zgroup = 0; zgroup < MAXZONEGROUPS; zgroup++) {
+		for (int zgroup = 0; zgroup < MAX_ZONEGROUPS; zgroup++) {
 			for (int style = 0; style < MAX_STYLES; style++) {
 				g_printRecord[client][zgroup][style] = false;
 			}
@@ -59,7 +59,7 @@ void db_refreshPlayerMapRecordsCb(Handle hndl, const char[] error, int client, a
 		g_StyleMapRank[style][client] = 9999999;
 		g_iPBMapStartSpeed[style][client] = -1; // @IG start speeds
 	}
-	for (int zgroup = 0; zgroup < MAXZONEGROUPS; zgroup++) {
+	for (int zgroup = 0; zgroup < MAX_ZONEGROUPS; zgroup++) {
 		g_fPersonalRecordBonus[zgroup][client] = 0.0;
 		Format(g_szPersonalRecordBonus[zgroup][client], 64, "N/A");
 		g_MapRankBonus[zgroup][client] = 9999999;
@@ -460,7 +460,7 @@ void db_refreshCheckpointsCb(Handle hndl, const char[] error, int client, any cb
 		return;
 	}
 
-	for (int i = 0; i < MAXZONEGROUPS; i++) {
+	for (int i = 0; i < MAX_ZONEGROUPS; i++) {
 		g_bCheckpointsFound[i][client] = false;
 	}
 

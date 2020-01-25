@@ -30,71 +30,71 @@ bool g_bShowZones[MAXPLAYERS + 1];
 /*----------  Stages  ----------*/
 
 // Which stage is the client in
-int g_Stage[MAXZONEGROUPS][MAXPLAYERS + 1];
+int g_Stage[MAX_ZONEGROUPS][MAXPLAYERS + 1];
 int g_WrcpStage[MAXPLAYERS + 1];
 
 bool g_bhasStages;
 
 /*----------  Spawn Locations  ----------*/
-float g_fSpawnLocation[MAXZONEGROUPS][CPLIMIT][2][3];
-float g_fSpawnAngle[MAXZONEGROUPS][CPLIMIT][2][3];
-float g_fSpawnVelocity[MAXZONEGROUPS][CPLIMIT][2][3];
-bool g_bGotSpawnLocation[MAXZONEGROUPS][CPLIMIT][2];
+float g_fSpawnLocation[MAX_ZONEGROUPS][CPLIMIT][2][3];
+float g_fSpawnAngle[MAX_ZONEGROUPS][CPLIMIT][2][3];
+float g_fSpawnVelocity[MAX_ZONEGROUPS][CPLIMIT][2][3];
+bool g_bGotSpawnLocation[MAX_ZONEGROUPS][CPLIMIT][2];
 
 /*----------  Bonus Variables  ----------*/
 
 // Name of the #1 in the current maps bonus
-char g_szBonusFastest[MAXZONEGROUPS][MAX_NAME_LENGTH];
+char g_szBonusFastest[MAX_ZONEGROUPS][MAX_NAME_LENGTH];
 
 // Fastest bonus time in 00:00:00:00 format
-char g_szBonusFastestTime[MAXZONEGROUPS][64];
+char g_szBonusFastestTime[MAX_ZONEGROUPS][64];
 
 // Clients personal bonus record in the current map
-float g_fPersonalRecordBonus[MAXZONEGROUPS][MAXPLAYERS + 1];
+float g_fPersonalRecordBonus[MAX_ZONEGROUPS][MAXPLAYERS + 1];
 
 // Personal bonus record in 00:00:00 format
-char g_szPersonalRecordBonus[MAXZONEGROUPS][MAXPLAYERS + 1][64];
+char g_szPersonalRecordBonus[MAX_ZONEGROUPS][MAXPLAYERS + 1][64];
 
 // Fastest bonus time in the current map
-float g_fBonusFastest[MAXZONEGROUPS];
+float g_fBonusFastest[MAX_ZONEGROUPS];
 
 // Old record time, for prints + counting
-float g_fOldBonusRecordTime[MAXZONEGROUPS];
+float g_fOldBonusRecordTime[MAX_ZONEGROUPS];
 
 // Clients personal bonus rank in the current map
-int g_MapRankBonus[MAXZONEGROUPS][MAXPLAYERS + 1];
+int g_MapRankBonus[MAX_ZONEGROUPS][MAXPLAYERS + 1];
 
 // Old rank in bonus
-int g_OldMapRankBonus[MAXZONEGROUPS][MAXPLAYERS + 1];
+int g_OldMapRankBonus[MAX_ZONEGROUPS][MAXPLAYERS + 1];
 
 // Has the client missed his best bonus time
 int g_bMissedBonusBest[MAXPLAYERS + 1];
 
 // Used to make sure bonus finished prints are correct
-int g_tmpBonusCount[MAXZONEGROUPS];
+int g_tmpBonusCount[MAX_ZONEGROUPS];
 
 // Amount of players that have passed the bonus in current map
-int g_iBonusCount[MAXZONEGROUPS];
+int g_iBonusCount[MAX_ZONEGROUPS];
 
 // Does map have a bonus?
 bool g_bhasBonus;
 
 // IG: Record bonus start speeds by style
-int g_iRecordBonusStartSpeed[MAX_STYLES][MAXZONEGROUPS];
+int g_iRecordBonusStartSpeed[MAX_STYLES][MAX_ZONEGROUPS];
 
 // IG: Personal best bonus start speeds by style
-int g_iPBBonusStartSpeed[MAX_STYLES][MAXZONEGROUPS][MAXPLAYERS + 1];
+int g_iPBBonusStartSpeed[MAX_STYLES][MAX_ZONEGROUPS][MAXPLAYERS + 1];
 
 /*----------  Checkpoint Variables  ----------*/
 
 // Clients best run's times
-float g_fCheckpointTimesRecord[MAXZONEGROUPS][MAXPLAYERS + 1][CPLIMIT];
+float g_fCheckpointTimesRecord[MAX_ZONEGROUPS][MAXPLAYERS + 1][CPLIMIT];
 
 // Clients current run's times
-float g_fCheckpointTimesNew[MAXZONEGROUPS][MAXPLAYERS + 1][CPLIMIT];
+float g_fCheckpointTimesNew[MAX_ZONEGROUPS][MAXPLAYERS + 1][CPLIMIT];
 
 // Server record checkpoint times
-float g_fCheckpointServerRecord[MAXZONEGROUPS][CPLIMIT];
+float g_fCheckpointServerRecord[MAX_ZONEGROUPS][CPLIMIT];
 
 // Last difference to the server record checkpoint
 char g_szLastSRDifference[MAXPLAYERS + 1][64];
@@ -109,13 +109,13 @@ float g_fLastDifferenceTime[MAXPLAYERS + 1];
 float tmpDiff[MAXPLAYERS + 1];
 
 // Used to track which checkpoint was last reached
-int lastCheckpoint[MAXZONEGROUPS][MAXPLAYERS + 1];
+int lastCheckpoint[MAX_ZONEGROUPS][MAXPLAYERS + 1];
 
 // Clients checkpoints have been found?
-bool g_bCheckpointsFound[MAXZONEGROUPS][MAXPLAYERS + 1];
+bool g_bCheckpointsFound[MAX_ZONEGROUPS][MAXPLAYERS + 1];
 
 // Map record checkpoints found?
-bool g_bCheckpointRecordFound[MAXZONEGROUPS];
+bool g_bCheckpointRecordFound[MAX_ZONEGROUPS];
 
 // The biggest % amount the player has reached in current map
 float g_fMaxPercCompleted[MAXPLAYERS + 1];
@@ -147,26 +147,26 @@ bool g_bIgnoreZone[MAXPLAYERS + 1];
 int g_iClientInZone[MAXPLAYERS + 1][4];
 
 // Zone type count in each zoneGroup
-int g_mapZonesTypeCount[MAXZONEGROUPS][ZONEAMOUNT];
+int g_mapZonesTypeCount[MAX_ZONEGROUPS][MAX_ZONETYPES];
 
 // Zone group's name
-char g_szZoneGroupName[MAXZONEGROUPS][128];
+char g_szZoneGroupName[MAX_ZONEGROUPS][128];
 
 // Map Zone array
-MapZone g_mapZones[MAXZONES];
-// int g_mapZones[MAXZONES][MapZone];
+MapZone g_mapZones[MAX_ZONES];
+// int g_mapZones[MAX_ZONES][MapZone];
 
 // The total amount of zones in the map
 int g_mapZonesCount;
 
 // Map zone count in zonegroups
-int g_mapZoneCountinGroup[MAXZONEGROUPS];
+int g_mapZoneCountinGroup[MAX_ZONEGROUPS];
 
 // Zone group cound
 int g_mapZoneGroupCount;
 
 // Additional zone corners, can't store multi dimensional arrays in enums..
-float g_fZoneCorners[MAXZONES][8][3];
+float g_fZoneCorners[MAX_ZONES][8][3];
 
 /*----------  AntiJump & AntiDuck Variables  ----------*/
 bool g_bInDuck[MAXPLAYERS + 1] = false;
@@ -249,16 +249,16 @@ bool g_bStyleMapPBRecord[MAX_STYLES][MAXPLAYERS + 1];
 bool g_bStyleMapSRVRecord[MAX_STYLES][MAXPLAYERS + 1];
 
 // Bonus Styles
-char g_szStyleBonusFastest[MAX_STYLES][MAXZONEGROUPS][MAX_NAME_LENGTH];
-char g_szStyleBonusFastestTime[MAX_STYLES][MAXZONEGROUPS][64];
-float g_fStylePersonalRecordBonus[MAX_STYLES][MAXZONEGROUPS][MAXPLAYERS + 1];
-char g_szStylePersonalRecordBonus[MAX_STYLES][MAXZONEGROUPS][MAXPLAYERS + 1][64];
-float g_fStyleBonusFastest[MAX_STYLES][MAXZONEGROUPS];
-float g_fStyleOldBonusRecordTime[MAX_STYLES][MAXZONEGROUPS];
-int g_StyleMapRankBonus[MAX_STYLES][MAXZONEGROUPS][MAXPLAYERS + 1];
-int g_StyleOldMapRankBonus[MAX_STYLES][MAXZONEGROUPS][MAXPLAYERS + 1];
-int g_StyletmpBonusCount[MAX_STYLES][MAXZONEGROUPS];
-int g_iStyleBonusCount[MAX_STYLES][MAXZONEGROUPS];
+char g_szStyleBonusFastest[MAX_STYLES][MAX_ZONEGROUPS][MAX_NAME_LENGTH];
+char g_szStyleBonusFastestTime[MAX_STYLES][MAX_ZONEGROUPS][64];
+float g_fStylePersonalRecordBonus[MAX_STYLES][MAX_ZONEGROUPS][MAXPLAYERS + 1];
+char g_szStylePersonalRecordBonus[MAX_STYLES][MAX_ZONEGROUPS][MAXPLAYERS + 1][64];
+float g_fStyleBonusFastest[MAX_STYLES][MAX_ZONEGROUPS];
+float g_fStyleOldBonusRecordTime[MAX_STYLES][MAX_ZONEGROUPS];
+int g_StyleMapRankBonus[MAX_STYLES][MAX_ZONEGROUPS][MAXPLAYERS + 1];
+int g_StyleOldMapRankBonus[MAX_STYLES][MAX_ZONEGROUPS][MAXPLAYERS + 1];
+int g_StyletmpBonusCount[MAX_STYLES][MAX_ZONEGROUPS];
+int g_iStyleBonusCount[MAX_STYLES][MAX_ZONEGROUPS];
 
 // WRCP Styles
 float g_fStyleStageRecord[MAX_STYLES][CPLIMIT];
@@ -393,40 +393,11 @@ int g_CurrentZoneTypeId[MAXPLAYERS + 1];
 bool g_ClientRenamingZone[MAXPLAYERS + 1];
 
 // Zone Default Names
-char g_szZoneDefaultNames[ZONEAMOUNT][128] = { "Stop", "Start", "End", "Stage", "Checkpoint", "SpeedStart", "TeleToStart", "Validator", "Checker", "AntiJump", "AntiDuck", "MaxSpeed" };
+char g_szZoneDefaultNames[MAX_ZONETYPES][128] = { "Stop", "Start", "End", "Stage", "Checkpoint", "SpeedStart", "TeleToStart", "Validator", "Checker", "AntiJump", "AntiDuck", "MaxSpeed" };
 
 // Zone sprites
 int g_BeamSprite;
 int g_HaloSprite;
-
-/*----------  @IG Outlines  ----------*/
-// Is the player is in outline creation mode?
-bool g_bCreatingOutline[MAXPLAYERS + 1];
-
-// What style is the outline creator using? 0 = line, 1 = box
-int g_iOutlineStyle[MAXPLAYERS + 1];
-
-// Has the start point been created?
-bool g_bStartPointPlaced[MAXPLAYERS + 1];
-
-// Has the end point been created?
-bool g_bEndPointPlaced[MAXPLAYERS + 1];
-
-// Outline start position
-float g_fOutlineStartPos[MAXPLAYERS + 1][3];
-
-// Outline end position
-float g_fOutlineEndPos[MAXPLAYERS + 1][3];
-
-int g_iOutlineBoxCount;
-int g_iOutlineLineCount;
-int g_iTotalOutlines;
-
-MapOutline g_outlineLines[MAX_OUTLINE_LINES];
-MapOutline g_outlineBoxes[MAX_OUTLINE_BOXES];
-float g_vOutlineBoxCorners[MAX_OUTLINE_BOXES][8][3]; // really need to switch to Vectors...
-//float g_vOutlineLines[MAX_OUTLINE_LINES][2][3];
-//float g_vOutlineBoxes[MAX_OUTLINE_BOXES][2][3];
 
 /*----------  PushFix by Mev, George & Blacky  ----------*/
 // https://forums.alliedmods.net/showthread.php?t=267131
@@ -596,7 +567,7 @@ char g_szPersonalRecord[MAXPLAYERS + 1][64];
 float g_favg_maptime;
 
 // Average bonus times TODO: Combine with g_favg_maptime
-float g_fAvg_BonusTime[MAXZONEGROUPS];
+float g_fAvg_BonusTime[MAX_ZONEGROUPS];
 
 // If timer is started for the first time, print avg times
 bool g_bFirstTimerStart[MAXPLAYERS + 1];
@@ -696,8 +667,8 @@ char g_szWrcpReplayName[CPLIMIT][128];
 char g_szWrcpReplayTime[CPLIMIT][128];
 int g_BonusBotCount;
 int g_iCurrentBonusReplayIndex;
-int g_iBonusToReplay[MAXZONEGROUPS + 1];
-float g_fReplayTimes[MAXZONEGROUPS][MAX_STYLES];
+int g_iBonusToReplay[MAX_ZONEGROUPS + 1];
+float g_fReplayTimes[MAX_ZONEGROUPS][MAX_STYLES];
 int g_iManualBonusToReplay;
 int g_iCurrentlyPlayingStage;
 
@@ -983,9 +954,9 @@ bool g_bShowTriggers[MAXPLAYERS + 1];
 int g_Offset_m_fEffects = -1;
 
 /*----------  !startpos Goose  ----------*/
-float g_fStartposLocation[MAXPLAYERS + 1][MAXZONEGROUPS][3];
-float g_fStartposAngle[MAXPLAYERS + 1][MAXZONEGROUPS][3];
-bool g_bStartposUsed[MAXPLAYERS + 1][MAXZONEGROUPS];
+float g_fStartposLocation[MAXPLAYERS + 1][MAX_ZONEGROUPS][3];
+float g_fStartposAngle[MAXPLAYERS + 1][MAX_ZONEGROUPS][3];
+bool g_bStartposUsed[MAXPLAYERS + 1][MAX_ZONEGROUPS];
 
 // Strafe Sync (Taken from shavit's bhop timer)
 int g_iGoodGains[MAXPLAYERS + 1];

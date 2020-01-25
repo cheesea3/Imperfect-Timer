@@ -7,8 +7,8 @@ ConVar g_hZoneDisplayType = null;								// How zones are displayed (lower edge,
 ConVar g_hZonesToDisplay = null;								// Which zones are displayed
 ConVar g_hShowOutlines = null;									// Show outlines
 // Zone Colors
-int g_iZoneColors[ZONEAMOUNT+2][4];								// ZONE COLOR TYPES: Stop(0), Start(1), End(2), BonusStart(3), BonusEnd(4), Stage(5),
-char g_szZoneColors[ZONEAMOUNT+2][24];							// Checkpoint(6), Speed(7), TeleToStart(8), Validator(9), Chekcer(10)
+int g_iZoneColors[MAX_ZONETYPES+2][4];								// ZONE COLOR TYPES: Stop(0), Start(1), End(2), BonusStart(3), BonusEnd(4), Stage(5),
+char g_szZoneColors[MAX_ZONETYPES+2][24];							// Checkpoint(6), Speed(7), TeleToStart(8), Validator(9), Chekcer(10)
 ConVar g_hzoneStartColor = null;
 ConVar g_hzoneEndColor = null;
 ConVar g_hzoneBonusStartColor = null;
@@ -37,7 +37,7 @@ ConVar g_hReplaceReplayTime = null;								// Replace replay times, even if not 
 ConVar g_hTeleToStartWhenSettingsLoaded = null;
 bool g_bMapReplay[MAX_STYLES];									// Why two bools?
 ConVar g_hBonusBot = null;										// Bonus bot?
-bool g_bMapBonusReplay[MAXZONEGROUPS][MAX_STYLES];
+bool g_bMapBonusReplay[MAX_ZONEGROUPS][MAX_STYLES];
 ConVar g_hPauseServerside = null;								// Allow !pause?
 ConVar g_hAutoBhopConVar = null;								// Allow autobhop?
 bool g_bAutoBhop;

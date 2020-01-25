@@ -13,18 +13,16 @@ public Plugin myinfo =
 	url = "http://www.imperfectgamers.org/"
 };
 
+#include <ig_entitymanager>
+
 #define ENTITY_LOGGING
 #define ENTITY_LOGGING_PATH "logs/ig_entities"
-#define ENTITY_CONFIG_PATH "configs/ig_entities"
-#define BEAM_COLOR_HIGHLIGHT { 255, 255, 0, 255 }
+#define ENTITY_CONFIG_PATH  "configs/ig_entities"
 
 char g_szMapName[128];
 char g_szConfigPath[PLATFORM_MAX_PATH];
 char g_szConfigFilePath[PLATFORM_MAX_PATH];
 ArrayList g_hDeletedEnts = null;
-
-int g_BeamSprite;
-int g_HaloSprite;
 
 #if defined ENTITY_LOGGING
 char g_szLogFile[PLATFORM_MAX_PATH];
@@ -80,9 +78,6 @@ public void OnPluginStart()
 
 	if (g_hDeletedEnts == null)
 		g_hDeletedEnts = new ArrayList(128);
-
-	g_BeamSprite = PrecacheModel("materials/sprites/laserbeam.vmt", true);
-	g_HaloSprite = PrecacheModel("materials/sprites/halo.vmt", true);
 }
 
 public void OnPluginStop()
@@ -248,22 +243,7 @@ public Action Command_GoToEntity(int client, int args)
 	GetCmdArg(1, arg1, sizeof(arg1));
 	int iEnt = StringToInt(arg1);
 
-	if (IsValidEntity(iEnt) && HasEntProp(iEnt, Prop_Send, "m_vecOrigin"))
-	{
-		char sClassName[128];
-		GetEdictClassname(iEnt, sClassName, 128);
-
-		float pos[3], ang[3];
-		GetEntPropVector(iEnt, Prop_Send, "m_vecOrigin", pos);
-		GetClientEyeAngles(client, ang);
-		TeleportEntity(client, pos, ang, view_as<float>( { 0.0, 0.0, -100.0 } ));
-		HighlightEntity(client, iEnt); // highlight it as well, cause why not
-		PrintToChat(client, "Teleported to entity %i: %s at { %.2f, %.2f. %.2f }", iEnt, sClassName, pos[0], pos[1], pos[2]);
-	}
-	else
-	{
-		PrintToChat(client, "Invalid entity index or missing property: %i", iEnt);
-	}
+	GoToEntity(client, iEnt);
 
 	return Plugin_Handled;
 }
@@ -280,23 +260,6 @@ public Action Command_HighlightEntity(int client, int args)
 		PrintToChat(client, "Invalid entity index: %i", iEnt);
 
 	return Plugin_Handled;
-}
-
-void HighlightEntity(int client, int iEnt)
-{
-	if (HasEntProp(iEnt, Prop_Send, "m_vecOrigin"))
-	{
-		float origin[3], mins[3], maxs[3], angles[3];
-		GetEntPropVector(iEnt, Prop_Send, "m_vecOrigin", origin);
-		GetEntPropVector(iEnt, Prop_Send, "m_vecMins", mins);
-		GetEntPropVector(iEnt, Prop_Send, "m_vecMaxs", maxs);
-		GetEntPropVector(iEnt, Prop_Send, "m_angRotation", angles);
-		Effect_DrawBeamBoxRotatableToClient(client, origin, mins, maxs, angles, g_BeamSprite, g_HaloSprite, 0, 30, 15.0, 1.0, 1.0, 1, 1.0, BEAM_COLOR_HIGHLIGHT, 0);
-	}
-	else
-	{
-		PrintToChat(client, "Entity does not have m_vecOrigin! Highlight failed.");
-	}
 }
 
 // delete entities on map load

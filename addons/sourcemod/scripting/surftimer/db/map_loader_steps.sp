@@ -70,27 +70,28 @@ public void SQL_SelectOutlinesCallback(Handle owner, Handle hndl, const char[] e
 			outline.endPos[1] = SQL_FetchFloat(hndl, 6);
 			outline.endPos[2] = SQL_FetchFloat(hndl, 7);
 
-			// @todo: implement angles
-			outline.angle[0] = SQL_FetchFloat(hndl, 8);
-			outline.angle[0] = SQL_FetchFloat(hndl, 9);
-			outline.angle[0] = SQL_FetchFloat(hndl, 10);
+			outline.angles[0] = SQL_FetchFloat(hndl, 8);
+			outline.angles[1] = SQL_FetchFloat(hndl, 9);
+			outline.angles[2] = SQL_FetchFloat(hndl, 10);
 
-			if (outline.type == OUTLINE_STYLE_BOX)
+			if (outline.type == OUTLINE_STYLE_HOOK || outline.type == OUTLINE_STYLE_BOX)
 			{
-				// Center point
-				float posA[3], posB[3], result[3];
-				Array_Copy(outline.startPos, posA, 3);
-				Array_Copy(outline.endPos, posB, 3);
-				AddVectors(posA, posB, result);
-				outline.center[0] = result[0] / 2.0;
-				outline.center[1] = result[1] / 2.0;
-				outline.center[2] = result[2] / 2.0;
+				// hook outlines do not use default origin
+				if (outline.type == OUTLINE_STYLE_HOOK)
+				{
+					outline.origin[0] = SQL_FetchFloat(hndl, 11);
+					outline.origin[1] = SQL_FetchFloat(hndl, 12);
+					outline.origin[2] = SQL_FetchFloat(hndl, 13);
+				}
 
-				for (int i = 0; i < 3; i++)
+				//CPrintToChatAll("Hook at {%.1f, %.1f, %.1f} | Min: {%.1f, %.1f, %.1f} | Max: {%.1f, %.1f, %.1f}", outline.origin[0], outline.origin[1], outline.origin[2],
+								//outline.startPos[0], outline.startPos[1], outline.startPos[2], outline.endPos[0], outline.endPos[1], outline.endPos[2]);
+
+				/*for (int i = 0; i < 3; i++)
 				{
 					g_vOutlineBoxCorners[g_iOutlineBoxCount][0][i] = outline.startPos[i];
 					g_vOutlineBoxCorners[g_iOutlineBoxCount][7][i] = outline.endPos[i];
-				}
+				}*/
 
 				g_outlineBoxes[g_iOutlineBoxCount] = outline;
 				g_iOutlineBoxCount++;
@@ -104,11 +105,11 @@ public void SQL_SelectOutlinesCallback(Handle owner, Handle hndl, const char[] e
 			}
 		}
 
-		// Zone corners
-		for (int x = 0; x < g_iOutlineBoxCount; x++)
+		// Corners
+		/*for (int x = 0; x < g_iOutlineBoxCount; x++)
 			for(int i = 1; i < 7; i++)
 				for(int j = 0; j < 3; j++)
-					g_vOutlineBoxCorners[x][i][j] = g_vOutlineBoxCorners[x][((i >> (2-j)) & 1) * 7][j];
+					g_vOutlineBoxCorners[x][i][j] = g_vOutlineBoxCorners[x][((i >> (2-j)) & 1) * 7][j];*/
 	}
 
 	RunCallback(cb);
@@ -140,19 +141,19 @@ public void SQL_selectMapZonesCallback(Handle owner, Handle hndl, const char[] e
 		g_mapZoneGroupCount = 0; // 1 = No Bonus, 2 = Bonus, >2 = Multiple bonuses
 		g_iTotalCheckpoints = 0;
 
-		for (int i = 0; i < MAXZONES; i++)
+		for (int i = 0; i < MAX_ZONES; i++)
 		{
 			g_mapZones[i].Defaults();
 		}
 
-		for (int x = 0; x < MAXZONEGROUPS; x++)
+		for (int x = 0; x < MAX_ZONEGROUPS; x++)
 		{
 			g_mapZoneCountinGroup[x] = 0;
-			for (int k = 0; k < ZONEAMOUNT; k++)
+			for (int k = 0; k < MAX_ZONETYPES; k++)
 			g_mapZonesTypeCount[x][k] = 0;
 		}
 
-		int zoneIdChecker[MAXZONES], zoneTypeIdChecker[MAXZONEGROUPS][ZONEAMOUNT][MAXZONES], zoneTypeIdCheckerCount[MAXZONEGROUPS][ZONEAMOUNT], zoneGroupChecker[MAXZONEGROUPS];
+		int zoneIdChecker[MAX_ZONES], zoneTypeIdChecker[MAX_ZONEGROUPS][MAX_ZONETYPES][MAX_ZONES], zoneTypeIdCheckerCount[MAX_ZONEGROUPS][MAX_ZONETYPES], zoneGroupChecker[MAX_ZONEGROUPS];
 
 		// Types: Start(1), End(2), Stage(3), Checkpoint(4), Speed(5), TeleToStart(6), Validator(7), Chekcer(8), Stop(0)
 		while (SQL_FetchRow(hndl))
@@ -322,7 +323,7 @@ public void SQL_selectMapZonesCallback(Handle owner, Handle hndl, const char[] e
 		// 3rd ZoneTypeId
 		for (int i = 0; i < g_mapZoneGroupCount; i++)
 		{
-			for (int k = 0; k < ZONEAMOUNT; k++)
+			for (int k = 0; k < MAX_ZONETYPES; k++)
 			{
 				for (int x = 0; x < zoneTypeIdCheckerCount[i][k]; x++)
 				{
@@ -350,7 +351,7 @@ public void SQL_selectMapZonesCallback(Handle owner, Handle hndl, const char[] e
 
 		// Set mapzone count in group
 		for (int x = 0; x < g_mapZoneGroupCount; x++)
-			for (int k = 0; k < ZONEAMOUNT; k++)
+			for (int k = 0; k < MAX_ZONETYPES; k++)
 				if (g_mapZonesTypeCount[x][k] > 0)
 					g_mapZoneCountinGroup[x]++;
 	}
@@ -483,7 +484,7 @@ public void SQL_selectFastestBonusCallback(Handle owner, Handle hndl, const char
 		return;
 	}
 
-	for (int i = 0; i < MAXZONEGROUPS; i++)
+	for (int i = 0; i < MAX_ZONEGROUPS; i++)
 	{
 		Format(g_szBonusFastestTime[i], 64, "N/A");
 		g_fBonusFastest[i] = 9999999.0;
@@ -523,7 +524,7 @@ public void SQL_selectFastestBonusCallback(Handle owner, Handle hndl, const char
 		}
 	}
 
-	for (int i = 0; i < MAXZONEGROUPS; i++)
+	for (int i = 0; i < MAX_ZONEGROUPS; i++)
 	{
 		if (g_fBonusFastest[i] == 0.0)
 			g_fBonusFastest[i] = 9999999.0;
@@ -553,7 +554,7 @@ void SQL_selectBonusTotalCountCallback(Handle owner, Handle hndl, const char[] e
 		return;
 	}
 
-	for (int i = 1; i < MAXZONEGROUPS; i++)
+	for (int i = 1; i < MAX_ZONEGROUPS; i++)
 	g_iBonusCount[i] = 0;
 
 	if (SQL_HasResultSet(hndl))
@@ -633,7 +634,7 @@ public void SQL_selectMapTierCallback(Handle owner, Handle hndl, const char[] er
 // 7
 
 void db_viewRecordCheckpointInMap(any cb=0) {
-	for (int k = 0; k < MAXZONEGROUPS; k++) {
+	for (int k = 0; k < MAX_ZONEGROUPS; k++) {
 		g_bCheckpointRecordFound[k] = false;
 		for (int i = 0; i < CPLIMIT; i++)
 		g_fCheckpointServerRecord[k][i] = 0.0;
@@ -721,12 +722,12 @@ void SQL_db_CalcAvgRunBonusTimeCallback(Handle owner, Handle hndl, const char[] 
 		return;
 	}
 
-	for (int i = 1; i < MAXZONEGROUPS; i++)
+	for (int i = 1; i < MAX_ZONEGROUPS; i++)
 	g_fAvg_BonusTime[i] = 0.0;
 
 	if (SQL_HasResultSet(hndl)) {
-		int zonegroup, runtimes[MAXZONEGROUPS];
-		float runtime[MAXZONEGROUPS], time;
+		int zonegroup, runtimes[MAX_ZONEGROUPS];
+		float runtime[MAX_ZONEGROUPS], time;
 		while (SQL_FetchRow(hndl))
 		{
 			zonegroup = SQL_FetchInt(hndl, 0);
@@ -738,7 +739,7 @@ void SQL_db_CalcAvgRunBonusTimeCallback(Handle owner, Handle hndl, const char[] 
 			}
 		}
 
-		for (int i = 1; i < MAXZONEGROUPS; i++)
+		for (int i = 1; i < MAX_ZONEGROUPS; i++)
 		g_fAvg_BonusTime[i] = runtime[i] / runtimes[i];
 	}
 
@@ -791,7 +792,7 @@ void sql_CountRankedPlayers2Callback(Handle owner, Handle hndl, const char[] err
 
 void db_selectSpawnLocations(any cb=0) {
 	for (int s = 0; s < CPLIMIT; s++) {
-		for (int i = 0; i < MAXZONEGROUPS; i++) {
+		for (int i = 0; i < MAX_ZONEGROUPS; i++) {
 			g_bGotSpawnLocation[i][s][0] = false;
 			g_bGotSpawnLocation[i][s][1] = false;
 		}

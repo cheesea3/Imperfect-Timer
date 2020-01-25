@@ -3,6 +3,56 @@
 #endif
 #define _surftimer_included
 
+
+// style text
+#define STYLE_NORMAL_TEXT 			"Normal"
+#define STYLE_SW_TEXT 				"Sideways"
+#define STYLE_HSW_TEXT 				"Half-Sideways"
+#define STYLE_BW_TEXT 				"Backwards"
+#define STYLE_LOWGRAV_TEXT 			"Low Gravity"
+#define STYLE_SLOMO_TEXT 			"Slow Motion"
+#define STYLE_FASTFORWARD_TEXT 		"Fast Forward"
+#define STYLE_WONLY_TEXT 			"W Only"
+#define STYLE_TEXT_LENGTH 			128
+#define STYLE_TEXT_SMALL_LENGTH 	32
+
+// always update with new styles
+#define MAX_STYLES                  8
+
+enum
+{
+    STYLE_NORMAL = 0,
+    STYLE_SW,
+    STYLE_HSW,
+    STYLE_BW,
+    STYLE_LOWGRAV,
+    STYLE_SLOMO,
+    STYLE_FASTFORWARD,
+	STYLE_WONLY
+};
+
+
+enum
+{
+	ZONETYPE_STOP = 0,
+	ZONETYPE_START,
+	ZONETYPE_END,
+	ZONETYPE_STAGE,
+	ZONETYPE_CHECKPOINT,
+	ZONETYPE_SPEEDSTART,
+	ZONETYPE_TELETOSTART,
+	ZONETYPE_VALIDATOR,
+	ZONETYPE_CHECKER,
+	ZONETYPE_ANTIJUMP,
+	ZONETYPE_ANTIDUCK,
+	ZONETYPE_MAXSPEED
+};
+
+#define MAX_ZONETYPES     12
+#define MAX_ZONEGROUPS 12
+#define MAX_ZONES      128
+
+
 /* Natives */
 
 /**

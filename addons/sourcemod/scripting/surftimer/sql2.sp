@@ -197,7 +197,7 @@ public void SQL_ViewPlayerPrMaptimeCallback2(Handle owner, Handle hndl, const ch
 	char szRuntimepro[64];
 	char szStageInfo[CPLIMIT][256];
 	char szRuntimestages[CPLIMIT][64];
-	char szBonusInfo[MAXZONEGROUPS][256];
+	char szBonusInfo[MAX_ZONEGROUPS][256];
 
 	Menu menu;
 	menu = CreateMenu(PrMenuHandler);

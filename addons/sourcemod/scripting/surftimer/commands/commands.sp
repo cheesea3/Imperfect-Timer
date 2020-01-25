@@ -825,7 +825,7 @@ public void ListStages(int client, int zonegroup)
 	int amount = 0;
 	char StageName[64], ZoneInfo[6];
 
-	int StageIds[MAXZONES] = { -1, ... };
+	int StageIds[MAX_ZONES] = { -1, ... };
 
 	if (g_mapZonesCount > 0)
 	{
@@ -1486,7 +1486,7 @@ public Action Client_BonusTop(int client, int args)
 			else // argument is a bonus id (Use current map)
 			{
 				zGrp = StringToInt(szArg);
-				if (0 < zGrp < MAXZONEGROUPS)
+				if (0 < zGrp < MAX_ZONEGROUPS)
 				{
 					Format(szArg, 128, "%s", g_szMapName);
 				}
@@ -1511,7 +1511,7 @@ public Action Client_BonusTop(int client, int args)
 				GetCmdArg(2, szArg, 128);
 			}
 
-			if (0 > zGrp || zGrp > MAXZONEGROUPS)
+			if (0 > zGrp || zGrp > MAX_ZONEGROUPS)
 			{
 				CPrintToChat(client, "%t", "InvalidBonusID", g_szChatPrefix, zGrp);
 				return Plugin_Handled;
@@ -1563,7 +1563,7 @@ public Action Client_SWBonusTop(int client, int args)
 			else // argument is a bonus id (Use current map)
 			{
 				zGrp = StringToInt(szArg);
-				if (0 < zGrp < MAXZONEGROUPS)
+				if (0 < zGrp < MAX_ZONEGROUPS)
 				{
 					Format(szArg, 128, "%s", g_szMapName);
 				}
@@ -1588,7 +1588,7 @@ public Action Client_SWBonusTop(int client, int args)
 				GetCmdArg(2, szArg, 128);
 			}
 
-			if (0 > zGrp || zGrp > MAXZONEGROUPS)
+			if (0 > zGrp || zGrp > MAX_ZONEGROUPS)
 			{
 				CPrintToChat(client, "%t", "InvalidBonusID", g_szChatPrefix, zGrp);
 				return Plugin_Handled;
@@ -4510,7 +4510,7 @@ public void PlayRecordMenu(int client) {
 		AddMenuItem(menu, "", "Map Replay", ITEMDRAW_DISABLED);
 
 	// Check for bonus replay
-	for (int i = 1; i < MAXZONEGROUPS; i++)
+	for (int i = 1; i < MAX_ZONEGROUPS; i++)
 	{
 		if (g_bMapBonusReplay[i][0])
 		{
@@ -4518,7 +4518,7 @@ public void PlayRecordMenu(int client) {
 			break;
 		}
 
-		if (i == MAXZONEGROUPS - 1)
+		if (i == MAX_ZONEGROUPS - 1)
 			AddMenuItem(menu, "", "Bonus Replay", ITEMDRAW_DISABLED);
 	}
 

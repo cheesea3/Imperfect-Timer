@@ -595,7 +595,7 @@ public Action EndTouchTrigger(int caller, int activator)
 public void InitZoneVariables()
 {
 	g_mapZonesCount = 0;
-	for (int i = 0; i < MAXZONES; i++)
+	for (int i = 0; i < MAX_ZONES; i++)
 	{
 		g_mapZones[i].zoneId = -1;
 		//g_mapZones[i].PointA = -1.0;
@@ -1890,7 +1890,7 @@ public int MenuHandler_ClearZones(Handle tMenu, MenuAction action, int client, i
 		{
 			if (item == 2)
 			{
-				for (int i = 0; i < MAXZONES; i++)
+				for (int i = 0; i < MAX_ZONES; i++)
 				{
 					g_mapZones[i].zoneId = -1;
 					//g_mapZones[i].PointA = -1.0;

@@ -63,22 +63,28 @@ public Action ThrottledBeamBoxAll(Handle timer, int i)
 
 		bool full = false;
 		bool draw = drawForEveryone;
-		if (g_bShowZones[p]) {
+		if (g_bShowZones[p])
+		{
 			// Player has /showzones enabled
 			full = true;
 			draw = true;
-		} else if (GetConVarInt(g_hZoneDisplayType) >= 2) {
+		}
+		else if (GetConVarInt(g_hZoneDisplayType) >= 2)
+		{
 			// Draw full box
 			full = true;
-		} else if (GetConVarInt(g_hZoneDisplayType) >= 1) {
+		}
+		else if (GetConVarInt(g_hZoneDisplayType) >= 1)
+		{
 			// Draw bottom only
-		} else if (GetConVarInt(g_hZoneDisplayType) == 0) {
+		}
+		else if (GetConVarInt(g_hZoneDisplayType) == 0)
+		{
 			draw = false;
 		}
 
-		if (!draw) {
+		if (!draw)
 			continue;
-		}
 
 		float buffer_a[3], buffer_b[3];
 		for (int x = 0; x < 3; x++)
@@ -105,10 +111,19 @@ public Action ThrottledOutlineBeamsAll(Handle timer)
 		if (!IsValidClient(i) || IsFakeClient(i))
 			continue;
 
+		// check for outline visibility
 		if (g_players[i].outlines)
 		{
 			for (int j = 0; j < g_iOutlineBoxCount; j++)
-				TE_SendBeamBoxToClient(i, g_outlineBoxes[j].startPos, g_outlineBoxes[j].endPos, g_BeamSprite, g_HaloSprite, 0, BEAM_FRAMERATE, OUTLINE_REFRESH_TIME, 1.0, 1.0, 1, 0.0, g_outlineBeamColor, 0, true);
+			{
+				Effect_DrawBeamBoxRotatableToClient(i, g_outlineBoxes[j].origin, g_outlineBoxes[j].startPos, g_outlineBoxes[j].endPos, g_outlineBoxes[j].angles,
+													g_BeamSprite, g_HaloSprite, 0, BEAM_FRAMERATE, OUTLINE_REFRESH_TIME, 1.0, 1.0, 1, 0.0, g_outlineBeamColor, 0);
+
+				//if (IsPlayerZoner(j))
+				//	CPrintToChat(j, "Hook at {%.1f, %.1f, %.1f} | Min: {%.1f, %.1f, %.1f} | Max: {%.1f, %.1f, %.1f}", g_outlineBoxes[j].origin[0], g_outlineBoxes[j].origin[1], g_outlineBoxes[j].origin[2],
+				//					g_outlineBoxes[j].startPos[0], g_outlineBoxes[j].startPos[1], g_outlineBoxes[j].startPos[2], g_outlineBoxes[j].endPos[0], g_outlineBoxes[j].endPos[1], g_outlineBoxes[j].endPos[2]);
+				//TE_SendBeamBoxToClient(i, g_outlineBoxes[j].startPos, g_outlineBoxes[j].endPos, g_BeamSprite, g_HaloSprite, 0, BEAM_FRAMERATE, OUTLINE_REFRESH_TIME, 1.0, 1.0, 1, 0.0, g_outlineBeamColor, 0, true);
+			}
 
 			for (int j = 0; j < g_iOutlineLineCount; j++)
 				TE_SendBeamLineToClient(i, g_outlineLines[j].startPos, g_outlineLines[j].endPos, g_BeamSprite, g_HaloSprite, 0, BEAM_FRAMERATE, OUTLINE_REFRESH_TIME, 1.0, 1.0, 1, 0.0, g_outlineBeamColor, 0);

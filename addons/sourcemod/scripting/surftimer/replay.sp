@@ -216,7 +216,7 @@ public void LoadReplays()
 	for (int i = 0; i < MAX_STYLES; i++)
 		g_bMapReplay[i] = false;
 
-	for (int i = 0; i < MAXZONEGROUPS; i++)
+	for (int i = 0; i < MAX_ZONEGROUPS; i++)
 	{
 		for (int j = 0; j < MAX_STYLES; j++)
 		{
@@ -367,7 +367,7 @@ public void LoadReplays()
 	}
 
 	// Check if style bonus replays exist
-	for (int i = 1; i < MAXZONEGROUPS; i++)
+	for (int i = 1; i < MAX_ZONEGROUPS; i++)
 	{
 		for (int j = 1; j < MAX_STYLES; j++)
 		{

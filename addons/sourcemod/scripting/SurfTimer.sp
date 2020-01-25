@@ -5,8 +5,6 @@
 = https://forums.alliedmods.net/showthread.php?t=264498 =
 =======================================================*/
 
-#pragma semicolon 1
-
 /*====================================
 =              Includes              =
 ====================================*/
@@ -49,8 +47,8 @@
 #pragma semicolon 1
 
 // Plugin Info
-#define VERSION "2.2"
-#define PLUGIN_VERSION 220
+#define VERSION "2.2.75"
+#define PLUGIN_VERSION 295
 
 // Database Definitions
 #define MYSQL 0
@@ -119,28 +117,6 @@
 // Zone Definitions
 #define ZONE_MODEL "models/props/de_train/barrel.mdl"
 
-#define ZONETYPE_STOP 0
-#define ZONETYPE_START 1
-#define ZONETYPE_END 2
-#define ZONETYPE_STAGE 3
-#define ZONETYPE_CHECKPOINT 4
-#define ZONETYPE_SPEEDSTART 5
-#define ZONETYPE_TELETOSTART 6
-#define ZONETYPE_VALIDATOR 7
-#define ZONETYPE_CHECKER 8
-#define ZONETYPE_ANTIJUMP 9
-#define ZONETYPE_ANTIDUCK 10
-#define ZONETYPE_MAXSPEED 11
-
-// Zone Amount
-// Types: Start(1), End(2), Stage(3), Checkpoint(4), Speed(5),
-// TeleToStart(6), Validator(7), Chekcer(8), Stop(0), AntiJump(9),
-// AntiDuck(10), MaxSpeed(11)
-#define ZONEAMOUNT 12
-// Maximum amount of zonegroups in a map
-#define MAXZONEGROUPS 12
-// Maximum amount of zones in a map
-#define MAXZONES 128
 
 // max outlines per map
 #define MAX_OUTLINE_LINES 100
@@ -271,68 +247,6 @@ enum SkillGroup
 	String:NameColour[32]
 }
 
-enum struct MapOutline
-{
-	char mapName[128];
-	int id;
-	int type;
-	float startPos[3];
-	float endPos[3];
-
-	// used for boxes
-	float center[3];
-	float angle[3];
-
-	void Defaults()
-	{
-		this.id = -1;
-		this.type = -1;
-	}
-
-	void Set(char name[128], int id, int type, float startPos[3], float endPos[3])
-	{
-		this.mapName = name;
-		this.id = id;
-		this.type = type;
-		this.startPos = startPos;
-		this.endPos = endPos;
-	}
-}
-
-enum
-{
-	OUTLINE_STYLE_LINE = 0,
-	OUTLINE_STYLE_BOX,
-	OUTLINE_STYLE_HOOK
-}
-
-// style text
-#define STYLE_NORMAL_TEXT 			"Normal"
-#define STYLE_SW_TEXT 				"Sideways"
-#define STYLE_HSW_TEXT 				"Half-Sideways"
-#define STYLE_BW_TEXT 				"Backwards"
-#define STYLE_LOWGRAV_TEXT 			"Low Gravity"
-#define STYLE_SLOMO_TEXT 			"Slow Motion"
-#define STYLE_FASTFORWARD_TEXT 		"Fast Forward"
-#define STYLE_WONLY_TEXT 			"W Only"
-#define STYLE_TEXT_LENGTH 			128
-#define STYLE_TEXT_SMALL_LENGTH 	32
-
-// always update with new styles
-#define MAX_STYLES                  8
-
-enum
-{
-    STYLE_NORMAL = 0,
-    STYLE_SW,
-    STYLE_HSW,
-    STYLE_BW,
-    STYLE_LOWGRAV,
-    STYLE_SLOMO,
-    STYLE_FASTFORWARD,
-	STYLE_WONLY
-};
-
 // new type for player variables
 enum struct SurfPlayer
 {
@@ -355,11 +269,13 @@ enum struct SurfPlayer
 	float cooldown; // global command cooldown
 }
 
-
+#include <ig_entitymanager>
 
 #include "surftimer/globals.sp"
 #include "surftimer/convars.sp"
 #include "surftimer/misc.sp"
+
+#include "surftimer/outlines.sp"
 
 #include "surftimer/db/queries.sp"
 #include "surftimer/sql.sp"
@@ -373,7 +289,6 @@ enum struct SurfPlayer
 #include "surftimer/commands/commands.sp"
 #include "surftimer/commands/mapsettings.sp"
 #include "surftimer/commands/titles.sp"
-#include "surftimer/outlines.sp"
 #include "surftimer/styles.sp"
 #include "surftimer/tests.sp"
 #include "surftimer/beams.sp"
@@ -522,7 +437,7 @@ public void OnMapStart()
 
 	CheatFlag("bot_zombie", false, true);
 	g_bTierFound = false;
-	for (int i = 0; i < MAXZONEGROUPS; i++)
+	for (int i = 0; i < MAX_ZONEGROUPS; i++)
 	{
 		g_fBonusFastest[i] = 9999999.0;
 		g_bCheckpointRecordFound[i] = false;
@@ -648,7 +563,7 @@ public void OnMapEnd()
 {
 	// ServerCommand("sm_updater_force");
 	g_bHasLatestID = false;
-	for (int i = 0; i < MAXZONEGROUPS; i++)
+	for (int i = 0; i < MAX_ZONEGROUPS; i++)
 		Format(g_sTierString[i], 512, "");
 
 	g_RecordBot = -1;
