@@ -161,6 +161,7 @@ void CreateCommands()
 	RegConsoleCmd("sm_outlines", Command_ToggleOutlines, "[surftimer] Toggle the visibility of outlines");
 
 	CreateStyleCommands();
+	CreateOutlineCommands();
 
 	// style btop if i ever get around to it
 	/*RegConsoleCmd("sm_btopsw", Client_SWBonusTop, "[surftimer] displays a local bonus top (sw) for a given map");
@@ -4757,7 +4758,7 @@ public Action Command_ShowSpeed(int client, int args)
 public Action Command_ToggleThirdPerson(int client, int args)
 {
 	// prevent spam
-	if ((GetGameTime() - g_players[client].cooldown) < OPTION_COOLDOWN)
+	if (!CommandSpamCheck(client))
 		return Plugin_Handled;
 
 	int style = g_players[client].currentStyle;
@@ -4791,10 +4792,9 @@ public Action Command_ToggleThirdPerson(int client, int args)
 public Action Command_HideWeapons(int client, int args)
 {
 	// prevent spam
-	if ((GetGameTime() - g_players[client].cooldown) < OPTION_COOLDOWN)
+	if (!CommandSpamCheck(client))
 		return Plugin_Handled;
 
-	g_players[client].cooldown = GetGameTime();
 	g_players[client].hideWeapons = !g_players[client].hideWeapons;
 
 	if (IsValidClient(client) && !IsFakeClient(client) && IsPlayerAlive(client))
@@ -4816,10 +4816,8 @@ public Action Command_HideWeapons(int client, int args)
 public Action Command_ShowWeapons(int client, int args)
 {
 	// prevent spam
-	if ((GetGameTime() - g_players[client].cooldown) < OPTION_COOLDOWN)
+	if (!CommandSpamCheck(client))
 		return Plugin_Handled;
-
-	g_players[client].cooldown = GetGameTime();
 
 	if (IsValidClient(client) && !IsFakeClient(client) && g_players[client].hideWeapons)
 	{
@@ -4835,24 +4833,12 @@ public Action Command_ShowWeapons(int client, int args)
 	return Plugin_Handled;
 }
 
-public Action Command_Outlines(int client, int args)
+// check for spam; false = spamming
+stock bool CommandSpamCheck(int client)
 {
-	OutlineMenu(client);
-	return Plugin_Handled;
-}
-
-public Action Command_ToggleOutlines(int client, int args)
-{
-	// prevent spam
 	if ((GetGameTime() - g_players[client].cooldown) < OPTION_COOLDOWN)
-		return Plugin_Handled;
+		return false;
 
-	g_players[client].outlines = !g_players[client].outlines;
-
-	if (g_players[client].outlines)
-		CPrintToChat(client, "%t", "OutlinesEnabled", g_szChatPrefix);
-	else
-		CPrintToChat(client, "%t", "OutlinesDisabled", g_szChatPrefix);
-
-	return Plugin_Handled;
+	g_players[client].cooldown = GetGameTime();
+	return true;
 }

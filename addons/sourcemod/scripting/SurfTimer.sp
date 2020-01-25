@@ -5,6 +5,8 @@
 = https://forums.alliedmods.net/showthread.php?t=264498 =
 =======================================================*/
 
+#pragma semicolon 1
+
 /*====================================
 =              Includes              =
 ====================================*/
@@ -103,8 +105,8 @@
 #define DISCOTIME_RELATIVE_SOUND_PATH "*/surftimer/discotime.mp3"
 
 // beams
-#define ZONE_REFRESH_TIME 5.0
-#define OUTLINE_REFRESH_TIME 5.0
+#define ZONE_REFRESH_TIME 4.0
+#define OUTLINE_REFRESH_TIME 2.5
 #define BEAM_FRAMERATE 30
 
 #define VOTE_NO "###no###"
@@ -276,7 +278,10 @@ enum struct MapOutline
 	int type;
 	float startPos[3];
 	float endPos[3];
-	float center[3]; // used for boxes
+
+	// used for boxes
+	float center[3];
+	float angle[3];
 
 	void Defaults()
 	{
@@ -292,6 +297,13 @@ enum struct MapOutline
 		this.startPos = startPos;
 		this.endPos = endPos;
 	}
+}
+
+enum
+{
+	OUTLINE_STYLE_LINE = 0,
+	OUTLINE_STYLE_BOX,
+	OUTLINE_STYLE_HOOK
 }
 
 // style text
@@ -361,6 +373,7 @@ enum struct SurfPlayer
 #include "surftimer/commands/commands.sp"
 #include "surftimer/commands/mapsettings.sp"
 #include "surftimer/commands/titles.sp"
+#include "surftimer/outlines.sp"
 #include "surftimer/styles.sp"
 #include "surftimer/tests.sp"
 #include "surftimer/beams.sp"
@@ -645,15 +658,12 @@ public void OnMapEnd()
 
 	if (g_hSkillGroups != null)
 		delete g_hSkillGroups;
-	g_hSkillGroups = null;
 
 	if (g_hBotTrail[0] != null)
 		delete g_hBotTrail[0];
-	g_hBotTrail[0] = null;
 
 	if (g_hBotTrail[1] != null)
 		delete g_hBotTrail[1];
-	g_hBotTrail[1] = null;
 
 	Format(g_szMapName, sizeof(g_szMapName), "");
 
@@ -670,9 +680,6 @@ public void OnMapEnd()
 		g_hTriggerMultiple.Clear();
 		delete g_hTriggerMultiple;
 	}
-
-	g_hTriggerMultiple = null;
-	delete g_hTriggerMultiple;
 
 	delete g_mTriggerMultipleMenu;
 
@@ -1373,7 +1380,7 @@ public void OnPluginStart()
 	g_ragdolls = FindSendPropInfo("CCSPlayer", "m_hRagdoll");
 
 	// add to admin menu
-	Handle tpMenu;
+	TopMenu tpMenu;
 	if (LibraryExists("adminmenu") && ((tpMenu = GetAdminTopMenu()) != null))
 		OnAdminMenuReady(tpMenu);
 

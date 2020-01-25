@@ -1,6 +1,8 @@
 #include <sourcemod>
 #include <sdktools>
+#include <smlib>
 
+#pragma semicolon 1
 
 public Plugin myinfo =
 {
@@ -14,11 +16,15 @@ public Plugin myinfo =
 #define ENTITY_LOGGING
 #define ENTITY_LOGGING_PATH "logs/ig_entities"
 #define ENTITY_CONFIG_PATH "configs/ig_entities"
+#define BEAM_COLOR_HIGHLIGHT { 255, 255, 0, 255 }
 
 char g_szMapName[128];
 char g_szConfigPath[PLATFORM_MAX_PATH];
 char g_szConfigFilePath[PLATFORM_MAX_PATH];
 ArrayList g_hDeletedEnts = null;
+
+int g_BeamSprite;
+int g_HaloSprite;
 
 #if defined ENTITY_LOGGING
 char g_szLogFile[PLATFORM_MAX_PATH];
@@ -42,7 +48,7 @@ public void OnPluginStart()
 		CreateDirectory(g_szLogFilePath, 511);
 
 
-	// list all entities in console
+	// list all entities in console, optional arg to use class name
 	RegAdminCmd("sm_listentities", Command_ListEntities, ADMFLAG_ROOT);
 	RegAdminCmd("sm_listents", Command_ListEntities, ADMFLAG_ROOT);
 	RegAdminCmd("sm_lents", Command_ListEntities, ADMFLAG_ROOT);
@@ -63,8 +69,20 @@ public void OnPluginStart()
 	RegAdminCmd("sm_restoreent", Command_RestoreEntity, ADMFLAG_ROOT);
 	RegAdminCmd("sm_rent", Command_RestoreEntity, ADMFLAG_ROOT);
 
+	// teleport to an entity
+	RegAdminCmd("sm_gotoentity", Command_GoToEntity, ADMFLAG_ROOT);
+	RegAdminCmd("sm_gotoent", Command_GoToEntity, ADMFLAG_ROOT);
+
+	// highlight an entity with a beam box
+	RegAdminCmd("sm_highlightentity", Command_HighlightEntity, ADMFLAG_ROOT);
+	RegAdminCmd("sm_highlightent", Command_HighlightEntity, ADMFLAG_ROOT);
+	RegAdminCmd("sm_hle", Command_HighlightEntity, ADMFLAG_ROOT);
+
 	if (g_hDeletedEnts == null)
 		g_hDeletedEnts = new ArrayList(128);
+
+	g_BeamSprite = PrecacheModel("materials/sprites/laserbeam.vmt", true);
+	g_HaloSprite = PrecacheModel("materials/sprites/halo.vmt", true);
 }
 
 public void OnPluginStop()
@@ -97,16 +115,38 @@ public void OnMapEnd()
 // list all valid entities in the map
 public Action Command_ListEntities(int client, int args)
 {
-	int entities = GetMaxEntities();
-	char sClassName[128];
-	char propName[128];
-	for (int i = MaxClients; i < entities; i++)
+	char arg1[128];
+	GetCmdArg(1, arg1, sizeof(arg1));
+
+
+	// check for class name argument
+	if (!arg1[0])
 	{
-		if (IsValidEntity(i)
-			&& GetEdictClassname(i, sClassName, 128)
-			&& GetEntPropString(i, Prop_Data, "m_iName", propName, 128))
+		int entities = GetMaxEntities();
+		for (int i = MaxClients; i < entities; i++)
 		{
-			PrintToConsole(client, "[%i] %s: %s", i, sClassName, propName);
+			char sClassName[128];
+			if (IsValidEntity(i) && GetEdictClassname(i, sClassName, 128))
+			{
+				char propName[128];
+				if (GetEntPropString(i, Prop_Data, "m_iName", propName, 128))
+					PrintToConsole(client, "[%i] %s: %s", i, sClassName, propName);
+				else
+					PrintToConsole(client, "[%i] %s", i, sClassName);
+			}
+		}
+	}
+	else
+	{
+		PrintToConsole(client, "Checking for '%s' entities...", arg1);
+		int iEnt = -1;
+		while ((iEnt = FindEntityByClassname(iEnt, arg1)) != -1)
+		{
+			char propName[128];
+			if (GetEntPropString(iEnt, Prop_Data, "m_iName", propName, 128))
+				PrintToConsole(client, "[%i] %s: %s", iEnt, arg1, propName);
+			else
+				PrintToConsole(client, "[%i] %s", iEnt, arg1);
 		}
 	}
 
@@ -202,6 +242,63 @@ public Action Command_RestoreEntity(int client, int args)
 }
 
 
+public Action Command_GoToEntity(int client, int args)
+{
+	char arg1[128];
+	GetCmdArg(1, arg1, sizeof(arg1));
+	int iEnt = StringToInt(arg1);
+
+	if (IsValidEntity(iEnt) && HasEntProp(iEnt, Prop_Send, "m_vecOrigin"))
+	{
+		char sClassName[128];
+		GetEdictClassname(iEnt, sClassName, 128);
+
+		float pos[3], ang[3];
+		GetEntPropVector(iEnt, Prop_Send, "m_vecOrigin", pos);
+		GetClientEyeAngles(client, ang);
+		TeleportEntity(client, pos, ang, view_as<float>( { 0.0, 0.0, -100.0 } ));
+		HighlightEntity(client, iEnt); // highlight it as well, cause why not
+		PrintToChat(client, "Teleported to entity %i: %s at { %.2f, %.2f. %.2f }", iEnt, sClassName, pos[0], pos[1], pos[2]);
+	}
+	else
+	{
+		PrintToChat(client, "Invalid entity index or missing property: %i", iEnt);
+	}
+
+	return Plugin_Handled;
+}
+
+public Action Command_HighlightEntity(int client, int args)
+{
+	char arg1[128];
+	GetCmdArg(1, arg1, sizeof(arg1));
+	int iEnt = StringToInt(arg1);
+
+	if (IsValidEntity(iEnt))
+		HighlightEntity(client, iEnt);
+	else
+		PrintToChat(client, "Invalid entity index: %i", iEnt);
+
+	return Plugin_Handled;
+}
+
+void HighlightEntity(int client, int iEnt)
+{
+	if (HasEntProp(iEnt, Prop_Send, "m_vecOrigin"))
+	{
+		float origin[3], mins[3], maxs[3], angles[3];
+		GetEntPropVector(iEnt, Prop_Send, "m_vecOrigin", origin);
+		GetEntPropVector(iEnt, Prop_Send, "m_vecMins", mins);
+		GetEntPropVector(iEnt, Prop_Send, "m_vecMaxs", maxs);
+		GetEntPropVector(iEnt, Prop_Send, "m_angRotation", angles);
+		Effect_DrawBeamBoxRotatableToClient(client, origin, mins, maxs, angles, g_BeamSprite, g_HaloSprite, 0, 30, 15.0, 1.0, 1.0, 1, 1.0, BEAM_COLOR_HIGHLIGHT, 0);
+	}
+	else
+	{
+		PrintToChat(client, "Entity does not have m_vecOrigin! Highlight failed.");
+	}
+}
+
 // delete entities on map load
 void DeleteEntities(const char[] path)
 {
@@ -216,7 +313,7 @@ void DeleteEntities(const char[] path)
 	char szEnt[128];
 	while (file.ReadLine(szEnt, sizeof(szEnt)))
 	{
-		SplitString(szEnt, "\n", szEnt, sizeof(szEnt))
+		SplitString(szEnt, "\n", szEnt, sizeof(szEnt));
 
 		int iEnt; // variable to store the entity index in
 		if (hEntities.GetValue(szEnt, iEnt))
@@ -234,7 +331,7 @@ void DeleteEntities(const char[] path)
 	delete file;
 }
 
-// get a stringmap of the entity names in the current map
+// get a stringmap of the named entities in the current map
 StringMap GetEntityMap()
 {
 	StringMap entities = new StringMap();

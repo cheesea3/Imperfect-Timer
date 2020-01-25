@@ -70,7 +70,12 @@ public void SQL_SelectOutlinesCallback(Handle owner, Handle hndl, const char[] e
 			outline.endPos[1] = SQL_FetchFloat(hndl, 6);
 			outline.endPos[2] = SQL_FetchFloat(hndl, 7);
 
-			if (outline.type == 1)
+			// @todo: implement angles
+			outline.angle[0] = SQL_FetchFloat(hndl, 8);
+			outline.angle[0] = SQL_FetchFloat(hndl, 9);
+			outline.angle[0] = SQL_FetchFloat(hndl, 10);
+
+			if (outline.type == OUTLINE_STYLE_BOX)
 			{
 				// Center point
 				float posA[3], posB[3], result[3];
@@ -91,7 +96,7 @@ public void SQL_SelectOutlinesCallback(Handle owner, Handle hndl, const char[] e
 				g_iOutlineBoxCount++;
 				g_iTotalOutlines++;
 			}
-			else if (outline.type == 0)
+			else if (outline.type == OUTLINE_STYLE_LINE)
 			{
 				g_outlineLines[g_iOutlineLineCount] = outline;
 				g_iOutlineLineCount++;

@@ -99,9 +99,9 @@ char sql_deleteZonesInGroup[] = "DELETE FROM ck_zones WHERE mapname = '%s' AND z
 char sql_setZoneNames[] = "UPDATE ck_zones SET zonename = '%s' WHERE mapname = '%s' AND zonegroup = '%i';";
 
 // ck_outlines
-char sql_createOutlineTable[] = "CREATE TABLE IF NOT EXISTS `ck_outlines` (`mapname` varchar(32) NOT NULL DEFAULT '', `id` int(11) NOT NULL DEFAULT '-1', `type` int(11) NOT NULL DEFAULT '-1', `pointa_x` float NOT NULL DEFAULT '-1', `pointa_y` float NOT NULL DEFAULT '-1', `pointa_z` float NOT NULL DEFAULT '-1', `pointb_x` float NOT NULL DEFAULT '-1', `pointb_y` float NOT NULL DEFAULT '-1', `pointb_z` float NOT NULL DEFAULT '-1', PRIMARY KEY (`mapname`,`id`)) DEFAULT CHARSET=utf8mb4;";
-char sql_insertOutline[] = "INSERT INTO `ck_outlines` (mapname, id, type, pointa_x, pointa_y, pointa_z, pointb_x, pointb_y, pointb_z) VALUES ('%s', '%i', '%i', '%f', '%f', '%f', '%f', '%f', '%f')";
-char sql_selectMapOutlines[] = "SELECT id, type, pointa_x, pointa_y, pointa_z, pointb_x, pointb_y, pointb_z FROM ck_outlines WHERE mapname = '%s' ORDER BY id ASC";
+char sql_createOutlineTable[] = "CREATE TABLE IF NOT EXISTS `ck_outlines` (`mapname` varchar(32) NOT NULL DEFAULT '', `id` int(11) NOT NULL DEFAULT '-1', `type` int(11) NOT NULL DEFAULT '-1', `pointa_x` float NOT NULL DEFAULT '-1', `pointa_y` float NOT NULL DEFAULT '-1', `pointa_z` float NOT NULL DEFAULT '-1', `pointb_x` float NOT NULL DEFAULT '-1', `pointb_y` float NOT NULL DEFAULT '-1', `pointb_z` float NOT NULL DEFAULT '-1', `angle_x` float NOT NULL DEFAULT '0', `angle_y` float NOT NULL DEFAULT '0', `angle_z` float NOT NULL DEFAULT '0', PRIMARY KEY (`mapname`,`id`)) DEFAULT CHARSET=utf8mb4;";
+char sql_insertOutline[] = "INSERT INTO `ck_outlines` (mapname, id, type, pointa_x, pointa_y, pointa_z, pointb_x, pointb_y, pointb_z, angle_x, angle_y, angle_z) VALUES ('%s', '%i', '%i', '%f', '%f', '%f', '%f', '%f', '%f', '%f', '%f', '%f')";
+char sql_selectMapOutlines[] = "SELECT id, type, pointa_x, pointa_y, pointa_z, pointb_x, pointb_y, pointb_z, angle_x, angle_y, angle_z FROM ck_outlines WHERE mapname = '%s' ORDER BY id ASC";
 char sql_deleteMapOutlines[] = "DELETE FROM `ck_outlines` WHERE `mapname` = '%s'";
 char sql_deleteOutline[] = "DELETE FROM `ck_outlines` WHERE `mapname` = '%s' AND `id` = '%i'";
 

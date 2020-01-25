@@ -1,6 +1,6 @@
 
 // Zone beam colours
-int beamColorEdit[] = { 255, 255, 0, 210 };
+int beamColorEdit[] = { 255, 255, 0, 235 };
 int beamColorOther[] = { 255, 255, 255, 128 };
 
 // Outline colour (white)
@@ -205,11 +205,11 @@ public void BeamBox_OnPlayerRunCmd(int client)
 	// @IG outlines
 	if (g_bCreatingOutline[client] && g_bStartPointPlaced[client] && g_bEndPointPlaced[client] && IsValidClient(client))
 	{
-		if (g_iOutlineStyle[client] == 0)
+		if (g_iOutlineStyle[client] == OUTLINE_STYLE_LINE)
 		{
 			TE_SendBeamLineToClient(client, g_fOutlineStartPos[client], g_fOutlineEndPos[client], g_BeamSprite, g_HaloSprite, 0, BEAM_FRAMERATE, 0.1, 0.8, 0.8, 1, 0.0, g_outlineBeamColor, 0);
 		}
-		else if (g_iOutlineStyle[client] == 1)
+		else if (g_iOutlineStyle[client] == OUTLINE_STYLE_BOX)
 		{
 			TE_SendBeamBoxToClient(client, g_fOutlineStartPos[client], g_fOutlineEndPos[client], g_BeamSprite, g_HaloSprite, 0, BEAM_FRAMERATE, 0.1, 1.0, 1.0, 1, 0.0, g_outlineBeamColor, 0, true);
 		}

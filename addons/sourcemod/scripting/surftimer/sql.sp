@@ -169,9 +169,6 @@ public void db_upgradeDatabase(int ver)
 		SQL_FastQuery(g_hDb, sql_createOutlineTable);
 	}
 
-	if (!SQL_FastQuery(g_hDb, "SELECT steamid FROM ck_playerrank LIMIT 1"))
-
-
 	SQL_UnlockDatabase(g_hDb);
 }
 
@@ -2345,12 +2342,12 @@ public void SQL_deleteBonusCallback(Handle owner, Handle hndl, const char[] erro
 =            SQL Outlines           =
 ===================================*/
 // char mapName[128], int id, int type, float pointax, float pointay, float pointaz, float pointbx, float pointby, float pointbz
-public void DB_InsertOutline(MapOutline outline)
+public void DB_InsertOutline(MapOutline ol)
 {
 	char szQuery[1024];
 
 	// INSERT INTO `ck_outlines` (mapname, id, type, pointa_x, pointa_y, pointa_z, pointb_x, pointb_y, pointb_z, name) VALUES ('%s', '%i', '%i', '%f', '%f', '%f', '%f', '%f', '%f')
-	Format(szQuery, 1024, sql_insertOutline, g_szMapName, outline.id, outline.type, outline.startPos[0], outline.startPos[1], outline.startPos[2], outline.endPos[0], outline.endPos[1], outline.endPos[2]);
+	Format(szQuery, 1024, sql_insertOutline, g_szMapName, ol.id, ol.type, ol.startPos[0], ol.startPos[1], ol.startPos[2], ol.endPos[0], ol.endPos[1], ol.endPos[2]);
 	SQL_TQuery(g_hDb, SQL_InsertOutlineCallback, szQuery);
 }
 
