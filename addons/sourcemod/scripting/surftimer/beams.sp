@@ -129,7 +129,7 @@ public void BeamBox_OnPlayerRunCmd(int client)
 		}
 		else
 		{
-			IG_SendBeamBoxToClient(client, g_Positions[client][1], g_Positions[client][0], 1.0, beamColorEdit);
+			IG_SendBeamBoxToClient(client, g_Positions[client][1], g_Positions[client][0], 0.1, beamColorEdit);
 		}
 	}
 
@@ -155,7 +155,7 @@ public void BeamBox_OnPlayerRunCmd(int client)
 			}
 
 			//TE_SendBeamBoxToClient(client, fMins, fMaxs, g_BeamSprite, g_HaloSprite, 0, BEAM_FRAMERATE, 1.0, 1.0, 1.0, 1, 0.0, view_as<int>({255, 255, 0, 255}), 0, true);
-			IG_SendBeamBoxToClient(client, fMins, fMaxs, 1.0, beamColorEdit);
+			IG_SendBeamBoxToClient(client, fMins, fMaxs, 0.1, beamColorEdit);
 		}
 	}
 }
