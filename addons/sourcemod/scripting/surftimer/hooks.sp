@@ -1248,29 +1248,6 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 
 		speed = GetSpeed(client);
 
-		// @IG outlines
-		if (g_bCreatingOutline[client] && (buttons & IN_ATTACK || buttons & IN_ATTACK2))
-		{
-			float oPos[3], oAng[3];
-
-			if (buttons & IN_ATTACK && !(buttons & IN_ATTACK2)) // start pos of outline
-			{
-				GetClientEyePosition(client, oPos);
-				GetClientEyeAngles(client, oAng);
-				TR_TraceRayFilter(oPos, oAng, MASK_PLAYERSOLID, RayType_Infinite, TraceRayDontHitSelf, client);
-				TR_GetEndPosition(g_fOutlineStartPos[client]);
-				g_bStartPointPlaced[client] = true;
-			}
-			else if (buttons & IN_ATTACK2 && !(buttons & IN_ATTACK)) // end pos of outline
-			{
-				GetClientEyePosition(client, oPos);
-				GetClientEyeAngles(client, oAng);
-				TR_TraceRayFilter(oPos, oAng, MASK_PLAYERSOLID, RayType_Infinite, TraceRayDontHitSelf, client);
-				TR_GetEndPosition(g_fOutlineEndPos[client]);
-				g_bEndPointPlaced[client] = true;
-			}
-		}
-
 		// Menu Refreshing
 		CheckRun(client);
 

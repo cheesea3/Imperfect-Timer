@@ -27,7 +27,7 @@
 // #include <store>
 #include <discord>
 #include <sourcecomms>
-#include <surftimer>
+#include <ig_surf/surftimer>
 
 /*===================================
 =            Definitions            =
@@ -103,8 +103,7 @@
 #define DISCOTIME_RELATIVE_SOUND_PATH "*/surftimer/discotime.mp3"
 
 // beams
-#define ZONE_REFRESH_TIME 4.0
-#define OUTLINE_REFRESH_TIME 2.5
+#define ZONE_REFRESH_TIME 3.5
 #define BEAM_FRAMERATE 30
 
 #define VOTE_NO "###no###"
@@ -117,10 +116,6 @@
 // Zone Definitions
 #define ZONE_MODEL "models/props/de_train/barrel.mdl"
 
-
-// max outlines per map
-#define MAX_OUTLINE_LINES 100
-#define MAX_OUTLINE_BOXES 30
 
 // Ranking Definitions
 #define MAX_PR_PLAYERS 1066
@@ -152,7 +147,7 @@
 #define MAX_LOAD_STEPS 6
 
 // Max map load steps
-#define MAX_MAP_LOAD_STEPS 21
+#define MAX_MAP_LOAD_STEPS 20
 
 
 /*====================================
@@ -247,35 +242,13 @@ enum SkillGroup
 	String:NameColour[32]
 }
 
-// new type for player variables
-enum struct SurfPlayer
-{
-	int id; // client id
-
-	int currentStyle;
-	bool isRankedStyle;
-	bool isFunStyle;
-	bool thirdPerson;
-	bool repeatMode; // new g_bRepeat
-	bool speedDisplay; // new g_bCenterSpeedDisplay
-	char styleText[STYLE_TEXT_LENGTH];
-	char styleTextSmall[STYLE_TEXT_SMALL_LENGTH];
-
-	// options that save to db
-	int initialStyle; // @todo: set up saving
-	bool outlines; // outline toggle
-	bool hideWeapons; // weapon visibility/pickup toggle
-
-	float cooldown; // global command cooldown
-}
-
-#include <ig_entitymanager>
+#include <ig_surf/ig_core>
+#include <ig_surf/ig_beams>
+#include <ig_surf/ig_entitymanager>
 
 #include "surftimer/globals.sp"
 #include "surftimer/convars.sp"
 #include "surftimer/misc.sp"
-
-#include "surftimer/outlines.sp"
 
 #include "surftimer/db/queries.sp"
 #include "surftimer/sql.sp"
@@ -299,7 +272,7 @@ enum struct SurfPlayer
 #include "surftimer/replay.sp"
 #include "surftimer/surfzones.sp"
 #include "surftimer/cvote.sp"
-#include "surftimer/func.sp"
+//#include "surftimer/func.sp"
 #include "surftimer/natives.sp"
 
 
@@ -323,6 +296,9 @@ public void OnLibraryAdded(const char[] name)
 		g_bMapChooser = true;
 	if (tmp != null)
 		delete tmp;
+
+	if (StrEqual(name, "ig_beams"))
+		g_bAllowBeams = true;
 
 	// botmimic 2
 	if (StrEqual(name, "dhooks") && g_hTeleport == null)
@@ -353,6 +329,18 @@ public void OnLibraryAdded(const char[] name)
 	}
 }
 
+public void OnLibraryRemoved(const char[] name)
+{
+	if (StrEqual(name, "adminmenu"))
+		g_hAdminMenu = null;
+
+	if (StrEqual(name, "dhooks"))
+		g_hTeleport = null;
+
+	if (StrEqual(name, "ig_beams"))
+		g_bAllowBeams = false;
+}
+
 public void OnPluginEnd()
 {
 	// remove clan tags
@@ -376,14 +364,6 @@ public void OnPluginEnd()
 	ServerCommand("sv_infinite_ammo 0;mp_endmatch_votenextmap 1;mp_do_warmup_period 1;mp_warmuptime 60;mp_match_can_clinch 1;mp_match_end_changelevel 0");
 	ServerCommand("mp_match_restart_delay 15;mp_endmatch_votenextleveltime 20;mp_endmatch_votenextmap 1;mp_halftime 0;mp_do_warmup_period 1;mp_maxrounds 0;bot_quota 0");
 	ServerCommand("mp_startmoney 800; mp_playercashawards 1; mp_teamcashawards 1");
-}
-
-public void OnLibraryRemoved(const char[] name)
-{
-	if (StrEqual(name, "adminmenu"))
-		g_hAdminMenu = null;
-	if (StrEqual(name, "dhooks"))
-		g_hTeleport = null;
 }
 
 public void OnEntityCreated(int entity, const char[] classname)
@@ -452,7 +432,6 @@ public void OnMapStart()
 	CreateTimer(1.0, CKTimer2, INVALID_HANDLE, TIMER_FLAG_NO_MAPCHANGE | TIMER_REPEAT);
 	CreateTimer(60.0, AttackTimer, INVALID_HANDLE, TIMER_FLAG_NO_MAPCHANGE | TIMER_REPEAT);
 	CreateTimer(600.0, PlayerRanksTimer, INVALID_HANDLE, TIMER_FLAG_NO_MAPCHANGE | TIMER_REPEAT);
-	CreateTimer(OUTLINE_REFRESH_TIME, OutlineBeamsAll, _, TIMER_FLAG_NO_MAPCHANGE | TIMER_REPEAT);
 	CreateTimer(ZONE_REFRESH_TIME, BeamBoxAll, _, TIMER_FLAG_NO_MAPCHANGE | TIMER_REPEAT);
 
 	// AutoBhop

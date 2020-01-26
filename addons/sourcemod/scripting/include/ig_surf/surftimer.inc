@@ -3,7 +3,6 @@
 #endif
 #define _surftimer_included
 
-
 // style text
 #define STYLE_NORMAL_TEXT 			"Normal"
 #define STYLE_SW_TEXT 				"Sideways"
@@ -32,6 +31,10 @@ enum
 };
 
 
+#define MAX_ZONETYPES     12
+#define MAX_ZONEGROUPS 12
+#define MAX_ZONES      128
+
 enum
 {
 	ZONETYPE_STOP = 0,
@@ -48,10 +51,28 @@ enum
 	ZONETYPE_MAXSPEED
 };
 
-#define MAX_ZONETYPES     12
-#define MAX_ZONEGROUPS 12
-#define MAX_ZONES      128
 
+// new type for player variables
+enum struct SurfPlayer
+{
+	int id; // client id
+
+	int currentStyle;
+	bool isRankedStyle;
+	bool isFunStyle;
+	bool thirdPerson;
+	bool repeatMode; // new g_bRepeat
+	bool speedDisplay; // new g_bCenterSpeedDisplay
+	char styleText[STYLE_TEXT_LENGTH];
+	char styleTextSmall[STYLE_TEXT_SMALL_LENGTH];
+
+	// options that save to db
+	int initialStyle; // @todo: set up saving
+	bool outlines; // outline toggle
+	bool hideWeapons; // weapon visibility/pickup toggle
+
+	float cooldown; // global command cooldown
+}
 
 /* Natives */
 
@@ -182,6 +203,10 @@ native surftimer_GetPlayerData(client, String:time[], rank, String:country[]);
  */
 native bool:surftimer_SafeTeleport(client, Float:fDestination[3], Float:fAngle[3], Float:fVelocity[3], bool:bStopTimer = false);
 
+
+native Database IG_GetDatabase();
+
+
 /*
 		FORWARDS
 						*/
@@ -241,4 +266,5 @@ public __pl_surftimer_SetNTVOptional()
 	MarkNativeAsOptional("surftimer_ClientIsVIP");
 	MarkNativeAsOptional("surftimer_GetServerRank");
 	MarkNativeAsOptional("surftimer_SafeTeleport");
+	MarkNativeAsOptional("IG_GetDatabase");
 }

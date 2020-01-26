@@ -854,13 +854,6 @@ public bool checkSpam(int client)
 	return result;
 }
 
-stock bool IsValidClient(int client)
-{
-	if (client >= 1 && client <= MaxClients && IsValidEntity(client) && IsClientConnected(client) && IsClientInGame(client))
-		return true;
-	return false;
-}
-
 stock void FakePrecacheSound(const char[] szPath)
 {
 	AddToStringTable(FindStringTable("soundprecache"), szPath);
@@ -1500,8 +1493,6 @@ public void InitPrecache()
 	AddFileToDownloadsTable(szBuffer);
 	PrecacheModel(szBuffer, true);
 
-	g_BeamSprite = PrecacheModel("materials/sprites/laserbeam.vmt", true);
-	g_HaloSprite = PrecacheModel("materials/sprites/halo.vmt", true);
 	PrecacheModel(ZONE_MODEL);
 
 	// Preache default arm models
@@ -2466,11 +2457,6 @@ public void SpecList(int client)
 
 public int PanelHandler(Handle menu, MenuAction action, int param1, int param2)
 {
-}
-
-public bool TraceRayDontHitSelf(int entity, int mask, any data)
-{
-	return entity != data && !(0 < entity <= MaxClients);
 }
 
 public void PlayQuakeSound_Spec(int client, char[] buffer)
@@ -4327,16 +4313,6 @@ public void FormatPercentage(float perc, char[] buffer, int size)
 		Format(buffer, size, "100.0");
 	else
 		Format(buffer, size, "%.1f", perc);
-}
-
-public bool IsPlayerZoner(int client)
-{
-	if (IsValidClient(client) && !IsFakeClient(client))
-	{
-		if ((GetUserFlagBits(client) & g_ZonerFlag) || (GetUserFlagBits(client) & ADMFLAG_ROOT) || g_bZoner[client])
-			return true;
-	}
-	return false;
 }
 
 public bool IsPlayerTimerAdmin(int client)

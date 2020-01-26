@@ -90,10 +90,8 @@ public void db_createTables()
 	SQL_AddQuery(createTableTnx, sql_createSpawnLocations);
 	SQL_AddQuery(createTableTnx, sql_createAnnouncements);
 	SQL_AddQuery(createTableTnx, sql_createWrcps);
-	SQL_AddQuery(createTableTnx, sql_createOutlineTable);
 
 	SQL_ExecuteTransaction(g_hDb, createTableTnx, SQLTxn_CreateDatabaseSuccess, SQLTxn_CreateDatabaseFailed);
-
 }
 
 public void SQLTxn_CreateDatabaseSuccess(Handle db, any data, int numQueries, Handle[] results, any[] queryData)
@@ -151,7 +149,7 @@ public void db_upgradeDatabase(int ver)
 	if (!SQL_FastQuery(g_hDb, "SELECT hideweapons FROM ck_playeroptions2 LIMIT 1"))
 		SQL_FastQuery(g_hDb, "ALTER TABLE ck_playeroptions2 ADD COLUMN hideweapons INT(11) NOT NULL DEFAULT 0 AFTER teleside;");
 
-	// outlines
+	// player outline option
 	if (!SQL_FastQuery(g_hDb, "SELECT outlines FROM ck_playeroptions2 LIMIT 1"))
 		SQL_FastQuery(g_hDb, "ALTER TABLE ck_playeroptions2 ADD COLUMN outlines INT(11) NOT NULL DEFAULT 1 AFTER hideweapons;");
 
@@ -162,12 +160,6 @@ public void db_upgradeDatabase(int ver)
 	// bonus startspeeds
 	if (!SQL_FastQuery(g_hDb, "SELECT startspeed FROM ck_bonus LIMIT 1"))
 		SQL_FastQuery(g_hDb, "ALTER TABLE ck_bonus ADD COLUMN startspeed INT(11) NOT NULL DEFAULT -1 AFTER runtime;");
-
-	// outlines table
-	if (!SQL_FastQuery(g_hDb, "SELECT mapname FROM ck_outlines LIMIT 1"))
-	{
-		SQL_FastQuery(g_hDb, sql_createOutlineTable);
-	}
 
 	SQL_UnlockDatabase(g_hDb);
 }
@@ -2337,34 +2329,6 @@ public void SQL_deleteBonusCallback(Handle owner, Handle hndl, const char[] erro
 		return;
 	}
 }
-
-/*===================================
-=            SQL Outlines           =
-===================================*/
-public void DB_InsertOutline(MapOutline ol)
-{
-	char szQuery[1024];
-
-	Format(szQuery, 1024, sql_insertOutline, g_szMapName, ol.id, ol.type,
-			ol.startPos[0], ol.startPos[1], ol.startPos[2],
-			ol.endPos[0], ol.endPos[1], ol.endPos[2],
-			ol.angles[0], ol.angles[1], ol.angles[2],
-			ol.origin[0], ol.origin[1], ol.origin[2]);
-	SQL_TQuery(g_hDb, SQL_InsertOutlineCallback, szQuery);
-}
-
-public void SQL_InsertOutlineCallback(Handle owner, Handle hndl, const char[] error, DataPack data)
-{
-	if (hndl == null)
-	{
-		LogError("[Surftimer] SQL Error (SQL_InsertOutlineCallback): %s", error);
-		delete data;
-		return;
-	}
-
-	DB_SelectMapOutlines(); // map_loader_steps.sp
-}
-
 
 /*===================================
 =             SQL Zones             =

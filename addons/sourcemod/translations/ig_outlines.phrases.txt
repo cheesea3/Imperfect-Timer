@@ -1,0 +1,13 @@
+"Phrases"
+{
+	"OutlinesEnabled"
+	{
+		"#format"	"{1:s}"
+		"en"		"{1} Outlines are now {green}visible"
+	}
+	"OutlinesDisabled"
+	{
+		"#format"	"{1:s}"
+		"en"		"{1} Outlines are now {red}hidden"
+	}
+}
