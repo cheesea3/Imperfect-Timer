@@ -389,11 +389,15 @@ public void OnMapStart()
 	int lastPiece = ExplodeString(g_szMapName, "/", mapPieces, sizeof(mapPieces), sizeof(mapPieces[]));
 	Format(g_szMapName, sizeof(g_szMapName), "%s", mapPieces[lastPiece - 1]);
 
+
+#if defined DEBUG_LOGGING
 	// Debug Logging
 	if (!DirExists("addons/sourcemod/logs/surftimer"))
 		CreateDirectory("addons/sourcemod/logs/surftimer", 511);
 
-#if defined DEBUG_LOGGING
+	if (!DirExists("addons/sourcemod/logs/ig_logs"))
+		CreateDirectory("addons/sourcemod/logs/ig_logs", 511);
+
 	BuildPath(Path_SM, g_szLogFile, sizeof(g_szLogFile), "logs/surftimer/%s.log", g_szMapName);
 #endif
 

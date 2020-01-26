@@ -17,14 +17,13 @@ public Plugin myinfo =
 #include <ig_surf/ig_beams>
 
 #define BEAM_LOGGING
-#define BEAM_LOGGING_PATH "logs/ig_logs/beams"
+#define BEAM_LOGGING_PATH "addons/sourcemod/logs/ig_logs/beams"
 
 #define BEAM_SPRITE_PATH "materials/sprites/laserbeam.vmt"
 #define HALO_SPRITE_PATH "materials/sprites/halo.vmt"
 
 #if defined BEAM_LOGGING
 char g_szLogFile[PLATFORM_MAX_PATH];
-char g_szLogFilePath[PLATFORM_MAX_PATH];
 #endif
 
 int g_BeamSprite;
@@ -45,9 +44,8 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 public void OnPluginStart()
 {
 #if defined BEAM_LOGGING
-	BuildPath(Path_SM, g_szLogFilePath, sizeof(g_szLogFilePath), BEAM_LOGGING_PATH);
-	if (!DirExists(g_szLogFilePath))
-		CreateDirectory(g_szLogFilePath, 511);
+	if (!DirExists(BEAM_LOGGING_PATH))
+		CreateDirectory(BEAM_LOGGING_PATH, 511);
 #endif
 }
 
@@ -60,8 +58,9 @@ public void OnMapStart()
 {
 	InitPrecache();
 	GetCurrentMap(g_szMapName, 128);
+
 #if defined BEAM_LOGGING
-	FormatEx(g_szLogFile, sizeof(g_szLogFile), "%s/%s.log", g_szLogFilePath, g_szMapName);
+	FormatEx(g_szLogFile, sizeof(g_szLogFile), "%s/%s.log", BEAM_LOGGING_PATH, g_szMapName);
 #endif
 }
 
@@ -201,69 +200,6 @@ stock void TE_SendBeamBoxToClient(  int client,
 		TE_SendToClient(client);
 	}
 }
-
-/*stock void TE_SendBeamBoxToClient(  int client,
-									float uppercorner[3],
-									float bottomcorner[3],
-									int ModelIndex,
-									int HaloIndex,
-									int StartFrame,
-									int FrameRate,
-									float Life,
-									float Width,
-									float EndWidth,
-									int FadeLength,
-									float Amplitude,
-									const int Color[4],
-									int Speed,
-									bool full)
-{
-	float corners[8][3];
-	Array_Copy(uppercorner, corners[0], 3);
-	Array_Copy(bottomcorner, corners[7], 3);
-
-	// Calculate mins
-	float min[3];
-	for (int i = 0; i < 3; i++) {
-		min[i] = corners[0][i];
-		if (corners[7][i] < min[i]) min[i] = corners[7][i];
-	}
-
-	// Calculate all corners from two provided
-	for(int i = 1; i < 7; i++) {
-		for(int j = 0; j < 3; j++) {
-			corners[i][j] = corners[((i >> (2-j)) & 1) * 7][j];
-		}
-	}
-
-	// Pull corners in by 1 unit to prevent them being hidden inside the ground / walls / ceiling
-	for (int j = 0; j < 3; j++) {
-		for (int i = 0; i < 8; i++) {
-			if (corners[i][j] == min[j]) {
-				corners[i][j] += WALL_BEAMBOX_OFFSET_UNITS;
-			} else {
-				corners[i][j] -= WALL_BEAMBOX_OFFSET_UNITS;
-			}
-		}
-		min[j] += WALL_BEAMBOX_OFFSET_UNITS;
-	}
-
-	// Send beams to client
-	// https://forums.alliedmods.net/showpost.php?p=2006539&postcount=8
-	for (int i = 0, i2 = 3; i2 >= 0; i+=i2--)
-	{
-		for(int j = 1; j <= 7; j += (j / 2) + 1)
-		{
-			if (j != 7-i)
-			{
-				if (!full && (corners[i][2] != min[2] || corners[j][2] != min[2]))
-					continue;
-				TE_SetupBeamPoints(corners[i], corners[j], ModelIndex, HaloIndex, StartFrame, FrameRate, Life, Width, EndWidth, FadeLength, Amplitude, Color, Speed);
-				TE_SendToClient(client);
-			}
-		}
-	}
-}*/
 
 stock void TE_SendBeamLineToClient( int client,
 									const float start[3],

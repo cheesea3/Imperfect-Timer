@@ -22,7 +22,7 @@ public Plugin myinfo =
 #include <ig_surf/ig_outlines>
 
 #define OUTLINE_LOGGING
-#define OUTLINE_LOGGING_PATH "logs/ig_logs/outlines"
+#define OUTLINE_LOGGING_PATH "addons/sourcemod/logs/ig_logs/outlines"
 
 #define MYSQL 0
 
@@ -30,7 +30,6 @@ char g_szMapName[128];
 
 #if defined OUTLINE_LOGGING
 char g_szLogFile[PLATFORM_MAX_PATH];
-char g_szLogFilePath[PLATFORM_MAX_PATH];
 #endif
 
 /*----------  @IG Outlines  ----------*/
@@ -78,9 +77,8 @@ public void OnPluginStart()
 	LoadTranslations("ig_outlines.phrases");
 
 #if defined OUTLINE_LOGGING
-	BuildPath(Path_SM, g_szLogFilePath, sizeof(g_szLogFilePath), OUTLINE_LOGGING_PATH);
-	if (!DirExists(g_szLogFilePath))
-		CreateDirectory(g_szLogFilePath, 511);
+	if (!DirExists(OUTLINE_LOGGING_PATH))
+		CreateDirectory(OUTLINE_LOGGING_PATH, 511);
 #endif
 
 	// list all entities in console, optional arg to use class name
@@ -99,7 +97,7 @@ public void OnMapStart()
 {
 	GetCurrentMap(g_szMapName, 128);
 #if defined OUTLINE_LOGGING
-	FormatEx(g_szLogFile, sizeof(g_szLogFile), "%s/%s.log", g_szLogFilePath, g_szMapName);
+	FormatEx(g_szLogFile, sizeof(g_szLogFile), "%s/%s.log", OUTLINE_LOGGING_PATH, g_szMapName);
 #endif
 
 	CreateTimer(4.0, StartMapOutlines, _, TIMER_FLAG_NO_MAPCHANGE);
