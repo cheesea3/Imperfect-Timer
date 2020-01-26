@@ -25,7 +25,7 @@ stock void HighlightEntity(int client, int iEnt)
 		float origin[3], mins[3], maxs[3], angles[3];
 		GetEntityVectors(iEnt, origin, mins, maxs, angles);
 		IG_SendBeamBoxRotatableToClient(client, origin, mins, maxs, angles, 15.0, BEAM_COLOR_HIGHLIGHT);
-		//Effect_DrawBeamBoxRotatableToClient(client, origin, mins, maxs, angles, g_highlightBeamSprite, g_highlightHaloSprite, 0, 30, 15.0, 1.0, 1.0, 1, 1.0, BEAM_COLOR_HIGHLIGHT, 0);
+		//Effect_DrawBeamBoxRotatableToClient(client, origin, mins, maxs, angles, g_highlightBeamSprite, g_highlightHaloSprite, 0, 30, 15.0, 1.0, 1.0, 2, 0.0, BEAM_COLOR_HIGHLIGHT, 0);
 	}
 	else
 	{

@@ -15,7 +15,7 @@ public Action BeamBox(Handle timer, int client)
 		if (g_Editing[client] == 2 && g_bAllowBeams) {
 
 			//IG_SendBeamBoxToClient(client, g_Positions[client][1], g_Positions[client][0], g_BeamSprite, g_HaloSprite, 0, BEAM_FRAMERATE, 1.0, 1.0, 1.0, 1, 0.0, beamColorEdit, 0, true);
-			IG_SendBeamBoxToClient(client, g_Positions[client][1], g_Positions[client][0], 1.0, beamColorEdit);
+			IG_SendBeamBoxToClient(client, g_Positions[client][1], g_Positions[client][0], 1.0, beamColorEdit, true);
 			return Plugin_Continue;
 		}
 	}
@@ -92,7 +92,7 @@ public Action ThrottledBeamBoxAll(Handle timer, int i)
 			buffer_b[x] = g_mapZones[i].PointB[x];
 		}
 
-		IG_SendBeamBoxToClient(p, g_mapZones[i].PointA, g_mapZones[i].PointB, ZONE_REFRESH_TIME, zColor);
+		IG_SendBeamBoxToClient(p, g_mapZones[i].PointA, g_mapZones[i].PointB, ZONE_REFRESH_TIME, zColor, full);
 	}
 
 	CreateTimer(0.1, ThrottledBeamBoxAll, i + 1, TIMER_FLAG_NO_MAPCHANGE);
@@ -119,17 +119,17 @@ public void BeamBox_OnPlayerRunCmd(int client)
 			if (g_Editing[client] == 10)
 			{
 				TR_GetEndPosition(g_fBonusStartPos[client][1]);
-				IG_SendBeamBoxToClient(client, g_fBonusStartPos[client][1], g_fBonusStartPos[client][0], 0.1, beamColorEdit);
+				IG_SendBeamBoxToClient(client, g_fBonusStartPos[client][1], g_fBonusStartPos[client][0], 0.1, beamColorEdit, true);
 			}
 			else
 			{
 				TR_GetEndPosition(g_fBonusEndPos[client][1]);
-				IG_SendBeamBoxToClient(client, g_fBonusEndPos[client][1], g_fBonusEndPos[client][0], 0.1, beamColorEdit);
+				IG_SendBeamBoxToClient(client, g_fBonusEndPos[client][1], g_fBonusEndPos[client][0], 0.1, beamColorEdit, true);
 			}
 		}
 		else
 		{
-			IG_SendBeamBoxToClient(client, g_Positions[client][1], g_Positions[client][0], 0.1, beamColorEdit);
+			IG_SendBeamBoxToClient(client, g_Positions[client][1], g_Positions[client][0], 0.1, beamColorEdit, true);
 		}
 	}
 
@@ -155,7 +155,7 @@ public void BeamBox_OnPlayerRunCmd(int client)
 			}
 
 			//TE_SendBeamBoxToClient(client, fMins, fMaxs, g_BeamSprite, g_HaloSprite, 0, BEAM_FRAMERATE, 1.0, 1.0, 1.0, 1, 0.0, view_as<int>({255, 255, 0, 255}), 0, true);
-			IG_SendBeamBoxToClient(client, fMins, fMaxs, 0.1, beamColorEdit);
+			IG_SendBeamBoxToClient(client, fMins, fMaxs, 0.1, beamColorEdit, true);
 		}
 	}
 }

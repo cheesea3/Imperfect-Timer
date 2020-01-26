@@ -169,13 +169,13 @@ public void BeamBox_OnPlayerRunCmd(int client)
 	{
 		if (g_iOutlineStyle[client] == OUTLINE_STYLE_LINE)
 		{
-			//TE_SendBeamLineToClient(client, g_fOutlineStartPos[client], g_fOutlineEndPos[client], g_BeamSprite, g_HaloSprite, 0, BEAM_FRAMERATE, 0.1, 0.8, 0.8, 1, 0.0, OUTLINE_BEAM_COLOR, 0);
+			//TE_SendBeamLineToClient(client, g_fOutlineStartPos[client], g_fOutlineEndPos[client], g_BeamSprite, g_HaloSprite, 0, BEAM_FRAMERATE, 0.1, 0.8, 0.8, 2, 0.0, OUTLINE_BEAM_COLOR, 0);
 			IG_SendBeamToClient(client, g_fOutlineStartPos[client], g_fOutlineEndPos[client], 0.1, OUTLINE_BEAM_COLOR);
 		}
 		else if (g_iOutlineStyle[client] == OUTLINE_STYLE_BOX)
 		{
-			//TE_SendBeamBoxToClient(client, g_fOutlineStartPos[client], g_fOutlineEndPos[client], g_BeamSprite, g_HaloSprite, 0, BEAM_FRAMERATE, 0.1, 1.0, 1.0, 1, 0.0, OUTLINE_BEAM_COLOR, 0, true);
-			IG_SendBeamBoxToClient(client, g_fOutlineStartPos[client], g_fOutlineEndPos[client], 0.1, OUTLINE_BEAM_COLOR);
+			//TE_SendBeamBoxToClient(client, g_fOutlineStartPos[client], g_fOutlineEndPos[client], g_BeamSprite, g_HaloSprite, 0, BEAM_FRAMERATE, 0.1, 1.0, 1.0, 2, 0.0, OUTLINE_BEAM_COLOR, 0, true);
+			IG_SendBeamBoxToClient(client, g_fOutlineStartPos[client], g_fOutlineEndPos[client], 0.1, OUTLINE_BEAM_COLOR, false);
 		}
 	}
 }
@@ -593,7 +593,7 @@ public void SQL_SelectOutlinesCallback(Handle owner, Handle hndl, const char[] e
 
 stock void SendOutlineBeamBox(int client, float mins[3], float maxs[3])
 {
-	IG_SendBeamBoxToClient(client, mins, maxs, OUTLINE_REFRESH_TIME, OUTLINE_BEAM_COLOR);
+	IG_SendBeamBoxToClient(client, mins, maxs, OUTLINE_REFRESH_TIME, OUTLINE_BEAM_COLOR, true);
 }
 
 stock void SendOutlineBeamBoxRotatable(int client, float origin[3], float mins[3], float maxs[3], float angles[3])

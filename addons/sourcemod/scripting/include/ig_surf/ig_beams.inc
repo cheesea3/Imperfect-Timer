@@ -7,7 +7,7 @@
 #define DEF_BEAM_FRAMERATE 30
 
 
-native int IG_SendBeamBoxToClient(int client, const float mins[3], const float maxs[3], float life, int color[4]);
+native int IG_SendBeamBoxToClient(int client, const float mins[3], const float maxs[3], float life, int color[4], bool full);
 native int IG_SendBeamBoxRotatableToClient(int client, const float origin[3], const float mins[3], const float maxs[3], const float angles[3], float life, int color[4]);
 native int IG_SendBeamToClient(int client, const float start[3], const float end[3], float life, int color[4]);
 
