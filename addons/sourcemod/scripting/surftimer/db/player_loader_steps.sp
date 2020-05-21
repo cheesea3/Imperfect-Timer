@@ -198,7 +198,7 @@ void db_refreshPlayerPointsCallback(Handle hndl, const char[] error, int client,
 	}
 
 	int minRank = g_hPrestigeRank.IntValue;
-	if (minRank == -1 && normalPoints == 0) {
+	if (!IsPlayerVip(client) && minRank == -1 && normalPoints == 0) {
 		KickClient(client, "Visit our beginner server at 74.91.112.208");
 	}
 
@@ -250,7 +250,7 @@ void sql_getPlayerRankCallback(Handle hndl, const char[] error, int client, any 
 	}
 
 	int minRank = g_hPrestigeRank.IntValue;
-	if (minRank > 0 && (normalRank == 0 || normalRank > minRank)) {
+	if (!IsPlayerVip(client) && minRank > 0 && (normalRank == 0 || normalRank > minRank)) {
 		KickClient(client, "You must be at least rank %i to join this server", minRank);
 	}
 
