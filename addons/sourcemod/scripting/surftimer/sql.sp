@@ -85,11 +85,11 @@ public void db_createTables()
 	SQL_AddQuery(createTableTnx, sql_createBonus);
 	SQL_AddQuery(createTableTnx, sql_createBonusIndex);
 	SQL_AddQuery(createTableTnx, sql_createCheckpoints);
-	SQL_AddQuery(createTableTnx, sql_createZones);
-	SQL_AddQuery(createTableTnx, sql_createMapTier);
 	SQL_AddQuery(createTableTnx, sql_createSpawnLocations);
 	SQL_AddQuery(createTableTnx, sql_createAnnouncements);
 	SQL_AddQuery(createTableTnx, sql_createWrcps);
+	SQL_AddQuery(createTableTnx, sql_createMapTier);
+	SQL_AddQuery(createTableTnx, sql_createZones);
 
 	SQL_ExecuteTransaction(g_hDb, createTableTnx, SQLTxn_CreateDatabaseSuccess, SQLTxn_CreateDatabaseFailed);
 }

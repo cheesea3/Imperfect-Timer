@@ -484,12 +484,12 @@ public Action Say_Hook(int client, const char[] command, int argc)
 		ReplaceString(szChatRank, sizeof(szChatRank), "{style}", "");
 	}
 
-	char szCountry[1024] = "";
-	if (g_hCountry.BoolValue && (g_hPointSystem.BoolValue)) {
-		Format(szCountry, sizeof(szCountry), "{green}{1} ", g_szCountryCode[client]);
-	}
+	//char szCountry[1024] = "";
+	//if (g_hCountry.BoolValue && (g_hPointSystem.BoolValue)) {
+	//	Format(szCountry, sizeof(szCountry), "{green}{1} ", g_szCountryCode[client]);
+	//}
 
-	char szSpec[1024] = "";
+	//char szSpec[1024] = "";
 	/*
 	if (GetClientTeam(client) == 1) {
 		szSpec = "*SPEC* ";
@@ -498,7 +498,7 @@ public Action Say_Hook(int client, const char[] command, int argc)
 	}
 	*/
 
-	CPrintToChatAll("%s%s{default}%s%s{grey}: {default}%s", szCountry, szChatRank, szSpec, szName, sText);
+	CPrintToChatAll("%s{default}%s{grey}: {default}%s", szChatRank, szName, sText);
 	return Plugin_Handled;
 }
 
