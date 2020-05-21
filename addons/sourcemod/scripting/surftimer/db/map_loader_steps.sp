@@ -795,30 +795,30 @@ void SQL_db_GetDynamicTimelimitCallback(Handle owner, Handle hndl, const char[] 
 
 			// scale factor
 			if (avg <= 10)
-			scale_factor = 5;
+				scale_factor = 5;
 			if (avg <= 5)
-			scale_factor = 8;
+				scale_factor = 8;
 			if (avg <= 3)
-			scale_factor = 10;
+				scale_factor = 10;
 			if (avg <= 2)
-			scale_factor = 12;
+				scale_factor = 12;
 			if (avg <= 1)
-			scale_factor = 14;
+				scale_factor = 14;
 
 			avg = avg * scale_factor;
 
-			// timelimit: min 30min, max 60min
+			// timelimit: min 30min, max 120min
 			if (avg < 30)
-			avg = 30;
+				avg = 30;
 			if (avg > 60)
-			avg = 60;
+				avg = 60;
 
 			timelimit = avg;
 		}
 
 		// set timelimit
 		char szTimelimit[32];
-		Format(szTimelimit, 32, "mp_timelimit %i;mp_roundtime %i", timelimit, timelimit);
+		Format(szTimelimit, sizeof(szTimelimit), "mp_timelimit %i;mp_roundtime %i;mp_roundtime_defuse %i;mp_roundtime_deployment %i;mp_roundtime_hostage %i", timelimit, timelimit, timelimit, timelimit, timelimit);
 		ServerCommand(szTimelimit);
 		ServerCommand("mp_restartgame 1");
 	}

@@ -154,14 +154,15 @@ public Action CKTimer2(Handle timer)
 		int iTimeLimit;
 		iTimeLimit = hTmp.IntValue;
 		// Emergency reset timelimit if it's 0
-		if (iTimeLimit == 0)
-		{
-			hTmp.SetInt(30, true);
-			ServerCommand("mp_roundtime 30");
-			GameRules_SetProp("m_iRoundTime", 1800, 4, 0, true);
-		}
+		// if (iTimeLimit == 0)
+		// {
+		// 	hTmp.SetInt(30, true);
+		// 	ServerCommand("mp_roundtime 30");
+		// 	GameRules_SetProp("m_iRoundTime", 1800, 4, 0, true);
+		// }
 		if (hTmp != null)
 			delete hTmp;
+
 		if (iTimeLimit > 0)
 		{
 			int timeleft;
@@ -185,18 +186,27 @@ public Action CKTimer2(Handle timer)
 					//CreateTimer(1.0, Timer_RetryPlayers, INVALID_HANDLE, TIMER_FLAG_NO_MAPCHANGE);
 					//CreateTimer(1.1, ForceNextMap, INVALID_HANDLE, TIMER_FLAG_NO_MAPCHANGE);
 				}
+				case 0:
+				{
+					if (!g_bRoundEnd)
+					{
+						g_bRoundEnd = true;
+						ServerCommand("mp_ignore_round_win_conditions 0; mp_timelimit 0; mp_maxrounds 0; mp_respawn_on_death_t 0; mp_respawn_on_death_ct 0");
+						CreateTimer(1.0, TerminateRoundTimer, _, TIMER_FLAG_NO_MAPCHANGE);
+					}
+				}
 			}
 
-			if (timeleft <= -1)
-			{
-				g_bRoundEnd = true;
-				ServerCommand("mp_match_end_restart 0"); // just in case
-				char szNextMap[128];
-				GetNextMap(szNextMap, 128);
-				CPrintToChatAll("%t", "Timer2", g_szChatPrefix, szNextMap);
-				CS_TerminateRound(16.0, CSRoundEnd_Draw, true);
-				return Plugin_Continue;
-			}
+			// if (timeleft <= -1)
+			// {
+			// 	g_bRoundEnd = true;
+			// 	ServerCommand("mp_match_end_restart 0"); // just in case
+			// 	char szNextMap[128];
+			// 	GetNextMap(szNextMap, 128);
+			// 	CPrintToChatAll("%t", "Timer2", g_szChatPrefix, szNextMap);
+			// 	CS_TerminateRound(16.0, CSRoundEnd_Draw, true);
+			// 	return Plugin_Continue;
+			// }
 
 			if (timeleft == 60 || timeleft == 30 || timeleft == 15)
 			{
@@ -264,6 +274,19 @@ public Action CKTimer2(Handle timer)
 		}
 	}
 	return Plugin_Continue;
+}
+
+public Action TerminateRoundTimer(Handle timer)
+{
+	CS_TerminateRound(1.0, CSRoundEnd_CTWin, true);
+	for (int i = 0; i <= MaxClients; i++)
+	{
+		if (IsValidClient(i) && !IsFakeClient(i))
+		{
+			Client_Stop(i, 1);
+		}
+	}
+	return Plugin_Handled;
 }
 
 public Action ReplayTimer(Handle timer, any userid)
@@ -456,7 +479,7 @@ public Action RemoveRagdoll(Handle timer, any victim)
 		int player_ragdoll;
 		player_ragdoll = GetEntDataEnt2(victim, g_ragdolls);
 		if (player_ragdoll != -1)
-			RemoveEdict(player_ragdoll);
+			RemoveEntity(player_ragdoll);
 	}
 	return Plugin_Handled;
 }

@@ -977,18 +977,15 @@ public void OnSettingChanged(Handle convar, const char[] oldValue, const char[] 
 	}
 	else if (convar == g_hCvarNoBlock)
 	{
-		if (g_hCvarNoBlock.BoolValue)
+		for (int client = 1; client <= MaxClients; client++)
 		{
-			for (int client = 1; client <= MaxClients; client++)
-				if (IsValidEntity(client))
+			if (IsValidEntity(client))
+			{
+				if (g_hCvarNoBlock.BoolValue)
 					SetEntData(client, FindSendPropInfo("CBaseEntity", "m_CollisionGroup"), 2, 4, true);
-
-		}
-		else
-		{
-			for (int client = 1; client <= MaxClients; client++)
-				if (IsValidEntity(client))
+				else
 					SetEntData(client, FindSendPropInfo("CBaseEntity", "m_CollisionGroup"), 5, 4, true);
+			}
 		}
 	}
 	else if (convar == g_hCleanWeapons)
@@ -1007,7 +1004,7 @@ public void OnSettingChanged(Handle convar, const char[] oldValue, const char[] 
 						{
 							GetEdictClassname(weapon, szclass, sizeof(szclass));
 							RemovePlayerItem(i, weapon);
-							RemoveEdict(weapon);
+							RemoveEntity(weapon);
 							int equipweapon = GetPlayerWeaponSlot(i, 2);
 							if (equipweapon != -1)
 								EquipPlayerWeapon(i, equipweapon);
@@ -1112,79 +1109,79 @@ public void OnSettingChanged(Handle convar, const char[] oldValue, const char[] 
 	else if (convar == g_hReplayBotColor)
 	{
 		char color[256];
-		Format(color, 256, "%s", newValue[0]);
+		Format(color, sizeof(color), "%s", newValue[0]);
 		GetRGBColor(0, color);
 	}
 	else if (convar == g_hBonusBotColor)
 	{
 		char color[256];
-		Format(color, 256, "%s", newValue[0]);
+		Format(color, sizeof(color), "%s", newValue[0]);
 		GetRGBColor(1, color);
 	}
 	else if (convar == g_hzoneStartColor)
 	{
 		char color[24];
-		Format(color, 28, "%s", newValue[0]);
+		Format(color, sizeof(color), "%s", newValue[0]);
 		StringRGBtoInt(color, g_iZoneColors[1]);
 	}
 	else if (convar == g_hzoneEndColor)
 	{
 		char color[24];
-		Format(color, 28, "%s", newValue[0]);
+		Format(color, sizeof(color), "%s", newValue[0]);
 		StringRGBtoInt(color, g_iZoneColors[2]);
 	}
 	else if (convar == g_hzoneCheckerColor)
 	{
 		char color[24];
-		Format(color, 28, "%s", newValue[0]);
+		Format(color, sizeof(color), "%s", newValue[0]);
 		StringRGBtoInt(color, g_iZoneColors[10]);
 	}
 	else if (convar == g_hzoneBonusStartColor)
 	{
 		char color[24];
-		Format(color, 28, "%s", newValue[0]);
+		Format(color, sizeof(color), "%s", newValue[0]);
 		StringRGBtoInt(color, g_iZoneColors[3]);
 	}
 	else if (convar == g_hzoneBonusEndColor)
 	{
 		char color[24];
-		Format(color, 28, "%s", newValue[0]);
+		Format(color, sizeof(color), "%s", newValue[0]);
 		StringRGBtoInt(color, g_iZoneColors[4]);
 	}
 	else if (convar == g_hzoneStageColor)
 	{
 		char color[24];
-		Format(color, 28, "%s", newValue[0]);
+		Format(color, sizeof(color), "%s", newValue[0]);
 		StringRGBtoInt(color, g_iZoneColors[5]);
 	}
 	else if (convar == g_hzoneCheckpointColor)
 	{
 		char color[24];
-		Format(color, 28, "%s", newValue[0]);
+		Format(color, sizeof(color), "%s", newValue[0]);
 		StringRGBtoInt(color, g_iZoneColors[6]);
 	}
 	else if (convar == g_hzoneSpeedColor)
 	{
 		char color[24];
-		Format(color, 28, "%s", newValue[0]);
+		Format(color, sizeof(color), "%s", newValue[0]);
 		StringRGBtoInt(color, g_iZoneColors[7]);
 	}
 	else if (convar == g_hzoneTeleToStartColor)
 	{
 		char color[24];
-		Format(color, 28, "%s", newValue[0]);
+		Format(color, sizeof(color), "%s", newValue[0]);
 		StringRGBtoInt(color, g_iZoneColors[8]);
 	}
 	else if (convar == g_hzoneValidatorColor)
 	{
 		char color[24];
-		Format(color, 28, "%s", newValue[0]);
+		Format(color, sizeof(color), "%s", newValue[0]);
 		StringRGBtoInt(color, g_iZoneColors[9]);
 	}
 	else if (convar == g_hzoneStopColor)
 	{
 		char color[24];
-		Format(color, 28, "%s", newValue[0]);
+		Format(color, sizeof(color), "%s", newValue[0]);
 		StringRGBtoInt(color, g_iZoneColors[0]);
 	}
 	else if (convar == g_hZonerFlag)
