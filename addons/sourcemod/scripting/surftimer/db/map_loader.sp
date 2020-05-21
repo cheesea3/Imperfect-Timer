@@ -4,7 +4,7 @@ static int g_mapLoadStep = 0;
 static int g_mapLoadUid = 0;
 static MapLoadState g_mapLoadState;
 
-//#define MAP_LOAD_LOGGING
+#define MAP_LOAD_LOGGING
 
 void LoadMapStart()
 {

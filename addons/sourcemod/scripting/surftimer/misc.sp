@@ -99,10 +99,14 @@ public void teleportClient(int client, int zonegroup, int zone, bool stopTime)
 	}
 
 	// fix array out of bounds
-	if (zonegroup == 0 && zone > g_TotalStages)
-	{
-		return;
-	}
+// 	if (zonegroup == 0 && zone > g_TotalStages)
+// 	{
+// #if defined DEBUG_LOGGING
+// 	if (CheckCommandAccess(client, "", ADMFLAG_ROOT))
+// 		LogToFileEx(g_szLogFile, "teleportClient failed! zonegroup=%i ; zone=%i ; g_TotalStages=%i", zonegroup, zone, g_TotalStages);
+// #endif
+// 		return;
+// 	}
 
 	// Set Defaults
 
@@ -138,7 +142,7 @@ public void teleportClient(int client, int zonegroup, int zone, bool stopTime)
 	// Check clients tele side
 	int teleside = g_iTeleSide[client];
 
-	if (g_bStartposUsed[client][zonegroup] && realZone == 1)
+	if (zone == 1 && g_bStartposUsed[client][zonegroup])
 	{
 		if (GetClientTeam(client) == 1 || GetClientTeam(client) == 0) // Spectating
 		{
