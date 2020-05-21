@@ -273,6 +273,7 @@ public void SQL_selectMapZonesCallback(Handle owner, Handle hndl, const char[] e
 // 2
 void db_GetMapRecord_Pro(any cb=0) {
 	g_fRecordMapTime = 9999999.0;
+	g_iRecordMapStartSpeed[0] = -1; // @IG start speeds - set normal start speed
 	for (int i = 1; i < MAX_STYLES; i++)
 	{
 		g_fRecordStyleMapTime[i] = 9999999.0;
@@ -1109,7 +1110,7 @@ void SQL_SelectAnnouncementsCallback(Handle owner, Handle hndl, const char[] err
 				g_iLastID = id;
 		}
 	}
-	
+
 	g_bHasLatestID = true;
 
 	RunCallback(cb);

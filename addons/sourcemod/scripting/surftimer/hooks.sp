@@ -858,60 +858,82 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 		// HSW buttons
 		case STYLE_HSW:
 		{
+			// olokos method
+			bool bForward = ((buttons & IN_FORWARD) > 0 && vel[0] >= 100.0);
+			bool bMoveLeft = ((buttons & IN_MOVELEFT) > 0 && vel[1] <= -100.0);
+			bool bBack = ((buttons & IN_BACK) > 0 && vel[0] <= -100.0);
+			bool bMoveRight = ((buttons & IN_MOVERIGHT) > 0 && vel[1] >= 100.0);
 			if (!g_bInStartZone[client] && !g_bInStageZone[client])
 			{
-				if (buttons & IN_BACK && !(buttons & IN_MOVELEFT || buttons & IN_MOVERIGHT))
+				if((bForward || bBack) && !(bMoveLeft || bMoveRight))
 				{
-					g_KeyCount[client]++;
-					if (g_KeyCount[client] == 60)
-					{
-						g_players[client].currentStyle = STYLE_NORMAL;
-						g_KeyCount[client] = 0;
-						CPrintToChat(client, "%t", "CommandsNormal", g_szChatPrefix);
-					}
+					vel[0] = 0.0;
+					buttons &= ~IN_FORWARD;
+					buttons &= ~IN_BACK;
 				}
-				else if (buttons & IN_BACK && (buttons & IN_MOVELEFT || buttons & IN_MOVERIGHT))
-					g_KeyCount[client] = 0;
-
-				if (buttons & IN_FORWARD && !(buttons & IN_MOVELEFT || buttons & IN_MOVERIGHT))
-					{
-						g_KeyCount[client]++;
-						if (g_KeyCount[client] == 60)
-						{
-							g_players[client].currentStyle = STYLE_NORMAL;
-							g_KeyCount[client] = 0;
-							CPrintToChat(client, "%t", "CommandsNormal", g_szChatPrefix);
-						}
-					}
-				else if (buttons & IN_FORWARD && (buttons & IN_MOVELEFT || buttons & IN_MOVERIGHT))
-					g_KeyCount[client] = 0;
-
-				if (buttons & IN_MOVELEFT && !(buttons & IN_FORWARD || buttons & IN_BACK))
-					{
-						g_KeyCount[client]++;
-						if (g_KeyCount[client] == 60)
-						{
-							g_players[client].currentStyle = STYLE_NORMAL;
-							g_KeyCount[client] = 0;
-							CPrintToChat(client, "%t", "CommandsNormal", g_szChatPrefix);
-						}
-					}
-				else if (buttons & IN_MOVELEFT && (buttons & IN_FORWARD || buttons & IN_BACK))
-					g_KeyCount[client] = 0;
-
-				if (buttons & IN_MOVERIGHT && !(buttons & IN_FORWARD || buttons & IN_BACK))
-					{
-						g_KeyCount[client]++;
-						if (g_KeyCount[client] == 60)
-						{
-							g_players[client].currentStyle = STYLE_NORMAL;
-							g_KeyCount[client] = 0;
-							CPrintToChat(client, "%t", "CommandsNormal", g_szChatPrefix);
-						}
-					}
-					else if (buttons & IN_MOVELEFT && (buttons & IN_FORWARD || buttons & IN_BACK))
-						g_KeyCount[client] = 0;
+				if((bMoveLeft || bMoveRight) && !(bForward || bBack))
+				{
+					vel[1] = 0.0;
+					buttons &= ~IN_MOVELEFT;
+					buttons &= ~IN_MOVERIGHT;
+				}
 			}
+
+			// old method
+			// if (!g_bInStartZone[client] && !g_bInStageZone[client])
+			// {
+			// 	if (buttons & IN_BACK && !(buttons & IN_MOVELEFT || buttons & IN_MOVERIGHT))
+			// 	{
+			// 		g_KeyCount[client]++;
+			// 		if (g_KeyCount[client] == 60)
+			// 		{
+			// 			g_players[client].currentStyle = STYLE_NORMAL;
+			// 			g_KeyCount[client] = 0;
+			// 			CPrintToChat(client, "%t", "CommandsNormal", g_szChatPrefix);
+			// 		}
+			// 	}
+			// 	else if (buttons & IN_BACK && (buttons & IN_MOVELEFT || buttons & IN_MOVERIGHT))
+			// 		g_KeyCount[client] = 0;
+
+			// 	if (buttons & IN_FORWARD && !(buttons & IN_MOVELEFT || buttons & IN_MOVERIGHT))
+			// 		{
+			// 			g_KeyCount[client]++;
+			// 			if (g_KeyCount[client] == 60)
+			// 			{
+			// 				g_players[client].currentStyle = STYLE_NORMAL;
+			// 				g_KeyCount[client] = 0;
+			// 				CPrintToChat(client, "%t", "CommandsNormal", g_szChatPrefix);
+			// 			}
+			// 		}
+			// 	else if (buttons & IN_FORWARD && (buttons & IN_MOVELEFT || buttons & IN_MOVERIGHT))
+			// 		g_KeyCount[client] = 0;
+
+			// 	if (buttons & IN_MOVELEFT && !(buttons & IN_FORWARD || buttons & IN_BACK))
+			// 		{
+			// 			g_KeyCount[client]++;
+			// 			if (g_KeyCount[client] == 60)
+			// 			{
+			// 				g_players[client].currentStyle = STYLE_NORMAL;
+			// 				g_KeyCount[client] = 0;
+			// 				CPrintToChat(client, "%t", "CommandsNormal", g_szChatPrefix);
+			// 			}
+			// 		}
+			// 	else if (buttons & IN_MOVELEFT && (buttons & IN_FORWARD || buttons & IN_BACK))
+			// 		g_KeyCount[client] = 0;
+
+			// 	if (buttons & IN_MOVERIGHT && !(buttons & IN_FORWARD || buttons & IN_BACK))
+			// 		{
+			// 			g_KeyCount[client]++;
+			// 			if (g_KeyCount[client] == 60)
+			// 			{
+			// 				g_players[client].currentStyle = STYLE_NORMAL;
+			// 				g_KeyCount[client] = 0;
+			// 				CPrintToChat(client, "%t", "CommandsNormal", g_szChatPrefix);
+			// 			}
+			// 		}
+			// 		else if (buttons & IN_MOVELEFT && (buttons & IN_FORWARD || buttons & IN_BACK))
+			// 			g_KeyCount[client] = 0;
+			// }
 		}
 
 		// BW buttons
@@ -1263,6 +1285,49 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 		g_LastButton[client] = buttons;
 
 		BeamBox_OnPlayerRunCmd(client);
+	}
+
+	// Do not record frames where the player was afk in start zone
+	if (!IsFakeClient(client)) 
+	{
+		float vVelocity[3];
+		GetEntPropVector(client, Prop_Data, "m_vecVelocity", vVelocity);
+		float velocity = GetVectorLength(vVelocity);
+		
+		// Player is afk, stop recording if recording
+		if (velocity == 0.0)
+		{
+			if (g_iClientInZone[client][0] == 1 || g_iClientInZone[client][0] == 5)
+			{
+				// Check if the replay is recording
+				if (g_hRecording[client] != null) 
+					StopRecording(client);
+				
+				if (g_StageRecStartFrame[client] != -1)
+					g_StageRecStartFrame[client] = -1;
+			}
+			else if (g_iClientInZone[client][0] == 3)
+			{
+				if (g_StageRecStartFrame[client] != -1)
+					g_StageRecStartFrame[client] = -1;
+			}
+		}
+		else
+		{
+			if (g_iClientInZone[client][0] == 1 || g_iClientInZone[client][0] == 5)
+			{
+				if (g_hRecording[client] == null)
+					StartRecording(client);
+
+				if (g_StageRecStartFrame[client] == -1)
+					Stage_StartRecording(client);
+			}
+			else if (g_iClientInZone[client][0] == 3)
+			{
+				if (g_StageRecStartFrame[client] == -1)
+					Stage_StartRecording(client);
+			}
+		}
 	}
 
 	// Strafe Sync taken from shavit's bhop timer
