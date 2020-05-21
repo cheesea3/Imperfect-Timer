@@ -60,12 +60,12 @@ void LoadPlayerContinue(DataPack cb, bool error) {
 		return;
 	}
 
-#if defined DEBUG_LOGGING
-	char szName[MAX_NAME_LENGTH];
-	GetClientName(client, szName, sizeof(szName));
-	float time = GetGameTime() - g_playerLoadTick[client];
-	LogToFileEx(g_szLogFile, "[Surftimer] %s<%s>: Finished load step %i in %fs", szName, g_szSteamID[client], g_playerLoadStep[client], time);
-#endif
+//#if defined DEBUG_LOGGING
+//	char szName[MAX_NAME_LENGTH];
+//	GetClientName(client, szName, sizeof(szName));
+//	float time = GetGameTime() - g_playerLoadTick[client];
+//	LogToFileEx(g_szLogFile, "[Surftimer] %s<%s>: Finished load step %i in %fs", szName, g_szSteamID[client], g_playerLoadStep[client], time);
+//#endif
 
 	g_playerLoadStep[client]++;
 	SetClanTag(client);

@@ -792,9 +792,10 @@ public Action OnLogAction(Handle source, Identity ident, int client, int target,
 		if ((strcmp("playercommands.smx", logtag, false) == 0) || (strcmp("slap.smx", logtag, false) == 0))
 			Client_Stop(target, 0);
 	}
-	if( StrContains( message , "changed map to" ) != -1) {
-		CreateTimer( 2.9 , Timer_RetryPlayers , _ , TIMER_FLAG_NO_MAPCHANGE );
-	}
+
+	//if( StrContains( message , "changed map to" ) != -1) {
+	//	CreateTimer( 2.9 , Timer_RetryPlayers , _, TIMER_FLAG_NO_MAPCHANGE );
+	//}
 	return Plugin_Continue;
 }
 
@@ -816,7 +817,6 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 	}
 
 	/*------ Styles ------*/
-
 	switch (g_players[client].currentStyle)
 	{
 		// Sideways buttons
