@@ -484,12 +484,12 @@ public Action Say_Hook(int client, const char[] command, int argc)
 		ReplaceString(szChatRank, sizeof(szChatRank), "{style}", "");
 	}
 
-	char szCountry[1024] = "";
-	if (g_hCountry.BoolValue && (g_hPointSystem.BoolValue)) {
-		Format(szCountry, sizeof(szCountry), "{green}{1} ", g_szCountryCode[client]);
-	}
+	//char szCountry[1024] = "";
+	//if (g_hCountry.BoolValue && (g_hPointSystem.BoolValue)) {
+	//	Format(szCountry, sizeof(szCountry), "{green}{1} ", g_szCountryCode[client]);
+	//}
 
-	char szSpec[1024] = "";
+	//char szSpec[1024] = "";
 	/*
 	if (GetClientTeam(client) == 1) {
 		szSpec = "*SPEC* ";
@@ -498,7 +498,7 @@ public Action Say_Hook(int client, const char[] command, int argc)
 	}
 	*/
 
-	CPrintToChatAll("%s%s{default}%s%s{grey}: {default}%s", szCountry, szChatRank, szSpec, szName, sText);
+	CPrintToChatAll("%s{default}%s{grey}: {default}%s", szChatRank, szName, sText);
 	return Plugin_Handled;
 }
 
@@ -1247,29 +1247,6 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 		GetClientEyeAngles(client, ang);
 
 		speed = GetSpeed(client);
-
-		// @IG outlines
-		if (g_bCreatingOutline[client] && (buttons & IN_ATTACK || buttons & IN_ATTACK2))
-		{
-			float oPos[3], oAng[3];
-
-			if (buttons & IN_ATTACK && !(buttons & IN_ATTACK2)) // start pos of outline
-			{
-				GetClientEyePosition(client, oPos);
-				GetClientEyeAngles(client, oAng);
-				TR_TraceRayFilter(oPos, oAng, MASK_PLAYERSOLID, RayType_Infinite, TraceRayDontHitSelf, client);
-				TR_GetEndPosition(g_fOutlineStartPos[client]);
-				g_bStartPointPlaced[client] = true;
-			}
-			else if (buttons & IN_ATTACK2 && !(buttons & IN_ATTACK)) // end pos of outline
-			{
-				GetClientEyePosition(client, oPos);
-				GetClientEyeAngles(client, oAng);
-				TR_TraceRayFilter(oPos, oAng, MASK_PLAYERSOLID, RayType_Infinite, TraceRayDontHitSelf, client);
-				TR_GetEndPosition(g_fOutlineEndPos[client]);
-				g_bEndPointPlaced[client] = true;
-			}
-		}
 
 		// Menu Refreshing
 		CheckRun(client);

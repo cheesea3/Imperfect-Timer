@@ -27,7 +27,7 @@
 // #include <store>
 #include <discord>
 #include <sourcecomms>
-#include <surftimer>
+#include <ig_surf/surftimer>
 
 /*===================================
 =            Definitions            =
@@ -103,8 +103,7 @@
 #define DISCOTIME_RELATIVE_SOUND_PATH "*/surftimer/discotime.mp3"
 
 // beams
-#define ZONE_REFRESH_TIME 4.0
-#define OUTLINE_REFRESH_TIME 2.5
+#define ZONE_REFRESH_TIME 3.5
 #define BEAM_FRAMERATE 30
 
 #define VOTE_NO "###no###"
@@ -117,10 +116,6 @@
 // Zone Definitions
 #define ZONE_MODEL "models/props/de_train/barrel.mdl"
 
-
-// max outlines per map
-#define MAX_OUTLINE_LINES 100
-#define MAX_OUTLINE_BOXES 30
 
 // Ranking Definitions
 #define MAX_PR_PLAYERS 1066
@@ -152,7 +147,7 @@
 #define MAX_LOAD_STEPS 6
 
 // Max map load steps
-#define MAX_MAP_LOAD_STEPS 21
+#define MAX_MAP_LOAD_STEPS 20
 
 
 /*====================================
@@ -247,35 +242,13 @@ enum SkillGroup
 	String:NameColour[32]
 }
 
-// new type for player variables
-enum struct SurfPlayer
-{
-	int id; // client id
-
-	int currentStyle;
-	bool isRankedStyle;
-	bool isFunStyle;
-	bool thirdPerson;
-	bool repeatMode; // new g_bRepeat
-	bool speedDisplay; // new g_bCenterSpeedDisplay
-	char styleText[STYLE_TEXT_LENGTH];
-	char styleTextSmall[STYLE_TEXT_SMALL_LENGTH];
-
-	// options that save to db
-	int initialStyle; // @todo: set up saving
-	bool outlines; // outline toggle
-	bool hideWeapons; // weapon visibility/pickup toggle
-
-	float cooldown; // global command cooldown
-}
-
-#include <ig_entitymanager>
+#include <ig_surf/ig_core>
+#include <ig_surf/ig_beams>
+#include <ig_surf/ig_entitymanager>
 
 #include "surftimer/globals.sp"
 #include "surftimer/convars.sp"
 #include "surftimer/misc.sp"
-
-#include "surftimer/outlines.sp"
 
 #include "surftimer/db/queries.sp"
 #include "surftimer/sql.sp"
@@ -299,7 +272,7 @@ enum struct SurfPlayer
 #include "surftimer/replay.sp"
 #include "surftimer/surfzones.sp"
 #include "surftimer/cvote.sp"
-#include "surftimer/func.sp"
+//#include "surftimer/func.sp"
 #include "surftimer/natives.sp"
 
 
@@ -323,6 +296,9 @@ public void OnLibraryAdded(const char[] name)
 		g_bMapChooser = true;
 	if (tmp != null)
 		delete tmp;
+
+	if (StrEqual(name, "ig_beams"))
+		g_bAllowBeams = true;
 
 	// botmimic 2
 	if (StrEqual(name, "dhooks") && g_hTeleport == null)
@@ -353,6 +329,18 @@ public void OnLibraryAdded(const char[] name)
 	}
 }
 
+public void OnLibraryRemoved(const char[] name)
+{
+	if (StrEqual(name, "adminmenu"))
+		g_hAdminMenu = null;
+
+	if (StrEqual(name, "dhooks"))
+		g_hTeleport = null;
+
+	if (StrEqual(name, "ig_beams"))
+		g_bAllowBeams = false;
+}
+
 public void OnPluginEnd()
 {
 	// remove clan tags
@@ -378,14 +366,6 @@ public void OnPluginEnd()
 	ServerCommand("mp_startmoney 800; mp_playercashawards 1; mp_teamcashawards 1");
 }
 
-public void OnLibraryRemoved(const char[] name)
-{
-	if (StrEqual(name, "adminmenu"))
-		g_hAdminMenu = null;
-	if (StrEqual(name, "dhooks"))
-		g_hTeleport = null;
-}
-
 public void OnEntityCreated(int entity, const char[] classname)
 {
 	// if (StrContains(classname, "trigger_", true) != -1 || StrContains(classname, "_door")!= -1)
@@ -409,11 +389,15 @@ public void OnMapStart()
 	int lastPiece = ExplodeString(g_szMapName, "/", mapPieces, sizeof(mapPieces), sizeof(mapPieces[]));
 	Format(g_szMapName, sizeof(g_szMapName), "%s", mapPieces[lastPiece - 1]);
 
+
+#if defined DEBUG_LOGGING
 	// Debug Logging
 	if (!DirExists("addons/sourcemod/logs/surftimer"))
 		CreateDirectory("addons/sourcemod/logs/surftimer", 511);
 
-#if defined DEBUG_LOGGING
+	if (!DirExists("addons/sourcemod/logs/ig_logs"))
+		CreateDirectory("addons/sourcemod/logs/ig_logs", 511);
+
 	BuildPath(Path_SM, g_szLogFile, sizeof(g_szLogFile), "logs/surftimer/%s.log", g_szMapName);
 #endif
 
@@ -448,11 +432,10 @@ public void OnMapStart()
 	SetCashState();
 
 	// Timers
-	CreateTimer(0.1, CKTimer1, INVALID_HANDLE, TIMER_FLAG_NO_MAPCHANGE | TIMER_REPEAT);
-	CreateTimer(1.0, CKTimer2, INVALID_HANDLE, TIMER_FLAG_NO_MAPCHANGE | TIMER_REPEAT);
-	CreateTimer(60.0, AttackTimer, INVALID_HANDLE, TIMER_FLAG_NO_MAPCHANGE | TIMER_REPEAT);
-	CreateTimer(600.0, PlayerRanksTimer, INVALID_HANDLE, TIMER_FLAG_NO_MAPCHANGE | TIMER_REPEAT);
-	CreateTimer(OUTLINE_REFRESH_TIME, OutlineBeamsAll, _, TIMER_FLAG_NO_MAPCHANGE | TIMER_REPEAT);
+	CreateTimer(0.1, CKTimer1, _, TIMER_FLAG_NO_MAPCHANGE | TIMER_REPEAT);
+	CreateTimer(1.0, CKTimer2, _, TIMER_FLAG_NO_MAPCHANGE | TIMER_REPEAT);
+	CreateTimer(60.0, AttackTimer, _, TIMER_FLAG_NO_MAPCHANGE | TIMER_REPEAT);
+	CreateTimer(600.0, PlayerRanksTimer, _, TIMER_FLAG_NO_MAPCHANGE | TIMER_REPEAT);
 	CreateTimer(ZONE_REFRESH_TIME, BeamBoxAll, _, TIMER_FLAG_NO_MAPCHANGE | TIMER_REPEAT);
 
 	// AutoBhop
@@ -462,14 +445,14 @@ public void OnMapStart()
 		g_bAutoBhop = false;
 
 	// main.cfg & replays
-	CreateTimer(1.0, DelayedStuff, INVALID_HANDLE, TIMER_FLAG_NO_MAPCHANGE);
-	CreateTimer(10.0, LoadReplaysTimer, INVALID_HANDLE, TIMER_FLAG_NO_MAPCHANGE);
+	CreateTimer(1.0, DelayedStuff, _, TIMER_FLAG_NO_MAPCHANGE);
+	CreateTimer(10.0, LoadReplaysTimer, _, TIMER_FLAG_NO_MAPCHANGE);
 
 	if (g_bLateLoaded)
 		OnAutoConfigsBuffered();
 
 	g_Advert = 0;
-	CreateTimer(180.0, AdvertTimer, INVALID_HANDLE, TIMER_FLAG_NO_MAPCHANGE | TIMER_REPEAT);
+	CreateTimer(180.0, AdvertTimer, _, TIMER_FLAG_NO_MAPCHANGE | TIMER_REPEAT);
 
 	int iEnt;
 	for (int i = 0; i < sizeof(EntityList); i++)
@@ -540,7 +523,7 @@ public void OnMapStart()
 	g_bRoundEnd = false;
 
 	// Playtime
-	CreateTimer(1.0, PlayTimeTimer, INVALID_HANDLE, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
+	CreateTimer(1.0, PlayTimeTimer, _, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
 
 	// if (FindPluginByFile("store.smx") != INVALID_HANDLE)
 	// 	LogMessage("Store plugin has been found! Timer credits enabled.");
@@ -550,7 +533,7 @@ public void OnMapStart()
 	// Server Announcements
 	g_iServerID = g_hServerID.IntValue;
 	if (g_hRecordAnnounce.BoolValue)
-		CreateTimer(45.0, AnnouncementTimer, INVALID_HANDLE, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
+		CreateTimer(45.0, AnnouncementTimer, _, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
 
 	// Show Triggers
 	g_iTriggerTransmitCount = 0;
@@ -1338,7 +1321,7 @@ public void OnPluginStart()
 
 	if (g_bLateLoaded)
 	{
-		CreateTimer(3.0, LoadPlayerSettings, INVALID_HANDLE, TIMER_FLAG_NO_MAPCHANGE);
+		CreateTimer(3.0, LoadPlayerSettings, _, TIMER_FLAG_NO_MAPCHANGE);
 	}
 
 	Format(szWHITE, 12, "%c", WHITE);

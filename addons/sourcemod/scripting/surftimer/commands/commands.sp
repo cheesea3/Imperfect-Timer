@@ -157,11 +157,8 @@ void CreateCommands()
 	RegConsoleCmd("sm_showweps", Command_ShowWeapons, "[surftimer] Give weapons and allow pickups");
 	RegConsoleCmd("sm_showweapons", Command_ShowWeapons, "[surftimer] Give weapons and allow pickups");
 	RegConsoleCmd("sm_tp", Command_ToggleThirdPerson, "[surftimer] Toggles between first and third person"); // Zephyrus' third person plugin
-	RegConsoleCmd("sm_outliner", Command_Outlines, "[surftimer] [Zoner] Open the outlines menu");
-	RegConsoleCmd("sm_outlines", Command_ToggleOutlines, "[surftimer] Toggle the visibility of outlines");
 
 	CreateStyleCommands();
-	CreateOutlineCommands();
 
 	// style btop if i ever get around to it
 	/*RegConsoleCmd("sm_btopsw", Client_SWBonusTop, "[surftimer] displays a local bonus top (sw) for a given map");
@@ -3873,8 +3870,8 @@ public Action Command_Repeat(int client, int args)
 public Action Admin_FixBot(int client, int args)
 {
 	CPrintToChat(client, "%t", "Commands52", g_szChatPrefix);
-	CreateTimer(5.0, FixBot_Off, INVALID_HANDLE, TIMER_FLAG_NO_MAPCHANGE);
-	CreateTimer(10.0, FixBot_On, INVALID_HANDLE, TIMER_FLAG_NO_MAPCHANGE);
+	CreateTimer(5.0, FixBot_Off, _, TIMER_FLAG_NO_MAPCHANGE);
+	CreateTimer(10.0, FixBot_On, _, TIMER_FLAG_NO_MAPCHANGE);
 
 	return Plugin_Handled;
 }

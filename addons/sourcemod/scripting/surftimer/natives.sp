@@ -163,6 +163,11 @@ public int Native_IsPlayerInTP(Handle plugin, int numParams)
 	return g_players[client].thirdPerson;
 }
 
+public int Native_GetDatabase(Handle hPlugin, int numParams)
+{
+	return view_as<int>(g_hDb);
+}
+
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
 	RegPluginLibrary("surftimer");
@@ -181,12 +186,12 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	CreateNative("surftimer_GetMapStages", Native_GetMapStages);
 	CreateNative("surftimer_SafeTeleport", Native_SafeTeleport);
 	CreateNative("surftimer_IsClientVip", Native_IsClientVip);
-
-	// Zephyrus' third person plugin
-	CreateNative("IsPlayerInTP", Native_IsPlayerInTP);
+	CreateNative("IG_GetDatabase", Native_GetDatabase);
+	CreateNative("IsPlayerInTP", Native_IsPlayerInTP); // Zephyrus' third person plugin
 
 	MarkNativeAsOptional("Store_GetClientCredits");
 	MarkNativeAsOptional("Store_SetClientCredits");
+
 	g_bLateLoaded = late;
 	return APLRes_Success;
 }

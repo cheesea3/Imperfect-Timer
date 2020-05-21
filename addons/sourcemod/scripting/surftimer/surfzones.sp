@@ -630,7 +630,6 @@ public void ZoneMenu(int client)
 		ckZoneMenu.AddItem("", "Save Zones");
 		ckZoneMenu.AddItem("", "Edit Zone Settings");
 		ckZoneMenu.AddItem("", "Reload Zones");
-		ckZoneMenu.AddItem("", "Outlines");
 		ckZoneMenu.ExitButton = true;
 		ckZoneMenu.Display(client, MENU_TIME_FOREVER);
 	}
@@ -675,12 +674,6 @@ public int Handle_ZoneMenu(Handle tMenu, MenuAction action, int client, int item
 					CPrintToChat(client, "%t", "SurfZones3", g_szChatPrefix);
 					resetSelection(client);
 					ZoneMenu(client);
-				}
-				case 5:
-				{
-					// Outlines
-					OutlineMenu(client);
-					//OutlineSettings(client);
 				}
 			}
 		}
@@ -1183,8 +1176,6 @@ public int Handle_SelectNormalZoneType(Handle tMenu, MenuAction action, int clie
 		}
 	}
 }
-
-// @IG outlines
 
 public void ZoneSettings(int client)
 {
@@ -1978,4 +1969,35 @@ void resetZone(int zoneIndex)
 	g_mapZones[zoneIndex].zoneTypeId = -1;
 	g_mapZones[zoneIndex].zoneName = "";
 	g_mapZones[zoneIndex].zoneGroup = 0;
+}
+
+public void getZoneDisplayColor(int type, int zColor[4], int zGrp)
+{
+	switch (type)
+	{
+		case ZONETYPE_START:
+		{
+			if (zGrp > 0)
+				zColor = g_iZoneColors[3];
+			else
+				zColor = g_iZoneColors[1];
+		}
+
+		case ZONETYPE_END:
+		{
+			if (zGrp > 0)
+				zColor = g_iZoneColors[4];
+			else
+				zColor = g_iZoneColors[2];
+		}
+
+		case ZONETYPE_STAGE: zColor = g_iZoneColors[5];
+		case ZONETYPE_CHECKPOINT: zColor = g_iZoneColors[6];
+		case ZONETYPE_SPEEDSTART: zColor = g_iZoneColors[7];
+		case ZONETYPE_TELETOSTART: zColor = g_iZoneColors[8];
+		case ZONETYPE_VALIDATOR: zColor = g_iZoneColors[9];
+		case ZONETYPE_CHECKER: zColor = g_iZoneColors[10];
+		case ZONETYPE_STOP: zColor = g_iZoneColors[0];
+		default: zColor = beamColorOther;
+	}
 }

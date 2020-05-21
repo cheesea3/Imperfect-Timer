@@ -13,21 +13,23 @@ public Plugin myinfo =
 	url = "http://www.imperfectgamers.org/"
 };
 
-#include <ig_entitymanager>
+#include <ig_surf/ig_core>
+#include <ig_surf/ig_beams>
+#include <ig_surf/ig_entitymanager>
 
 #define ENTITY_LOGGING
-#define ENTITY_LOGGING_PATH "logs/ig_entities"
-#define ENTITY_CONFIG_PATH  "configs/ig_entities"
+#define ENTITY_LOGGING_PATH "addons/sourcemod/logs/ig_logs/entities"
+#define ENTITY_CONFIG_PATH  "addons/sourcemod/configs/ig_entities"
 
 char g_szMapName[128];
-char g_szConfigPath[PLATFORM_MAX_PATH];
 char g_szConfigFilePath[PLATFORM_MAX_PATH];
 ArrayList g_hDeletedEnts = null;
 
 #if defined ENTITY_LOGGING
 char g_szLogFile[PLATFORM_MAX_PATH];
-char g_szLogFilePath[PLATFORM_MAX_PATH];
 #endif
+
+bool g_bAllowBeams;
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
@@ -37,14 +39,13 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 public void OnPluginStart()
 {
 	// setup paths
-	BuildPath(Path_SM, g_szConfigPath, sizeof(g_szConfigPath), ENTITY_CONFIG_PATH);
-	if (!DirExists(g_szConfigPath))
-		CreateDirectory(g_szConfigPath, 511);
+	if (!DirExists(ENTITY_CONFIG_PATH))
+		CreateDirectory(ENTITY_CONFIG_PATH, 511);
 
-	BuildPath(Path_SM, g_szLogFilePath, sizeof(g_szLogFilePath), ENTITY_LOGGING_PATH);
-	if (!DirExists(g_szLogFilePath))
-		CreateDirectory(g_szLogFilePath, 511);
-
+#if defined ENTITY_LOGGING
+	if (!DirExists(ENTITY_LOGGING_PATH))
+		CreateDirectory(ENTITY_LOGGING_PATH, 511);
+#endif
 
 	// list all entities in console, optional arg to use class name
 	RegAdminCmd("sm_listentities", Command_ListEntities, ADMFLAG_ROOT);
@@ -89,9 +90,10 @@ public void OnPluginStop()
 public void OnMapStart()
 {
 	GetCurrentMap(g_szMapName, 128);
-	FormatEx(g_szConfigFilePath, sizeof(g_szConfigFilePath), "%s/%s.cfg", g_szConfigPath, g_szMapName);
+	FormatEx(g_szConfigFilePath, sizeof(g_szConfigFilePath), "%s/%s.cfg", ENTITY_CONFIG_PATH, g_szMapName);
+
 #if defined ENTITY_LOGGING
-	FormatEx(g_szLogFile, sizeof(g_szLogFile), "%s/%s.log", g_szLogFilePath, g_szMapName);
+	FormatEx(g_szLogFile, sizeof(g_szLogFile), "%s/%s.log", ENTITY_LOGGING_PATH, g_szMapName);
 #endif
 
 	if (g_hDeletedEnts == null)
@@ -105,6 +107,20 @@ public void OnMapEnd()
 {
 	if (g_hDeletedEnts != null)
 		delete g_hDeletedEnts;
+
+	Format(g_szMapName, sizeof(g_szMapName), "");
+}
+
+public void OnLibraryAdded(const char[] name)
+{
+	if (StrEqual("ig_beams", name))
+		g_bAllowBeams = true;
+}
+
+public void OnLibraryRemoved(const char[] name)
+{
+	if (StrEqual("ig_beams", name))
+		g_bAllowBeams = false;
 }
 
 // list all valid entities in the map
@@ -255,7 +271,10 @@ public Action Command_HighlightEntity(int client, int args)
 	int iEnt = StringToInt(arg1);
 
 	if (IsValidEntity(iEnt))
-		HighlightEntity(client, iEnt);
+	{
+		if (g_bAllowBeams)
+			HighlightEntity(client, iEnt);
+	}
 	else
 		PrintToChat(client, "Invalid entity index: %i", iEnt);
 
@@ -263,7 +282,7 @@ public Action Command_HighlightEntity(int client, int args)
 }
 
 // delete entities on map load
-void DeleteEntities(const char[] path)
+stock void DeleteEntities(const char[] path)
 {
 	File file = OpenFile(path, "r");
 	StringMap hEntities = GetEntityMap();
@@ -284,18 +303,20 @@ void DeleteEntities(const char[] path)
 			AcceptEntityInput(iEnt, "Kill");
 			g_hDeletedEnts.PushString(szEnt);
 
-#if defined ENTITY_LOGGING
-			LogToFileEx(g_szLogFile, "%s deleted", szEnt);
-#endif
+
 		}
 	}
+
+#if defined ENTITY_LOGGING
+		LogToFileEx(g_szLogFile, "All entities deleted.");
+#endif
 
 	delete hEntities;
 	delete file;
 }
 
 // get a stringmap of the named entities in the current map
-StringMap GetEntityMap()
+stock StringMap GetEntityMap()
 {
 	StringMap entities = new StringMap();
 
@@ -317,7 +338,7 @@ StringMap GetEntityMap()
 // write config file
 stock void WriteConfigFile()
 {
-	File file = OpenFile(g_szConfigFilePath, "w");
+	File file = OpenFile(g_szConfigFilePath, "w+");
 	for (int i = 0; i < g_hDeletedEnts.Length; i++)
 	{
 		char szName[128];
@@ -326,4 +347,27 @@ stock void WriteConfigFile()
 	}
 
 	delete file;
+}
+
+stock void GoToEntity(int client, int iEnt)
+{
+	if (IsValidEntity(iEnt) && HasEntProp(iEnt, Prop_Send, "m_vecOrigin"))
+	{
+		char sClassName[128];
+		GetEdictClassname(iEnt, sClassName, 128);
+
+		float pos[3], ang[3];
+		GetEntPropVector(iEnt, Prop_Send, "m_vecOrigin", pos);
+		GetClientEyeAngles(client, ang);
+		TeleportEntity(client, pos, ang, view_as<float>( { 0.0, 0.0, -100.0 } ));
+
+		if (g_bAllowBeams)
+			HighlightEntity(client, iEnt); // highlight it as well, cause why not
+
+		PrintToChat(client, "Teleported to entity %i: %s at { %.2f, %.2f. %.2f }", iEnt, sClassName, pos[0], pos[1], pos[2]);
+	}
+	else
+	{
+		PrintToChat(client, "Invalid entity index or missing property: %i", iEnt);
+	}
 }

@@ -396,8 +396,8 @@ bool g_ClientRenamingZone[MAXPLAYERS + 1];
 char g_szZoneDefaultNames[MAX_ZONETYPES][128] = { "Stop", "Start", "End", "Stage", "Checkpoint", "SpeedStart", "TeleToStart", "Validator", "Checker", "AntiJump", "AntiDuck", "MaxSpeed" };
 
 // Zone sprites
-int g_BeamSprite;
-int g_HaloSprite;
+//int g_BeamSprite;
+//int g_HaloSprite;
 
 /*----------  PushFix by Mev, George & Blacky  ----------*/
 // https://forums.alliedmods.net/showthread.php?t=267131
@@ -703,6 +703,9 @@ bool g_bLateLoaded = false;
 
 // Known mapchooser loaded? Used to update info bot
 bool g_bMapChooser;
+
+// allow beams
+bool g_bAllowBeams;
 
 // If call admin, ignore chat message
 bool g_bClientOwnReason[MAXPLAYERS + 1];
