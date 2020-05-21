@@ -787,7 +787,7 @@ void SQL_db_GetDynamicTimelimitCallback(Handle owner, Handle hndl, const char[] 
 		}
 
 		// requires min. 5 map times
-		int timelimit = 50;
+		int timelimit = 30;
 		if (maptimes > 5)
 		{
 			int scale_factor = 3;
@@ -807,7 +807,7 @@ void SQL_db_GetDynamicTimelimitCallback(Handle owner, Handle hndl, const char[] 
 
 			avg = avg * scale_factor;
 
-			// timelimit: min 20min, max 120min
+			// timelimit: min 30min, max 60min
 			if (avg < 30)
 			avg = 30;
 			if (avg > 60)
