@@ -1082,25 +1082,34 @@ void db_selectMapCurrentImprovementCallback(Handle owner, Handle hndl, const cha
 
 // 19
 
-void db_selectAnnouncements(any cb=0) {
+void db_selectAnnouncements(any cb=0)
+{
 	char szQuery[1024];
-	Format(szQuery, 1024, "SELECT id FROM ck_announcements WHERE server != '%s' AND id > %d", g_sServerName, g_iLastID);
+	char szEscServerName[128];
+	SQL_EscapeString(g_hDb, g_sServerName, szEscServerName, sizeof(szEscServerName));
+	Format(szQuery, 1024, "SELECT `id` FROM `ck_announcements` WHERE `server` != '%s' AND `id` > %d", szEscServerName, g_iLastID);
 	SQL_TQuery(g_hDb, SQL_SelectAnnouncementsCallback, szQuery, cb, DBPrio_High);
 }
-void SQL_SelectAnnouncementsCallback(Handle owner, Handle hndl, const char[] error, any cb) {
-	if (hndl == null) {
+
+void SQL_SelectAnnouncementsCallback(Handle owner, Handle hndl, const char[] error, any cb)
+{
+	if (hndl == null)
+	{
 		LogError("[surftimer] SQL Error (SQL_SelectAnnouncementsCallback): %s", error);
 		RunCallback(cb, true);
 		return;
 	}
 
-	if (SQL_HasResultSet(hndl)) {
-		while (SQL_FetchRow(hndl)) {
+	if (SQL_HasResultSet(hndl))
+	{
+		while (SQL_FetchRow(hndl))
+		{
 			int id = SQL_FetchInt(hndl, 0);
 			if (id > g_iLastID)
 				g_iLastID = id;
 		}
 	}
+	
 	g_bHasLatestID = true;
 
 	RunCallback(cb);

@@ -430,14 +430,18 @@ public void db_insertAnnouncement(char szName[MAX_NAME_LENGTH], char szMapName[1
 		return;
 
 	char szQuery[512];
-	Format(szQuery, 512, "INSERT INTO ck_announcements (server, name, mapname, time) VALUES ('%s', '%s', '%s', '%s');", g_sServerName, szName, szMapName, szTime);
+	char szEscServerName[128];
+	SQL_EscapeString(g_hDb, g_sServerName, szEscServerName, sizeof(szEscServerName));
+	Format(szQuery, 512, "INSERT INTO `ck_announcements` (`server`, `name`, `mapname`, `time`) VALUES ('%s', '%s', '%s', '%s');", szEscServerName, szName, szMapName, szTime);
 	SQL_TQuery(g_hDb, SQL_CheckCallback, szQuery);
 }
 
 public void db_checkAnnouncements()
 {
 	char szQuery[512];
-	Format(szQuery, 512, "SELECT id, server, name, mapname, time FROM ck_announcements WHERE server != '%s' AND id > %d;", g_sServerName, g_iLastID);
+	char szEscServerName[128];
+	SQL_EscapeString(g_hDb, g_sServerName, szEscServerName, sizeof(szEscServerName));
+	Format(szQuery, 512, "SELECT `id`, `server`, `name`, `mapname`, `time`, FROM `ck_announcements` WHERE `server` != '%s' AND `id` > %d;", szEscServerName, g_iLastID);
 	SQL_TQuery(g_hDb, SQL_CheckAnnouncementsCallback, szQuery);
 }
 
