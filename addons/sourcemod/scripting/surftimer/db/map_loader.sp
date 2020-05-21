@@ -4,7 +4,10 @@ static int g_mapLoadStep = 0;
 static int g_mapLoadUid = 0;
 static MapLoadState g_mapLoadState;
 
-void LoadMapStart() {
+//#define MAP_LOAD_LOGGING
+
+void LoadMapStart()
+{
     LogToFileEx(g_szLogFile, "[surftimer] Starting to load server settings");
     g_mapLoadStart = GetGameTime();
     g_mapLoadUid++;
@@ -12,30 +15,39 @@ void LoadMapStart() {
     g_mapLoadState = MLS_LOADING;
     LoadMapStep();
 }
-void LoadMapContinue(DataPack cb, bool error) {
+void
+ LoadMapContinue(DataPack cb, bool error)
+{
     int completedMapUid = cb.ReadCell();
     int completedStep = cb.ReadCell();
     delete cb;
 
-    if (completedStep != g_mapLoadStep || completedMapUid != g_mapLoadUid) {
+    if (completedStep != g_mapLoadStep || completedMapUid != g_mapLoadUid)
+    {
         // Outdated step -- just stop here
         return;
     }
-    if (error) {
+
+    if (error)
+    {
         g_mapLoadState = MLS_ERROR;
         return;
     }
 
-#if defined DEBUG_LOGGING
+#if defined MAP_LOAD_LOGGING
     float time = GetGameTime() - g_mapLoadTick;
     LogToFileEx(g_szLogFile, "[Surftimer] Finished map load step %i in %fs", g_mapLoadStep, time);
 #endif
+
     g_mapLoadStep++;
     LoadMapStep();
 }
-void LoadMapStep() {
+
+void LoadMapStep()
+{
     Function step = INVALID_FUNCTION;
-    switch(g_mapLoadStep) {
+    switch(g_mapLoadStep) 
+    {
         case 0: { step = db_viewMapSettings; }
         case 1: { step = db_selectMapZones; }
         case 2: { step = db_GetMapRecord_Pro; }
@@ -57,7 +69,9 @@ void LoadMapStep() {
         case 18: { step = db_selectCurrentMapImprovement; }
         case 19: { step = db_selectAnnouncements; }
     }
-    if (step != INVALID_FUNCTION) {
+
+    if (step != INVALID_FUNCTION) 
+    {
         g_mapLoadTick = GetGameTime();
         DataPack cb = CreateDataPack();
         cb.WriteFunction(LoadMapContinue);
@@ -66,23 +80,32 @@ void LoadMapStep() {
         Call_StartFunction(null, step);
         Call_PushCell(cb);
         Call_Finish();
-    } else if (g_mapLoadState == MLS_LOADING) {
+    } 
+    else if (g_mapLoadState == MLS_LOADING) 
+    {
         LoadMapFinished();
     }
 }
-void LoadMapFinished() {
+
+void LoadMapFinished()
+{
     g_mapLoadState = MLS_LOADED;
     float time = GetGameTime() - g_mapLoadStart;
     LogToFileEx(g_szLogFile, "[Surftimer] Finished map load in %fs", time);
     LoadPlayerNext();
 }
-MapLoadState GetMapLoadState() {
+
+MapLoadState GetMapLoadState()
+{
     return g_mapLoadState;
 }
-int GetMapLoadStep() {
+
+int GetMapLoadStep()
+{
     return g_mapLoadStep;
 }
 
-bool IsMapLoaded() {
+bool IsMapLoaded()
+{
     return g_mapLoadState == MLS_LOADED;
 }

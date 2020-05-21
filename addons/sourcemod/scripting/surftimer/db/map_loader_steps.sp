@@ -1,10 +1,10 @@
 // 0
-
 void db_viewMapSettings(any cb=0) {
 	char szQuery[2048];
 	Format(szQuery, 2048, "SELECT `mapname`, `maxvelocity`, `announcerecord`, `gravityfix` FROM `ck_maptier` WHERE `mapname` = '%s'", g_szMapName);
 	SQL_TQuery(g_hDb, sql_viewMapSettingsCallback, szQuery, cb, DBPrio_High);
 }
+
 void sql_viewMapSettingsCallback(Handle owner, Handle hndl, const char[] error, any cb) {
 	if (hndl == null) {
 		LogError("[surftimer] SQL Error (sql_viewMapSettingsCallback): %s", error);
@@ -26,7 +26,6 @@ void sql_viewMapSettingsCallback(Handle owner, Handle hndl, const char[] error, 
 }
 
 // 1
-
 void db_selectMapZones(any cb=0)
 {
 	char szQuery[512];
@@ -272,7 +271,6 @@ public void SQL_selectMapZonesCallback(Handle owner, Handle hndl, const char[] e
 }
 
 // 2
-
 void db_GetMapRecord_Pro(any cb=0) {
 	g_fRecordMapTime = 9999999.0;
 	for (int i = 1; i < MAX_STYLES; i++)
@@ -286,6 +284,7 @@ void db_GetMapRecord_Pro(any cb=0) {
 	Format(szQuery, 512, sql_selectMapRecord, g_szMapName);
 	SQL_TQuery(g_hDb, sql_selectMapRecordCallback, szQuery, cb, DBPrio_High);
 }
+
 public void sql_selectMapRecordCallback(Handle owner, Handle hndl, const char[] error, any cb) {
 	if (hndl == null) {
 		LogError("[Surftimer] SQL Error (sql_selectMapRecordCallback): %s", error);
@@ -343,7 +342,6 @@ public void sql_selectMapRecordCallback(Handle owner, Handle hndl, const char[] 
 }
 
 // 3
-
 void db_viewMapProRankCount(any cb=0) {
 	g_MapTimesCount = 0;
 	char szQuery[512];
@@ -382,13 +380,13 @@ void sql_selectPlayerProCountCallback(Handle owner, Handle hndl, const char[] er
 }
 
 // 4
-
 void db_viewFastestBonus(any cb=0) {
 	char szQuery[1024];
 	// SELECT name, MIN(runtime), zonegroup, style FROM ck_bonus WHERE mapname = '%s' GROUP BY zonegroup, style;
 	Format(szQuery, 1024, sql_selectFastestBonus, g_szMapName);
 	SQL_TQuery(g_hDb, SQL_selectFastestBonusCallback, szQuery, cb, DBPrio_High);
 }
+
 public void SQL_selectFastestBonusCallback(Handle owner, Handle hndl, const char[] error, any cb) {
 	if (hndl == null) {
 		LogError("[Surftimer] SQL Error (SQL_selectFastestBonusCallback): %s", error);
@@ -452,13 +450,13 @@ public void SQL_selectFastestBonusCallback(Handle owner, Handle hndl, const char
 }
 
 // 5
-
 void db_viewBonusTotalCount(any cb=0) {
 	char szQuery[1024];
 	// SELECT zonegroup, style, count(*) FROM ck_bonus WHERE mapname = '%s' GROUP BY zonegroup, style;
 	Format(szQuery, 1024, sql_selectBonusCount, g_szMapName);
 	SQL_TQuery(g_hDb, SQL_selectBonusTotalCountCallback, szQuery, cb, DBPrio_High);
 }
+
 void SQL_selectBonusTotalCountCallback(Handle owner, Handle hndl, const char[] error, any cb) {
 	if (hndl == null) {
 		LogError("[Surftimer] SQL Error (SQL_selectBonusTotalCountCallback): %s", error);
@@ -488,12 +486,12 @@ void SQL_selectBonusTotalCountCallback(Handle owner, Handle hndl, const char[] e
 }
 
 // 6
-
 void db_selectMapTier(any cb=0) {
 	char szQuery[1024];
 	Format(szQuery, 1024, sql_selectMapTier, g_szMapName);
 	SQL_TQuery(g_hDb, SQL_selectMapTierCallback, szQuery, cb, DBPrio_High);
 }
+
 public void SQL_selectMapTierCallback(Handle owner, Handle hndl, const char[] error, any cb) {
 	if (hndl == null) {
 		LogError("[Surftimer] SQL Error (SQL_selectMapTierCallback): %s", error);
@@ -544,7 +542,6 @@ public void SQL_selectMapTierCallback(Handle owner, Handle hndl, const char[] er
 }
 
 // 7
-
 void db_viewRecordCheckpointInMap(any cb=0) {
 	for (int k = 0; k < MAX_ZONEGROUPS; k++) {
 		g_bCheckpointRecordFound[k] = false;
@@ -557,6 +554,7 @@ void db_viewRecordCheckpointInMap(any cb=0) {
 	Format(szQuery, 1028, sql_selectRecordCheckpoints, g_szRecordMapSteamID, g_szMapName, g_szMapName);
 	SQL_TQuery(g_hDb, sql_selectRecordCheckpointsCallback, szQuery, cb, DBPrio_High);
 }
+
 void sql_selectRecordCheckpointsCallback(Handle owner, Handle hndl, const char[] error, any cb) {
 	if (hndl == null) {
 		LogError("[Surftimer] SQL Error (sql_selectRecordCheckpointsCallback): %s", error);
@@ -583,12 +581,12 @@ void sql_selectRecordCheckpointsCallback(Handle owner, Handle hndl, const char[]
 }
 
 // 8
-
 void db_CalcAvgRunTime(any cb=0) {
 	char szQuery[256];
 	Format(szQuery, 256, sql_selectAllMapTimesinMap, g_szMapName);
 	SQL_TQuery(g_hDb, SQL_db_CalcAvgRunTimeCallback, szQuery, cb, DBPrio_High);
 }
+
 void SQL_db_CalcAvgRunTimeCallback(Handle owner, Handle hndl, const char[] error, any cb) {
 	if (hndl == null) {
 		LogError("[Surftimer] SQL Error (SQL_db_CalcAvgRunTimeCallback): %s", error);
@@ -617,7 +615,6 @@ void SQL_db_CalcAvgRunTimeCallback(Handle owner, Handle hndl, const char[] error
 }
 
 // 9
-
 void db_CalcAvgRunTimeBonus(any cb=0) {
 	if (!g_bhasBonus) {
 		RunCallback(cb);
@@ -627,6 +624,7 @@ void db_CalcAvgRunTimeBonus(any cb=0) {
 	Format(szQuery, 256, sql_selectAllBonusTimesinMap, g_szMapName);
 	SQL_TQuery(g_hDb, SQL_db_CalcAvgRunBonusTimeCallback, szQuery, cb, DBPrio_High);
 }
+
 void SQL_db_CalcAvgRunBonusTimeCallback(Handle owner, Handle hndl, const char[] error, any cb) {
 	if (hndl == null) {
 		LogError("[Surftimer] SQL Error (SQL_db_CalcAvgRunTimeCallback): %s", error);
@@ -659,12 +657,12 @@ void SQL_db_CalcAvgRunBonusTimeCallback(Handle owner, Handle hndl, const char[] 
 }
 
 // 10
-
 void db_CalculatePlayerCount(any cb=0) {
 	char szQuery[255];
 	Format(szQuery, 255, sql_CountRankedPlayers, 0);
 	SQL_TQuery(g_hDb, sql_CountRankedPlayersCallback, szQuery, cb, DBPrio_High);
 }
+
 void sql_CountRankedPlayersCallback(Handle owner, Handle hndl, const char[] error, any cb) {
 	if (hndl == null) {
 		LogError("[Surftimer] SQL Error (sql_CountRankedPlayersCallback): %s", error);
@@ -680,12 +678,12 @@ void sql_CountRankedPlayersCallback(Handle owner, Handle hndl, const char[] erro
 }
 
 // 11
-
 void db_CalculatePlayersCountGreater0(any cb=0) {
 	char szQuery[255];
 	Format(szQuery, 255, sql_CountRankedPlayers2, 0);
 	SQL_TQuery(g_hDb, sql_CountRankedPlayers2Callback, szQuery, cb, DBPrio_High);
 }
+
 void sql_CountRankedPlayers2Callback(Handle owner, Handle hndl, const char[] error, any cb) {
 	if (hndl == null) {
 		LogError("[Surftimer] SQL Error (sql_CountRankedPlayers2Callback): %s", error);
@@ -701,7 +699,6 @@ void sql_CountRankedPlayers2Callback(Handle owner, Handle hndl, const char[] err
 }
 
 // 12
-
 void db_selectSpawnLocations(any cb=0) {
 	for (int s = 0; s < CPLIMIT; s++) {
 		for (int i = 0; i < MAX_ZONEGROUPS; i++) {
@@ -714,6 +711,7 @@ void db_selectSpawnLocations(any cb=0) {
 	Format(szQuery, 254, sql_selectSpawnLocations, g_szMapName);
 	SQL_TQuery(g_hDb, db_selectSpawnLocationsCallback, szQuery, cb, DBPrio_High);
 }
+
 void db_selectSpawnLocationsCallback(Handle owner, Handle hndl, const char[] error, any cb) {
 	if (hndl == null) {
 		LogError("[Surftimer] SQL Error (db_selectSpawnLocationsCallback): %s ", error);
@@ -744,7 +742,6 @@ void db_selectSpawnLocationsCallback(Handle owner, Handle hndl, const char[] err
 }
 
 // 13
-
 void db_ClearLatestRecords(any cb=0) {
 	if (g_DbType == MYSQL)
 		SQL_TQuery(g_hDb, SQL_CheckCallback, "DELETE FROM ck_latestrecords WHERE date < NOW() - INTERVAL 1 WEEK");
@@ -755,7 +752,6 @@ void db_ClearLatestRecords(any cb=0) {
 }
 
 // 14
-
 void db_GetDynamicTimelimit(any cb=0) {
 	if (!g_hDynamicTimelimit.BoolValue) {
 		RunCallback(cb);
@@ -773,7 +769,8 @@ void SQL_db_GetDynamicTimelimitCallback(Handle owner, Handle hndl, const char[] 
 		return;
 	}
 
-	if (SQL_HasResultSet(hndl)) {
+	if (SQL_HasResultSet(hndl))
+	{
 		int maptimes = 0;
 		float total = 0.0, time = 0.0;
 		while (SQL_FetchRow(hndl))

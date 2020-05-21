@@ -29,7 +29,8 @@ stock bool TraceRayDontHitSelf(int entity, int mask, any data)
 	return entity != data && !(0 < entity <= MaxClients);
 }
 
-stock void RunCallback(DataPack cb, bool error = false) {
+stock void RunCallback(DataPack cb, bool error = false)
+{
     if (cb != INVALID_HANDLE) {
         cb.Reset();
         Function fn = cb.ReadFunction();
