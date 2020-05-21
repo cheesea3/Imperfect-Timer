@@ -755,7 +755,7 @@ public void checkSpawnPoints() {
 			{
 				if (StrEqual(sClassName, "info_player_start") || StrEqual(sClassName, "info_player_teamspawn"))
 				{
-					RemoveEdict(i);
+					RemoveEntity(i);
 				}
 			}
 		}
