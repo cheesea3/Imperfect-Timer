@@ -4485,11 +4485,10 @@ public Action Command_CPR(int client, int args)
 }
 
 public Action Command_PlayRecord(int client, int args) {
-	if (g_hPlayReplayVipOnly.BoolValue) {
-		if (!IsPlayerVip(client)) {
-			CReplyToCommand(client, "%t", "Misc43", g_szChatPrefix);
+	if (g_hPlayReplayVipOnly.BoolValue)
+	{
+		if (!IsPlayerVip(client))
 			return Plugin_Handled;
-		}
 	}
 
 	PlayRecordMenu(client);
