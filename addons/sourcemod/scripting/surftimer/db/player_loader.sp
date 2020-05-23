@@ -154,7 +154,7 @@ void SQL_PlayerQuery(const char[] query, SQLTPlayerCallback callback, int client
 		ReplaceString(query2, sizeof(query2), "__steamid__", szSteamidEx);
 	}
 
-	SQL_TQuery(g_hDb, SQL_PlayerQueryCb, query2, newData);
+	g_hDb.Query(SQL_PlayerQueryCb, query2, newData);
 }
 void SQL_PlayerQueryCb(Handle owner, Handle hndl, const char[] error, DataPack newData) {
 	newData.Reset();

@@ -497,7 +497,7 @@ public void DB_InsertOutline(MapOutline ol)
 			ol.endPos[0], ol.endPos[1], ol.endPos[2],
 			ol.angles[0], ol.angles[1], ol.angles[2],
 			ol.origin[0], ol.origin[1], ol.origin[2]);
-	SQL_TQuery(g_hDb, SQL_InsertOutlineCallback, szQuery);
+	g_hDb.Query(SQL_InsertOutlineCallback, szQuery);
 }
 
 public void SQL_InsertOutlineCallback(Handle owner, Handle hndl, const char[] error, DataPack data)
@@ -517,19 +517,19 @@ void DB_SelectMapOutlines(any cb = 0)
 {
 	char szQuery[512];
 	Format(szQuery, sizeof(szQuery), SQL_SELECT_OUTLINES, g_szMapName);
-	SQL_TQuery(g_hDb, SQL_SelectOutlinesCallback, szQuery, cb, DBPrio_High);
+	g_hDb.Query(SQL_SelectOutlinesCallback, szQuery, cb, DBPrio_High);
 }
 
-public void SQL_SelectOutlinesCallback(Handle owner, Handle hndl, const char[] error, any cb)
+public void SQL_SelectOutlinesCallback(Handle owner, DBResultSet results, const char[] error, any cb)
 {
-	if (hndl == null)
+	if (results == null)
 	{
 		LogError("[IG Outlines] SQL Error (SQL_SelectOutlinesCallback): %s", error);
 		RunCallback(cb, true);
 		return;
 	}
 
-	if (SQL_HasResultSet(hndl))
+	if (results.HasResults)
 	{
 		// set defaults
 		g_iOutlineLineCount = 0;
@@ -543,30 +543,30 @@ public void SQL_SelectOutlinesCallback(Handle owner, Handle hndl, const char[] e
 			g_outlineBoxes[i].Defaults();
 
 		// read table
-		while (SQL_FetchRow(hndl))
+		while (results.FetchRow())
 		{
 			MapOutline outline;
-			outline.id = SQL_FetchInt(hndl, 0);
-			outline.type = SQL_FetchInt(hndl, 1);
-			outline.startPos[0] = SQL_FetchFloat(hndl, 2);
-			outline.startPos[1] = SQL_FetchFloat(hndl, 3);
-			outline.startPos[2] = SQL_FetchFloat(hndl, 4);
-			outline.endPos[0] = SQL_FetchFloat(hndl, 5);
-			outline.endPos[1] = SQL_FetchFloat(hndl, 6);
-			outline.endPos[2] = SQL_FetchFloat(hndl, 7);
+			outline.id = results.FetchInt(0);
+			outline.type = results.FetchInt(1);
+			outline.startPos[0] = results.FetchFloat(2);
+			outline.startPos[1] = results.FetchFloat(3);
+			outline.startPos[2] = results.FetchFloat(4);
+			outline.endPos[0] = results.FetchFloat(5);
+			outline.endPos[1] = results.FetchFloat(6);
+			outline.endPos[2] = results.FetchFloat(7);
 
-			outline.angles[0] = SQL_FetchFloat(hndl, 8);
-			outline.angles[1] = SQL_FetchFloat(hndl, 9);
-			outline.angles[2] = SQL_FetchFloat(hndl, 10);
+			outline.angles[0] = results.FetchFloat(8);
+			outline.angles[1] = results.FetchFloat(9);
+			outline.angles[2] = results.FetchFloat(10);
 
 			if (outline.type == OUTLINE_STYLE_HOOK || outline.type == OUTLINE_STYLE_BOX)
 			{
 				// hook outlines do not use default origin, need to add the vectors to remove origin from db
 				if (outline.type == OUTLINE_STYLE_HOOK)
 				{
-					outline.origin[0] = SQL_FetchFloat(hndl, 11);
-					outline.origin[1] = SQL_FetchFloat(hndl, 12);
-					outline.origin[2] = SQL_FetchFloat(hndl, 13);
+					outline.origin[0] = results.FetchFloat(11);
+					outline.origin[1] = results.FetchFloat(12);
+					outline.origin[2] = results.FetchFloat(13);
 				}
 
 				g_outlineBoxes[g_iOutlineBoxCount] = outline;

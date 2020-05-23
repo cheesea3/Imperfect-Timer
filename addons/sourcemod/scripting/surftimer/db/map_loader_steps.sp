@@ -2,7 +2,7 @@
 void db_viewMapSettings(any cb=0) {
 	char szQuery[2048];
 	Format(szQuery, 2048, "SELECT `mapname`, `maxvelocity`, `announcerecord`, `gravityfix` FROM `ck_maptier` WHERE `mapname` = '%s'", g_szMapName);
-	SQL_TQuery(g_hDb, sql_viewMapSettingsCallback, szQuery, cb, DBPrio_High);
+	g_hDb.Query(sql_viewMapSettingsCallback, szQuery, cb, DBPrio_High);
 }
 
 void sql_viewMapSettingsCallback(Handle owner, Handle hndl, const char[] error, any cb) {
@@ -32,7 +32,7 @@ void db_selectMapZones(any cb=0)
 	// SELECT zoneid, zonetype, zonetypeid, pointa_x, pointa_y, pointa_z, pointb_x, pointb_y, pointb_z, vis, team, zonegroup, zonename, hookname, targetname, onejumplimit, prespeed
 	// FROM ck_zones WHERE mapname = '%s' ORDER BY zonetypeid ASC
 	Format(szQuery, sizeof(szQuery), sql_selectMapZones, g_szMapName);
-	SQL_TQuery(g_hDb, SQL_selectMapZonesCallback, szQuery, cb, DBPrio_High);
+	g_hDb.Query(SQL_selectMapZonesCallback, szQuery, cb, DBPrio_High);
 }
 
 public void SQL_selectMapZonesCallback(Handle owner, Handle hndl, const char[] error, any cb)
@@ -214,7 +214,7 @@ public void SQL_selectMapZonesCallback(Handle owner, Handle hndl, const char[] e
 				PrintToServer("[Surftimer] Found an error in zoneid : %i", i);
 				Format(szQuery, 258, "UPDATE `ck_zones` SET zoneid = zoneid-1 WHERE mapname = '%s' AND zoneid > %i", g_szMapName, i);
 				PrintToServer("Query: %s", szQuery);
-				SQL_TQuery(g_hDb, sql_zoneFixCallback, szQuery);
+				g_hDb.Query(sql_zoneFixCallback, szQuery);
 				return;
 			}
 		}
@@ -226,7 +226,7 @@ public void SQL_selectMapZonesCallback(Handle owner, Handle hndl, const char[] e
 			{
 				PrintToServer("[Surftimer] Found an error in zonegroup %i (ZoneGroups total: %i)", i, g_mapZoneGroupCount);
 				Format(szQuery, 258, "UPDATE `ck_zones` SET `zonegroup` = zonegroup-1 WHERE `mapname` = '%s' AND `zonegroup` > %i", g_szMapName, i);
-				SQL_TQuery(g_hDb, sql_zoneFixCallback, szQuery, zoneGroupChecker[i]);
+				g_hDb.Query(sql_zoneFixCallback, szQuery, zoneGroupChecker[i]);
 				return;
 			}
 		}
@@ -244,7 +244,7 @@ public void SQL_selectMapZonesCallback(Handle owner, Handle hndl, const char[] e
 						{
 							PrintToServer("[Surftimer] ZoneTypeID missing! [ZoneGroup: %i ZoneType: %i, ZonetypeId: %i]", i, k, x);
 							Format(szQuery, 258, "UPDATE `ck_zones` SET zonetypeid = zonetypeid-1 WHERE mapname = '%s' AND zonetype = %i AND zonetypeid > %i AND zonegroup = %i;", g_szMapName, k, x, i);
-							SQL_TQuery(g_hDb, sql_zoneFixCallback, szQuery);
+							g_hDb.Query(sql_zoneFixCallback, szQuery);
 							return;
 						}
 						else if (zoneTypeIdChecker[i][k][x] > 1)
@@ -283,7 +283,7 @@ void db_GetMapRecord_Pro(any cb=0) {
 	char szQuery[512];
 	// SELECT MIN(runtimepro), name, steamid, style FROM ck_playertimes WHERE mapname = '%s' AND runtimepro > -1.0 GROUP BY style
 	Format(szQuery, 512, sql_selectMapRecord, g_szMapName);
-	SQL_TQuery(g_hDb, sql_selectMapRecordCallback, szQuery, cb, DBPrio_High);
+	g_hDb.Query(sql_selectMapRecordCallback, szQuery, cb, DBPrio_High);
 }
 
 public void sql_selectMapRecordCallback(Handle owner, Handle hndl, const char[] error, any cb) {
@@ -347,7 +347,7 @@ void db_viewMapProRankCount(any cb=0) {
 	g_MapTimesCount = 0;
 	char szQuery[512];
 	Format(szQuery, 512, sql_selectPlayerProCount, g_szMapName);
-	SQL_TQuery(g_hDb, sql_selectPlayerProCountCallback, szQuery, cb, DBPrio_High);
+	g_hDb.Query(sql_selectPlayerProCountCallback, szQuery, cb, DBPrio_High);
 }
 void sql_selectPlayerProCountCallback(Handle owner, Handle hndl, const char[] error, any cb) {
 	if (hndl == null) {
@@ -385,7 +385,7 @@ void db_viewFastestBonus(any cb=0) {
 	char szQuery[1024];
 	// SELECT name, MIN(runtime), zonegroup, style FROM ck_bonus WHERE mapname = '%s' GROUP BY zonegroup, style;
 	Format(szQuery, 1024, sql_selectFastestBonus, g_szMapName);
-	SQL_TQuery(g_hDb, SQL_selectFastestBonusCallback, szQuery, cb, DBPrio_High);
+	g_hDb.Query(SQL_selectFastestBonusCallback, szQuery, cb, DBPrio_High);
 }
 
 public void SQL_selectFastestBonusCallback(Handle owner, Handle hndl, const char[] error, any cb) {
@@ -455,7 +455,7 @@ void db_viewBonusTotalCount(any cb=0) {
 	char szQuery[1024];
 	// SELECT zonegroup, style, count(*) FROM ck_bonus WHERE mapname = '%s' GROUP BY zonegroup, style;
 	Format(szQuery, 1024, sql_selectBonusCount, g_szMapName);
-	SQL_TQuery(g_hDb, SQL_selectBonusTotalCountCallback, szQuery, cb, DBPrio_High);
+	g_hDb.Query(SQL_selectBonusTotalCountCallback, szQuery, cb, DBPrio_High);
 }
 
 void SQL_selectBonusTotalCountCallback(Handle owner, Handle hndl, const char[] error, any cb) {
@@ -490,7 +490,7 @@ void SQL_selectBonusTotalCountCallback(Handle owner, Handle hndl, const char[] e
 void db_selectMapTier(any cb=0) {
 	char szQuery[1024];
 	Format(szQuery, 1024, sql_selectMapTier, g_szMapName);
-	SQL_TQuery(g_hDb, SQL_selectMapTierCallback, szQuery, cb, DBPrio_High);
+	g_hDb.Query(SQL_selectMapTierCallback, szQuery, cb, DBPrio_High);
 }
 
 public void SQL_selectMapTierCallback(Handle owner, Handle hndl, const char[] error, any cb) {
@@ -553,7 +553,7 @@ void db_viewRecordCheckpointInMap(any cb=0) {
 	// "SELECT c.zonegroup, c.cp1, c.cp2, c.cp3, c.cp4, c.cp5, c.cp6, c.cp7, c.cp8, c.cp9, c.cp10, c.cp11, c.cp12, c.cp13, c.cp14, c.cp15, c.cp16, c.cp17, c.cp18, c.cp19, c.cp20, c.cp21, c.cp22, c.cp23, c.cp24, c.cp25, c.cp26, c.cp27, c.cp28, c.cp29, c.cp30, c.cp31, c.cp32, c.cp33, c.cp34, c.cp35 FROM ck_checkpoints c WHERE steamid = '%s' AND mapname='%s' UNION SELECT a.zonegroup, b.cp1, b.cp2, b.cp3, b.cp4, b.cp5, b.cp6, b.cp7, b.cp8, b.cp9, b.cp10, b.cp11, b.cp12, b.cp13, b.cp14, b.cp15, b.cp16, b.cp17, b.cp18, b.cp19, b.cp20, b.cp21, b.cp22, b.cp23, b.cp24, b.cp25, b.cp26, b.cp27, b.cp28, b.cp29, b.cp30, b.cp31, b.cp32, b.cp33, b.cp34, b.cp35 FROM ck_bonus a LEFT JOIN ck_checkpoints b ON a.steamid = b.steamid AND a.zonegroup = b.zonegroup WHERE a.mapname = '%s' GROUP BY a.zonegroup";
 	char szQuery[1028];
 	Format(szQuery, 1028, sql_selectRecordCheckpoints, g_szRecordMapSteamID, g_szMapName, g_szMapName);
-	SQL_TQuery(g_hDb, sql_selectRecordCheckpointsCallback, szQuery, cb, DBPrio_High);
+	g_hDb.Query(sql_selectRecordCheckpointsCallback, szQuery, cb, DBPrio_High);
 }
 
 void sql_selectRecordCheckpointsCallback(Handle owner, Handle hndl, const char[] error, any cb) {
@@ -585,7 +585,7 @@ void sql_selectRecordCheckpointsCallback(Handle owner, Handle hndl, const char[]
 void db_CalcAvgRunTime(any cb=0) {
 	char szQuery[256];
 	Format(szQuery, 256, sql_selectAllMapTimesinMap, g_szMapName);
-	SQL_TQuery(g_hDb, SQL_db_CalcAvgRunTimeCallback, szQuery, cb, DBPrio_High);
+	g_hDb.Query(SQL_db_CalcAvgRunTimeCallback, szQuery, cb, DBPrio_High);
 }
 
 void SQL_db_CalcAvgRunTimeCallback(Handle owner, Handle hndl, const char[] error, any cb) {
@@ -623,7 +623,7 @@ void db_CalcAvgRunTimeBonus(any cb=0) {
 	}
 	char szQuery[256];
 	Format(szQuery, 256, sql_selectAllBonusTimesinMap, g_szMapName);
-	SQL_TQuery(g_hDb, SQL_db_CalcAvgRunBonusTimeCallback, szQuery, cb, DBPrio_High);
+	g_hDb.Query(SQL_db_CalcAvgRunBonusTimeCallback, szQuery, cb, DBPrio_High);
 }
 
 void SQL_db_CalcAvgRunBonusTimeCallback(Handle owner, Handle hndl, const char[] error, any cb) {
@@ -661,7 +661,7 @@ void SQL_db_CalcAvgRunBonusTimeCallback(Handle owner, Handle hndl, const char[] 
 void db_CalculatePlayerCount(any cb=0) {
 	char szQuery[255];
 	Format(szQuery, 255, sql_CountRankedPlayers, 0);
-	SQL_TQuery(g_hDb, sql_CountRankedPlayersCallback, szQuery, cb, DBPrio_High);
+	g_hDb.Query(sql_CountRankedPlayersCallback, szQuery, cb, DBPrio_High);
 }
 
 void sql_CountRankedPlayersCallback(Handle owner, Handle hndl, const char[] error, any cb) {
@@ -682,7 +682,7 @@ void sql_CountRankedPlayersCallback(Handle owner, Handle hndl, const char[] erro
 void db_CalculatePlayersCountGreater0(any cb=0) {
 	char szQuery[255];
 	Format(szQuery, 255, sql_CountRankedPlayers2, 0);
-	SQL_TQuery(g_hDb, sql_CountRankedPlayers2Callback, szQuery, cb, DBPrio_High);
+	g_hDb.Query(sql_CountRankedPlayers2Callback, szQuery, cb, DBPrio_High);
 }
 
 void sql_CountRankedPlayers2Callback(Handle owner, Handle hndl, const char[] error, any cb) {
@@ -710,7 +710,7 @@ void db_selectSpawnLocations(any cb=0) {
 
 	char szQuery[254];
 	Format(szQuery, 254, sql_selectSpawnLocations, g_szMapName);
-	SQL_TQuery(g_hDb, db_selectSpawnLocationsCallback, szQuery, cb, DBPrio_High);
+	g_hDb.Query(db_selectSpawnLocationsCallback, szQuery, cb, DBPrio_High);
 }
 
 void db_selectSpawnLocationsCallback(Handle owner, Handle hndl, const char[] error, any cb) {
@@ -745,9 +745,9 @@ void db_selectSpawnLocationsCallback(Handle owner, Handle hndl, const char[] err
 // 13
 void db_ClearLatestRecords(any cb=0) {
 	if (g_DbType == MYSQL)
-		SQL_TQuery(g_hDb, SQL_CheckCallback, "DELETE FROM ck_latestrecords WHERE date < NOW() - INTERVAL 1 WEEK");
+		g_hDb.Query(SQL_CheckCallback, "DELETE FROM ck_latestrecords WHERE date < NOW() - INTERVAL 1 WEEK");
 	else
-		SQL_TQuery(g_hDb, SQL_CheckCallback, "DELETE FROM ck_latestrecords WHERE date <= date('now','-7 day')");
+		g_hDb.Query(SQL_CheckCallback, "DELETE FROM ck_latestrecords WHERE date <= date('now','-7 day')");
 
 	RunCallback(cb);
 }
@@ -760,7 +760,7 @@ void db_GetDynamicTimelimit(any cb=0) {
 	}
 	char szQuery[256];
 	Format(szQuery, 256, sql_selectAllMapTimesinMap, g_szMapName);
-	SQL_TQuery(g_hDb, SQL_db_GetDynamicTimelimitCallback, szQuery, cb, DBPrio_High);
+	g_hDb.Query(SQL_db_GetDynamicTimelimitCallback, szQuery, cb, DBPrio_High);
 }
 
 void SQL_db_GetDynamicTimelimitCallback(Handle owner, Handle hndl, const char[] error, any cb) {
@@ -834,7 +834,7 @@ void db_GetTotalStages(any cb=0) {
 	}
 	char szQuery[512];
 	Format(szQuery, 512, "SELECT COUNT(`zonetype`) AS stages FROM `ck_zones` WHERE `zonetype` = '3' AND `mapname` = '%s'", g_szMapName);
-	SQL_TQuery(g_hDb, db_GetTotalStagesCallback, szQuery, cb, DBPrio_High);
+	g_hDb.Query(db_GetTotalStagesCallback, szQuery, cb, DBPrio_High);
 }
 void db_GetTotalStagesCallback(Handle owner, Handle hndl, const char[] error, any cb) {
 	if (hndl == null) {
@@ -863,7 +863,7 @@ void db_viewStageRecords(any cb=0) {
 	}
 	char szQuery[512];
 	Format(szQuery, 512, "SELECT full.name, full.runtimepro, full.stage, full.style FROM ( SELECT MIN(runtimepro) AS time, stage, style, mapname FROM ck_wrcps WHERE mapname = '%s' GROUP BY stage, style ) as mins INNER JOIN ck_wrcps AS full ON mins.time = full.runtimepro AND mins.stage = full.stage AND mins.style = full.style AND mins.mapname = full.mapname;", g_szMapName);
-	SQL_TQuery(g_hDb, sql_viewStageRecordsCallback, szQuery, cb, DBPrio_High);
+	g_hDb.Query(sql_viewStageRecordsCallback, szQuery, cb, DBPrio_High);
 }
 
 void sql_viewStageRecordsCallback(Handle owner, Handle hndl, const char[] error, any cb) {
@@ -927,7 +927,7 @@ void db_viewTotalStageRecords(any cb=0) {
 	}
 	char szQuery[512];
 	Format(szQuery, 512, "SELECT stage, style, count(1) FROM ck_wrcps WHERE mapname = '%s' GROUP BY stage, style;", g_szMapName);
-	SQL_TQuery(g_hDb, sql_viewTotalStageRecordsCallback, szQuery, cb, DBPrio_High);
+	g_hDb.Query(sql_viewTotalStageRecordsCallback, szQuery, cb, DBPrio_High);
 }
 
 void sql_viewTotalStageRecordsCallback(Handle owner, Handle hndl, const char[] error, any cb) {
@@ -981,7 +981,7 @@ void sql_viewTotalStageRecordsCallback(Handle owner, Handle hndl, const char[] e
 void db_selectCurrentMapImprovement(any cb=0) {
 	char szQuery[1024];
 	Format(szQuery, 1024, "SELECT mapname, (SELECT count(1) FROM ck_playertimes b WHERE a.mapname = b.mapname AND b.style = 0) as total FROM ck_playertimes a where mapname = '%s' AND style = 0 LIMIT 0, 1;", g_szMapName);
-	SQL_TQuery(g_hDb, db_selectMapCurrentImprovementCallback, szQuery, cb, DBPrio_High);
+	g_hDb.Query(db_selectMapCurrentImprovementCallback, szQuery, cb, DBPrio_High);
 }
 
 void db_selectMapCurrentImprovementCallback(Handle owner, Handle hndl, const char[] error, any cb) {
@@ -1089,7 +1089,7 @@ void db_selectAnnouncements(any cb=0)
 	char szEscServerName[128];
 	SQL_EscapeString(g_hDb, g_sServerName, szEscServerName, sizeof(szEscServerName));
 	Format(szQuery, 1024, "SELECT `id` FROM `ck_announcements` WHERE `server` != '%s' AND `id` > %d", szEscServerName, g_iLastID);
-	SQL_TQuery(g_hDb, SQL_SelectAnnouncementsCallback, szQuery, cb, DBPrio_High);
+	g_hDb.Query(SQL_SelectAnnouncementsCallback, szQuery, cb, DBPrio_High);
 }
 
 void SQL_SelectAnnouncementsCallback(Handle owner, Handle hndl, const char[] error, any cb)

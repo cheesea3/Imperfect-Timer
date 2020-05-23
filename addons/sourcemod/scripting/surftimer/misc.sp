@@ -674,36 +674,57 @@ public void parseColorsFromString(char[] ParseString, int size)
 	ReplaceString(ParseString, size, "{olive}", "", false);
 }
 
-public void checkSpawnPoints() {
+public void checkSpawnPoints()
+{
 	int tEnt, ctEnt;
-	float f_spawnLocation[3], f_spawnAngle[3];
 
 	if (FindEntityByClassname(ctEnt, "info_player_counterterrorist") == -1 || FindEntityByClassname(tEnt, "info_player_terrorist") == -1) // No proper zones were found, try to recreate
 	{
 		// Check if spawn point has been added to the database with !addspawn
 		char szQuery[256];
-		Format(szQuery, 256, "SELECT pos_x, pos_y, pos_z, ang_x, ang_y, ang_z FROM ck_spawnlocations WHERE mapname = '%s' AND zonegroup = 0;", g_szMapName);
-		Handle query = SQL_Query(g_hDb, szQuery);
-		if (query == INVALID_HANDLE)
-		{
-			char szError[255];
-			SQL_GetError(g_hDb, szError, sizeof(szError));
-			PrintToServer("Failed to query map's spawn points (error: %s)", szError);
-		}
-		else
-		{
-			if (SQL_HasResultSet(query) && SQL_FetchRow(query))
-			{
-				f_spawnLocation[0] = SQL_FetchFloat(query, 0);
-				f_spawnLocation[1] = SQL_FetchFloat(query, 1);
-				f_spawnLocation[2] = SQL_FetchFloat(query, 2);
-				f_spawnAngle[0] = SQL_FetchFloat(query, 3);
-				f_spawnAngle[1] = SQL_FetchFloat(query, 4);
-				f_spawnAngle[2] = SQL_FetchFloat(query, 5);
-			}
-			delete query;
-		}
+		Format(szQuery, sizeof(szQuery), "SELECT pos_x, pos_y, pos_z, ang_x, ang_y, ang_z FROM ck_spawnlocations WHERE mapname = '%s' AND zonegroup = 0;", g_szMapName);
+		
+		DataPack pack = new DataPack();
+		pack.WriteCell(tEnt);
+		pack.WriteCell(ctEnt);
+		g_hDb.Query(sqlSelectSpawnPoints, szQuery, pack);
+	}
+}
 
+public void sqlSelectSpawnPoints(Database db, DBResultSet results, const char[] error, DataPack pack)
+{
+	if (db == null || strlen(error))
+	{
+		LogError("[Surftimer] SQL Error (sqlSelectSpawnPoints): %s", error);
+		delete pack;
+		return;
+	}
+
+	pack.Reset();
+
+	int tEnt = pack.ReadCell();
+	int ctEnt = pack.ReadCell();
+
+	delete pack;
+
+	float f_spawnLocation[3], f_spawnAngle[3];
+
+	if (results.HasResults)
+	{
+		if (results.FetchRow())
+		{
+
+			f_spawnLocation[0] = results.FetchFloat(0);
+			f_spawnLocation[1] = results.FetchFloat(1);
+			f_spawnLocation[2] = results.FetchFloat(2);
+			f_spawnAngle[0] = results.FetchFloat(3);
+			f_spawnAngle[1] = results.FetchFloat(4);
+			f_spawnAngle[2] = results.FetchFloat(5);
+		}
+	}
+
+	if (ctEnt == -1 || tEnt == -1)
+	{
 		if (f_spawnLocation[0] == 0.0 && f_spawnLocation[1] == 0.0 && f_spawnLocation[2] == 0.0) // No spawnpoint added to map with !addspawn, try to find spawns from map
 		{
 			PrintToServer("surftimer | No valid spawns found in the map.");
@@ -751,7 +772,7 @@ public void checkSpawnPoints() {
 			}
 		}
 
-		// Remove possiblt bad spawns
+		// Remove possible bad spawns
 		char sClassName[128];
 		for (int i = 0; i < GetMaxEntities(); i++)
 		{

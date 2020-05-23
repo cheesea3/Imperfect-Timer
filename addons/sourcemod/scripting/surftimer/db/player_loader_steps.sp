@@ -206,7 +206,7 @@ void db_refreshPlayerPointsCallback(Handle hndl, const char[] error, int client,
 	g_iTotalConnections[client]++;
 	char updateConnections[1024];
 	Format(updateConnections, 1024, "UPDATE ck_playerrank SET connections = connections + 1 WHERE steamid = '%s';", g_szSteamID[client]);
-	SQL_TQuery(g_hDb, SQL_CheckCallback, updateConnections);
+	g_hDb.Query(SQL_CheckCallback, updateConnections);
 
 	RunCallback(cb);
 }
@@ -323,7 +323,7 @@ void db_viewPlayerOptionsCallback(Handle hndl, const char[] error, int client, a
 
 		char sql_insertPlayerOptions[] = "INSERT INTO ck_playeroptions2 (steamid) VALUES ('%s');";
 		Format(szQuery, 1024, sql_insertPlayerOptions, g_szSteamID[client]);
-		SQL_TQuery(g_hDb, SQL_CheckCallback, szQuery);
+		g_hDb.Query(SQL_CheckCallback, szQuery);
 
 		g_bTimerEnabled[client] = true;
 		g_bHide[client] = false;

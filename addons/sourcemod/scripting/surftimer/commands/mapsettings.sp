@@ -137,7 +137,7 @@ public void db_insertMapTier(int tier) {
 		SET mapname='%s', tier='%i' \
 		ON DUPLICATE KEY UPDATE tier='%i' \
 	", mapNameEx, tier, tier);
-	SQL_TQuery(g_hDb, db_insertMapTierCallback, szQuery);
+	g_hDb.Query(db_insertMapTierCallback, szQuery);
 }
 public void db_insertMapTierCallback(Handle owner, Handle hndl, const char[] error, any data) {
 	if (hndl == null) {
@@ -161,7 +161,7 @@ public void db_updateMapRankedStatus()
 		SET mapname='%s', ranked='%i' \
 		ON DUPLICATE KEY UPDATE ranked='%i' \
 	", mapNameEx, rankedInt, rankedInt);
-	SQL_TQuery(g_hDb, SQL_CheckCallback, szQuery);
+	g_hDb.Query(SQL_CheckCallback, szQuery);
 }
 
 public void MaxVelocityMenu(int client)
@@ -300,14 +300,14 @@ public void db_updateMapSettings()
 {
 	char szQuery[512];
 	Format(szQuery, 512, "UPDATE `ck_maptier` SET `maxvelocity` = '%f', `announcerecord` = '%f', `gravityfix` = %i WHERE `mapname` = '%s';", g_fMaxVelocity, g_fAnnounceRecord, view_as<int>(g_bGravityFix), g_szMapName);
-	SQL_TQuery(g_hDb, sql_insertMapSettingsCallback, szQuery);
+	g_hDb.Query(sql_insertMapSettingsCallback, szQuery);
 }
 
 public void db_unlimitAllStages(char[] szMapName)
 {
 	char szQuery[256];
 	Format(szQuery, 256, "UPDATE ck_zones SET prespeed = 0.0 WHERE mapname = '%s' AND zonetype = 3;", g_szMapName);
-	SQL_TQuery(g_hDb, SQL_UnlimitAllStagesCallback, szQuery);
+	g_hDb.Query(SQL_UnlimitAllStagesCallback, szQuery);
 }
 
 

@@ -243,24 +243,24 @@ public int ShowMainDeleteMenuHandler(Menu menu, MenuAction action, int client, i
 		{
 			case 0:
 			{
-				FormatEx(szQuery, 512, sql_MainEditQuery, "runtimepro", "ck_playertimes", g_EditingMap[client], g_SelectedStyle[client], "", "runtimepro");
+				FormatEx(szQuery, sizeof(szQuery), sql_MainEditQuery, "runtimepro", "ck_playertimes", g_EditingMap[client], g_SelectedStyle[client], "", "runtimepro");
 			}
 			case 1:
 			{
 				char stageQuery[32];
-				FormatEx(stageQuery, 32, "AND stage='%i' ", g_SelectedType[client]);
-				FormatEx(szQuery, 512, sql_MainEditQuery, "runtimepro", "ck_wrcps", g_EditingMap[client], g_SelectedStyle[client], stageQuery, "runtimepro");
+				FormatEx(stageQuery, sizeof(stageQuery), "AND stage='%i' ", g_SelectedType[client]);
+				FormatEx(szQuery, sizeof(szQuery), sql_MainEditQuery, "runtimepro", "ck_wrcps", g_EditingMap[client], g_SelectedStyle[client], stageQuery, "runtimepro");
 			}
 			case 2:
 			{
 				char stageQuery[32];
-				FormatEx(stageQuery, 32, "AND zonegroup='%i' ", g_SelectedType[client]);
-				FormatEx(szQuery, 512, sql_MainEditQuery, "runtime", "ck_bonus", g_EditingMap[client], g_SelectedStyle[client], stageQuery, "runtime");
+				FormatEx(stageQuery, sizeof(stageQuery), "AND zonegroup='%i' ", g_SelectedType[client]);
+				FormatEx(szQuery, sizeof(szQuery), sql_MainEditQuery, "runtime", "ck_bonus", g_EditingMap[client], g_SelectedStyle[client], stageQuery, "runtime");
 			}
 		}
 
 		PrintToServer(szQuery);
-		SQL_TQuery(g_hDb, sql_DeleteMenuView, szQuery, GetClientSerial(client));
+		g_hDb.Query(sql_DeleteMenuView, szQuery, GetClientSerial(client));
 	}
 	else if(action == MenuAction_End)
 		delete menu;

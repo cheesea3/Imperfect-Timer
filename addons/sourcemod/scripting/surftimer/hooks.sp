@@ -385,19 +385,19 @@ public Action Say_Hook(int client, const char[] command, int argc)
 				{
 					case 0:
 					{
-						FormatEx(szQuery, 512, sql_MainEditQuery, "runtimepro", "ck_playertimes", g_EditingMap[client], g_SelectedStyle[client], "", "runtimepro");
+						FormatEx(szQuery, sizeof(szQuery), sql_MainEditQuery, "runtimepro", "ck_playertimes", g_EditingMap[client], g_SelectedStyle[client], "", "runtimepro");
 					}
 					case 1:
 					{
 						char stageQuery[32];
-						FormatEx(stageQuery, 32, "AND stage='%i' ", g_SelectedType[client]);
-						FormatEx(szQuery, 512, sql_MainEditQuery, "runtimepro", "ck_wrcps", g_EditingMap[client], g_SelectedStyle[client], stageQuery, "runtimepro");
+						FormatEx(stageQuery, sizeof(stageQuery), "AND stage='%i' ", g_SelectedType[client]);
+						FormatEx(szQuery, sizeof(szQuery), sql_MainEditQuery, "runtimepro", "ck_wrcps", g_EditingMap[client], g_SelectedStyle[client], stageQuery, "runtimepro");
 					}
 					case 2:
 					{
 						char stageQuery[32];
-						FormatEx(stageQuery, 32, "AND zonegroup='%i' ", g_SelectedType[client]);
-						FormatEx(szQuery, 512, sql_MainEditQuery, "runtime", "ck_bonus", g_EditingMap[client], g_SelectedStyle[client], stageQuery, "runtime");
+						FormatEx(stageQuery, sizeof(stageQuery), "AND zonegroup='%i' ", g_SelectedType[client]);
+						FormatEx(szQuery, sizeof(szQuery), sql_MainEditQuery, "runtime", "ck_bonus", g_EditingMap[client], g_SelectedStyle[client], stageQuery, "runtime");
 					}
 				}
 
@@ -1287,48 +1287,48 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 		BeamBox_OnPlayerRunCmd(client);
 	}
 
-	// Do not record frames where the player was afk in start zone
-	if (!IsFakeClient(client)) 
-	{
-		float vVelocity[3];
-		GetEntPropVector(client, Prop_Data, "m_vecVelocity", vVelocity);
-		float velocity = GetVectorLength(vVelocity);
+	// Do not record frames where the player was afk in start zone - temp disabled
+	// if (!IsFakeClient(client)) 
+	// {
+	// 	float vVelocity[3];
+	// 	GetEntPropVector(client, Prop_Data, "m_vecVelocity", vVelocity);
+	// 	float velocity = GetVectorLength(vVelocity);
 		
-		// Player is afk, stop recording if recording
-		if (velocity == 0.0)
-		{
-			if (g_iClientInZone[client][0] == 1 || g_iClientInZone[client][0] == 5)
-			{
-				// Check if the replay is recording
-				if (g_hRecording[client] != null) 
-					StopRecording(client);
+	// 	// Player is afk, stop recording if recording
+	// 	if (velocity == 0.0)
+	// 	{
+	// 		if (g_iClientInZone[client][0] == 1 || g_iClientInZone[client][0] == 5)
+	// 		{
+	// 			// Check if the replay is recording
+	// 			if (g_hRecording[client] != null) 
+	// 				StopRecording(client);
 				
-				if (g_StageRecStartFrame[client] != -1)
-					g_StageRecStartFrame[client] = -1;
-			}
-			else if (g_iClientInZone[client][0] == 3)
-			{
-				if (g_StageRecStartFrame[client] != -1)
-					g_StageRecStartFrame[client] = -1;
-			}
-		}
-		else
-		{
-			if (g_iClientInZone[client][0] == 1 || g_iClientInZone[client][0] == 5)
-			{
-				if (g_hRecording[client] == null)
-					StartRecording(client);
+	// 			if (g_StageRecStartFrame[client] != -1)
+	// 				g_StageRecStartFrame[client] = -1;
+	// 		}
+	// 		else if (g_iClientInZone[client][0] == 3)
+	// 		{
+	// 			if (g_StageRecStartFrame[client] != -1)
+	// 				g_StageRecStartFrame[client] = -1;
+	// 		}
+	// 	}
+	// 	else
+	// 	{
+	// 		if (g_iClientInZone[client][0] == 1 || g_iClientInZone[client][0] == 5)
+	// 		{
+	// 			if (g_hRecording[client] == null)
+	// 				StartRecording(client);
 
-				if (g_StageRecStartFrame[client] == -1)
-					Stage_StartRecording(client);
-			}
-			else if (g_iClientInZone[client][0] == 3)
-			{
-				if (g_StageRecStartFrame[client] == -1)
-					Stage_StartRecording(client);
-			}
-		}
-	}
+	// 			if (g_StageRecStartFrame[client] == -1)
+	// 				Stage_StartRecording(client);
+	// 		}
+	// 		else if (g_iClientInZone[client][0] == 3)
+	// 		{
+	// 			if (g_StageRecStartFrame[client] == -1)
+	// 				Stage_StartRecording(client);
+	// 		}
+	// 	}
+	// }
 
 	// Strafe Sync taken from shavit's bhop timer
 	g_fAngleCache[client] = angles[1];
