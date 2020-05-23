@@ -322,7 +322,7 @@ public int callback_Confirm(Menu menu, MenuAction action, int client, int key)
 					FormatEx(szQuery, sizeof(szQuery), sql_MainDeleteQeury, "ck_bonus", g_EditingMap[client], g_SelectedStyle[client], steamID, zoneQuery);
 				}
 			}
-			g_hDb.Query(SQL_CheckCallback, szQuery);
+			g_hDb.Query(SQL_CheckCallback, szQuery, DBPrio_Low);
 
 			// Looking for online player to refresh his record after deleting it.
 			char player_steamID[32];
@@ -360,7 +360,7 @@ public void db_deleteSpawnLocations(int zGrp, int teleside)
 	g_bGotSpawnLocation[zGrp][1][teleside] = false;
 	char szQuery[128];
 	Format(szQuery, sizeof(szQuery), sql_deleteSpawnLocations, g_szMapName, zGrp, teleside);
-	g_hDb.Query(SQL_CheckCallback, szQuery);
+	g_hDb.Query(SQL_CheckCallback, szQuery, 1, DBPrio_Low);
 }
 
 
@@ -368,14 +368,14 @@ public void db_updateSpawnLocations(float position[3], float angle[3], float vel
 {
 	char szQuery[512];
 	Format(szQuery, sizeof(szQuery), sql_updateSpawnLocations, position[0], position[1], position[2], angle[0], angle[1], angle[2], vel[0], vel[1], vel[2], g_szMapName, zGrp, teleside);
-	g_hDb.Query(db_editSpawnLocationsCallback, szQuery, zGrp);
+	g_hDb.Query(db_editSpawnLocationsCallback, szQuery, zGrp, DBPrio_Low);
 }
 
 public void db_insertSpawnLocations(float position[3], float angle[3], float vel[3], int zGrp, int teleside)
 {
 	char szQuery[512];
 	Format(szQuery, sizeof(szQuery), sql_insertSpawnLocations, g_szMapName, position[0], position[1], position[2], angle[0], angle[1], angle[2], vel[0], vel[1], vel[2], zGrp, teleside);
-	g_hDb.Query(db_editSpawnLocationsCallback, szQuery, zGrp);
+	g_hDb.Query(db_editSpawnLocationsCallback, szQuery, zGrp, DBPrio_Low);
 }
 
 public void db_editSpawnLocationsCallback(Handle owner, Handle hndl, const char[] error, any data)
@@ -1192,7 +1192,7 @@ public void sql_updatePlayerRankPointsCallback(Handle owner, Handle hndl, const 
 				g_pr_RankingRecalc_InProgress = false;
 
 				if (IsValidClient(g_pr_Recalc_AdminID))
-					CreateTimer(0.1, RefreshAdminMenu, g_pr_Recalc_AdminID, TIMER_FLAG_NO_MAPCHANGE);
+					CreateTimer(0.1, RefreshAdminMenu, GetClientUserId(g_pr_Recalc_AdminID), TIMER_FLAG_NO_MAPCHANGE);
 			}
 			g_pr_Recalc_ClientID++;
 		}
@@ -2968,7 +2968,7 @@ public void sql_selectRankedPlayersCallback(Handle owner, Handle hndl, const cha
 			if (IsValidClient(g_pr_Recalc_AdminID))
 			{
 				PrintToConsole(g_pr_Recalc_AdminID, ">> Recalculation finished");
-				CreateTimer(0.1, RefreshAdminMenu, g_pr_Recalc_AdminID, TIMER_FLAG_NO_MAPCHANGE);
+				CreateTimer(0.1, RefreshAdminMenu, GetClientUserId(g_pr_Recalc_AdminID), TIMER_FLAG_NO_MAPCHANGE);
 			}
 		}
 

@@ -360,7 +360,7 @@ public void OnPluginEnd()
 
 	// set server convars back to default
 	ServerCommand("sm_cvar sv_enablebunnyhopping 0;sv_friction 5.2;sv_accelerate 5.5;sv_airaccelerate 10;sv_maxvelocity 2000;sv_staminajumpcost .08;sv_staminalandcost .050");
-	ServerCommand("mp_respawn_on_death_ct 0;mp_respawn_on_death_t 0;mp_respawnwavetime_ct 10.0;mp_respawnwavetime_t 10.0;bot_zombie 0;mp_ignore_round_win_conditions 0");
+	ServerCommand("mp_respawnwavetime_ct 10.0;mp_respawnwavetime_t 10.0;bot_zombie 0;mp_ignore_round_win_conditions 0"); // mp_respawn_on_death_ct 0;mp_respawn_on_death_t 0;
 	ServerCommand("sv_infinite_ammo 0;mp_endmatch_votenextmap 1;mp_do_warmup_period 1;mp_warmuptime 60;mp_match_can_clinch 1;mp_match_end_changelevel 0");
 	ServerCommand("mp_match_restart_delay 15;mp_endmatch_votenextleveltime 20;mp_endmatch_votenextmap 1;mp_halftime 0;mp_do_warmup_period 1;mp_maxrounds 0;bot_quota 0");
 	ServerCommand("mp_startmoney 800; mp_playercashawards 1; mp_teamcashawards 1");
@@ -649,28 +649,37 @@ public void OnAutoConfigsBuffered()
 		SetFailState("<Surftimer> %s not found.", szPath2);
 }
 
-public void OnClientPutInServer(int client) {
-	if (!IsValidClient(client)) {
+public void OnClientPutInServer(int client)
+{
+	if (!IsValidClient(client))
+	{
 		return;
 	}
 
 	// Defaults
 	SetClientDefaults(client);
-	//Command_Restart(client, 1);
+	Command_Restart(client, 1);
 
 	// Sometimes, player buttons get stuck because of our csgo panorama "retry" before map change fix
 	// Reset all buttons to unpressed on next tick
-	g_resetButtons[client] = true;
+	//g_resetButtons[client] = true;
+
+	//display center speed so doesnt have to be re-enabled in options
+	if (g_players[client].speedDisplay)
+	{
+		SetHudTextParams(-1.0, 0.30, 1.0, 255, 255, 255, 255, 0, 0.25, 0.0, 0.0);
+		CreateTimer(0.1, CenterSpeedDisplayTimer, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE|TIMER_REPEAT);
+	}
 
 	// SDKHooks
-	SDKHook(client, SDKHook_SetTransmit, Hook_SetTransmit);
+	//SDKHook(client, SDKHook_SetTransmit, Hook_SetTransmit);
 	SDKHook(client, SDKHook_PostThinkPost, Hook_PostThinkPost);
 	SDKHook(client, SDKHook_OnTakeDamage, Hook_OnTakeDamage);
 	SDKHook(client, SDKHook_PreThink, OnPlayerThink);
-	SDKHook(client, SDKHook_PreThinkPost, OnPlayerThink);
-	SDKHook(client, SDKHook_Think, OnPlayerThink);
-	SDKHook(client, SDKHook_PostThink, OnPlayerThink);
-	SDKHook(client, SDKHook_PostThinkPost, OnPlayerThink);
+	//SDKHook(client, SDKHook_PreThinkPost, OnPlayerThink);
+	//SDKHook(client, SDKHook_Think, OnPlayerThink);
+	//SDKHook(client, SDKHook_PostThink, OnPlayerThink);
+	//SDKHook(client, SDKHook_PostThinkPost, OnPlayerThink);
 	SDKHook(client, SDKHook_WeaponCanUse, OnWeaponCanUse);
 
 	// Footsteps
@@ -698,12 +707,17 @@ public void OnClientPutInServer(int client) {
 	GetCountry(client);
 
 	if (LibraryExists("dhooks"))
+	{
 		DHookEntity(g_hTeleport, false, client);
+	}
 
 	// Get SteamID
-	g_szSteamID[client] = "";
-	if (!GetClientAuthId(client, AuthId_Steam2, g_szSteamID[client], MAX_NAME_LENGTH, true)) {
-		g_szSteamID[client] = "";
+	//g_szSteamID[client] = "";
+	if (!GetClientAuthId(client, AuthId_Steam2, g_szSteamID[client], MAX_NAME_LENGTH, true))
+	{
+		LogError("[SurfTimer] (OnClientPutInServer) GetClientAuthId failed for client index %d.", client);
+		return;
+		//g_szSteamID[client] = "";
 	}
 
 	// char fix
@@ -711,12 +725,17 @@ public void OnClientPutInServer(int client) {
 
 	// Position Restoring
 	if (g_hcvarRestore.BoolValue)
+	{
 		db_selectLastRun(client);
+	}
 
 	if (g_bTierFound)
-		AnnounceTimer[client] = CreateTimer(20.0, AnnounceMap, client, TIMER_FLAG_NO_MAPCHANGE);
+	{
+		AnnounceTimer[client] = CreateTimer(20.0, AnnounceMap, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
+	}
 
-	if (!IsFakeClient(client)) {
+	if (!IsFakeClient(client))
+	{
 		LoadPlayerStart(client);
 	}
 }
@@ -799,10 +818,10 @@ public void OnClientDisconnect(int client)
 	SDKUnhook(client, SDKHook_PostThinkPost, Hook_PostThinkPost);
 	SDKUnhook(client, SDKHook_OnTakeDamage, Hook_OnTakeDamage);
 	SDKUnhook(client, SDKHook_PreThink, OnPlayerThink);
-	SDKUnhook(client, SDKHook_PreThinkPost, OnPlayerThink);
-	SDKUnhook(client, SDKHook_Think, OnPlayerThink);
-	SDKUnhook(client, SDKHook_PostThink, OnPlayerThink);
-	SDKUnhook(client, SDKHook_PostThinkPost, OnPlayerThink);
+	//SDKUnhook(client, SDKHook_PreThinkPost, OnPlayerThink);
+	//SDKUnhook(client, SDKHook_Think, OnPlayerThink);
+	//SDKUnhook(client, SDKHook_PostThink, OnPlayerThink);
+	//SDKUnhook(client, SDKHook_PostThinkPost, OnPlayerThink);
 	SDKUnhook(client, SDKHook_WeaponCanUse, OnWeaponCanUse);
 
 	if (client == g_RecordBot) g_RecordBot = -1;

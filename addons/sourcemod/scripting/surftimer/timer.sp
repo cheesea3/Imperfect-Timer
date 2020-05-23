@@ -1,29 +1,39 @@
-public Action reloadRank(Handle timer, any client)
+public Action reloadRank(Handle timer, any userid)
 {
+	int client = GetClientOfUserId(userid);
+
 	if (IsValidClient(client))
 		SetPlayerRank(client);
 	return Plugin_Handled;
 }
 
-public Action AnnounceMap(Handle timer, any client)
+public Action AnnounceMap(Handle timer, any userid)
 {
-	if (IsValidClient(client))
-		CPrintToChat(client, "%t", "Timer1", g_szChatPrefix, g_sTierString);
+	int client = GetClientOfUserId(userid);
 
-	AnnounceTimer[client] = null;
+	if (IsValidClient(client))
+	{
+		CPrintToChat(client, "%t", "Timer1", g_szChatPrefix, g_sTierString);
+		AnnounceTimer[client] = null;
+	}
+
 	return Plugin_Handled;
 }
 
-public Action RefreshAdminMenu(Handle timer, any client)
+public Action RefreshAdminMenu(Handle timer, any userid)
 {
+	int client = GetClientOfUserId(userid);
+
 	if (IsValidEntity(client) && !IsFakeClient(client))
 		ckAdminMenu(client);
 
 	return Plugin_Handled;
 }
 
-public Action RefreshZoneSettings(Handle timer, any client)
+public Action RefreshZoneSettings(Handle timer, any userid)
 {
+	int client = GetClientOfUserId(userid);
+
 	if (IsValidEntity(client) && !IsFakeClient(client))
 		ZoneSettings(client);
 
@@ -111,8 +121,8 @@ public Action CKTimer1(Handle timer)
 				if (g_bFirstTeamJoin[client])
 				{
 					g_bFirstTeamJoin[client] = false;
-					CreateTimer(10.0, WelcomeMsgTimer, client, TIMER_FLAG_NO_MAPCHANGE);
-					CreateTimer(70.0, HelpMsgTimer, client, TIMER_FLAG_NO_MAPCHANGE);
+					CreateTimer(10.0, WelcomeMsgTimer, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
+					CreateTimer(70.0, HelpMsgTimer, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 				}
 				GetcurrentRunTime(client);
 
@@ -410,8 +420,9 @@ public Action ForceNextMap(Handle timer) {
 	return Plugin_Handled;
 }
 
-public Action WelcomeMsgTimer(Handle timer, any client)
+public Action WelcomeMsgTimer(Handle timer, any userid)
 {
+	int client = GetClientOfUserId(userid);
 	char szBuffer[512];
 	g_hWelcomeMsg.GetString(szBuffer, 512);
 	if (IsValidClient(client) && !IsFakeClient(client) && szBuffer[0])
@@ -420,8 +431,10 @@ public Action WelcomeMsgTimer(Handle timer, any client)
 	return Plugin_Handled;
 }
 
-public Action HelpMsgTimer(Handle timer, any client)
+public Action HelpMsgTimer(Handle timer, any userid)
 {
+	int client = GetClientOfUserId(userid);
+
 	if (IsValidClient(client) && !IsFakeClient(client))
 		CPrintToChat(client, "%t", "HelpMsg", g_szChatPrefix);
 	return Plugin_Handled;
@@ -455,16 +468,16 @@ public Action AdvertTimer(Handle timer)
 	return Plugin_Continue;
 }
 
-public Action CenterMsgTimer(Handle timer, any client)
+public Action CenterMsgTimer(Handle timer, any userid)
 {
+	int client = GetClientOfUserId(userid);
+
 	if (IsValidClient(client) && !IsFakeClient(client))
 	{
 		if (g_bRestorePositionMsg[client])
 		{
 			g_fLastOverlay[client] = GetGameTime();
 			g_bOverlay[client] = true;
-			// fluffys
-			// PrintHintText(client, "%t", "PositionRestored");
 		}
 		g_bRestorePositionMsg[client] = false;
 	}
@@ -472,8 +485,10 @@ public Action CenterMsgTimer(Handle timer, any client)
 	return Plugin_Handled;
 }
 
-public Action RemoveRagdoll(Handle timer, any victim)
+public Action RemoveRagdoll(Handle timer, any userid)
 {
+	int victim = GetClientOfUserId(userid);
+
 	if (IsValidEntity(victim) && !IsPlayerAlive(victim))
 	{
 		int player_ragdoll;
@@ -484,8 +499,10 @@ public Action RemoveRagdoll(Handle timer, any victim)
 	return Plugin_Handled;
 }
 
-public Action HideHud(Handle timer, any client)
+public Action HideHud(Handle timer, any userid)
 {
+	int client = GetClientOfUserId(userid);
+
 	if (IsValidClient(client) && !IsFakeClient(client))
 	{
 		SetEntPropEnt(client, Prop_Send, "m_bSpotted", 0);
@@ -526,9 +543,15 @@ public Action LoadPlayerSettings(Handle timer)
 }
 
 // fluffys
-public Action StartJumpZonePrintTimer(Handle timer, any client)
+public Action StartJumpZonePrintTimer(Handle timer, any userid)
 {
-	g_bJumpZoneTimer[client] = false;
+	int client = GetClientOfUserId(userid);
+
+	if (IsClientInGame(client))
+	{
+		g_bJumpZoneTimer[client] = false;
+	}
+
 	return Plugin_Handled;
 }
 
@@ -589,8 +612,10 @@ public Action AnnouncementTimer(Handle timer)
 	return Plugin_Continue;
 }
 
-public Action CenterSpeedDisplayTimer(Handle timer, any client)
+public Action CenterSpeedDisplayTimer(Handle timer, any userid)
 {
+	int client = GetClientOfUserId(userid);
+
 	if (IsValidClient(client) && !IsFakeClient(client) && g_players[client].speedDisplay)
 	{
 		char szSpeed[128];
@@ -607,8 +632,10 @@ public Action CenterSpeedDisplayTimer(Handle timer, any client)
 	return Plugin_Continue;
 }
 
-public Action SetArmsModel(Handle timer, any client)
+public Action SetArmsModel(Handle timer, any userid)
 {
+	int client = GetClientOfUserId(userid);
+
 	if (IsValidClient(client) && IsPlayerAlive(client))
 	{
 		char szBuffer[256];
@@ -631,8 +658,10 @@ public Action SpecBot(Handle timer, DataPack pack)
 	return Plugin_Handled;
 }
 
-public Action RestartPlayer(Handle timer, any client)
+public Action RestartPlayer(Handle timer, any userid)
 {
+	int client = GetClientOfUserId(userid);
+
 	if (IsValidClient(client))
 		Command_Restart(client, 1);
 }

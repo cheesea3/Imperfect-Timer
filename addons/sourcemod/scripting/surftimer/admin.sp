@@ -614,7 +614,7 @@ public int AdminPanelHandler(Handle menu, MenuAction action, int param1, int par
 			delete menu;
 
 		if (refresh)
-			CreateTimer(0.1, RefreshAdminMenu, param1, TIMER_FLAG_NO_MAPCHANGE);
+			CreateTimer(0.1, RefreshAdminMenu, GetClientUserId(param1), TIMER_FLAG_NO_MAPCHANGE);
 	}
 
 	if (action == MenuAction_End)
