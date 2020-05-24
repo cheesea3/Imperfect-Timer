@@ -432,9 +432,15 @@ void FormatTitleSlug(const char[] raw, char[] out, int size)
 	strcopy(rawNoColor, sizeof(rawNoColor), raw);
 	String_ToLower(rawNoColor, rawNoColor, sizeof(rawNoColor));
 
-	if (StrEqual(rawNoColor, "rapper")) strcopy(out, size, "{yellow}RAPPER");
-	if (StrEqual(rawNoColor, "beat")) strcopy(out, size, "{yellow}BEATBOXER");
-	if (StrEqual(rawNoColor, "dj")) strcopy(out, size, "{yellow}DJ");
+	if (StrEqual(rawNoColor, "surfer")) 
+		strcopy(out, size, "{pink}SURFER");
+	else if (StrEqual(rawNoColor, "rapper")) 
+		strcopy(out, size, "{yellow}RAPPER");
+	else if (StrEqual(rawNoColor, "beat")) 
+		strcopy(out, size, "{yellow}BEATBOXER");
+	else if (StrEqual(rawNoColor, "dj")) 
+		strcopy(out, size, "{yellow}DJ");
+
 	ReplaceString(out, size, "{red}", "{lightred}", false);
 	ReplaceString(out, size, "{limegreen}", "{lime}", false);
 	ReplaceString(out, size, "{white}", "{default}", false);
