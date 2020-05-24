@@ -557,11 +557,8 @@ public Action Hook_SetTransmit(int entity, int client)
 {
 	if (client != entity && IsValidClient(client))
 	{
-		if (g_bHide[client] && entity != g_SpecTarget[client])
+		if ((g_bHide[client] || entity == g_InfoBot) && entity != g_SpecTarget[client])
 			return Plugin_Handled;
-		else
-			if (entity == g_InfoBot && entity != g_SpecTarget[client])
-				return Plugin_Handled;
 	}
 	return Plugin_Continue;
 }
@@ -1333,11 +1330,6 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 	// Strafe Sync taken from shavit's bhop timer
 	g_fAngleCache[client] = angles[1];
 
-	if (g_resetButtons[client]) {
-		buttons = 0;
-		g_resetButtons[client] = false;
-		return Plugin_Changed;
-	}
 	return Plugin_Continue;
 }
 

@@ -19,8 +19,6 @@ int g_iPrTarget[MAXPLAYERS + 1];
 int g_totalStagesPr[MAXPLAYERS + 1];
 int g_totalBonusesPr[MAXPLAYERS + 1];
 
-bool g_resetButtons[MAXPLAYERS];
-
 // Speed Gradient
 char g_szSpeedColour[MAXPLAYERS + 1];
 
