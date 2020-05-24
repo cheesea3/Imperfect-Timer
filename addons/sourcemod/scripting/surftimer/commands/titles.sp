@@ -2,7 +2,7 @@ public Action Command_GiveTitle(int client, int args) {
 	if (!IsValidClient(client))
 		return Plugin_Handled;
 	if (args < 2) {
-		CReplyToCommand(client, "Usage: <name> <title> - title can be rapper, dj, beat, or something custom (if paid)");
+		CReplyToCommand(client, "Usage: <name> <title> - title can be rapper, dj, beat, surfer, or something custom");
 		return Plugin_Handled;
 	}
 	char targetStr[MAX_NAME_LENGTH], szBuffer[MAX_TITLE_LENGTH];

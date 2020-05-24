@@ -52,6 +52,7 @@ public Action PlayerRanksTimer(Handle timer)
 	{
 		if (!IsValidClient(i) || IsFakeClient(i))
 			continue;
+
 		db_GetPlayerRank(i);
 	}
 	return Plugin_Continue;
@@ -63,6 +64,7 @@ public Action UpdatePlayerProfile(Handle timer, DataPack pack)
 	pack.Reset();
 	int client = GetClientOfUserId(pack.ReadCell());
 	int style = pack.ReadCell();
+	delete pack;
 
 	if (IsValidClient(client) && !IsFakeClient(client))
 		db_updateStat(client, style);
@@ -306,6 +308,7 @@ public Action BonusReplayTimer(Handle timer, DataPack pack)
 	pack.Reset();
 	int client = GetClientOfUserId(pack.ReadCell());
 	int zGrp = pack.ReadCell();
+	delete pack;
 
 	if (IsValidClient(client) && !IsFakeClient(client))
 		SaveRecording(client, zGrp, 0);
@@ -321,6 +324,7 @@ public Action StyleReplayTimer(Handle timer, DataPack pack)
 	pack.Reset();
 	int client = GetClientOfUserId(pack.ReadCell());
 	int style = pack.ReadCell();
+	delete pack;
 
 	if (IsValidClient(client) && !IsFakeClient(client))
 		SaveRecording(client, 0, style);
@@ -336,6 +340,7 @@ public Action StyleBonusReplayTimer(Handle timer, DataPack pack)
 	int client = GetClientOfUserId(pack.ReadCell());
 	int zGrp = pack.ReadCell();
 	int style = pack.ReadCell();
+	delete pack;
 
 	if (IsValidClient(client) && !IsFakeClient(client))
 		SaveRecording(client, zGrp, style);
@@ -347,7 +352,8 @@ public Action StyleBonusReplayTimer(Handle timer, DataPack pack)
 }
 
 static char oldTags[MAXPLAYERS][128];
-void SetClanTag(int client) {
+void SetClanTag(int client)
+{
 	if (!IsValidClient(client) || IsFakeClient(client))
 		return;
 
@@ -356,38 +362,50 @@ void SetClanTag(int client) {
 	char tag[128] = "";
 	bool announce = false;
 	PlayerLoadState playerState = GetPlayerLoadState(client);
-	if (playerState == PLS_PENDING) {
+	if (playerState == PLS_PENDING)
+	{
 		strcopy(tag, sizeof(tag), "WAITING");
-	} else if (playerState == PLS_LOADING) {
+	} 
+	else if (playerState == PLS_LOADING)
+	{
 		Format(tag, sizeof(tag), "LOAD %i/%i", GetPlayerLoadStep(client), GetPlayerLoadStepMax());
-	} else if (playerState != PLS_LOADED) {
+	}
+	else if (playerState != PLS_LOADED)
+	{
 		Format(tag, sizeof(tag), "ERROR %i/%i", GetPlayerLoadStep(client), GetPlayerLoadStepMax());
-	} else if (!StrEqual(g_pr_rankname[client], "")) {
+	}
+	else if (!StrEqual(g_pr_rankname[client], ""))
+	{
 		strcopy(tag, sizeof(tag), g_pr_rankname[client]);
 		ReplaceString(tag, sizeof(tag), "{style}", "");
 		announce = true;
 	}
 
 	bool changed = false;
-	if (!StrEqual(oldTags[client], tag)) {
+	if (!StrEqual(oldTags[client], tag))
+	{
 		strcopy(oldTags[client], sizeof(oldTags[]), tag);
 		changed = true;
 	}
 
-	if (!StrEqual(tag, "")) {
-		if (changed && announce) {
+	if (!StrEqual(tag, ""))
+	{
+		if (changed && announce)
 			CPrintToChat(client, "%t", "SkillGroup", g_szChatPrefix, g_pr_chat_coloredrank[client]);
-		}
-		if (strlen(tag) <= 10) {
+
+		if (strlen(tag) <= 10)
 			Format(tag, sizeof(tag), "[%s]", tag);
-		}
+
 		CS_SetClientClanTag(client, tag);
-	} else {
+	}
+	else
+	{
 		CS_SetClientClanTag(client, "");
 	}
 }
 
-public Action Timer_RetryPlayers(Handle hTimer) {
+public Action Timer_RetryPlayers(Handle hTimer)
+{
 	for (int i = 1; i <= MaxClients; i++)
 	{
 		if (IsClientConnected(i) && !IsFakeClient(i))
@@ -399,14 +417,16 @@ public Action Timer_RetryPlayers(Handle hTimer) {
 	return Plugin_Stop;
 }
 
-public Action ForceNextMap(Handle timer) {
+public Action ForceNextMap(Handle timer)
+{
 	char szNextMap[128];
 	GetNextMap(szNextMap, 128);
-	if (IsMapValid(szNextMap))  {
+
+	if (IsMapValid(szNextMap))
 		ForceChangeLevel(szNextMap, "Map Time Ended");
-	} else {
+	else
 		ForceChangeLevel("surf_progress", "Map Time Ended");
-	}
+
 	return Plugin_Handled;
 }
 
@@ -414,6 +434,7 @@ public Action WelcomeMsgTimer(Handle timer, any client)
 {
 	char szBuffer[512];
 	g_hWelcomeMsg.GetString(szBuffer, 512);
+
 	if (IsValidClient(client) && !IsFakeClient(client) && szBuffer[0])
 		CPrintToChat(client, "%s", szBuffer);
 
@@ -424,6 +445,7 @@ public Action HelpMsgTimer(Handle timer, any client)
 {
 	if (IsValidClient(client) && !IsFakeClient(client))
 		CPrintToChat(client, "%t", "HelpMsg", g_szChatPrefix);
+
 	return Plugin_Handled;
 }
 
@@ -589,8 +611,10 @@ public Action AnnouncementTimer(Handle timer)
 	return Plugin_Continue;
 }
 
-public Action CenterSpeedDisplayTimer(Handle timer, any client)
+public Action CenterSpeedDisplayTimer(Handle timer, any userid)
 {
+	int client = GetClientOfUserId(userid);
+
 	if (IsValidClient(client) && !IsFakeClient(client) && g_players[client].speedDisplay)
 	{
 		char szSpeed[128];
@@ -622,6 +646,7 @@ public Action SpecBot(Handle timer, DataPack pack)
 	pack.Reset();
 	int client = GetClientOfUserId(pack.ReadCell());
 	int bot = pack.ReadCell();
+	delete pack;
 
 	ChangeClientTeam(client, 1);
 	SetEntPropEnt(client, Prop_Send, "m_hObserverTarget", bot);

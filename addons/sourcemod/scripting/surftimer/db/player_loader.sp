@@ -70,7 +70,7 @@ void LoadPlayerContinue(DataPack cb, bool error)
 		// Outdated step -- just stop here
 		return;
 	}
-	
+
 	if (error)
 	{
 		g_playerLoadState[client] = PLS_ERROR;
@@ -158,26 +158,35 @@ void SQL_PlayerQuery(const char[] query, SQLTPlayerCallback callback, int client
 	newData.WriteCell(g_playerLoadUid[client]);
 	newData.WriteCell(data);
 
-	if (!IsValidClient(client)) {
+	if (!IsValidClient(client))
+	{
 		SQL_PlayerQueryCb(INVALID_HANDLE, INVALID_HANDLE, "Client is not valid", newData);
 		return;
 	}
+	
 	char query2[4096];
 	strcopy(query2, sizeof(query2), query);
-	if (StrContains(query2, "__name__")) {
+
+	if (StrContains(query2, "__name__"))
+	{
 		char szName[MAX_NAME_LENGTH];
 		GetClientName(client, szName, sizeof(szName));
 		char szNameEx[MAX_NAME_LENGTH*2+1];
 		SQL_EscapeString(g_hDb, szName, szNameEx, sizeof(szNameEx));
 		ReplaceString(query2, sizeof(query2), "__name__", szNameEx);
 	}
-	if (StrContains(query2, "__mapname__")) {
+
+	if (StrContains(query2, "__mapname__"))
+	{
 		char szNameEx[MAX_NAME_LENGTH*2+1];
 		SQL_EscapeString(g_hDb, g_szMapName, szNameEx, sizeof(szNameEx));
 		ReplaceString(query2, sizeof(query2), "__mapname__", szNameEx);
 	}
-	if (StrContains(query2, "__steamid__")) {
-		if (StrEqual(g_szSteamID[client], "")) {
+
+	if (StrContains(query2, "__steamid__"))
+	{
+		if (StrEqual(g_szSteamID[client], ""))
+		{
 			SQL_PlayerQueryCb(INVALID_HANDLE, INVALID_HANDLE, "STEAMID not loaded for player", newData);
 			return;
 		}

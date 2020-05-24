@@ -346,12 +346,11 @@ public void OnPluginEnd()
 	// remove clan tags
 	for (int x = 1; x <= MaxClients; x++)
 	{
-		if (IsValidClient(x)) {
-			if (IsValidEntity(x)) {
-				SetEntPropEnt(x, Prop_Send, "m_bSpotted", 1);
-				SetEntProp(x, Prop_Send, "m_iHideHUD", 0);
-				SetEntProp(x, Prop_Send, "m_iAccount", 1);
-			}
+		if (IsValidClient(x))
+		{
+			SetEntPropEnt(x, Prop_Send, "m_bSpotted", 1);
+			SetEntProp(x, Prop_Send, "m_iHideHUD", 0);
+			SetEntProp(x, Prop_Send, "m_iAccount", 1);
 			CS_SetClientClanTag(x, "");
 			OnClientDisconnect(x);
 		}
@@ -498,7 +497,7 @@ public void OnMapStart()
 	{
 		iEnt = g_hTriggerMultiple.Get(i);
 
-		if (IsValidEntity(iEnt))
+		if (IsValidEntity(iEnt) && HasEntProp(iEnt, Prop_Send, "m_iName"))
 		{
 			char szTriggerName[128];
 			GetEntPropString(iEnt, Prop_Send, "m_iName", szTriggerName, 128, 0);
@@ -525,11 +524,6 @@ public void OnMapStart()
 	// Playtime
 	CreateTimer(1.0, PlayTimeTimer, _, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
 
-	// if (FindPluginByFile("store.smx") != INVALID_HANDLE)
-	// 	LogMessage("Store plugin has been found! Timer credits enabled.");
-	// else
-	// 	LogMessage("Store not found! Timer credits have been disabled");
-
 	// Server Announcements
 	g_iServerID = g_hServerID.IntValue;
 	if (g_hRecordAnnounce.BoolValue)
@@ -555,13 +549,22 @@ public void OnMapEnd()
 	db_Cleanup();
 
 	if (g_hSkillGroups != null)
+	{
 		delete g_hSkillGroups;
+		g_hSkillGroups = null;
+	}
 
 	if (g_hBotTrail[0] != null)
+	{
 		delete g_hBotTrail[0];
+		g_hBotTrail[0] = null;
+	}
 
 	if (g_hBotTrail[1] != null)
+	{
 		delete g_hBotTrail[1];
+		g_hBotTrail[1] = null;
+	}
 
 	Format(g_szMapName, sizeof(g_szMapName), "");
 
@@ -585,9 +588,10 @@ public void OnMapEnd()
 	// 	delete g_hStore;
 
 	if (g_hDestinations != null)
+	{
 		delete g_hDestinations;
-
-	g_hDestinations = null;
+		g_hDestinations = null;
+	}
 }
 
 public void OnConfigsExecuted()
@@ -649,10 +653,10 @@ public void OnAutoConfigsBuffered()
 		SetFailState("<Surftimer> %s not found.", szPath2);
 }
 
-public void OnClientPutInServer(int client) {
-	if (!IsValidClient(client)) {
+public void OnClientPutInServer(int client)
+{
+	if (!IsValidClient(client))
 		return;
-	}
 
 	// Defaults
 	SetClientDefaults(client);
@@ -705,6 +709,12 @@ public void OnClientPutInServer(int client) {
 	// char fix
 	FixPlayerName(client);
 
+	if (g_players[client].speedDisplay)
+	{
+		SetHudTextParams(-1.0, 0.30, 1.0, 255, 255, 255, 255, 0, 0.25, 0.0, 0.0);
+		CreateTimer(0.1, CenterSpeedDisplayTimer, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE|TIMER_REPEAT);
+	}
+
 	// Position Restoring
 	if (g_hcvarRestore.BoolValue)
 		db_selectLastRun(client);
@@ -712,9 +722,8 @@ public void OnClientPutInServer(int client) {
 	if (g_bTierFound)
 		AnnounceTimer[client] = CreateTimer(20.0, AnnounceMap, client, TIMER_FLAG_NO_MAPCHANGE);
 
-	if (!IsFakeClient(client)) {
+	if (!IsFakeClient(client))
 		LoadPlayerStart(client);
-	}
 }
 
 public void OnClientAuthorized(int client)

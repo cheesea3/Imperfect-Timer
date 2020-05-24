@@ -334,7 +334,7 @@ public void CL_OnEndTimerPress(int client)
 						g_fReplayTimes[0][style] = g_fFinalTime[client];
 						g_bNewReplay[client] = true;
 						Handle pack;
-						CreateDataTimer(3.0, StyleReplayTimer, pack);
+						CreateTimer(3.0, StyleReplayTimer, pack);
 						WritePackCell(pack, GetClientUserId(client));
 						WritePackCell(pack, style);
 					}
@@ -375,7 +375,7 @@ public void CL_OnEndTimerPress(int client)
 							g_bNewReplay[client] = true;
 							g_fReplayTimes[0][style] = g_fFinalTime[client];
 							Handle pack;
-							CreateDataTimer(3.0, StyleReplayTimer, pack);
+							CreateTimer(3.0, StyleReplayTimer, pack);
 							WritePackCell(pack, GetClientUserId(client));
 							WritePackCell(pack, style);
 						}
@@ -391,7 +391,7 @@ public void CL_OnEndTimerPress(int client)
 						g_bNewReplay[client] = true;
 						g_fReplayTimes[0][style] = g_fFinalTime[client];
 						Handle pack;
-						CreateDataTimer(3.0, StyleReplayTimer, pack);
+						CreateTimer(3.0, StyleReplayTimer, pack);
 						WritePackCell(pack, GetClientUserId(client));
 						WritePackCell(pack, style);
 					}
@@ -465,7 +465,7 @@ public void CL_OnEndTimerPress(int client)
 					g_fReplayTimes[zGroup][0] = g_fFinalTime[client];
 					g_bNewBonus[client] = true;
 					Handle pack;
-					CreateDataTimer(3.0, BonusReplayTimer, pack);
+					CreateTimer(3.0, BonusReplayTimer, pack);
 					WritePackCell(pack, GetClientUserId(client));
 					WritePackCell(pack, zGroup);
 				}
@@ -520,7 +520,7 @@ public void CL_OnEndTimerPress(int client)
 						g_bNewBonus[client] = true;
 						g_fReplayTimes[zGroup][0] = g_fFinalTime[client];
 						Handle pack;
-						CreateDataTimer(3.0, BonusReplayTimer, pack);
+						CreateTimer(3.0, BonusReplayTimer, pack);
 						WritePackCell(pack, GetClientUserId(client));
 						WritePackCell(pack, zGroup);
 					}
@@ -534,7 +534,7 @@ public void CL_OnEndTimerPress(int client)
 					g_bNewBonus[client] = true;
 					g_fReplayTimes[zGroup][0] = g_fFinalTime[client];
 					Handle pack;
-					CreateDataTimer(3.0, BonusReplayTimer, pack);
+					CreateTimer(3.0, BonusReplayTimer, pack);
 					WritePackCell(pack, GetClientUserId(client));
 					WritePackCell(pack, zGroup);
 				}
@@ -603,7 +603,7 @@ public void CL_OnEndTimerPress(int client)
 						g_fReplayTimes[zGroup][style] = g_fFinalTime[client];
 						g_bNewBonus[client] = true;
 						Handle pack;
-						CreateDataTimer(3.0, StyleBonusReplayTimer, pack);
+						CreateTimer(3.0, StyleBonusReplayTimer, pack);
 						WritePackCell(pack, GetClientUserId(client));
 						WritePackCell(pack, zGroup);
 						WritePackCell(pack, style);
@@ -650,7 +650,7 @@ public void CL_OnEndTimerPress(int client)
 							g_bNewBonus[client] = true;
 							g_fReplayTimes[zGroup][style] = g_fFinalTime[client];
 							Handle pack;
-							CreateDataTimer(3.0, StyleBonusReplayTimer, pack);
+							CreateTimer(3.0, StyleBonusReplayTimer, pack);
 							WritePackCell(pack, GetClientUserId(client));
 							WritePackCell(pack, zGroup);
 							WritePackCell(pack, style);
@@ -664,7 +664,7 @@ public void CL_OnEndTimerPress(int client)
 						g_bNewBonus[client] = true;
 						g_fReplayTimes[zGroup][style] = g_fFinalTime[client];
 						Handle pack;
-						CreateDataTimer(3.0, StyleBonusReplayTimer, pack);
+						CreateTimer(3.0, StyleBonusReplayTimer, pack);
 						WritePackCell(pack, GetClientUserId(client));
 						WritePackCell(pack, zGroup);
 						WritePackCell(pack, style);

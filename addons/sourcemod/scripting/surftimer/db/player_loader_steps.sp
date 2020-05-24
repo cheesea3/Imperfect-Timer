@@ -170,7 +170,7 @@ void RefreshAndPrintRecord(int client, int zgroup, int style)
 }
 
 // 1
-void db_refreshPlayerPoints(int client, any cb=0)
+void db_refreshPlayerPoints(int client, any cb = 0)
 {
 	char szQuery[] = "SELECT steamid, name, points, finishedmapspro, country, lastseen, timealive, timespec, connections, readchangelog, style from ck_playerrank where steamid='__steamid__'";
 	SQL_PlayerQuery(szQuery, db_refreshPlayerPointsCallback, client, cb);
@@ -233,7 +233,7 @@ void db_refreshPlayerPointsCallback(Handle hndl, const char[] error, int client,
 }
 
 // 2
-void db_GetPlayerRank(int client, any cb=0)
+void db_GetPlayerRank(int client, any cb = 0)
 {
 	char szQuery[] = " \
 		SELECT \
