@@ -50,6 +50,7 @@ void LoadPlayerNext()
 		LoadPlayerStep(client);
 	}
 }
+
 void LoadPlayerStop(int client)
 {
 	g_playerLoadUid[client] = 0;
@@ -57,17 +58,21 @@ void LoadPlayerStop(int client)
 	LoadPlayerNext();
 }
 
-void LoadPlayerContinue(DataPack cb, bool error) {
+void LoadPlayerContinue(DataPack cb, bool error)
+{
 	int client = cb.ReadCell();
 	int completedPlayerUid = cb.ReadCell();
 	int completedStep = cb.ReadCell();
 	delete cb;
 
-	if (completedStep != g_playerLoadStep[client] || completedPlayerUid != g_playerLoadUid[client]) {
+	if (completedStep != g_playerLoadStep[client] || completedPlayerUid != g_playerLoadUid[client])
+	{
 		// Outdated step -- just stop here
 		return;
 	}
-	if (error) {
+	
+	if (error)
+	{
 		g_playerLoadState[client] = PLS_ERROR;
 		LoadPlayerNext();
 		return;
@@ -85,9 +90,12 @@ void LoadPlayerContinue(DataPack cb, bool error) {
 
 	LoadPlayerStep(client);
 }
-void LoadPlayerStep(int client) {
+
+void LoadPlayerStep(int client)
+{
 	CreateTimer(0.0, LoadPlayerStep2, client, TIMER_FLAG_NO_MAPCHANGE);
 }
+
 Action LoadPlayerStep2(Handle timer, int client)
 {
 	Function step = INVALID_FUNCTION;

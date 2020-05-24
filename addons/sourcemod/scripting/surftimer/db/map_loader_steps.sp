@@ -1,19 +1,24 @@
 // 0
-void db_viewMapSettings(any cb=0) {
+void db_viewMapSettings(any cb=0)
+{
 	char szQuery[2048];
 	Format(szQuery, 2048, "SELECT `mapname`, `maxvelocity`, `announcerecord`, `gravityfix` FROM `ck_maptier` WHERE `mapname` = '%s'", g_szMapName);
 	g_hDb.Query(sql_viewMapSettingsCallback, szQuery, cb, DBPrio_High);
 }
 
-void sql_viewMapSettingsCallback(Handle owner, Handle hndl, const char[] error, any cb) {
-	if (hndl == null) {
+void sql_viewMapSettingsCallback(Handle owner, Handle hndl, const char[] error, any cb)
+{
+	if (hndl == null)
+	{
 		LogError("[surftimer] SQL Error (sql_viewMapSettingsCallback): %s", error);
 		RunCallback(cb, true);
 		return;
 	}
 
-	if (SQL_HasResultSet(hndl) && SQL_GetRowCount(hndl) > 0) {
-		while (SQL_FetchRow(hndl)) {
+	if (SQL_HasResultSet(hndl) && SQL_GetRowCount(hndl) > 0)
+	{
+		while (SQL_FetchRow(hndl))
+		{
 			g_fMaxVelocity = SQL_FetchFloat(hndl, 1);
 			g_fAnnounceRecord = SQL_FetchFloat(hndl, 2);
 			g_bGravityFix = view_as<bool>(SQL_FetchInt(hndl, 3));
@@ -37,7 +42,8 @@ void db_selectMapZones(any cb=0)
 
 public void SQL_selectMapZonesCallback(Handle owner, Handle hndl, const char[] error, any cb)
 {
-	if (hndl == null) {
+	if (hndl == null)
+	{
 		LogError("[Surftimer] SQL Error (SQL_selectMapZonesCallback): %s", error);
 		RunCallback(cb, true);
 		return;
@@ -45,7 +51,8 @@ public void SQL_selectMapZonesCallback(Handle owner, Handle hndl, const char[] e
 
 	RemoveZones();
 
-	if (SQL_HasResultSet(hndl)) {
+	if (SQL_HasResultSet(hndl))
+	{
 		g_mapZonesCount = 0;
 		g_bhasStages = false;
 		g_bhasBonus = false;
@@ -162,6 +169,7 @@ public void SQL_selectMapZonesCallback(Handle owner, Handle hndl, const char[] e
 							g_bhasBonus = true;
 						Format(g_szZoneGroupName[g_mapZones[g_mapZonesCount].zoneGroup], 128, "%s", g_mapZones[g_mapZonesCount].zoneName);
 					}
+
 					case 3: g_bhasStages = true;
 				}
 			}
@@ -271,7 +279,8 @@ public void SQL_selectMapZonesCallback(Handle owner, Handle hndl, const char[] e
 }
 
 // 2
-void db_GetMapRecord_Pro(any cb=0) {
+void db_GetMapRecord_Pro(any cb=0)
+{
 	g_fRecordMapTime = 9999999.0;
 	g_iRecordMapStartSpeed[0] = -1; // @IG start speeds - set normal start speed
 	for (int i = 1; i < MAX_STYLES; i++)
@@ -286,8 +295,10 @@ void db_GetMapRecord_Pro(any cb=0) {
 	g_hDb.Query(sql_selectMapRecordCallback, szQuery, cb, DBPrio_High);
 }
 
-public void sql_selectMapRecordCallback(Handle owner, Handle hndl, const char[] error, any cb) {
-	if (hndl == null) {
+public void sql_selectMapRecordCallback(Handle owner, Handle hndl, const char[] error, any cb)
+{
+	if (hndl == null)
+	{
 		LogError("[Surftimer] SQL Error (sql_selectMapRecordCallback): %s", error);
 		RunCallback(cb, true);
 		return;
@@ -295,11 +306,14 @@ public void sql_selectMapRecordCallback(Handle owner, Handle hndl, const char[] 
 
 	int style;
 
-	if (SQL_HasResultSet(hndl)) {
-		while (SQL_FetchRow(hndl)) {
+	if (SQL_HasResultSet(hndl))
+	{
+		while (SQL_FetchRow(hndl))
+		{
 			style = SQL_FetchInt(hndl, 3);
 
-			if (style == STYLE_NORMAL) {
+			if (style == STYLE_NORMAL)
+			{
 				g_fRecordMapTime = SQL_FetchFloat(hndl, 0);
 
 				if (g_fRecordMapTime > -1.0 && !SQL_IsFieldNull(hndl, 0))
@@ -308,19 +322,26 @@ public void sql_selectMapRecordCallback(Handle owner, Handle hndl, const char[] 
 					FormatTimeFloat(0, g_fRecordMapTime, 3, g_szRecordMapTime, 64);
 					SQL_FetchString(hndl, 1, g_szRecordPlayer, MAX_NAME_LENGTH);
 					SQL_FetchString(hndl, 2, g_szRecordMapSteamID, MAX_NAME_LENGTH);
-				} else {
+				}
+				else
+				{
 					Format(g_szRecordMapTime, 64, "N/A");
 					g_fRecordMapTime = 9999999.0;
 				}
-			} else {
+			}
+			else
+			{
 				g_fRecordStyleMapTime[style] = SQL_FetchFloat(hndl, 0);
 
-				if (g_fRecordStyleMapTime[style] > -1.0 && !SQL_IsFieldNull(hndl, 0)) {
+				if (g_fRecordStyleMapTime[style] > -1.0 && !SQL_IsFieldNull(hndl, 0))
+				{
 					g_fRecordStyleMapTime[style] = SQL_FetchFloat(hndl, 0);
 					FormatTimeFloat(0, g_fRecordStyleMapTime[style], 3, g_szRecordStyleMapTime[style], 64);
 					SQL_FetchString(hndl, 1, g_szRecordStylePlayer[style], MAX_NAME_LENGTH);
 					SQL_FetchString(hndl, 2, g_szRecordStyleMapSteamID[style], MAX_NAME_LENGTH);
-				} else {
+				}
+				else
+				{
 					Format(g_szRecordStyleMapTime[style], 64, "N/A");
 					g_fRecordStyleMapTime[style] = 9999999.0;
 				}
@@ -328,9 +349,12 @@ public void sql_selectMapRecordCallback(Handle owner, Handle hndl, const char[] 
 
 			g_iRecordMapStartSpeed[style] = SQL_FetchInt(hndl, 4); // @IG start speeds
 		}
-	} else {
+	}
+	else
+	{
 		Format(g_szRecordMapTime, 64, "N/A");
 		g_fRecordMapTime = 9999999.0;
+
 		for (int i = 1; i < MAX_STYLES; i++)
 		{
 			Format(g_szRecordStyleMapTime[i], 64, "N/A");
@@ -343,14 +367,18 @@ public void sql_selectMapRecordCallback(Handle owner, Handle hndl, const char[] 
 }
 
 // 3
-void db_viewMapProRankCount(any cb=0) {
+void db_viewMapProRankCount(any cb=0)
+{
 	g_MapTimesCount = 0;
 	char szQuery[512];
 	Format(szQuery, 512, sql_selectPlayerProCount, g_szMapName);
 	g_hDb.Query(sql_selectPlayerProCountCallback, szQuery, cb, DBPrio_High);
 }
-void sql_selectPlayerProCountCallback(Handle owner, Handle hndl, const char[] error, any cb) {
-	if (hndl == null) {
+
+void sql_selectPlayerProCountCallback(Handle owner, Handle hndl, const char[] error, any cb)
+{
+	if (hndl == null)
+	{
 		LogError("[Surftimer] SQL Error (sql_selectPlayerProCountCallback): %s", error);
 		RunCallback(cb, true);
 		return;
@@ -381,15 +409,18 @@ void sql_selectPlayerProCountCallback(Handle owner, Handle hndl, const char[] er
 }
 
 // 4
-void db_viewFastestBonus(any cb=0) {
+void db_viewFastestBonus(any cb=0)
+{
 	char szQuery[1024];
 	// SELECT name, MIN(runtime), zonegroup, style FROM ck_bonus WHERE mapname = '%s' GROUP BY zonegroup, style;
 	Format(szQuery, 1024, sql_selectFastestBonus, g_szMapName);
 	g_hDb.Query(SQL_selectFastestBonusCallback, szQuery, cb, DBPrio_High);
 }
 
-public void SQL_selectFastestBonusCallback(Handle owner, Handle hndl, const char[] error, any cb) {
-	if (hndl == null) {
+public void SQL_selectFastestBonusCallback(Handle owner, Handle hndl, const char[] error, any cb)
+{
+	if (hndl == null)
+	{
 		LogError("[Surftimer] SQL Error (SQL_selectFastestBonusCallback): %s", error);
 		RunCallback(cb, true);
 		return;
@@ -451,22 +482,25 @@ public void SQL_selectFastestBonusCallback(Handle owner, Handle hndl, const char
 }
 
 // 5
-void db_viewBonusTotalCount(any cb=0) {
+void db_viewBonusTotalCount(any cb=0)
+{
 	char szQuery[1024];
 	// SELECT zonegroup, style, count(*) FROM ck_bonus WHERE mapname = '%s' GROUP BY zonegroup, style;
 	Format(szQuery, 1024, sql_selectBonusCount, g_szMapName);
 	g_hDb.Query(SQL_selectBonusTotalCountCallback, szQuery, cb, DBPrio_High);
 }
 
-void SQL_selectBonusTotalCountCallback(Handle owner, Handle hndl, const char[] error, any cb) {
-	if (hndl == null) {
+void SQL_selectBonusTotalCountCallback(Handle owner, Handle hndl, const char[] error, any cb)
+{
+	if (hndl == null)
+	{
 		LogError("[Surftimer] SQL Error (SQL_selectBonusTotalCountCallback): %s", error);
 		RunCallback(cb, true);
 		return;
 	}
 
 	for (int i = 1; i < MAX_ZONEGROUPS; i++)
-	g_iBonusCount[i] = 0;
+		g_iBonusCount[i] = 0;
 
 	if (SQL_HasResultSet(hndl))
 	{
@@ -476,6 +510,7 @@ void SQL_selectBonusTotalCountCallback(Handle owner, Handle hndl, const char[] e
 		{
 			zonegroup = SQL_FetchInt(hndl, 0);
 			style = SQL_FetchInt(hndl, 1);
+
 			if (style == STYLE_NORMAL)
 				g_iBonusCount[zonegroup] = SQL_FetchInt(hndl, 2);
 			else
@@ -487,14 +522,17 @@ void SQL_selectBonusTotalCountCallback(Handle owner, Handle hndl, const char[] e
 }
 
 // 6
-void db_selectMapTier(any cb=0) {
+void db_selectMapTier(any cb=0)
+{
 	char szQuery[1024];
 	Format(szQuery, 1024, sql_selectMapTier, g_szMapName);
 	g_hDb.Query(SQL_selectMapTierCallback, szQuery, cb, DBPrio_High);
 }
 
-public void SQL_selectMapTierCallback(Handle owner, Handle hndl, const char[] error, any cb) {
-	if (hndl == null) {
+public void SQL_selectMapTierCallback(Handle owner, Handle hndl, const char[] error, any cb)
+{
+	if (hndl == null)
+	{
 		LogError("[Surftimer] SQL Error (SQL_selectMapTierCallback): %s", error);
 		RunCallback(cb, true);
 		return;
@@ -543,8 +581,10 @@ public void SQL_selectMapTierCallback(Handle owner, Handle hndl, const char[] er
 }
 
 // 7
-void db_viewRecordCheckpointInMap(any cb=0) {
-	for (int k = 0; k < MAX_ZONEGROUPS; k++) {
+void db_viewRecordCheckpointInMap(any cb=0)
+{
+	for (int k = 0; k < MAX_ZONEGROUPS; k++)
+	{
 		g_bCheckpointRecordFound[k] = false;
 		for (int i = 0; i < CPLIMIT; i++)
 		g_fCheckpointServerRecord[k][i] = 0.0;
@@ -556,8 +596,10 @@ void db_viewRecordCheckpointInMap(any cb=0) {
 	g_hDb.Query(sql_selectRecordCheckpointsCallback, szQuery, cb, DBPrio_High);
 }
 
-void sql_selectRecordCheckpointsCallback(Handle owner, Handle hndl, const char[] error, any cb) {
-	if (hndl == null) {
+void sql_selectRecordCheckpointsCallback(Handle owner, Handle hndl, const char[] error, any cb)
+{
+	if (hndl == null)
+	{
 		LogError("[Surftimer] SQL Error (sql_selectRecordCheckpointsCallback): %s", error);
 		RunCallback(cb, true);
 		return;
@@ -582,61 +624,75 @@ void sql_selectRecordCheckpointsCallback(Handle owner, Handle hndl, const char[]
 }
 
 // 8
-void db_CalcAvgRunTime(any cb=0) {
+void db_CalcAvgRunTime(any cb=0)
+{
 	char szQuery[256];
 	Format(szQuery, 256, sql_selectAllMapTimesinMap, g_szMapName);
 	g_hDb.Query(SQL_db_CalcAvgRunTimeCallback, szQuery, cb, DBPrio_High);
 }
 
-void SQL_db_CalcAvgRunTimeCallback(Handle owner, Handle hndl, const char[] error, any cb) {
-	if (hndl == null) {
+void SQL_db_CalcAvgRunTimeCallback(Handle owner, Handle hndl, const char[] error, any cb)
+{
+	if (hndl == null)
+	{
 		LogError("[Surftimer] SQL Error (SQL_db_CalcAvgRunTimeCallback): %s", error);
 		RunCallback(cb, true);
 		return;
 	}
 
 	g_favg_maptime = 0.0;
-	if (SQL_HasResultSet(hndl)) {
+	if (SQL_HasResultSet(hndl))
+	{
 		int rowcount = SQL_GetRowCount(hndl);
 		int i, protimes;
 		float ProTime;
-		while (SQL_FetchRow(hndl)) {
+
+		while (SQL_FetchRow(hndl))
+		{
 			float pro = SQL_FetchFloat(hndl, 0);
-			if (pro > 0.0) {
+			if (pro > 0.0)
+			{
 				ProTime += pro;
 				protimes++;
 			}
+
 			i++;
-			if (rowcount == i) {
+			if (rowcount == i)
 				g_favg_maptime = ProTime / protimes;
-			}
+
 		}
 	}
 	RunCallback(cb);
 }
 
 // 9
-void db_CalcAvgRunTimeBonus(any cb=0) {
-	if (!g_bhasBonus) {
+void db_CalcAvgRunTimeBonus(any cb=0)
+{
+	if (!g_bhasBonus)
+	{
 		RunCallback(cb);
 		return;
 	}
+
 	char szQuery[256];
 	Format(szQuery, 256, sql_selectAllBonusTimesinMap, g_szMapName);
 	g_hDb.Query(SQL_db_CalcAvgRunBonusTimeCallback, szQuery, cb, DBPrio_High);
 }
 
-void SQL_db_CalcAvgRunBonusTimeCallback(Handle owner, Handle hndl, const char[] error, any cb) {
-	if (hndl == null) {
+void SQL_db_CalcAvgRunBonusTimeCallback(Handle owner, Handle hndl, const char[] error, any cb)
+{
+	if (hndl == null)
+	{
 		LogError("[Surftimer] SQL Error (SQL_db_CalcAvgRunTimeCallback): %s", error);
 		RunCallback(cb, true);
 		return;
 	}
 
 	for (int i = 1; i < MAX_ZONEGROUPS; i++)
-	g_fAvg_BonusTime[i] = 0.0;
+		g_fAvg_BonusTime[i] = 0.0;
 
-	if (SQL_HasResultSet(hndl)) {
+	if (SQL_HasResultSet(hndl))
+	{
 		int zonegroup, runtimes[MAX_ZONEGROUPS];
 		float runtime[MAX_ZONEGROUPS], time;
 		while (SQL_FetchRow(hndl))
@@ -651,58 +707,69 @@ void SQL_db_CalcAvgRunBonusTimeCallback(Handle owner, Handle hndl, const char[] 
 		}
 
 		for (int i = 1; i < MAX_ZONEGROUPS; i++)
-		g_fAvg_BonusTime[i] = runtime[i] / runtimes[i];
+			g_fAvg_BonusTime[i] = runtime[i] / runtimes[i];
 	}
 
 	RunCallback(cb);
 }
 
 // 10
-void db_CalculatePlayerCount(any cb=0) {
+void db_CalculatePlayerCount(any cb=0)
+{
 	char szQuery[255];
 	Format(szQuery, 255, sql_CountRankedPlayers, 0);
 	g_hDb.Query(sql_CountRankedPlayersCallback, szQuery, cb, DBPrio_High);
 }
 
-void sql_CountRankedPlayersCallback(Handle owner, Handle hndl, const char[] error, any cb) {
-	if (hndl == null) {
+void sql_CountRankedPlayersCallback(Handle owner, Handle hndl, const char[] error, any cb)
+{
+	if (hndl == null)
+	{
 		LogError("[Surftimer] SQL Error (sql_CountRankedPlayersCallback): %s", error);
 		RunCallback(cb, true);
 		return;
 	}
-	if (SQL_HasResultSet(hndl) && SQL_FetchRow(hndl)) {
+
+	if (SQL_HasResultSet(hndl) && SQL_FetchRow(hndl))
 		g_pr_AllPlayers[0] = SQL_FetchInt(hndl, 0);
-	} else {
+	else
 		g_pr_AllPlayers[0] = 1;
-	}
+
 	RunCallback(cb);
 }
 
 // 11
-void db_CalculatePlayersCountGreater0(any cb=0) {
+void db_CalculatePlayersCountGreater0(any cb=0)
+{
 	char szQuery[255];
 	Format(szQuery, 255, sql_CountRankedPlayers2, 0);
 	g_hDb.Query(sql_CountRankedPlayers2Callback, szQuery, cb, DBPrio_High);
 }
 
-void sql_CountRankedPlayers2Callback(Handle owner, Handle hndl, const char[] error, any cb) {
-	if (hndl == null) {
+void sql_CountRankedPlayers2Callback(Handle owner, Handle hndl, const char[] error, any cb)
+{
+	if (hndl == null)
+	{
 		LogError("[Surftimer] SQL Error (sql_CountRankedPlayers2Callback): %s", error);
 		RunCallback(cb, true);
 		return;
 	}
-	if (SQL_HasResultSet(hndl) && SQL_FetchRow(hndl)) {
+
+	if (SQL_HasResultSet(hndl) && SQL_FetchRow(hndl))
 		g_pr_RankedPlayers[0] = SQL_FetchInt(hndl, 0);
-	} else {
+	else
 		g_pr_RankedPlayers[0] = 0;
-	}
+
 	RunCallback(cb);
 }
 
 // 12
-void db_selectSpawnLocations(any cb=0) {
-	for (int s = 0; s < CPLIMIT; s++) {
-		for (int i = 0; i < MAX_ZONEGROUPS; i++) {
+void db_selectSpawnLocations(any cb=0)
+{
+	for (int s = 0; s < CPLIMIT; s++)
+	{
+		for (int i = 0; i < MAX_ZONEGROUPS; i++)
+		{
 			g_bGotSpawnLocation[i][s][0] = false;
 			g_bGotSpawnLocation[i][s][1] = false;
 		}
@@ -713,15 +780,18 @@ void db_selectSpawnLocations(any cb=0) {
 	g_hDb.Query(db_selectSpawnLocationsCallback, szQuery, cb, DBPrio_High);
 }
 
-void db_selectSpawnLocationsCallback(Handle owner, Handle hndl, const char[] error, any cb) {
+void db_selectSpawnLocationsCallback(Handle owner, Handle hndl, const char[] error, any cb)
+{
 	if (hndl == null) {
 		LogError("[Surftimer] SQL Error (db_selectSpawnLocationsCallback): %s ", error);
 		RunCallback(cb, true);
 		return;
 	}
 
-	if (SQL_HasResultSet(hndl)) {
-		while (SQL_FetchRow(hndl)) {
+	if (SQL_HasResultSet(hndl))
+	{
+		while (SQL_FetchRow(hndl))
+		{
 			int zonegroup = SQL_FetchInt(hndl, 10);
 			int stage = SQL_FetchInt(hndl, 11);
 			int teleside = SQL_FetchInt(hndl, 12);
@@ -743,7 +813,8 @@ void db_selectSpawnLocationsCallback(Handle owner, Handle hndl, const char[] err
 }
 
 // 13
-void db_ClearLatestRecords(any cb=0) {
+void db_ClearLatestRecords(any cb=0)
+{
 	if (g_DbType == MYSQL)
 		g_hDb.Query(SQL_CheckCallback, "DELETE FROM ck_latestrecords WHERE date < NOW() - INTERVAL 1 WEEK");
 	else
@@ -753,8 +824,10 @@ void db_ClearLatestRecords(any cb=0) {
 }
 
 // 14
-void db_GetDynamicTimelimit(any cb=0) {
-	if (!g_hDynamicTimelimit.BoolValue) {
+void db_GetDynamicTimelimit(any cb=0)
+{
+	if (!g_hDynamicTimelimit.BoolValue)
+	{
 		RunCallback(cb);
 		return;
 	}
@@ -763,8 +836,10 @@ void db_GetDynamicTimelimit(any cb=0) {
 	g_hDb.Query(SQL_db_GetDynamicTimelimitCallback, szQuery, cb, DBPrio_High);
 }
 
-void SQL_db_GetDynamicTimelimitCallback(Handle owner, Handle hndl, const char[] error, any cb) {
-	if (hndl == null) {
+void SQL_db_GetDynamicTimelimitCallback(Handle owner, Handle hndl, const char[] error, any cb)
+{
+	if (hndl == null)
+	{
 		LogError("[Surftimer] SQL Error (SQL_db_GetDynamicTimelimitCallback): %s", error);
 		RunCallback(cb, true);
 		return;
@@ -825,23 +900,29 @@ void SQL_db_GetDynamicTimelimitCallback(Handle owner, Handle hndl, const char[] 
 }
 
 // 15
-
-void db_GetTotalStages(any cb=0) {
+void db_GetTotalStages(any cb=0)
+{
 	// Check if map has stages, if not don't bother loading this
-	if (!g_bhasStages) {
+	if (!g_bhasStages)
+	{
 		RunCallback(cb);
 		return;
 	}
+
 	char szQuery[512];
 	Format(szQuery, 512, "SELECT COUNT(`zonetype`) AS stages FROM `ck_zones` WHERE `zonetype` = '3' AND `mapname` = '%s'", g_szMapName);
 	g_hDb.Query(db_GetTotalStagesCallback, szQuery, cb, DBPrio_High);
 }
-void db_GetTotalStagesCallback(Handle owner, Handle hndl, const char[] error, any cb) {
-	if (hndl == null) {
+
+void db_GetTotalStagesCallback(Handle owner, Handle hndl, const char[] error, any cb)
+{
+	if (hndl == null)
+	{
 		LogError("[Surftimer] SQL Error (db_GetTotalStagesCallback): %s ", error);
 		RunCallback(cb, true);
 		return;
 	}
+
 	if (SQL_HasResultSet(hndl) && SQL_FetchRow(hndl))
 	{
 		g_TotalStages = SQL_FetchInt(hndl, 0) + 1;
@@ -856,60 +937,80 @@ void db_GetTotalStagesCallback(Handle owner, Handle hndl, const char[] error, an
 }
 
 // 16
-void db_viewStageRecords(any cb=0) {
-	if (!g_bhasStages) {
+void db_viewStageRecords(any cb=0)
+{
+	if (!g_bhasStages)
+	{
 		RunCallback(cb);
 		return;
 	}
+
 	char szQuery[512];
 	Format(szQuery, 512, "SELECT full.name, full.runtimepro, full.stage, full.style FROM ( SELECT MIN(runtimepro) AS time, stage, style, mapname FROM ck_wrcps WHERE mapname = '%s' GROUP BY stage, style ) as mins INNER JOIN ck_wrcps AS full ON mins.time = full.runtimepro AND mins.stage = full.stage AND mins.style = full.style AND mins.mapname = full.mapname;", g_szMapName);
 	g_hDb.Query(sql_viewStageRecordsCallback, szQuery, cb, DBPrio_High);
 }
 
-void sql_viewStageRecordsCallback(Handle owner, Handle hndl, const char[] error, any cb) {
-	if (hndl == null) {
+void sql_viewStageRecordsCallback(Handle owner, Handle hndl, const char[] error, any cb)
+{
+	if (hndl == null)
+	{
 		LogError("[Surftimer] SQL Error (sql_viewStageRecordsCallback): %s", error);
 		RunCallback(cb, true);
 		return;
 	}
 
-	if (SQL_HasResultSet(hndl)) {
+	if (SQL_HasResultSet(hndl))
+	{
 		int stage;
 		int style;
 		char szName[MAX_NAME_LENGTH];
 
-		while (SQL_FetchRow(hndl)) {
+		while (SQL_FetchRow(hndl))
+		{
 			SQL_FetchString(hndl, 0, szName, sizeof(szName));
 			stage = SQL_FetchInt(hndl, 2);
 			style = SQL_FetchInt(hndl, 3);
 
-			if (style == STYLE_NORMAL) {
+			if (style == STYLE_NORMAL)
+			{
 				g_fStageRecord[stage] = SQL_FetchFloat(hndl, 1);
-				if (g_fStageRecord[stage] > -1.0 && !SQL_IsFieldNull(hndl, 1)) {
+				if (g_fStageRecord[stage] > -1.0 && !SQL_IsFieldNull(hndl, 1))
+				{
 					g_fStageRecord[stage] = SQL_FetchFloat(hndl, 1);
 					Format(g_szStageRecordPlayer[stage], sizeof(g_szStageRecordPlayer), szName);
 					FormatTimeFloat(0, g_fStageRecord[stage], 3, g_szRecordStageTime[stage], 64);
-				} else {
+				}
+				else
+				{
 					Format(g_szStageRecordPlayer[stage], sizeof(g_szStageRecordPlayer), "N/A");
 					Format(g_szRecordStageTime[stage], 64, "N/A");
 					g_fStageRecord[stage] = 9999999.0;
 				}
-			} else {
+			}
+			else
+			{
 				g_fStyleStageRecord[style][stage] = SQL_FetchFloat(hndl, 1);
-				if (g_fStyleStageRecord[style][stage] > -1.0 && !SQL_IsFieldNull(hndl, 1)) {
+				if (g_fStyleStageRecord[style][stage] > -1.0 && !SQL_IsFieldNull(hndl, 1))
+				{
 					g_fStyleStageRecord[style][stage] = SQL_FetchFloat(hndl, 1);
 					FormatTimeFloat(0, g_fStyleStageRecord[style][stage], 3, g_szStyleRecordStageTime[style][stage], 64);
-				} else {
+				}
+				else
+				{
 					Format(g_szStyleRecordStageTime[style][stage], 64, "N/A");
 					g_fStyleStageRecord[style][stage] = 9999999.0;
 				}
 			}
 		}
-	} else {
-		for (int i = 1; i <= g_TotalStages; i++) {
+	}
+	else
+	{
+		for (int i = 1; i <= g_TotalStages; i++)
+		{
 			Format(g_szRecordStageTime[i], 64, "N/A");
 			g_fStageRecord[i] = 9999999.0;
-			for (int s = 1; s < MAX_STYLES; s++) {
+			for (int s = 1; s < MAX_STYLES; s++)
+			{
 				Format(g_szStyleRecordStageTime[s][i], 64, "N/A");
 				g_fStyleStageRecord[s][i] = 9999999.0;
 			}
@@ -920,55 +1021,71 @@ void sql_viewStageRecordsCallback(Handle owner, Handle hndl, const char[] error,
 }
 
 // 17
-void db_viewTotalStageRecords(any cb=0) {
-	if (!g_bhasStages) {
+void db_viewTotalStageRecords(any cb=0)
+{
+	if (!g_bhasStages)
+	{
 		RunCallback(cb);
 		return;
 	}
+
 	char szQuery[512];
 	Format(szQuery, 512, "SELECT stage, style, count(1) FROM ck_wrcps WHERE mapname = '%s' GROUP BY stage, style;", g_szMapName);
 	g_hDb.Query(sql_viewTotalStageRecordsCallback, szQuery, cb, DBPrio_High);
 }
 
-void sql_viewTotalStageRecordsCallback(Handle owner, Handle hndl, const char[] error, any cb) {
-	if (hndl == null) {
+void sql_viewTotalStageRecordsCallback(Handle owner, Handle hndl, const char[] error, any cb)
+{
+	if (hndl == null)
+	{
 		LogError("[Surftimer] SQL Error (sql_viewTotalStageRecordsCallback): %s", error);
 		RunCallback(cb, true);
 		return;
 	}
 
-	if (SQL_HasResultSet(hndl)) {
+	if (SQL_HasResultSet(hndl))
+	{
 		int stage;
 		int style;
 
-		for (int i = 0; i < CPLIMIT; i++) {
+		for (int i = 0; i < CPLIMIT; i++)
+		{
 			g_TotalStageRecords[i] = 0;
 		}
 
-		while (SQL_FetchRow(hndl)) {
+		while (SQL_FetchRow(hndl))
+		{
 			stage = SQL_FetchInt(hndl, 0);
 			style = SQL_FetchInt(hndl, 1);
 
-			if (style == STYLE_NORMAL) {
+			if (style == STYLE_NORMAL)
+			{
 				g_TotalStageRecords[stage] = SQL_FetchInt(hndl, 2);
-				if (g_TotalStageRecords[stage] > -1.0 && !SQL_IsFieldNull(hndl, 2)) {
+
+				if (g_TotalStageRecords[stage] > -1.0 && !SQL_IsFieldNull(hndl, 2))
 					g_TotalStageRecords[stage] = SQL_FetchInt(hndl, 2);
-				} else {
+				else
 					g_TotalStageRecords[stage] = 0;
-				}
-			} else {
+				
+			}
+			else
+			{
 				g_TotalStageStyleRecords[style][stage] = SQL_FetchInt(hndl, 2);
-				if (g_TotalStageStyleRecords[style][stage] > -1.0 && !SQL_IsFieldNull(hndl, 2)) {
+
+				if (g_TotalStageStyleRecords[style][stage] > -1.0 && !SQL_IsFieldNull(hndl, 2))
 					g_TotalStageStyleRecords[style][stage] = SQL_FetchInt(hndl, 2);
-				} else {
+				else
 					g_TotalStageStyleRecords[style][stage] = 0;
-				}
 			}
 		}
-	} else {
-		for (int i = 1; i <= g_TotalStages; i++) {
+	}
+	else
+	{
+		for (int i = 1; i <= g_TotalStages; i++)
+		{
 			g_TotalStageRecords[i] = 0;
-			for (int s = 1; i < MAX_STYLES; s++) {
+			for (int s = 1; i < MAX_STYLES; s++)
+			{
 				g_TotalStageStyleRecords[s][i] = 0;
 			}
 		}
@@ -978,20 +1095,24 @@ void sql_viewTotalStageRecordsCallback(Handle owner, Handle hndl, const char[] e
 }
 
 // 18
-void db_selectCurrentMapImprovement(any cb=0) {
+void db_selectCurrentMapImprovement(any cb=0)
+{
 	char szQuery[1024];
 	Format(szQuery, 1024, "SELECT mapname, (SELECT count(1) FROM ck_playertimes b WHERE a.mapname = b.mapname AND b.style = 0) as total FROM ck_playertimes a where mapname = '%s' AND style = 0 LIMIT 0, 1;", g_szMapName);
 	g_hDb.Query(db_selectMapCurrentImprovementCallback, szQuery, cb, DBPrio_High);
 }
 
-void db_selectMapCurrentImprovementCallback(Handle owner, Handle hndl, const char[] error, any cb) {
-	if (hndl == null) {
+void db_selectMapCurrentImprovementCallback(Handle owner, Handle hndl, const char[] error, any cb)
+{
+	if (hndl == null)
+	{
 		LogError("[Surftimer] SQL Error (db_selectMapCurrentImprovementCallback): %s", error);
 		RunCallback(cb, true);
 		return;
 	}
 
-	if (SQL_HasResultSet(hndl) && SQL_FetchRow(hndl)) {
+	if (SQL_HasResultSet(hndl) && SQL_FetchRow(hndl))
+	{
 		int totalplayers;
 		totalplayers = SQL_FetchInt(hndl, 1);
 
