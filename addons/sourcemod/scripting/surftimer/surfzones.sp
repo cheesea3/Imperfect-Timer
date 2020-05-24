@@ -1222,7 +1222,7 @@ public int Handle_ZoneSettingMenu(Handle tMenu, MenuAction action, int client, i
 						SetConVarInt(g_hZonesToDisplay, 1);
 				}
 			}
-			CreateTimer(0.1, RefreshZoneSettings, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
+			CreateTimer(0.1, RefreshZoneSettings, client, TIMER_FLAG_NO_MAPCHANGE);
 		}
 		case MenuAction_Cancel:
 		{

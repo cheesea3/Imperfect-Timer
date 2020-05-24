@@ -346,8 +346,8 @@ public void sql_selectMapRecordCallback(Handle owner, Handle hndl, const char[] 
 void db_viewMapProRankCount(any cb=0) {
 	g_MapTimesCount = 0;
 	char szQuery[512];
-	Format(szQuery, sizeof(szQuery), sql_selectPlayerProCount, g_szMapName);
-	g_hDb.Query(sql_selectPlayerProCountCallback, szQuery, cb, DBPrio_Low);
+	Format(szQuery, 512, sql_selectPlayerProCount, g_szMapName);
+	g_hDb.Query(sql_selectPlayerProCountCallback, szQuery, cb, DBPrio_High);
 }
 void sql_selectPlayerProCountCallback(Handle owner, Handle hndl, const char[] error, any cb) {
 	if (hndl == null) {

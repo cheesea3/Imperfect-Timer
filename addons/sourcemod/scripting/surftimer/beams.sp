@@ -5,18 +5,14 @@ int beamColorOther[] = { 255, 255, 255, 128 };
 
 public void DrawBeamBox(int client)
 {
-	BeamBox(INVALID_HANDLE, GetClientUserId(client));
-	CreateTimer(1.0, BeamBox, GetClientUserId(client), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+	BeamBox(INVALID_HANDLE, client);
+	CreateTimer(1.0, BeamBox, client, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 }
 
-public Action BeamBox(Handle timer, any userid)
+public Action BeamBox(Handle timer, int client)
 {
-	int client = GetClientOfUserId(userid);
-
-	if (IsClientInGame(client))
-	{
-		if (g_Editing[client] == 2 && g_bAllowBeams)
-		{
+	if (IsValidClient(client)) {
+		if (g_Editing[client] == 2 && g_bAllowBeams) {
 
 			//IG_SendBeamBoxToClient(client, g_Positions[client][1], g_Positions[client][0], g_BeamSprite, g_HaloSprite, 0, BEAM_FRAMERATE, 1.0, 1.0, 1.0, 1, 0.0, beamColorEdit, 0, true);
 			IG_SendBeamBoxToClient(client, g_Positions[client][1], g_Positions[client][0], 1.0, beamColorEdit, true);

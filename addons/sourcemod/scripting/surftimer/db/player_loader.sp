@@ -100,8 +100,7 @@ Action LoadPlayerStep2(Handle timer, int client) {
 		LoadPlayerFinished(client);
 	}
 }
-void LoadPlayerFinished(int client)
-{
+void LoadPlayerFinished(int client) {
 #if defined DEBUG_LOGGING
 	char szName[MAX_NAME_LENGTH];
 	GetClientName(client, szName, MAX_NAME_LENGTH);
@@ -112,19 +111,15 @@ void LoadPlayerFinished(int client)
 	g_playerLoadState[client] = PLS_LOADED;
 	db_UpdateLastSeen(client);
 
-	if (g_hTeleToStartWhenSettingsLoaded.BoolValue)
-	{
+	if (g_hTeleToStartWhenSettingsLoaded.BoolValue && IsPlayerAlive(client)) {
 		Command_Restart(client, 1);
-		CreateTimer(0.1, RestartPlayer, GetClientUserId(client));
+		CreateTimer(0.1, RestartPlayer, client);
 	}
 
 	LoadPlayerNext();
 }
-
 typedef SQLTPlayerCallback = function void (Handle hndl, const char[] error, int client, any data);
-
-void SQL_PlayerQuery(const char[] query, SQLTPlayerCallback callback, int client, any data=0)
-{
+void SQL_PlayerQuery(const char[] query, SQLTPlayerCallback callback, int client, any data=0) {
 	DataPack newData = CreateDataPack();
 	newData.WriteFunction(callback);
 	newData.WriteCell(client);
@@ -159,11 +154,9 @@ void SQL_PlayerQuery(const char[] query, SQLTPlayerCallback callback, int client
 		ReplaceString(query2, sizeof(query2), "__steamid__", szSteamidEx);
 	}
 
-	g_hDb.Query(SQL_PlayerQueryCb, query2, newData, DBPrio_Low);
+	g_hDb.Query(SQL_PlayerQueryCb, query2, newData);
 }
-
-void SQL_PlayerQueryCb(Handle owner, Handle hndl, const char[] error, DataPack newData)
-{
+void SQL_PlayerQueryCb(Handle owner, Handle hndl, const char[] error, DataPack newData) {
 	newData.Reset();
 	Function callback = newData.ReadFunction();
 	int client = newData.ReadCell();
@@ -181,19 +174,15 @@ void SQL_PlayerQueryCb(Handle owner, Handle hndl, const char[] error, DataPack n
 	Call_Finish();
 }
 
-PlayerLoadState GetPlayerLoadState(int client)
-{
+PlayerLoadState GetPlayerLoadState(int client) {
 	return g_playerLoadState[client];
 }
-int GetPlayerLoadStep(int client)
-{
+int GetPlayerLoadStep(int client) {
 	return g_playerLoadStep[client];
 }
-int GetPlayerLoadStepMax()
-{
+int GetPlayerLoadStepMax() {
 	return MAX_LOAD_STEPS;
 }
-bool IsPlayerLoaded(int client)
-{
+bool IsPlayerLoaded(int client) {
 	return g_playerLoadState[client] == PLS_LOADED;
 }

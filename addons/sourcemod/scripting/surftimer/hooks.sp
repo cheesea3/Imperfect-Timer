@@ -75,196 +75,194 @@ public Action Event_OnFire(Event event, const char[] name, bool dontBroadcast)
 }
 
 // Player Spawns
-public Action Event_OnPlayerSpawn(Event event, const char[] name, bool dontBroadcast)
-{
+public Action Event_OnPlayerSpawn(Event event, const char[] name, bool dontBroadcast) {
 	int client = GetClientOfUserId(event.GetInt("userid"));
 
-	if (IsValidClient(client))
+	if (client == 0) {
+		if (IsFakeClient(client)) {
+			SetEntData(client, FindSendPropInfo("CBaseEntity", "m_CollisionGroup"), 2, 4, true);
+		}
+		return Plugin_Continue;
+	}
+
+	g_SpecTarget[client] = -1;
+	g_bPause[client] = false;
+	g_bFirstTimerStart[client] = true;
+	SetEntityMoveType(client, MOVETYPE_WALK);
+	SetEntityRenderMode(client, RENDER_NORMAL);
+	// fluffys
+	g_bInJump[client] = false;
+	g_bInDuck[client] = false;
+
+	// Set stage to 1 on spawn cause why not
+	if (!g_bRespawnPosition[client] && !g_specToStage[client])
 	{
-		g_SpecTarget[client] = -1;
-		g_bPause[client] = false;
-		g_bFirstTimerStart[client] = true;
-		SetEntityMoveType(client, MOVETYPE_WALK);
-		SetEntityRenderMode(client, RENDER_NORMAL);
-		// fluffys
-		g_bInJump[client] = false;
-		g_bInDuck[client] = false;
+		g_WrcpStage[client] = 1;
+		g_Stage[0][client] = 1;
+	}
 
-		// Set stage to 1 on spawn cause why not
-		if (!g_bRespawnPosition[client] && !g_specToStage[client])
+	if (g_players[client].currentStyle == STYLE_LOWGRAV) // 4 low gravity
+		SetEntityGravity(client, 0.5);
+	else if (g_players[client].currentStyle == STYLE_SLOMO)// 5 slowmo
+		SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", 0.5);
+	else if (g_players[client].currentStyle == STYLE_FASTFORWARD)// 6 fastforward
+		SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", 1.5);
+
+	if (g_players[client].currentStyle < 4) // 0 normal, 1 hsw, 2 sw, 3 bw
+	{
+		SetEntityGravity(client, 1.0); // normal gravity
+		SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", 1.0); // normal speed
+	}
+
+	// Strip Weapons
+	if ((GetClientTeam(client) > 1) && IsValidClient(client))
+	{
+		if (g_players[client].hideWeapons)
 		{
-			g_WrcpStage[client] = 1;
-			g_Stage[0][client] = 1;
-		}
-
-		if (g_players[client].currentStyle == STYLE_LOWGRAV) // 4 low gravity
-			SetEntityGravity(client, 0.5);
-		else if (g_players[client].currentStyle == STYLE_SLOMO)// 5 slowmo
-			SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", 0.5);
-		else if (g_players[client].currentStyle == STYLE_FASTFORWARD)// 6 fastforward
-			SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", 1.5);
-
-		if (g_players[client].currentStyle < 4) // 0 normal, 1 hsw, 2 sw, 3 bw
-		{
-			SetEntityGravity(client, 1.0); // normal gravity
-			SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", 1.0); // normal speed
-		}
-
-		// Strip Weapons
-		if (IsValidClient(client))
-		{
-			if (g_players[client].hideWeapons)
+			StripAllWeapons(client);
+			if (!IsFakeClient(client))
 			{
-				StripAllWeapons(client);
-				if (!IsFakeClient(client))
-				{
-					GivePlayerItem(client, "weapon_usp_silencer");
-					int weapon = GetPlayerWeaponSlot(client, 2);
-					if (weapon != -1)
-						SetEntPropEnt(client, Prop_Send, "m_hActiveWeapon", weapon);
-				}
+				GivePlayerItem(client, "weapon_usp_silencer");
+				int weapon = GetPlayerWeaponSlot(client, 2);
+				if (weapon != -1)
+					SetEntPropEnt(client, Prop_Send, "m_hActiveWeapon", weapon);
+			}
+		}
+		else
+		{
+			StripAllWeapons(client, true);
+		}
+	}
+
+	// NoBlock
+	if (g_hCvarNoBlock.BoolValue)
+		SetEntData(client, FindSendPropInfo("CBaseEntity", "m_CollisionGroup"), 2, 4, true);
+	else
+		SetEntData(client, FindSendPropInfo("CBaseEntity", "m_CollisionGroup"), 5, 4, true);
+
+	// Botmimic2
+	if (g_hBotMimicsRecord[client] != null && IsFakeClient(client))
+	{
+		g_BotMimicTick[client] = 0;
+		g_CurrentAdditionalTeleportIndex[client] = 0;
+	}
+
+	if (IsFakeClient(client))
+	{
+		if (client == g_InfoBot)
+			CS_SetClientClanTag(client, "");
+		else if (client == g_RecordBot)
+			CS_SetClientClanTag(client, "WR Replay");
+		else if (client == g_BonusBot)
+			CS_SetClientClanTag(client, "WRB Replay");
+		else if (client == g_WrcpBot)
+			CS_SetClientClanTag(client, "WRCP Replay");
+
+		CS_SetClientContributionScore(client, -99999);
+
+		if (client == g_RecordBot || client == g_BonusBot || client == g_WrcpBot)
+		{
+			// Disabling noclip, makes the bot bug, look into later
+			// SetEntityMoveType(client, MOVETYPE_NOCLIP);
+			SetEntityGravity(client, 0.0);
+		}
+
+		return Plugin_Continue;
+	}
+
+	// Change Player Skin
+	if (g_hPlayerSkinChange.BoolValue && (GetClientTeam(client) > 1))
+	{
+		char szBuffer[256];
+		// g_hArmModel.GetString(szBuffer, 256);
+		// SetEntPropString(client, Prop_Send, "m_szArmsModel", szBuffer);
+
+		g_hPlayerModel.GetString(szBuffer, 256);
+		SetEntityModel(client, szBuffer);
+		CreateTimer(1.0, SetArmsModel, client, TIMER_FLAG_NO_MAPCHANGE);
+		//SetEntPropString(client, Prop_Send, "m_szArmsModel", "models/weapons/ct_arms.mdl");
+	}
+
+	// 1st Spawn & T/CT
+	if (g_bFirstSpawn[client] && (GetClientTeam(client) > 1))
+	{
+		float fLocation[3];
+		GetClientAbsOrigin(client, fLocation);
+		if (setClientLocation(client, fLocation) == -1)
+		{
+			g_iClientInZone[client][2] = 0;
+			g_bIgnoreZone[client] = false;
+		}
+
+
+		StartRecording(client);
+		CreateTimer(1.5, CenterMsgTimer, client, TIMER_FLAG_NO_MAPCHANGE);
+
+		if (g_players[client].speedDisplay)
+		{
+			SetHudTextParams(-1.0, 0.30, 1.0, 255, 255, 255, 255, 0, 0.25, 0.0, 0.0);
+			CreateTimer(0.1, CenterSpeedDisplayTimer, client, TIMER_FLAG_NO_MAPCHANGE|TIMER_REPEAT);
+		}
+
+		g_bFirstSpawn[client] = false;
+	}
+
+	// Restore Position
+	if (!g_specToStage[client])
+	{
+
+		if ((GetClientTeam(client) > 1))
+		{
+			if (g_bRestorePosition[client])
+			{
+				g_bPositionRestored[client] = true;
+				teleportEntitySafe(client, g_fPlayerCordsRestore[client], g_fPlayerAnglesRestore[client], NULL_VECTOR, false);
+				g_bRestorePosition[client] = false;
 			}
 			else
 			{
-				StripAllWeapons(client, true);
-			}
-		}
-
-		// NoBlock
-		if (g_hCvarNoBlock.BoolValue)
-			SetEntData(client, FindSendPropInfo("CBaseEntity", "m_CollisionGroup"), 2, 4, true);
-		else
-			SetEntData(client, FindSendPropInfo("CBaseEntity", "m_CollisionGroup"), 5, 4, true);
-
-		// Botmimic2
-		if (g_hBotMimicsRecord[client] != null && IsFakeClient(client))
-		{
-			g_BotMimicTick[client] = 0;
-			g_CurrentAdditionalTeleportIndex[client] = 0;
-		}
-
-		if (IsFakeClient(client))
-		{
-			if (client == g_InfoBot)
-				CS_SetClientClanTag(client, "");
-			else if (client == g_RecordBot)
-				CS_SetClientClanTag(client, "WR Replay");
-			else if (client == g_BonusBot)
-				CS_SetClientClanTag(client, "WRB Replay");
-			else if (client == g_WrcpBot)
-				CS_SetClientClanTag(client, "WRCP Replay");
-
-			CS_SetClientContributionScore(client, -99999);
-
-			if (client == g_RecordBot || client == g_BonusBot || client == g_WrcpBot)
-			{
-				// Disabling noclip, makes the bot bug, look into later
-				// SetEntityMoveType(client, MOVETYPE_NOCLIP);
-				SetEntityGravity(client, 0.0);
-			}
-
-			return Plugin_Continue;
-		}
-
-		SDKHook(client, SDKHook_SetTransmit, Hook_SetTransmit);
-
-		// Change Player Skin
-		if (g_hPlayerSkinChange.BoolValue && (GetClientTeam(client) > 1))
-		{
-			char szBuffer[256];
-			// g_hArmModel.GetString(szBuffer, 256);
-			// SetEntPropString(client, Prop_Send, "m_szArmsModel", szBuffer);
-
-			g_hPlayerModel.GetString(szBuffer, 256);
-			SetEntityModel(client, szBuffer);
-			CreateTimer(1.0, SetArmsModel, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
-			//SetEntPropString(client, Prop_Send, "m_szArmsModel", "models/weapons/ct_arms.mdl");
-		}
-
-		// 1st Spawn & T/CT
-		if (g_bFirstSpawn[client] && (GetClientTeam(client) > 1))
-		{
-			float fLocation[3];
-			GetClientAbsOrigin(client, fLocation);
-			if (setClientLocation(client, fLocation) == -1)
-			{
-				g_iClientInZone[client][2] = 0;
-				g_bIgnoreZone[client] = false;
-			}
-
-
-			StartRecording(client);
-			CreateTimer(1.5, CenterMsgTimer, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
-
-			if (g_players[client].speedDisplay)
-			{
-				SetHudTextParams(-1.0, 0.30, 1.0, 255, 255, 255, 255, 0, 0.25, 0.0, 0.0);
-				CreateTimer(0.1, CenterSpeedDisplayTimer, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE|TIMER_REPEAT);
-			}
-
-			g_bFirstSpawn[client] = false;
-		}
-
-		// Restore Position
-		if (!g_specToStage[client])
-		{
-
-			if ((GetClientTeam(client) > 1))
-			{
-				if (g_bRestorePosition[client])
+				if (g_bRespawnPosition[client])
 				{
-					g_bPositionRestored[client] = true;
 					teleportEntitySafe(client, g_fPlayerCordsRestore[client], g_fPlayerAnglesRestore[client], NULL_VECTOR, false);
-					g_bRestorePosition[client] = false;
+					g_bRespawnPosition[client] = false;
 				}
 				else
 				{
-					if (g_bRespawnPosition[client])
-					{
-						teleportEntitySafe(client, g_fPlayerCordsRestore[client], g_fPlayerAnglesRestore[client], NULL_VECTOR, false);
-						g_bRespawnPosition[client] = false;
-					}
-					else
-					{
-						g_bTimerRunning[client] = false;
-						g_fStartTime[client] = -1.0;
-						g_fCurrentRunTime[client] = -1.0;
+					g_bTimerRunning[client] = false;
+					g_fStartTime[client] = -1.0;
+					g_fCurrentRunTime[client] = -1.0;
 
-						// Spawn Client To The Start Zone.
-						if (g_hSpawnToStartZone.BoolValue)
-							Command_Restart(client, 1);
-					}
+					// Spawn Client To The Start Zone.
+					if (g_hSpawnToStartZone.BoolValue)
+						Command_Restart(client, 1);
 				}
 			}
 		}
-		else
-		{
-			Array_Copy(g_fTeleLocation[client], g_fPlayerCordsRestore[client], 3);
-			Array_Copy(NULL_VECTOR, g_fPlayerAnglesRestore[client], 3);
-			SetEntPropVector(client, Prop_Data, "m_vecVelocity", view_as<float>( { 0.0, 0.0, -100.0 } ));
-			teleportEntitySafe(client, g_fTeleLocation[client], NULL_VECTOR, view_as<float>( { 0.0, 0.0, -100.0 } ), false);
-			g_specToStage[client] = false;
-		}
-
-		// Hide Radar
-		CreateTimer(0.0, HideHud, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
-
-		// Set Speclist
-		Format(g_szPlayerPanelText[client], 512, "");
-
-		// Get Speed & Origin
-		g_fLastSpeed[client] = GetSpeed(client);
-
-		// Give Player Kevlar + Helmet
-		GivePlayerItem(client, "item_assaultsuit");
-
-		if (g_players[client].thirdPerson)
-			Command_ToggleThirdPerson(client, 0);
 	}
-	else if (IsFakeClient(client)) 
+	else
 	{
-		SetEntData(client, FindSendPropInfo("CBaseEntity", "m_CollisionGroup"), 2, 4, true);
+		Array_Copy(g_fTeleLocation[client], g_fPlayerCordsRestore[client], 3);
+		Array_Copy(NULL_VECTOR, g_fPlayerAnglesRestore[client], 3);
+		SetEntPropVector(client, Prop_Data, "m_vecVelocity", view_as<float>( { 0.0, 0.0, -100.0 } ));
+		teleportEntitySafe(client, g_fTeleLocation[client], NULL_VECTOR, view_as<float>( { 0.0, 0.0, -100.0 } ), false);
+		g_specToStage[client] = false;
 	}
+
+	// Hide Radar
+	CreateTimer(0.0, HideHud, client, TIMER_FLAG_NO_MAPCHANGE);
+
+	// Set Speclist
+	Format(g_szPlayerPanelText[client], 512, "");
+
+	// Get Speed & Origin
+	g_fLastSpeed[client] = GetSpeed(client);
+
+	// Give Player Kevlar + Helmet
+	GivePlayerItem(client, "item_assaultsuit");
+
+	// Zephyrus' third person plugin
+	if (g_players[client].thirdPerson)
+		Command_ToggleThirdPerson(client, 0);
 
 	return Plugin_Continue;
 }
@@ -537,18 +535,15 @@ public Action Event_PlayerDisconnect(Event event, const char[] name, bool dontBr
 	{
 		char szName[64];
 		char disconnectReason[64];
-		int client = GetClientOfUserId(GetEventInt(event, "userid"));
-
+		int clientid = event.GetInt("userid");
+		int client = GetClientOfUserId(clientid);
 		if (!IsValidClient(client) || IsFakeClient(client))
 			return Plugin_Handled;
-
 		event.GetString("name", szName, sizeof(szName));
 		event.GetString("reason", disconnectReason, sizeof(disconnectReason));
-
 		for (int i = 1; i <= MaxClients; i++)
 			if (IsValidClient(i) && i != client && !IsFakeClient(i))
 				CPrintToChat(i, "%t", "Disconnected1", szName, disconnectReason);
-				
 		return Plugin_Handled;
 	}
 	else
@@ -573,16 +568,14 @@ public Action Hook_SetTransmit(int entity, int client)
 
 public Action Event_OnPlayerDeath(Event event, const char[] name, bool dontBroadcast)
 {
-	int client = GetClientOfUserId(event.GetInt("userid"));
+	int client = event.GetInt("userid");
 	if (IsValidClient(client))
 	{
-		SDKUnhook(client, SDKHook_SetTransmit, Hook_SetTransmit);
-
 		if (!IsFakeClient(client))
 		{
 			if (g_hRecording[client] != null)
 				StopRecording(client);
-			CreateTimer(2.0, RemoveRagdoll, GetClientUserId(client));
+			CreateTimer(2.0, RemoveRagdoll, client);
 		}
 		else
 			if (g_hBotMimicsRecord[client] != null)
@@ -610,6 +603,7 @@ public Action CS_OnTerminateRound(float &delay, CSRoundEndReason &reason)
 public Action Event_OnRoundEnd(Event event, const char[] name, bool dontBroadcast)
 {
 	g_bRoundEnd = true;
+	// UnhookEntityOutput("trigger_teleport", "OnStartTouch", OnTouchTriggerTeleport);
 	return Plugin_Continue;
 }
 
@@ -1339,12 +1333,11 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 	// Strafe Sync taken from shavit's bhop timer
 	g_fAngleCache[client] = angles[1];
 
-	//if (g_resetButtons[client]) {
-	//	buttons = 0;
-	//	g_resetButtons[client] = false;
-	//	return Plugin_Changed;
-	//}
-
+	if (g_resetButtons[client]) {
+		buttons = 0;
+		g_resetButtons[client] = false;
+		return Plugin_Changed;
+	}
 	return Plugin_Continue;
 }
 
@@ -1442,7 +1435,7 @@ public Action Event_PlayerJump(Event event, char[] name, bool dontBroadcast)
 		{
 			if (!g_bJumpZoneTimer[client])
 			{
-				CreateTimer(1.0, StartJumpZonePrintTimer, GetClientUserId(client));
+				CreateTimer(1.0, StartJumpZonePrintTimer, client);
 				CPrintToChat(client, "%t", "Hooks10", g_szChatPrefix);
 				DataPack pack;
 				CreateDataTimer(0.05, DelayedVelocityCap, pack);
@@ -1499,7 +1492,7 @@ public Action Event_PlayerJump(Event event, char[] name, bool dontBroadcast)
 						g_bResetOneJump[client] = true;
 						g_fJumpedInZoneTime[client] = GetGameTime();
 						// CPrintToChat(client, "First Time: %f", g_fJumpedInZoneTime[client]);
-						CreateTimer(1.0, ResetOneJump, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
+						CreateTimer(1.0, ResetOneJump, client, TIMER_FLAG_NO_MAPCHANGE);
 					}
 					else
 					{
@@ -1526,10 +1519,8 @@ public Action Event_PlayerJump(Event event, char[] name, bool dontBroadcast)
 	return Plugin_Continue;
 }
 
-public Action ResetOneJump(Handle timer, any userid)
+public Action ResetOneJump(Handle timer, any client)
 {
-	int client = GetClientOfUserId(userid);
-
 	if (g_bResetOneJump[client])
 	{
 		g_bJumpedInZone[client] = false;
@@ -1605,6 +1596,44 @@ public Action Hook_FootstepCheck(int clients[64], int &numClients, char sample[P
 public Action Hook_ShotgunShot(const char[] te_name, const int[] players, int numClients, float delay)
 {
 	return Plugin_Handled;
+	// int shooter = TE_ReadNum("m_iPlayer") + 1;
+
+	// int[] newClients = new int[MaxClients];
+	// int newTotal = 0;
+
+	// for (int i = 1; i <= MaxClients; i++)
+	// {
+	// 	if (IsValidClient(i) && !IsPlayerAlive(i))
+	// 	{
+	// 		int SpecMode = GetEntProp(i, Prop_Send, "m_iObserverMode");
+	// 		if (SpecMode == 4 || SpecMode == 5)
+	// 		{
+	// 			int Target = GetEntPropEnt(i, Prop_Send, "m_hObserverTarget");
+	// 			if (Target == shooter)
+	// 				newClients[newTotal] = i;
+	// 				newTotal++;
+	// 			}
+	// 	}
+	// }
+
+	// if (newTotal == 0)
+	// 	return Plugin_Stop;
+
+	// float vTemp[3];
+  // TE_Start("Shotgun Shot");
+  // TE_ReadVector("m_vecOrigin", vTemp);
+  // TE_WriteVector("m_vecOrigin", vTemp);
+  // TE_WriteFloat("m_vecAngles[0]", TE_ReadFloat("m_vecAngles[0]"));
+  // TE_WriteFloat("m_vecAngles[1]", TE_ReadFloat("m_vecAngles[1]"));
+  // TE_WriteNum("m_weapon", TE_ReadNum("m_weapon"));
+  // TE_WriteNum("m_iMode", TE_ReadNum("m_iMode"));
+  // TE_WriteNum("m_iSeed", TE_ReadNum("m_iSeed"));
+  // TE_WriteNum("m_iPlayer", TE_ReadNum("m_iPlayer"));
+  // TE_WriteFloat("m_fInaccuracy", TE_ReadFloat("m_fInaccuracy"));
+  // TE_WriteFloat("m_fSpread", TE_ReadFloat("m_fSpread"));
+  // TE_Send(newClients, newTotal, delay);
+
+	// return Plugin_Stop;
 }
 
 // https://forums.alliedmods.net/showthread.php?t=300549

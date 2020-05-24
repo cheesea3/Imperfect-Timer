@@ -2289,7 +2289,7 @@ public void SetPlayerRank(int client)
 
 	if (g_hSkillGroups == null)
 	{
-		CreateTimer(5.0, reloadRank, GetClientUserId(client));
+		CreateTimer(5.0, reloadRank, client);
 		return;
 	}
 
@@ -3035,34 +3035,25 @@ public void CenterHudAlive(int client)
 	}
 
 	MapLoadState mapState = GetMapLoadState();
-	if (mapState == MLS_LOADING)
-	{
+	if (mapState == MLS_LOADING) {
 		PrintHintText(client, "<font color='#FFFF00'>Loading map ... %i/%i</font>", GetMapLoadStep(), MAX_MAP_LOAD_STEPS);
 		return;
 	}
-	
-	if (mapState != MLS_LOADED)
-	{
+	if (mapState != MLS_LOADED) {
 		PrintHintText(client, "<font color='#FFFF00'>Map Load Error %i/%i</font>", GetMapLoadStep(), MAX_MAP_LOAD_STEPS);
 		return;
 	}
 
 	PlayerLoadState playerState = GetPlayerLoadState(client);
-
-	if (playerState == PLS_PENDING)
-	{
+	if (playerState == PLS_PENDING) {
 		PrintHintText(client, "<font color='#FFFF00'>Waiting in account queue ...</font>");
 		return;
 	}
-
-	if (playerState == PLS_LOADING)
-	{
+	if (playerState == PLS_LOADING) {
 		PrintHintText(client, "<font color='#FFFF00'>Loading your account ... %i/%i</font>", GetPlayerLoadStep(client), GetPlayerLoadStepMax());
 		return;
 	}
-
-	if (playerState != PLS_LOADED)
-	{
+	if (playerState != PLS_LOADED) {
 		PrintHintText(client, "<font color='#FFFF00'>Account Load Error %i/%i</font>", GetPlayerLoadStep(client), GetPlayerLoadStepMax());
 		return;
 	}
