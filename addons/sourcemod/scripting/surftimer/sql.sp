@@ -1531,86 +1531,89 @@ public void sql_selectTopSurfersCallback(Handle owner, Handle hndl, const char[]
 	int style = 0; //ReadPackCell(data);
 	delete data;
 
-	char szFirstMap[128];
-	char szValue[128];
-	char szName[64];
-	float time;
-	char szSteamID[32];
-	char lineBuf[256];
-	Handle stringArray = CreateArray(100);
-
-	Handle menu;
-	menu = CreateMenu(MapMenuHandler1);
-	SetMenuPagination(menu, 5);
-
-	bool bduplicat = false;
-	char title[256];
-	if (SQL_HasResultSet(hndl))
+	if (IsValidClient(client))
 	{
-		int i = 1;
-		while (SQL_FetchRow(hndl))
+		char szFirstMap[128];
+		char szValue[128];
+		char szName[64];
+		float time;
+		char szSteamID[32];
+		char lineBuf[256];
+		Handle stringArray = CreateArray(100);
+
+		Handle menu;
+		menu = CreateMenu(MapMenuHandler1);
+		SetMenuPagination(menu, 5);
+
+		bool bduplicat = false;
+		char title[256];
+		if (SQL_HasResultSet(hndl))
 		{
-			bduplicat = false;
-			SQL_FetchString(hndl, 0, szSteamID, 32);
-			SQL_FetchString(hndl, 1, szName, 64);
-			time = SQL_FetchFloat(hndl, 2);
-			SQL_FetchString(hndl, 4, szMap, 128);
-
-			if (i == 1 || (i > 1 && StrEqual(szFirstMap, szMap)))
+			int i = 1;
+			while (SQL_FetchRow(hndl))
 			{
-				int stringArraySize = GetArraySize(stringArray);
-				for (int x = 0; x < stringArraySize; x++)
+				bduplicat = false;
+				SQL_FetchString(hndl, 0, szSteamID, 32);
+				SQL_FetchString(hndl, 1, szName, 64);
+				time = SQL_FetchFloat(hndl, 2);
+				SQL_FetchString(hndl, 4, szMap, 128);
+
+				if (i == 1 || (i > 1 && StrEqual(szFirstMap, szMap)))
 				{
-					GetArrayString(stringArray, x, lineBuf, sizeof(lineBuf));
-					if (StrEqual(lineBuf, szName, false))
-						bduplicat = true;
-				}
-				if (!bduplicat && i < 51)
-				{
-					char szTime[32];
-					FormatTimeFloat(client, time, 3, szTime, sizeof(szTime));
+					int stringArraySize = GetArraySize(stringArray);
+					for (int x = 0; x < stringArraySize; x++)
+					{
+						GetArrayString(stringArray, x, lineBuf, sizeof(lineBuf));
+						if (StrEqual(lineBuf, szName, false))
+							bduplicat = true;
+					}
+					if (!bduplicat && i < 51)
+					{
+						char szTime[32];
+						FormatTimeFloat(client, time, 3, szTime, sizeof(szTime));
 
-					if (time < 3600.0)
-						Format(szTime, 32, "   %s", szTime);
-					if (i == 100)
-						Format(szValue, 128, "[%i.] %s |    » %s", i, szTime, szName);
-					if (i >= 10)
-						Format(szValue, 128, "[%i.] %s |    » %s", i, szTime, szName);
-					else
-						Format(szValue, 128, "[0%i.] %s |    » %s", i, szTime, szName);
+						if (time < 3600.0)
+							Format(szTime, 32, "   %s", szTime);
+						if (i == 100)
+							Format(szValue, 128, "[%i.] %s |    » %s", i, szTime, szName);
+						if (i >= 10)
+							Format(szValue, 128, "[%i.] %s |    » %s", i, szTime, szName);
+						else
+							Format(szValue, 128, "[0%i.] %s |    » %s", i, szTime, szName);
 
-					AddMenuItem(menu, szSteamID, szValue, ITEMDRAW_DEFAULT);
-					PushArrayString(stringArray, szName);
+						AddMenuItem(menu, szSteamID, szValue, ITEMDRAW_DEFAULT);
+						PushArrayString(stringArray, szName);
 
-					if (i == 1)
-						Format(szFirstMap, 128, "%s", szMap);
-					i++;
+						if (i == 1)
+							Format(szFirstMap, 128, "%s", szMap);
+						i++;
+					}
 				}
 			}
+			if (i == 1)
+			{
+				CPrintToChat(client, "%t", "NoTopRecords", g_szChatPrefix, szMap);
+			}
 		}
-		if (i == 1)
-		{
+		else
 			CPrintToChat(client, "%t", "NoTopRecords", g_szChatPrefix, szMap);
+
+		switch (style)
+		{
+			case 1: Format(title, sizeof(title), "Top 50 SW Times on %s \n    Rank    Time               Player", szFirstMap);
+			case 2: Format(title, sizeof(title), "Top 50 HSW Times on %s \n    Rank    Time               Player", szFirstMap);
+			case 3: Format(title, sizeof(title), "Top 50 BW Times on %s \n    Rank    Time               Player", szFirstMap);
+			case 4: Format(title, sizeof(title), "Top 50 Low-Gravity Times on %s \n    Rank    Time               Player", szFirstMap);
+			case 5: Format(title, sizeof(title), "Top 50 Slow Motion Times on %s \n    Rank    Time               Player", szFirstMap);
+			case 6: Format(title, sizeof(title), "Top 50 Fast Forward Times on %s \n    Rank    Time               Player", szFirstMap);
+			default: Format(title, sizeof(title), "Top 50 Times on %s \n    Rank    Time               Player", szFirstMap);
 		}
-	}
-	else
-		CPrintToChat(client, "%t", "NoTopRecords", g_szChatPrefix, szMap);
 
-	switch (style)
-	{
-		case 1: Format(title, sizeof(title), "Top 50 SW Times on %s \n    Rank    Time               Player", szFirstMap);
-		case 2: Format(title, sizeof(title), "Top 50 HSW Times on %s \n    Rank    Time               Player", szFirstMap);
-		case 3: Format(title, sizeof(title), "Top 50 BW Times on %s \n    Rank    Time               Player", szFirstMap);
-		case 4: Format(title, sizeof(title), "Top 50 Low-Gravity Times on %s \n    Rank    Time               Player", szFirstMap);
-		case 5: Format(title, sizeof(title), "Top 50 Slow Motion Times on %s \n    Rank    Time               Player", szFirstMap);
-		case 6: Format(title, sizeof(title), "Top 50 Fast Forward Times on %s \n    Rank    Time               Player", szFirstMap);
-		default: Format(title, sizeof(title), "Top 50 Times on %s \n    Rank    Time               Player", szFirstMap);
+		delete stringArray;
+		SetMenuTitle(menu, title);
+		SetMenuOptionFlags(menu, MENUFLAG_BUTTON_EXIT);
+		DisplayMenu(menu, client, MENU_TIME_FOREVER);
 	}
-
-	delete stringArray;
-	SetMenuTitle(menu, title);
-	SetMenuOptionFlags(menu, MENUFLAG_BUTTON_EXIT);
-	DisplayMenu(menu, client, MENU_TIME_FOREVER);
 }
 
 
@@ -1728,67 +1731,70 @@ public void sql_selectTopBonusSurfersCallback(Handle owner, Handle hndl, const c
 	int zGrp = ReadPackCell(data);
 	delete data;
 
-	char szFirstMap[128], szValue[128], szName[64], szSteamID[32], lineBuf[256], title[256];
-	float time;
-	bool bduplicat = false;
-	Handle stringArray = CreateArray(100);
-	Menu topMenu;
-
-	topMenu = new Menu(MapMenuHandler1);
-
-	topMenu.Pagination = 5;
-
-	if (SQL_HasResultSet(hndl))
+	if (IsValidClient(client))
 	{
-		int i = 1;
-		while (SQL_FetchRow(hndl))
+		char szFirstMap[128], szValue[128], szName[64], szSteamID[32], lineBuf[256], title[256];
+		float time;
+		bool bduplicat = false;
+		Handle stringArray = CreateArray(100);
+		Menu topMenu;
+
+		topMenu = new Menu(MapMenuHandler1);
+
+		topMenu.Pagination = 5;
+
+		if (SQL_HasResultSet(hndl))
 		{
-			bduplicat = false;
-			SQL_FetchString(hndl, 0, szSteamID, sizeof(szSteamID));
-			SQL_FetchString(hndl, 1, szName, sizeof(szName));
-			time = SQL_FetchFloat(hndl, 2);
-			SQL_FetchString(hndl, 4, szMap, sizeof(szMap));
-			if (i == 1 || (i > 1 && StrEqual(szFirstMap, szMap)))
+			int i = 1;
+			while (SQL_FetchRow(hndl))
 			{
-				int stringArraySize = GetArraySize(stringArray);
-				for (int x = 0; x < stringArraySize; x++)
+				bduplicat = false;
+				SQL_FetchString(hndl, 0, szSteamID, sizeof(szSteamID));
+				SQL_FetchString(hndl, 1, szName, sizeof(szName));
+				time = SQL_FetchFloat(hndl, 2);
+				SQL_FetchString(hndl, 4, szMap, sizeof(szMap));
+				if (i == 1 || (i > 1 && StrEqual(szFirstMap, szMap)))
 				{
-					GetArrayString(stringArray, x, lineBuf, sizeof(lineBuf));
-					if (StrEqual(lineBuf, szName, false))
-					bduplicat = true;
-				}
-				if (!bduplicat && i < 51)
-				{
-					char szTime[32];
-					FormatTimeFloat(client, time, 3, szTime, sizeof(szTime));
-					if (time < 3600.0)
-					Format(szTime, sizeof(szTime), "   %s", szTime);
-					if (i == 100)
-					Format(szValue, sizeof(szValue), "[%i.] %s |    » %s", i, szTime, szName);
-					if (i >= 10)
-					Format(szValue, sizeof(szValue), "[%i.] %s |    » %s", i, szTime, szName);
-					else
-					Format(szValue, sizeof(szValue), "[0%i.] %s |    » %s", i, szTime, szName);
-					topMenu.AddItem(szSteamID, szValue, ITEMDRAW_DEFAULT);
-					PushArrayString(stringArray, szName);
-					if (i == 1)
-					Format(szFirstMap, sizeof(szFirstMap), "%s", szMap);
-					i++;
+					int stringArraySize = GetArraySize(stringArray);
+					for (int x = 0; x < stringArraySize; x++)
+					{
+						GetArrayString(stringArray, x, lineBuf, sizeof(lineBuf));
+						if (StrEqual(lineBuf, szName, false))
+						bduplicat = true;
+					}
+					if (!bduplicat && i < 51)
+					{
+						char szTime[32];
+						FormatTimeFloat(client, time, 3, szTime, sizeof(szTime));
+						if (time < 3600.0)
+						Format(szTime, sizeof(szTime), "   %s", szTime);
+						if (i == 100)
+						Format(szValue, sizeof(szValue), "[%i.] %s |    » %s", i, szTime, szName);
+						if (i >= 10)
+						Format(szValue, sizeof(szValue), "[%i.] %s |    » %s", i, szTime, szName);
+						else
+						Format(szValue, sizeof(szValue), "[0%i.] %s |    » %s", i, szTime, szName);
+						topMenu.AddItem(szSteamID, szValue, ITEMDRAW_DEFAULT);
+						PushArrayString(stringArray, szName);
+						if (i == 1)
+						Format(szFirstMap, sizeof(szFirstMap), "%s", szMap);
+						i++;
+					}
 				}
 			}
+			if (i == 1)
+			{
+				CPrintToChat(client, "%t", "NoTopRecords", g_szChatPrefix, szMap);
+			}
 		}
-		if (i == 1)
-		{
-			CPrintToChat(client, "%t", "NoTopRecords", g_szChatPrefix, szMap);
-		}
+		else
+		CPrintToChat(client, "%t", "NoTopRecords", g_szChatPrefix, szMap);
+		Format(title, sizeof(title), "Top 50 Times on %s (B %i) \n    Rank    Time               Player", szFirstMap, zGrp);
+		topMenu.SetTitle(title);
+		topMenu.OptionFlags = MENUFLAG_BUTTON_EXIT;
+		topMenu.Display(client, MENU_TIME_FOREVER);
+		delete stringArray;
 	}
-	else
-	CPrintToChat(client, "%t", "NoTopRecords", g_szChatPrefix, szMap);
-	Format(title, sizeof(title), "Top 50 Times on %s (B %i) \n    Rank    Time               Player", szFirstMap, zGrp);
-	topMenu.SetTitle(title);
-	topMenu.OptionFlags = MENUFLAG_BUTTON_EXIT;
-	topMenu.Display(client, MENU_TIME_FOREVER);
-	delete stringArray;
 }
 
 public void db_currentRunRank(int client)
@@ -1832,11 +1838,14 @@ public void db_selectRecord(int client)
 
 public void sql_selectRecordCallback(Handle owner, Handle hndl, const char[] error, int client)
 {
-	if (hndl == null) {
+	if (hndl == null)
+	{
 		LogError("[Surftimer] SQL Error (sql_selectRecordCallback): %s", error);
 		return;
 	}
-	if (!IsValidClient(client)) {
+
+	if (!IsValidClient(client))
+	{
 		return;
 	}
 
@@ -1845,7 +1854,8 @@ public void sql_selectRecordCallback(Handle owner, Handle hndl, const char[] err
 	WritePackFloat(pack, g_fFinalTime[client]);
 	WritePackCell(pack, client);
 
-	if (SQL_HasResultSet(hndl) && SQL_FetchRow(hndl)) {
+	if (SQL_HasResultSet(hndl) && SQL_FetchRow(hndl))
+	{
 		// Found old time from database
 		float time = SQL_FetchFloat(hndl, 0);
 
@@ -1866,7 +1876,9 @@ public void sql_selectRecordCallback(Handle owner, Handle hndl, const char[] err
 			Format(szQuery, sizeof(szQuery), "UPDATE ck_playertimes SET name = '%s', runtimepro = '%f', startspeed = '%i' WHERE steamid = '%s' AND mapname = '%s' AND style = %i", szName, g_fFinalTime[client], g_iStartSpeed[client], g_szSteamID[client], g_szMapName, 0);
 			g_hDb.Query(SQL_UpdateRecordProCallback, szQuery, pack);
 		}
-	} else {
+	} 
+	else
+	{
 		// No record found from database - Let's insert
 
 		// Escape name for SQL injection protection
@@ -1881,13 +1893,16 @@ public void sql_selectRecordCallback(Handle owner, Handle hndl, const char[] err
 		g_bInsertNewTime = true;
 	}
 }
-public void SQL_UpdateRecordProCallback(Handle owner, Handle hndl, const char[] error, DataPack data) {
+
+public void SQL_UpdateRecordProCallback(Handle owner, Handle hndl, const char[] error, DataPack data)
+{
 	ResetPack(data);
 	float time = ReadPackFloat(data);
 	int client = ReadPackCell(data);
 	delete data;
 
-	if (hndl == null) {
+	if (hndl == null)
+	{
 		LogError("[Surftimer] SQL Error (SQL_UpdateRecordProCallback): %s", error);
 		return;
 	}
@@ -1897,29 +1912,36 @@ public void SQL_UpdateRecordProCallback(Handle owner, Handle hndl, const char[] 
 	Format(szQuery, sizeof(szQuery), "SELECT count(runtimepro) FROM `ck_playertimes` WHERE `mapname` = '%s' AND `runtimepro` < %f AND style = 0;", g_szMapName, time);
 	g_hDb.Query(SQL_UpdateRecordProCallback2, szQuery, client);
 }
-public void SQL_UpdateRecordProCallback2(Handle owner, Handle hndl, const char[] error, int client) {
-	if (hndl == null) {
+
+public void SQL_UpdateRecordProCallback2(Handle owner, Handle hndl, const char[] error, int client)
+{
+	if (hndl == null)
+	{
 		LogError("[Surftimer] SQL Error (SQL_UpdateRecordProCallback2): %s", error);
 		return;
 	}
-	// Get players rank, 9999999 = error
-	int rank = 9999999;
-	if (SQL_HasResultSet(hndl) && SQL_FetchRow(hndl))
-	{
-		rank = (SQL_FetchInt(hndl, 0)+1);
-	}
-	g_MapRank[client] = rank;
-	if (rank <= 10 && rank > 1)
-		g_bTop10Time[client] = true;
-	else
-		g_bTop10Time[client] = false;
 
-	MapFinishedMsgs(client);
-
-	if (g_bInsertNewTime)
+	if (IsValidClient(client))
 	{
-		db_selectCurrentMapImprovement();
-		g_bInsertNewTime = false;
+		// Get players rank, 9999999 = error
+		int rank = 9999999;
+		if (SQL_HasResultSet(hndl) && SQL_FetchRow(hndl))
+		{
+			rank = (SQL_FetchInt(hndl, 0)+1);
+		}
+		g_MapRank[client] = rank;
+		if (rank <= 10 && rank > 1)
+			g_bTop10Time[client] = true;
+		else
+			g_bTop10Time[client] = false;
+
+		MapFinishedMsgs(client);
+
+		if (g_bInsertNewTime)
+		{
+			db_selectCurrentMapImprovement();
+			g_bInsertNewTime = false;
+		}
 	}
 }
 
@@ -1985,15 +2007,22 @@ public void SQL_ViewAllRecordsCallback(Handle owner, Handle hndl, const char[] e
 	int top = ReadPackCell(pack);
 	delete pack;
 
-	if (hndl == null) { LogError("[Surftimer] SQL Error (SQL_ViewAllRecordsCallback): %s", error); return; }
-	if (!SQL_HasResultSet(hndl)) return;
+	if (hndl == null) 
+	{ 
+		LogError("[Surftimer] SQL Error (SQL_ViewAllRecordsCallback): %s", error); 
+		return; 
+	}
+
+	if (!SQL_HasResultSet(hndl)) 
+		return;
 
 	char szTitle[64];
-	if (finishedOnly) {
+
+	if (finishedOnly)
 		szTitle = "Finished Maps";
-	} else {
+	else 
 		szTitle = "Unfinished Maps";
-	}
+
 	if (top > 0) {
 		Format(szTitle, sizeof(szTitle), "%s (Ranked in top %i only)", szTitle, top);
 	}
@@ -2006,7 +2035,8 @@ public void SQL_ViewAllRecordsCallback(Handle owner, Handle hndl, const char[] e
 	PushArrayString(msgs, " ");
 
 	int totalMaps = 0;
-	while (SQL_FetchRow(hndl)) {
+	while (SQL_FetchRow(hndl))
+	{
 		totalMaps++;
 		int i = 0;
 		char szMapName[128];
@@ -2020,21 +2050,26 @@ public void SQL_ViewAllRecordsCallback(Handle owner, Handle hndl, const char[] e
 		int count = SQL_FetchInt(hndl, i++);
 
 		char szTime[32], szRank[32];
-		if (finished) {
+		if (finished)
+		{
 			Format(szRank, sizeof(szRank), "%i", rank);
 			FormatTimeFloat(client, time, 3, szTime, sizeof(szTime));
-		} else {
+		} 
+		else
+		{
 			szRank = "-";
 			szTime = "-";
 		}
 
 		char szRanked[32] = "";
-		if (!ranked || tier == 0) {
+		if (!ranked || tier == 0)
+		{
 			szRanked = " (Unranked)";
 		}
 
 		char szBonus[32] = "";
-		if (izoneGroup > 0) {
+		if (izoneGroup > 0)
+		{
 			Format(szBonus, sizeof(szBonus), " (Bonus %i)", izoneGroup);
 		}
 
@@ -2044,14 +2079,17 @@ public void SQL_ViewAllRecordsCallback(Handle owner, Handle hndl, const char[] e
 		PushArrayString(msgs, szValue);
 	}
 
-	if (totalMaps > 0) {
+	if (totalMaps > 0)
+	{
 		CPrintToChat(client, "%t", "ConsoleOutput", g_szChatPrefix);
 		DataPack out = CreateDataPack();
 		WritePackCell(out, client);
 		WritePackCell(out, 0);
 		WritePackCell(out, msgs);
 		ThrottledConsolePrint(out);
-	} else {
+	}
+	else
+	{
 		delete msgs;
 	}
 }
@@ -2086,7 +2124,10 @@ public void db_insertPlayer(int client)
 		GetClientName(client, szUName, MAX_NAME_LENGTH);
 	}
 	else
-	return;
+	{
+		return;
+	}
+
 	char szName[MAX_NAME_LENGTH * 2 + 1];
 	SQL_EscapeString(g_hDb, szUName, szName, MAX_NAME_LENGTH * 2 + 1);
 	Format(szQuery, sizeof(szQuery), sql_insertPlayer, g_szSteamID[client], g_szMapName, szName);
@@ -2110,7 +2151,7 @@ public void db_selectLastRun(int client)
 {
 	char szQuery[512];
 	if (!IsValidClient(client))
-	return;
+		return;
 	Format(szQuery, 512, sql_selectPlayerTmp, g_szSteamID[client], g_szMapName);
 	g_hDb.Query(SQL_LastRunCallback, szQuery, client);
 }
@@ -2265,13 +2306,17 @@ public void db_viewBonusRunRank(Handle owner, Handle hndl, const char[] error, D
 	int client = ReadPackCell(pack);
 	int zGroup = ReadPackCell(pack);
 	delete pack;
-	int rank;
-	if (SQL_HasResultSet(hndl) && SQL_FetchRow(hndl))
-	{
-		rank = SQL_FetchInt(hndl, 0);
-	}
 
-	PrintChatBonus(client, zGroup, rank);
+	if (IsValidClient(client))
+	{
+		int rank;
+		if (SQL_HasResultSet(hndl) && SQL_FetchRow(hndl))
+		{
+			rank = SQL_FetchInt(hndl, 0);
+		}
+
+		PrintChatBonus(client, zGroup, rank);
+	}
 }
 
 public void db_deleteBonus()
@@ -2365,18 +2410,21 @@ public void sql_setZoneNamesCallback(Handle owner, Handle hndl, const char[] err
 	ReadPackString(data, szName, 64);
 	delete data;
 
-	for (int i = 0; i < g_mapZonesCount; i++)
-	{
-		if (g_mapZones[i].zoneGroup == zonegrp)
-		Format(g_mapZones[i].zoneName, 64, szName);
-	}
-
 	if (IsValidClient(client))
 	{
-		CPrintToChat(client, "%t", "SQL4", g_szChatPrefix);
-		ListBonusSettings(client);
+		for (int i = 0; i < g_mapZonesCount; i++)
+		{
+			if (g_mapZones[i].zoneGroup == zonegrp)
+			Format(g_mapZones[i].zoneName, 64, szName);
+		}
+
+		if (IsValidClient(client))
+		{
+			CPrintToChat(client, "%t", "SQL4", g_szChatPrefix);
+			ListBonusSettings(client);
+		}
+		db_selectMapZones();
 	}
-	db_selectMapZones();
 }
 
 public void db_checkAndFixZoneIds()
@@ -3785,68 +3833,71 @@ public void sql_selectStageTopSurfersCallback(Handle owner, Handle hndl, const c
 	ReadPackString(pack, mapname, 128);
 	delete pack;
 
-	char szSteamID[32];
-	char szName[64];
-	float time;
-	char szMap[128];
-	char szValue[128];
-	char lineBuf[256];
-	Handle stringArray = CreateArray(100);
-	Handle menu;
-	menu = CreateMenu(StageTopMenuHandler);
-	SetMenuPagination(menu, 5);
-	bool bduplicat = false;
-	char title[256];
-	if (SQL_HasResultSet(hndl))
+	if (IsValidClient(client))
 	{
-		int i = 1;
-		while (SQL_FetchRow(hndl))
+		char szSteamID[32];
+		char szName[64];
+		float time;
+		char szMap[128];
+		char szValue[128];
+		char lineBuf[256];
+		Handle stringArray = CreateArray(100);
+		Handle menu;
+		menu = CreateMenu(StageTopMenuHandler);
+		SetMenuPagination(menu, 5);
+		bool bduplicat = false;
+		char title[256];
+		if (SQL_HasResultSet(hndl))
 		{
-			bduplicat = false;
-			SQL_FetchString(hndl, 0, szSteamID, 32);
-			SQL_FetchString(hndl, 1, szName, 64);
-			time = SQL_FetchFloat(hndl, 2);
-			SQL_FetchString(hndl, 4, szMap, 128);
-			if (i == 1 || (i > 1))
+			int i = 1;
+			while (SQL_FetchRow(hndl))
 			{
-				int stringArraySize = GetArraySize(stringArray);
-				for (int x = 0; x < stringArraySize; x++)
+				bduplicat = false;
+				SQL_FetchString(hndl, 0, szSteamID, 32);
+				SQL_FetchString(hndl, 1, szName, 64);
+				time = SQL_FetchFloat(hndl, 2);
+				SQL_FetchString(hndl, 4, szMap, 128);
+				if (i == 1 || (i > 1))
 				{
-					GetArrayString(stringArray, x, lineBuf, sizeof(lineBuf));
-					if (StrEqual(lineBuf, szName, false))
-						bduplicat = true;
-				}
-				if (!bduplicat && i < 51)
-				{
-					char szTime[32];
-					FormatTimeFloat(client, time, 3, szTime, sizeof(szTime));
-					if (time < 3600.0)
-						Format(szTime, 32, "   %s", szTime);
-					if (i == 100)
-						Format(szValue, 128, "[%i.] %s |    » %s", i, szTime, szName);
-					if (i >= 10)
-						Format(szValue, 128, "[%i.] %s |    » %s", i, szTime, szName);
-					else
-						Format(szValue, 128, "[0%i.] %s |    » %s", i, szTime, szName);
-					AddMenuItem(menu, szSteamID, szValue, ITEMDRAW_DEFAULT);
-					PushArrayString(stringArray, szName);
-					i++;
+					int stringArraySize = GetArraySize(stringArray);
+					for (int x = 0; x < stringArraySize; x++)
+					{
+						GetArrayString(stringArray, x, lineBuf, sizeof(lineBuf));
+						if (StrEqual(lineBuf, szName, false))
+							bduplicat = true;
+					}
+					if (!bduplicat && i < 51)
+					{
+						char szTime[32];
+						FormatTimeFloat(client, time, 3, szTime, sizeof(szTime));
+						if (time < 3600.0)
+							Format(szTime, 32, "   %s", szTime);
+						if (i == 100)
+							Format(szValue, 128, "[%i.] %s |    » %s", i, szTime, szName);
+						if (i >= 10)
+							Format(szValue, 128, "[%i.] %s |    » %s", i, szTime, szName);
+						else
+							Format(szValue, 128, "[0%i.] %s |    » %s", i, szTime, szName);
+						AddMenuItem(menu, szSteamID, szValue, ITEMDRAW_DEFAULT);
+						PushArrayString(stringArray, szName);
+						i++;
+					}
 				}
 			}
+			if (i == 1)
+			{
+				CPrintToChat(client, "%t", "SQL26", g_szChatPrefix, stage, mapname);
+			}
 		}
-		if (i == 1)
-		{
-			CPrintToChat(client, "%t", "SQL26", g_szChatPrefix, stage, mapname);
-		}
-	}
-	else
-	CPrintToChat(client, "%t", "SQL26", g_szChatPrefix, stage, mapname);
+		else
+		CPrintToChat(client, "%t", "SQL26", g_szChatPrefix, stage, mapname);
 
-	Format(title, 256, "[Top 50 | Stage %i | %s] \n    Rank    Time               Player", stage, szMap);
-	SetMenuTitle(menu, title);
-	SetMenuOptionFlags(menu, MENUFLAG_BUTTON_EXIT);
-	DisplayMenu(menu, client, MENU_TIME_FOREVER);
-	delete stringArray;
+		Format(title, 256, "[Top 50 | Stage %i | %s] \n    Rank    Time               Player", stage, szMap);
+		SetMenuTitle(menu, title);
+		SetMenuOptionFlags(menu, MENUFLAG_BUTTON_EXIT);
+		DisplayMenu(menu, client, MENU_TIME_FOREVER);
+		delete stringArray;
+	}
 }
 
 public int StageTopMenuHandler(Menu menu, MenuAction action, int client, int item)
