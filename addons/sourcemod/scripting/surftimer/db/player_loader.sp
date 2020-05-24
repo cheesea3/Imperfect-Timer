@@ -5,27 +5,38 @@ static int g_playerLoadStep[MAXPLAYERS + 1];
 static int g_playerLoadUid[MAXPLAYERS + 1];
 static int g_playerNextUid = 0;
 
-void LoadPlayerStart(int client) {
+void LoadPlayerStart(int client)
+{
 	g_playerNextUid++;
 	g_playerLoadUid[client] = g_playerNextUid;
 	g_playerLoadState[client] = PLS_PENDING;
 	LoadPlayerNext();
 }
-void LoadPlayerNext() {
-	if (!IsMapLoaded()) {
+
+void LoadPlayerNext()
+{
+	if (!IsMapLoaded())
+	{
 		// map not loaded yet
 		return;
 	}
+
 	int found = 0;
-	for (int client = 1; client <= MaxClients; client++) {
-		if (g_playerLoadState[client] == PLS_LOADING) {
+	for (int client = 1; client <= MaxClients; client++)
+	{
+		if (g_playerLoadState[client] == PLS_LOADING)
+		{
 			// some other player already loading
 			return;
-		} else if (g_playerLoadState[client] == PLS_PENDING && found == 0) {
+		}
+		else if (g_playerLoadState[client] == PLS_PENDING && found == 0)
+		{
 			found = client;
 		}
 	}
-	if (found > 0) {
+
+	if (found > 0)
+	{
 		int client = found;
 		g_playerLoadState[client] = PLS_LOADING;
 		g_playerLoadStep[client] = 0;
@@ -39,11 +50,13 @@ void LoadPlayerNext() {
 		LoadPlayerStep(client);
 	}
 }
-void LoadPlayerStop(int client) {
+void LoadPlayerStop(int client)
+{
 	g_playerLoadUid[client] = 0;
 	g_playerLoadState[client] = PLS_UNLOADED;
 	LoadPlayerNext();
 }
+
 void LoadPlayerContinue(DataPack cb, bool error) {
 	int client = cb.ReadCell();
 	int completedPlayerUid = cb.ReadCell();
@@ -75,17 +88,22 @@ void LoadPlayerContinue(DataPack cb, bool error) {
 void LoadPlayerStep(int client) {
 	CreateTimer(0.0, LoadPlayerStep2, client, TIMER_FLAG_NO_MAPCHANGE);
 }
-Action LoadPlayerStep2(Handle timer, int client) {
+Action LoadPlayerStep2(Handle timer, int client)
+{
 	Function step = INVALID_FUNCTION;
-	switch(g_playerLoadStep[client]) {
+
+	switch (g_playerLoadStep[client])
+	{
 		case 0: { step = db_refreshPlayerMapRecords; }
 		case 1: { step = db_refreshPlayerPoints; }
 		case 2: { step = db_GetPlayerRank; }
 		case 3: { step = db_viewPlayerOptions; }
 		case 4: { step = db_refreshCustomTitles; }
 		case 5: { step = db_refreshCheckpoints; }
-	}
-	if (step != INVALID_FUNCTION) {
+	} 
+
+	if (step != INVALID_FUNCTION)
+	{
 		g_playerLoadTick[client] = GetGameTime();
 		DataPack cb = CreateDataPack();
 		cb.WriteFunction(LoadPlayerContinue);
@@ -96,11 +114,15 @@ Action LoadPlayerStep2(Handle timer, int client) {
 		Call_PushCell(client);
 		Call_PushCell(cb);
 		Call_Finish();
-	} else if (g_playerLoadState[client] == PLS_LOADING) {
+	} 
+	else if (g_playerLoadState[client] == PLS_LOADING)
+	{
 		LoadPlayerFinished(client);
 	}
 }
-void LoadPlayerFinished(int client) {
+
+void LoadPlayerFinished(int client)
+{
 #if defined DEBUG_LOGGING
 	char szName[MAX_NAME_LENGTH];
 	GetClientName(client, szName, MAX_NAME_LENGTH);
@@ -111,15 +133,17 @@ void LoadPlayerFinished(int client) {
 	g_playerLoadState[client] = PLS_LOADED;
 	db_UpdateLastSeen(client);
 
-	if (g_hTeleToStartWhenSettingsLoaded.BoolValue && IsPlayerAlive(client)) {
+	if (g_hTeleToStartWhenSettingsLoaded.BoolValue) {
 		Command_Restart(client, 1);
 		CreateTimer(0.1, RestartPlayer, client);
 	}
 
 	LoadPlayerNext();
 }
+
 typedef SQLTPlayerCallback = function void (Handle hndl, const char[] error, int client, any data);
-void SQL_PlayerQuery(const char[] query, SQLTPlayerCallback callback, int client, any data=0) {
+void SQL_PlayerQuery(const char[] query, SQLTPlayerCallback callback, int client, any data=0)
+{
 	DataPack newData = CreateDataPack();
 	newData.WriteFunction(callback);
 	newData.WriteCell(client);
@@ -156,16 +180,21 @@ void SQL_PlayerQuery(const char[] query, SQLTPlayerCallback callback, int client
 
 	g_hDb.Query(SQL_PlayerQueryCb, query2, newData);
 }
-void SQL_PlayerQueryCb(Handle owner, Handle hndl, const char[] error, DataPack newData) {
+
+void SQL_PlayerQueryCb(Handle owner, Handle hndl, const char[] error, DataPack newData)
+{
 	newData.Reset();
 	Function callback = newData.ReadFunction();
 	int client = newData.ReadCell();
 	int olduid = newData.ReadCell();
 	any data = newData.ReadCell();
 	delete newData;
-	if (olduid != g_playerLoadUid[client]) {
+
+	if (olduid != g_playerLoadUid[client])
+	{
 		return;
 	}
+
 	Call_StartFunction(null, callback);
 	Call_PushCell(hndl);
 	Call_PushString(error);
@@ -174,15 +203,22 @@ void SQL_PlayerQueryCb(Handle owner, Handle hndl, const char[] error, DataPack n
 	Call_Finish();
 }
 
-PlayerLoadState GetPlayerLoadState(int client) {
+PlayerLoadState GetPlayerLoadState(int client)
+{
 	return g_playerLoadState[client];
 }
-int GetPlayerLoadStep(int client) {
+
+int GetPlayerLoadStep(int client)
+{
 	return g_playerLoadStep[client];
 }
-int GetPlayerLoadStepMax() {
+
+int GetPlayerLoadStepMax()
+{
 	return MAX_LOAD_STEPS;
 }
-bool IsPlayerLoaded(int client) {
+
+bool IsPlayerLoaded(int client)
+{
 	return g_playerLoadState[client] == PLS_LOADED;
 }

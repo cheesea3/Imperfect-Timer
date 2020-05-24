@@ -225,7 +225,7 @@ enum struct MapZone
 		this.zoneGroup = 0;
 		this.targetName = "";
 		this.oneJumpLimit = 1;
-		this.preSpeed = 350.0;
+		this.preSpeed = 250.0;
 	}
 }
 
