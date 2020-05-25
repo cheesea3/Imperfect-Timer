@@ -782,7 +782,8 @@ void db_selectSpawnLocations(any cb=0)
 
 void db_selectSpawnLocationsCallback(Handle owner, Handle hndl, const char[] error, any cb)
 {
-	if (hndl == null) {
+	if (hndl == null)
+	{
 		LogError("[Surftimer] SQL Error (db_selectSpawnLocationsCallback): %s ", error);
 		RunCallback(cb, true);
 		return;
@@ -880,9 +881,9 @@ void SQL_db_GetDynamicTimelimitCallback(Handle owner, Handle hndl, const char[] 
 
 			avg = avg * scale_factor;
 
-			// timelimit: min 30min, max 120min
-			if (avg < 30)
-				avg = 30;
+			// timelimit: min 20min, max 120min
+			if (avg < 20)
+				avg = 20;
 			if (avg > 60)
 				avg = 60;
 
