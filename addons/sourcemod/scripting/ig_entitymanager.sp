@@ -83,8 +83,7 @@ public void OnPluginStart()
 
 public void OnPluginStop()
 {
-	if (g_hDeletedEnts != null)
-		delete g_hDeletedEnts;
+	delete g_hDeletedEnts;
 }
 
 public void OnMapStart()
@@ -105,9 +104,7 @@ public void OnMapStart()
 
 public void OnMapEnd()
 {
-	if (g_hDeletedEnts != null)
-		delete g_hDeletedEnts;
-
+	delete g_hDeletedEnts;
 	Format(g_szMapName, sizeof(g_szMapName), "");
 }
 

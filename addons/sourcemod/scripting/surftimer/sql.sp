@@ -1956,10 +1956,12 @@ public void SQL_UpdateRecordProCallback2(Handle owner, Handle hndl, const char[]
 	{
 		// Get players rank, 9999999 = error
 		int rank = 9999999;
+
 		if (SQL_HasResultSet(hndl) && SQL_FetchRow(hndl))
 		{
 			rank = (SQL_FetchInt(hndl, 0)+1);
 		}
+
 		g_MapRank[client] = rank;
 		if (rank <= 10 && rank > 1)
 			g_bTop10Time[client] = true;
@@ -3435,8 +3437,8 @@ public void sql_selectWrcpRecordCallback(Handle owner, Handle hndl, const char[]
 	if (!IsValidClient(data) || IsFakeClient(data))
 		return;
 
-	char szName[32];
-	GetClientName(data, szName, 32);
+	char szName[MAX_NAME_LENGTH];
+	GetClientName(data, szName, MAX_NAME_LENGTH);
 
 	char szQuery[512];
 
@@ -3512,9 +3514,8 @@ public void sql_selectWrcpRecordCallback(Handle owner, Handle hndl, const char[]
 	{ // No record found from database - Let's insert
 
 		// Escape name for SQL injection protection
-		char szName2[MAX_NAME_LENGTH * 2 + 1], szUName[MAX_NAME_LENGTH];
-		GetClientName(data, szUName, MAX_NAME_LENGTH);
-		SQL_EscapeString(g_hDb, szUName, szName2, MAX_NAME_LENGTH);
+		char szName2[MAX_NAME_LENGTH * 2 + 1];
+		SQL_EscapeString(g_hDb, szName, szName2, MAX_NAME_LENGTH);
 
 		// Move required information in datapack
 		DataPack pack = CreateDataPack();

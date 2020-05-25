@@ -57,7 +57,7 @@ void db_refreshPlayerMapRecordsCb(Handle hndl, const char[] error, int client, a
 	}
 
 	g_fPersonalRecord[client] = 0.0;
-	Client_SetScore(client, 0);
+	Client_SetScore(client, 99999);
 	Format(g_szPersonalRecord[client], 64, "NONE");
 	g_MapRank[client] = 9999999;
 	g_iPBMapStartSpeed[0][client] = -1; // @IG start speeds - set normal start speed

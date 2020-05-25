@@ -1647,17 +1647,17 @@ stock void MapFinishedMsgs(int client, int rankThisRun = 0)
 		int rank = g_MapRank[client];
 		char szGroup[128];
 		if (rank >= 11 && rank <= g_G1Top)
-			Format(szGroup, 128, "[%cGroup 1%c]", DARKRED, WHITE);
+			Format(szGroup, sizeof(szGroup), "[%cGroup 1%c]", DARKRED, WHITE);
 		else if (rank >= g_G2Bot && rank <= g_G2Top)
-			Format(szGroup, 128, "[%cGroup 2%c]", GREEN, WHITE);
+			Format(szGroup, sizeof(szGroup), "[%cGroup 2%c]", GREEN, WHITE);
 		else if (rank >= g_G3Bot && rank <= g_G3Top)
-			Format(szGroup, 128, "[%cGroup 3%c]", BLUE, WHITE);
+			Format(szGroup, sizeof(szGroup), "[%cGroup 3%c]", BLUE, WHITE);
 		else if (rank >= g_G4Bot && rank <= g_G4Top)
-			Format(szGroup, 128, "[%cGroup 4%c]", YELLOW, WHITE);
+			Format(szGroup, sizeof(szGroup), "[%cGroup 4%c]", YELLOW, WHITE);
 		else if (rank >= g_G5Bot && rank <= g_G5Top)
-			Format(szGroup, 128, "[%cGroup 5%c]", GRAY, WHITE);
+			Format(szGroup, sizeof(szGroup), "[%cGroup 5%c]", GRAY, WHITE);
 		else
-			Format(szGroup, 128, "");
+			Format(szGroup, sizeof(szGroup), "");
 
 		// Check that ck_chat_record_type matches and ck_min_rank_announce matches
 		if ((g_hAnnounceRecord.IntValue == 0 ||
@@ -1733,7 +1733,7 @@ stock void MapFinishedMsgs(int client, int rankThisRun = 0)
 			if (g_hRecordAnnounce.BoolValue)
 				db_insertAnnouncement(szName, g_szMapName, g_szFinalTime[client]);
 			char buffer[1024];
-			g_hRecordAnnounceDiscord.GetString(buffer, 1024);
+			g_hRecordAnnounceDiscord.GetString(buffer, sizeof(buffer));
 			if (!StrEqual(buffer, ""))
 				sendDiscordAnnouncement(szName, g_szMapName, g_szFinalTime[client]);
 		}
@@ -1746,10 +1746,9 @@ stock void MapFinishedMsgs(int client, int rankThisRun = 0)
 
 		Handle pack;
 		int style = 0;
-		CreateTimer(1.0, UpdatePlayerProfile, pack, TIMER_FLAG_NO_MAPCHANGE);
+		CreateDataTimer(1.0, UpdatePlayerProfile, pack, TIMER_FLAG_NO_MAPCHANGE);
 		WritePackCell(pack, GetClientUserId(client));
 		WritePackCell(pack, style);
-		// CreateTimer(0.0, UpdatePlayerProfile, client, TIMER_FLAG_NO_MAPCHANGE);
 
 		if (g_bMapFirstRecord[client] || g_bMapPBRecord[client] || g_bMapSRVRecord[client])
 			CheckMapRanks(client);
@@ -2238,8 +2237,8 @@ public void SetSkillGroups()
 				PushArrayArray(g_hSkillGroups, RankValue[0]);
 			} while (KvGotoNextKey(hKeyValues));
 		}
-		if (hKeyValues != null)
-			delete hKeyValues;
+
+		delete hKeyValues;
 	}
 	else
 		SetFailState("[surftimer] %s not found.", SKILLGROUP_PATH);
@@ -2356,11 +2355,14 @@ public bool CheatFlag(const char[] voice_inputfromfile, bool isCommand, bool rem
 				return true;
 			}
 			else
+			{
 				return false;
+			}
 		}
 		else
 		{
 			int flags = GetCommandFlags(voice_inputfromfile);
+
 			if (SetCommandFlags(voice_inputfromfile, flags &= ~FCVAR_CHEAT))
 				return true;
 			else
@@ -2381,9 +2383,11 @@ public bool CheatFlag(const char[] voice_inputfromfile, bool isCommand, bool rem
 			else
 				return false;
 
-		} else
+		}
+		else
 		{
 			int flags = GetCommandFlags(voice_inputfromfile);
+
 			if (SetCommandFlags(voice_inputfromfile, flags & FCVAR_CHEAT))
 				return true;
 			else
@@ -2869,8 +2873,11 @@ public void SetInfoBotName(int ent)
 	char sNextMap[128];
 	if (!IsValidClient(g_InfoBot) || !g_hInfoBot.BoolValue)
 		return;
+
 	if (g_bMapChooser && EndOfMapVoteEnabled() && !HasEndOfMapVoteFinished())
+	{
 		Format(sNextMap, sizeof(sNextMap), "Pending Vote");
+	}
 	else
 	{
 		GetNextMap(sNextMap, sizeof(sNextMap));
@@ -2878,6 +2885,7 @@ public void SetInfoBotName(int ent)
 		int lastPiece = ExplodeString(sNextMap, "/", mapPieces, sizeof(mapPieces), sizeof(mapPieces[]));
 		Format(sNextMap, sizeof(sNextMap), "%s", mapPieces[lastPiece - 1]);
 	}
+
 	int iInfoBotTimeleft;
 	GetMapTimeLeft(iInfoBotTimeleft);
 	float ftime = float(iInfoBotTimeleft);
@@ -2886,12 +2894,13 @@ public void SetInfoBotName(int ent)
 	ConVar hTmp;
 	hTmp = FindConVar("mp_timelimit");
 	int iTimeLimit = hTmp.IntValue;
-	if (hTmp != null)
-		delete hTmp;
+	delete hTmp;
+
 	if (g_hMapEnd.BoolValue && iTimeLimit > 0)
 		Format(szBuffer, sizeof(szBuffer), "%s (in %s)", sNextMap, szTime);
 	else
 		Format(szBuffer, sizeof(szBuffer), "Pending Vote (no time limit)");
+
 	SetClientName(g_InfoBot, szBuffer);
 	Client_SetScore(g_InfoBot, 9999);
 	CS_SetClientClanTag(g_InfoBot, "NEXTMAP");
@@ -3805,7 +3814,7 @@ stock void StyleFinishedMsgs(int client, int style)
 	}
 }
 
-stock void PrintChatBonusStyle (int client, int zGroup, int style, int rank = 0)
+stock void PrintChatBonusStyle(int client, int zGroup, int style, int rank = 0)
 {
 	if (!IsValidClient(client))
 	return;
@@ -3836,7 +3845,7 @@ stock void PrintChatBonusStyle (int client, int zGroup, int style, int rank = 0)
 	}
 	if (g_bBonusPBRecord[client] && g_bBonusSRVRecord[client])
 	{
-		CPrintToChatAll("%t", "Misc37", g_szChatPrefix, szName, g_szZoneGroupName[zGroup], g_szStyleRecordPrint[style]);
+		CPrintToChatAll("%t", "NewBonusServerRecord", g_szChatPrefix, szName, g_szZoneGroupName[zGroup], g_szStyleRecordPrint[style]);
 		CPrintToChatAll("%t", "Misc39", g_szChatPrefix, szName, g_szZoneGroupName[zGroup], g_szStyleRecordPrint[style], g_szFinalTime[client], szRecordDiff, g_StyleMapRankBonus[style][zGroup][client], g_iStyleBonusCount[style][zGroup], g_szFinalTime[client]);
 	}
 	if (g_bBonusPBRecord[client] && !g_bBonusSRVRecord[client])

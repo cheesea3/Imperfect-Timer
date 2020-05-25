@@ -64,7 +64,6 @@ public Action UpdatePlayerProfile(Handle timer, DataPack pack)
 	pack.Reset();
 	int client = GetClientOfUserId(pack.ReadCell());
 	int style = pack.ReadCell();
-	delete pack;
 
 	if (IsValidClient(client) && !IsFakeClient(client))
 		db_updateStat(client, style);
@@ -162,8 +161,8 @@ public Action CKTimer2(Handle timer)
 		// 	ServerCommand("mp_roundtime 30");
 		// 	GameRules_SetProp("m_iRoundTime", 1800, 4, 0, true);
 		// }
-		if (hTmp != null)
-			delete hTmp;
+
+		delete hTmp;
 
 		if (iTimeLimit > 0)
 		{
@@ -308,7 +307,6 @@ public Action BonusReplayTimer(Handle timer, DataPack pack)
 	pack.Reset();
 	int client = GetClientOfUserId(pack.ReadCell());
 	int zGrp = pack.ReadCell();
-	delete pack;
 
 	if (IsValidClient(client) && !IsFakeClient(client))
 		SaveRecording(client, zGrp, 0);
@@ -324,7 +322,6 @@ public Action StyleReplayTimer(Handle timer, DataPack pack)
 	pack.Reset();
 	int client = GetClientOfUserId(pack.ReadCell());
 	int style = pack.ReadCell();
-	delete pack;
 
 	if (IsValidClient(client) && !IsFakeClient(client))
 		SaveRecording(client, 0, style);
@@ -340,7 +337,6 @@ public Action StyleBonusReplayTimer(Handle timer, DataPack pack)
 	int client = GetClientOfUserId(pack.ReadCell());
 	int zGrp = pack.ReadCell();
 	int style = pack.ReadCell();
-	delete pack;
 
 	if (IsValidClient(client) && !IsFakeClient(client))
 		SaveRecording(client, zGrp, style);
@@ -646,7 +642,6 @@ public Action SpecBot(Handle timer, DataPack pack)
 	pack.Reset();
 	int client = GetClientOfUserId(pack.ReadCell());
 	int bot = pack.ReadCell();
-	delete pack;
 
 	ChangeClientTeam(client, 1);
 	SetEntPropEnt(client, Prop_Send, "m_hObserverTarget", bot);

@@ -115,13 +115,11 @@ public void StartRecording(int client)
 
 public void StopRecording(int client)
 {
-	if (g_hRecording[client] == null)
+	if (!IsValidClient(client) || g_hRecording[client] == null)
 		return;
 
 	delete g_hRecording[client];
 	delete g_hRecordingAdditionalTeleport[client];
-	g_hRecording[client] = null;
-	g_hRecordingAdditionalTeleport[client] = null;
 
 	g_RecordedTicks[client] = 0;
 	g_RecordPreviousWeapon[client] = 0;
@@ -313,7 +311,7 @@ public void LoadReplays()
 		}
 		delete hFilex;
 	}
-	hFilex = null;
+
 	delete hFilex;
 
 	// Check if bonus replays exists

@@ -294,8 +294,8 @@ public void OnLibraryAdded(const char[] name)
 	Handle tmp = FindPluginByFile("mapchooser_extended.smx");
 	if ((StrEqual("mapchooser", name)) || (tmp != null && GetPluginStatus(tmp) == Plugin_Running))
 		g_bMapChooser = true;
-	if (tmp != null)
-		delete tmp;
+
+	delete tmp;
 
 	if (StrEqual(name, "ig_beams"))
 		g_bAllowBeams = true;
@@ -332,10 +332,10 @@ public void OnLibraryAdded(const char[] name)
 public void OnLibraryRemoved(const char[] name)
 {
 	if (StrEqual(name, "adminmenu"))
-		g_hAdminMenu = null;
+		delete g_hAdminMenu;
 
 	if (StrEqual(name, "dhooks"))
-		g_hTeleport = null;
+		delete g_hTeleport;
 
 	if (StrEqual(name, "ig_beams"))
 		g_bAllowBeams = false;
@@ -481,8 +481,7 @@ public void OnMapStart()
 
 	// Hook Zones
 	iEnt = -1;
-	if (g_hTriggerMultiple != null)
-		delete g_hTriggerMultiple;
+	delete g_hTriggerMultiple;
 
 	g_hTriggerMultiple = new ArrayList(256);
 	while ((iEnt = FindEntityByClassname(iEnt, "trigger_multiple")) != -1)
@@ -510,8 +509,7 @@ public void OnMapStart()
 
 	// info_teleport_destinations
 	iEnt = -1;
-	if (g_hDestinations != null)
-		delete g_hDestinations;
+	delete g_hDestinations;
 
 	g_hDestinations = new ArrayList(128);
 	while ((iEnt = FindEntityByClassname(iEnt, "info_teleport_destination")) != -1)
@@ -548,23 +546,9 @@ public void OnMapEnd()
 	g_WrcpBot = -1;
 	db_Cleanup();
 
-	if (g_hSkillGroups != null)
-	{
-		delete g_hSkillGroups;
-		g_hSkillGroups = null;
-	}
-
-	if (g_hBotTrail[0] != null)
-	{
-		delete g_hBotTrail[0];
-		g_hBotTrail[0] = null;
-	}
-
-	if (g_hBotTrail[1] != null)
-	{
-		delete g_hBotTrail[1];
-		g_hBotTrail[1] = null;
-	}
+	delete g_hSkillGroups;
+	delete g_hBotTrail[0];
+	delete g_hBotTrail[1];
 
 	Format(g_szMapName, sizeof(g_szMapName), "");
 
@@ -576,22 +560,11 @@ public void OnMapEnd()
 	}
 
 	// Hook Zones
-	if (g_hTriggerMultiple != null)
-	{
-		g_hTriggerMultiple.Clear();
-		delete g_hTriggerMultiple;
-	}
-
+	delete g_hTriggerMultiple;
 	delete g_mTriggerMultipleMenu;
+	delete g_hDestinations;
 
-	// if (g_hStore != null)
 	// 	delete g_hStore;
-
-	if (g_hDestinations != null)
-	{
-		delete g_hDestinations;
-		g_hDestinations = null;
-	}
 }
 
 public void OnConfigsExecuted()
@@ -778,10 +751,9 @@ public void OnClientAuthorized(int client)
 
 public void OnClientDisconnect(int client)
 {
-	if (g_hRecordingAdditionalTeleport[client] != null)
+	if (IsFakeClient(client))
 	{
 		delete g_hRecordingAdditionalTeleport[client];
-		g_hRecordingAdditionalTeleport[client] = null;
 	}
 
 	StopRecording(client);
@@ -874,9 +846,7 @@ public void OnSettingChanged(Handle convar, const char[] oldValue, const char[] 
 				else
 					ServerCommand("bot_quota 0");
 
-			if (g_hBotTrail[0] != null)
-				delete g_hBotTrail[0];
-			g_hBotTrail[0] = null;
+			delete g_hBotTrail[0];
 		}
 	}
 	else if (convar == g_hBonusBot)
@@ -910,9 +880,7 @@ public void OnSettingChanged(Handle convar, const char[] oldValue, const char[] 
 				else
 					ServerCommand("bot_quota 0");
 
-			if (g_hBotTrail[1] != null)
-				delete g_hBotTrail[1];
-			g_hBotTrail[1] = null;
+			delete g_hBotTrail[1];
 		}
 	}
 	else if (convar == g_hWrcpBot)

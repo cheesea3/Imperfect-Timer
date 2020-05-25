@@ -1281,6 +1281,7 @@ public Action Command_JoinTeam(int client, const char[] command, int argc)
 {
 	if (!IsValidClient(client) || argc < 1)
 		return Plugin_Handled;
+		
 	char arg[4];
 	GetCmdArg(1, arg, sizeof(arg));
 	int toteam = StringToInt(arg);
@@ -1631,7 +1632,7 @@ public void SpecPlayer(int client, int args)
 		{
 			if (g_RecordBot != -1 && IsValidClient(g_RecordBot) && IsPlayerAlive(g_RecordBot))
 			{
-				Format(szPlayerName2, 256, "Map Replay (%s)", g_szReplayTime);
+				Format(szPlayerName2, sizeof(szPlayerName2), "Map Replay (%s)", g_szReplayTime);
 				AddMenuItem(menu, "MAP RECORD REPLAY", szPlayerName2);
 				playerCount++;
 			}
@@ -1640,7 +1641,7 @@ public void SpecPlayer(int client, int args)
 		{
 			if (g_BonusBot != -1 && IsValidClient(g_BonusBot) && IsPlayerAlive(g_BonusBot))
 			{
-				Format(szPlayerName2, 256, "Bonus Replay (%s)", g_szBonusTime);
+				Format(szPlayerName2, sizeof(szPlayerName2), "Bonus Replay (%s)", g_szBonusTime);
 				AddMenuItem(menu, "BONUS RECORD REPLAY", szPlayerName2);
 				playerCount++;
 			}
@@ -1649,7 +1650,7 @@ public void SpecPlayer(int client, int args)
 		{
 			if (g_WrcpBot != -1 && IsValidClient(g_WrcpBot) && IsPlayerAlive(g_WrcpBot))
 			{
-				Format(szPlayerName2, 256, "Stage %i Replay (%s)", g_StageReplayCurrentStage, g_szWrcpReplayTime[g_StageReplayCurrentStage]);
+				Format(szPlayerName2, sizeof(szPlayerName2), "Stage %i Replay (%s)", g_StageReplayCurrentStage, g_szWrcpReplayTime[g_StageReplayCurrentStage]);
 				AddMenuItem(menu, "STAGE RECORD REPLAY", szPlayerName2);
 				playerCount++;
 			}
@@ -1659,24 +1660,28 @@ public void SpecPlayer(int client, int args)
 		// add players
 		for (int i = 1; i <= MaxClients; i++)
 		{
-			if (IsValidClient(i) && IsPlayerAlive(i) && i != client && !IsFakeClient(i))
+			if (i != client && IsValidClient(i) && IsPlayerAlive(i) && !IsFakeClient(i))
 			{
 				if (count == 0)
 				{
 					int bestrank = 99999999;
 					for (int x = 1; x <= MaxClients; x++)
 					{
-						if (IsValidClient(x) && IsPlayerAlive(x) && x != client && !IsFakeClient(x) && g_PlayerRank[x][0] > 0)
+						if (IsValidClient(x) && IsPlayerAlive(x) && !IsFakeClient(x) && g_PlayerRank[x][0] > 0)
+						{
 							if (g_PlayerRank[x][0] <= bestrank)
-							bestrank = g_PlayerRank[x][0];
+							{
+								bestrank = g_PlayerRank[x][0];
+							}
+						}
 					}
 					char szMenu[128];
-					Format(szMenu, 128, "Highest ranked player (#%i)", bestrank);
+					Format(szMenu, sizeof(szMenu), "Highest ranked player (#%i)", bestrank);
 					AddMenuItem(menu, "brp123123xcxc", szMenu);
 					AddMenuItem(menu, "", "", ITEMDRAW_SPACER);
 				}
 				GetClientName(i, szPlayerName, MAX_NAME_LENGTH);
-				Format(szPlayerName2, 256, "%s (%s)", szPlayerName, g_pr_rankname[i]);
+				Format(szPlayerName2, sizeof(szPlayerName2), "%s (%s)", szPlayerName, g_pr_rankname[i]);
 				AddMenuItem(menu, szPlayerName, szPlayerName2);
 				playerCount++;
 				count++;
@@ -4733,7 +4738,7 @@ public int PlayRecordMenuHandler(Handle menu, MenuAction action, int param1, int
 		{
 			// Delay the switch to spec so the client sees the new bot name
 			Handle pack;
-			CreateTimer(0.2, SpecBot, pack);
+			CreateDataTimer(0.2, SpecBot, pack);
 			WritePackCell(pack, GetClientUserId(param1));
 			WritePackCell(pack, bot);
 		}

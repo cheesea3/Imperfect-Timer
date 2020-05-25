@@ -14,6 +14,7 @@ void CreateHooks()
 	HookEvent("round_end", Event_OnRoundEnd, EventHookMode_Pre);
 	HookEvent("player_hurt", Event_OnPlayerHurt);
 	HookEvent("weapon_fire", Event_OnFire, EventHookMode_Pre);
+	HookEvent("player_team", Event_OnPlayerTeam_Pre, EventHookMode_Pre);
 	HookEvent("player_team", Event_OnPlayerTeam, EventHookMode_Post);
 	HookEvent("player_disconnect", Event_PlayerDisconnect, EventHookMode_Pre);
 	HookEvent("player_jump", Event_PlayerJump);
@@ -506,21 +507,41 @@ public Action Say_Hook(int client, const char[] command, int argc)
 	return Plugin_Handled;
 }
 
+public Action Event_OnPlayerTeam_Pre(Event event, const char[] name, bool dontBroadcast)
+{
+	int client = GetClientOfUserId(event.GetInt("userid"));
+
+	if (!IsValidClient(client) || IsFakeClient(client))
+		return Plugin_Continue;
+
+	int team = event.GetInt("team");
+	if (team == 2 || team == 3)
+	{
+		event.BroadcastDisabled = true;
+	}
+
+	return Plugin_Continue;
+}
+
 public Action Event_OnPlayerTeam(Event event, const char[] name, bool dontBroadcast)
 {
 	int client = GetClientOfUserId(event.GetInt("userid"));
+
 	if (!IsValidClient(client) || IsFakeClient(client))
 		return Plugin_Continue;
+
 	int team = event.GetInt("team");
 	if (team == 1)
 	{
 		SpecListMenuDead(client);
+
 		if (!g_bFirstSpawn[client])
 		{
 			GetClientAbsOrigin(client, g_fPlayerCordsRestore[client]);
 			GetClientEyeAngles(client, g_fPlayerAnglesRestore[client]);
 			g_bRespawnPosition[client] = true;
 		}
+
 		if (g_bTimerRunning[client])
 		{
 			g_fStartPauseTime[client] = GetGameTime();
@@ -530,6 +551,7 @@ public Action Event_OnPlayerTeam(Event event, const char[] name, bool dontBroadc
 		g_bSpectate[client] = true;
 		g_bPause[client] = false;
 	}
+
 	return Plugin_Continue;
 }
 
@@ -576,16 +598,16 @@ public Action Event_OnPlayerDeath(Event event, const char[] name, bool dontBroad
 		{
 			if (g_hRecording[client] != null)
 				StopRecording(client);
+
 			CreateTimer(2.0, RemoveRagdoll, client);
 		}
-		else
-			if (g_hBotMimicsRecord[client] != null)
-			{
-				g_BotMimicTick[client] = 0;
-				g_CurrentAdditionalTeleportIndex[client] = 0;
-				if (GetClientTeam(client) >= CS_TEAM_T)
-					CreateTimer(1.0, RespawnBot, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
-			}
+		else if (g_hBotMimicsRecord[client] != null)
+		{
+			g_BotMimicTick[client] = 0;
+			g_CurrentAdditionalTeleportIndex[client] = 0;
+			if (GetClientTeam(client) >= CS_TEAM_T)
+				CreateTimer(1.0, RespawnBot, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
+		}
 	}
 	return Plugin_Continue;
 }
@@ -594,10 +616,13 @@ public Action CS_OnTerminateRound(float &delay, CSRoundEndReason &reason)
 {
 	if (reason == CSRoundEnd_GameStart)
 		return Plugin_Handled;
+
 	int timeleft;
 	GetMapTimeLeft(timeleft);
+
 	if (timeleft >= -1 && !g_hAllowRoundEndCvar.BoolValue)
 		return Plugin_Handled;
+
 	return Plugin_Continue;
 }
 
@@ -1434,7 +1459,7 @@ public Action Event_PlayerJump(Event event, char[] name, bool dontBroadcast)
 				CreateTimer(1.0, StartJumpZonePrintTimer, client);
 				CPrintToChat(client, "%t", "Hooks10", g_szChatPrefix);
 				DataPack pack;
-				CreateTimer(0.05, DelayedVelocityCap, pack);
+				CreateDataTimer(0.05, DelayedVelocityCap, pack);
 				pack.WriteCell(GetClientUserId(client));
 				pack.WriteFloat(0.0);
 				g_bJumpZoneTimer[client] = true;
@@ -1502,7 +1527,7 @@ public Action Event_PlayerJump(Event event, char[] name, bool dontBroadcast)
 						{
 							CPrintToChat(client, "%t", "Hooks15", g_szChatPrefix);
 							DataPack pack;
-							CreateTimer(0.05, DelayedVelocityCap, pack);
+							CreateDataTimer(0.05, DelayedVelocityCap, pack);
 							pack.WriteCell(GetClientUserId(client));
 							pack.WriteFloat(0.0);
 						}
@@ -1529,7 +1554,6 @@ public Action DelayedVelocityCap(Handle timer, DataPack pack)
 	pack.Reset();
 	int client = GetClientOfUserId(ReadPackCell(pack));
 	float speedCap = pack.ReadFloat();
-	delete pack;
 
 	if (IsValidClient(client))
 	{
