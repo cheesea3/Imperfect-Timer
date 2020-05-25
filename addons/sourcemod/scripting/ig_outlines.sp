@@ -492,7 +492,7 @@ public void DB_InsertOutline(MapOutline ol)
 {
 	char szQuery[1024];
 
-	Format(szQuery, 1024, SQL_INSERT_OUTLINE, g_szMapName, ol.id, ol.type,
+	Format(szQuery, sizeof(szQuery), SQL_INSERT_OUTLINE, g_szMapName, ol.id, ol.type,
 			ol.startPos[0], ol.startPos[1], ol.startPos[2],
 			ol.endPos[0], ol.endPos[1], ol.endPos[2],
 			ol.angles[0], ol.angles[1], ol.angles[2],

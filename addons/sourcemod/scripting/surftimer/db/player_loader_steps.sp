@@ -354,7 +354,7 @@ void db_viewPlayerOptionsCallback(Handle hndl, const char[] error, int client, a
 			return;
 
 		char sql_insertPlayerOptions[] = "INSERT INTO ck_playeroptions2 (steamid) VALUES ('%s');";
-		Format(szQuery, 1024, sql_insertPlayerOptions, g_szSteamID[client]);
+		Format(szQuery, sizeof(szQuery), sql_insertPlayerOptions, g_szSteamID[client]);
 		g_hDb.Query(SQL_CheckCallback, szQuery);
 
 		g_bTimerEnabled[client] = true;

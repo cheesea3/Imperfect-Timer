@@ -2143,7 +2143,7 @@ public void db_deleteTmp(int client)
 	char szQuery[256];
 	if (!IsValidClient(client))
 		return;
-	Format(szQuery, 256, sql_deletePlayerTmp, g_szSteamID[client]);
+	Format(szQuery, sizeof(szQuery), sql_deletePlayerTmp, g_szSteamID[client]);
 	g_hDb.Query(SQL_CheckCallback, szQuery, client);
 }
 
@@ -2152,7 +2152,7 @@ public void db_selectLastRun(int client)
 	char szQuery[512];
 	if (!IsValidClient(client))
 		return;
-	Format(szQuery, 512, sql_selectPlayerTmp, g_szSteamID[client], g_szMapName);
+	Format(szQuery, sizeof(szQuery), sql_selectPlayerTmp, g_szSteamID[client], g_szMapName);
 	g_hDb.Query(SQL_LastRunCallback, szQuery, client);
 }
 
@@ -2483,7 +2483,7 @@ public void db_checkAndFixZoneIdsCallback(Handle owner, Handle hndl, const char[
 		if (IDError)
 		{
 			char szQuery[256];
-			Format(szQuery, 256, sql_deleteMapZones, g_szMapName);
+			Format(szQuery, sizeof(szQuery), sql_deleteMapZones, g_szMapName);
 			g_hDb.Query(SQL_CheckCallback, szQuery);
 			// SQL_FastQuery(g_hDb, szQuery);
 
@@ -2510,7 +2510,7 @@ public void db_insertZoneCheap(int zoneid, int zonetype, int zonetypeid, float p
 {
 	char szQuery[1024];
 	// "INSERT INTO ck_zones (mapname, zoneid, zonetype, zonetypeid, pointa_x, pointa_y, pointa_z, pointb_x, pointb_y, pointb_z, vis, team, zonegroup, zonename) VALUES ('%s', '%i', '%i', '%i', '%f', '%f', '%f', '%f', '%f', '%f', '%i', '%i', '%i', '%s')";
-	Format(szQuery, 1024, sql_insertZones, g_szMapName, zoneid, zonetype, zonetypeid, pointax, pointay, pointaz, pointbx, pointby, pointbz, vis, team, zGrp, zName, hookname, targetname, ojl, prespeed);
+	Format(szQuery, sizeof(szQuery), sql_insertZones, g_szMapName, zoneid, zonetype, zonetypeid, pointax, pointay, pointaz, pointbx, pointby, pointbz, vis, team, zGrp, zName, hookname, targetname, ojl, prespeed);
 	g_hDb.Query(SQL_insertZonesCheapCallback, szQuery, query);
 }
 
@@ -2572,7 +2572,7 @@ public void db_insertZoneHook(int zoneid, int zonetype, int zonetypeid, int vis,
 public void db_saveZones()
 {
 	char szQuery[258];
-	Format(szQuery, 258, sql_deleteMapZones, g_szMapName);
+	Format(szQuery, sizeof(szQuery), sql_deleteMapZones, g_szMapName);
 	g_hDb.Query(SQL_saveZonesCallBack, szQuery);
 }
 
@@ -2778,7 +2778,7 @@ public void sql_zoneFixCallback2(Handle owner, Handle hndl, const char[] error, 
 public void db_deleteMapZones()
 {
 	char szQuery[258];
-	Format(szQuery, 258, sql_deleteMapZones, g_szMapName);
+	Format(szQuery, sizeof(szQuery), sql_deleteMapZones, g_szMapName);
 	g_hDb.Query(SQL_deleteMapZonesCallback, szQuery);
 }
 
@@ -2950,7 +2950,7 @@ public int LatestRecordsMenuHandler(Handle menu, MenuAction action, int param1, 
 public void db_InsertLatestRecords(char szSteamID[32], char szName[MAX_NAME_LENGTH], float FinalTime)
 {
 	char szQuery[512];
-	Format(szQuery, 512, sql_insertLatestRecords, szSteamID, szName, FinalTime, g_szMapName);
+	Format(szQuery, sizeof(szQuery), sql_insertLatestRecords, szSteamID, szName, FinalTime, g_szMapName);
 	g_hDb.Query(SQL_CheckCallback, szQuery);
 }
 
@@ -4411,7 +4411,7 @@ public void db_selectMapRank(int client, char szSteamId[32], char szMapName[128]
 {
 	char szQuery[1024];
 	if (StrEqual(szMapName, "surf_me"))
-			Format(szQuery, 1024, "SELECT `steamid`, `name`, `mapname`, `runtimepro` FROM `ck_playertimes` WHERE `steamid` = '%s' AND `mapname` = '%s' AND style = 0 LIMIT 1;", szSteamId, szMapName);
+			Format(szQuery, sizeof(szQuery), "SELECT `steamid`, `name`, `mapname`, `runtimepro` FROM `ck_playertimes` WHERE `steamid` = '%s' AND `mapname` = '%s' AND style = 0 LIMIT 1;", szSteamId, szMapName);
 	else
 		Format(szQuery, sizeof(szQuery), "SELECT `steamid`, `name`, `mapname`, `runtimepro` FROM `ck_playertimes` WHERE `steamid` = '%s' AND `mapname` LIKE '%c%s%c' AND style = 0 LIMIT 1;", szSteamId, PERCENT, szMapName, PERCENT);
 	g_hDb.Query(db_selectMapRankCallback, szQuery, client);
@@ -4447,7 +4447,7 @@ public void db_selectMapRankCallback(Handle owner, Handle hndl, const char[] err
 
 		char szQuery[1024];
 
-		Format(szQuery, 1024, "SELECT count(name) FROM `ck_playertimes` WHERE `mapname` = '%s' AND style = 0;", mapname);
+		Format(szQuery, sizeof(szQuery), "SELECT count(name) FROM `ck_playertimes` WHERE `mapname` = '%s' AND style = 0;", mapname);
 		g_hDb.Query(db_SelectTotalMapCompletesCallback, szQuery, pack);
 	}
 	else
@@ -4822,7 +4822,7 @@ public void db_selectPlayerRank(int client, int rank, char szSteamId[32])
 	{
 		g_rankArg[client] = rank;
 		rank -= 1;
-		Format(szQuery, 1024, "SELECT `name`, `points` FROM `ck_playerrank` ORDER BY `points` DESC LIMIT %i, 1;", rank);
+		Format(szQuery, sizeof(szQuery), "SELECT `name`, `points` FROM `ck_playerrank` ORDER BY `points` DESC LIMIT %i, 1;", rank);
 	}
 	else if (rank == 0) // Self Rank Cmd
 	{
@@ -4907,7 +4907,7 @@ public void db_selectMapImprovement(int client, char szMapName[128])
 {
 	char szQuery[1024];
 
-	Format(szQuery, 1024, "SELECT mapname, (SELECT count(1) FROM ck_playertimes b WHERE a.mapname = b.mapname AND b.style = 0) as total, (SELECT tier FROM ck_maptier b WHERE a.mapname = b.mapname) as tier FROM ck_playertimes a where mapname LIKE '%c%s%c' AND style = 0 LIMIT 1;", PERCENT, szMapName, PERCENT);
+	Format(szQuery, sizeof(szQuery), "SELECT mapname, (SELECT count(1) FROM ck_playertimes b WHERE a.mapname = b.mapname AND b.style = 0) as total, (SELECT tier FROM ck_maptier b WHERE a.mapname = b.mapname) as tier FROM ck_playertimes a where mapname LIKE '%c%s%c' AND style = 0 LIMIT 1;", PERCENT, szMapName, PERCENT);
 	g_hDb.Query(db_selectMapImprovementCallback, szQuery, client);
 }
 

@@ -299,14 +299,14 @@ public void sql_insertMapSettingsCallback(Handle owner, Handle hndl, const char[
 public void db_updateMapSettings()
 {
 	char szQuery[512];
-	Format(szQuery, 512, "UPDATE `ck_maptier` SET `maxvelocity` = '%f', `announcerecord` = '%f', `gravityfix` = %i WHERE `mapname` = '%s';", g_fMaxVelocity, g_fAnnounceRecord, view_as<int>(g_bGravityFix), g_szMapName);
+	Format(szQuery, sizeof(szQuery), "UPDATE `ck_maptier` SET `maxvelocity` = '%f', `announcerecord` = '%f', `gravityfix` = %i WHERE `mapname` = '%s';", g_fMaxVelocity, g_fAnnounceRecord, view_as<int>(g_bGravityFix), g_szMapName);
 	g_hDb.Query(sql_insertMapSettingsCallback, szQuery);
 }
 
 public void db_unlimitAllStages(char[] szMapName)
 {
 	char szQuery[256];
-	Format(szQuery, 256, "UPDATE ck_zones SET prespeed = 0.0 WHERE mapname = '%s' AND zonetype = 3;", g_szMapName);
+	Format(szQuery, sizeof(szQuery), "UPDATE ck_zones SET prespeed = 0.0 WHERE mapname = '%s' AND zonetype = 3;", g_szMapName);
 	g_hDb.Query(SQL_UnlimitAllStagesCallback, szQuery);
 }
 
