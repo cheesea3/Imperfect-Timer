@@ -149,9 +149,8 @@ public Action StartTouchTrigger(int caller, int activator)
 	int client = activator;
 
 	// Ignore dead players
-	if (!IsValidClient(client)) {
+	if (!IsValidClient(client))
 		return Plugin_Handled;
-	}
 
 	// g_bLeftZone[activator] = false;
 
@@ -176,33 +175,43 @@ public Action StartTouchTrigger(int caller, int activator)
 	if (!StrEqual("player", g_mapZones[id].targetName))
 		DispatchKeyValue(activator, "targetname", g_mapZones[id].targetName);
 
-	if (iZoneGroup == g_iClientInZone[activator][2]) {
+	if (iZoneGroup == g_iClientInZone[activator][2])
+	{
 		// Is touching zone in their active zonegroup
 		// Set client location
 		g_iClientInZone[activator][0] = iZoneType;
 		g_iClientInZone[activator][1] = iZoneTypeId;
 		g_iClientInZone[activator][2] = iZoneGroup;
 		g_iClientInZone[activator][3] = id;
-	} else if (iZoneType == 1 || iZoneType == 5) {
+	} 
+	else if (iZoneType == 1 || iZoneType == 5)
+	{
 		// Is touching start or speedstart of some other zonegroup
 		g_iClientInZone[activator][0] = iZoneType;
 		g_iClientInZone[activator][1] = iZoneTypeId;
 		g_iClientInZone[activator][2] = iZoneGroup;
 		g_iClientInZone[activator][3] = id;
-	} else if (iZoneType == 6 || iZoneType == 7 || iZoneType == 8 || iZoneType == 0 || iZoneType == 9 || iZoneType == 10 || iZoneType == 11) {
+	} 
+	else if (iZoneType == 6 || iZoneType == 7 || iZoneType == 8 || iZoneType == 0 || iZoneType == 9 || iZoneType == 10 || iZoneType == 11)
+	{
 		// Is touching some MISC zone
 		// (perform action but don't put the player there)
-	} else {
+	} 
+	else
+	{
 		// Ignore this touch
 		return Plugin_Handled;
 	}
 
 	// Types: Start(1), End(2), Stage(3), Checkpoint(4), Speed(5), TeleToStart(6), Validator(7), Chekcer(8), Stop(0) // fluffys: NoBhop(9), NoCrouch(10)
 
-	if (iZoneType == ZONETYPE_STOP) {
+	if (iZoneType == ZONETYPE_STOP)
+	{
 		Client_Stop(client, 1);
 		lastCheckpoint[g_iClientInZone[client][2]][client] = 999;
-	} else if (iZoneType == ZONETYPE_START || iZoneType == ZONETYPE_SPEEDSTART) {
+	} 
+	else if (iZoneType == ZONETYPE_START || iZoneType == ZONETYPE_SPEEDSTART)
+	{
 		// Set Default Values
 		Client_Stop(client, 1);
 		ResetGravity(client);
@@ -222,7 +231,9 @@ public Action StartTouchTrigger(int caller, int activator)
 			g_bWrcpTimeractivated[client] = false;
 			g_CurrentStage[client] = 0;
 		}
-	} else if (iZoneType == ZONETYPE_END) {
+	}
+	else if (iZoneType == ZONETYPE_END)
+	{
 		if (g_iClientInZone[client][2] == iZoneGroup) // Cant end bonus timer in this zone && in the having the same timer on
 		{
 			// fluffys gravity
@@ -255,7 +266,9 @@ public Action StartTouchTrigger(int caller, int activator)
 			// Resetting checkpoints
 			lastCheckpoint[g_iClientInZone[client][2]][client] = 999;
 		}
-	} else if (iZoneType == ZONETYPE_STAGE) {
+	} 
+	else if (iZoneType == ZONETYPE_STAGE)
+	{
 		g_bInStageZone[client] = true;
 		g_bInStartZone[client] = false;
 		g_bInJump[client] = false;
@@ -310,7 +323,9 @@ public Action StartTouchTrigger(int caller, int activator)
 			if (g_bWrcpTimeractivated[client])
 				g_bWrcpTimeractivated[client] = false;
 		}
-	} else if (iZoneType == ZONETYPE_CHECKPOINT) {
+	}
+	else if (iZoneType == ZONETYPE_CHECKPOINT)
+	{
 		if (iZoneTypeId != lastCheckpoint[g_iClientInZone[client][2]][client] && g_iClientInZone[client][2] == iZoneGroup)
 		{
 			g_iCurrentCheckpoint[client]++;
@@ -331,19 +346,32 @@ public Action StartTouchTrigger(int caller, int activator)
 				lastCheckpoint[g_iClientInZone[client][2]][client] = iZoneTypeId;
 			}
 		}
-	} else if (iZoneType == ZONETYPE_TELETOSTART) {
+	} 
+	else if (iZoneType == ZONETYPE_TELETOSTART)
+	{
 		teleportClient(client, g_iClientInZone[client][2], 1, true);
-	} else if (iZoneType == ZONETYPE_VALIDATOR) {
+	} 
+	else if (iZoneType == ZONETYPE_VALIDATOR)
+	{
 		g_bValidRun[client] = true;
-	} else if (iZoneType == ZONETYPE_CHECKER) {
-		if (!g_bValidRun[client]) {
+	} 
+	else if (iZoneType == ZONETYPE_CHECKER)
+	{
+		if (!g_bValidRun[client])
+		{
 			Command_Teleport(client, 1);
 		}
-	} else if (iZoneType == ZONETYPE_ANTIJUMP) {
+	} 
+	else if (iZoneType == ZONETYPE_ANTIJUMP)
+	{
 		g_bInJump[client] = true;
-	} else if (iZoneType == ZONETYPE_ANTIDUCK) {
+	} 
+	else if (iZoneType == ZONETYPE_ANTIDUCK)
+	{
 		g_bInDuck[client] = true;
-	} else if (iZoneType == ZONETYPE_MAXSPEED) {
+	} 
+	else if (iZoneType == ZONETYPE_MAXSPEED)
+	{
 		g_bInMaxSpeed[client] = g_mapZones[id].preSpeed;
 	}
 
@@ -355,9 +383,8 @@ public Action EndTouchTrigger(int caller, int activator)
 	int client = activator;
 
 	// Ignore dead players
-	if (!IsValidClient(client)) {
+	if (!IsValidClient(client))
 		return Plugin_Handled;
-	}
 
 	// For new speed limiter
 	g_bLeftZone[activator] = true;
@@ -386,19 +413,24 @@ public Action EndTouchTrigger(int caller, int activator)
 	//int iZoneTypeId = g_mapZones[id].zoneTypeId;
 	int iZoneGroup = g_mapZones[id].zoneGroup;
 
-	if (iZoneType == ZONETYPE_ANTIJUMP) {
+	if (iZoneType == ZONETYPE_ANTIJUMP)
+	{
 		g_bInJump[client] = false;
-	} else if (iZoneType == ZONETYPE_ANTIDUCK) {
+	}
+	else if (iZoneType == ZONETYPE_ANTIDUCK)
+	{
 		g_bInDuck[client] = false;
-	} else if (iZoneType == ZONETYPE_MAXSPEED) {
+	}
+	else if (iZoneType == ZONETYPE_MAXSPEED)
+	{
 		g_bInMaxSpeed[client] = 0.0;
 	}
 
 	if (iZoneGroup != g_iClientInZone[activator][2]
 		|| iZoneType == ZONETYPE_TELETOSTART
 		|| iZoneType == ZONETYPE_CHECKER
-		|| iZoneType != g_iClientInZone[activator][0]
-	) {
+		|| iZoneType != g_iClientInZone[activator][0])
+	{
 		// Ignore end touches in other zonegroups, zones that teleports away or multiple zones on top of each other // fluffys
 		return Plugin_Handled;
 	}

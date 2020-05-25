@@ -180,7 +180,8 @@ void db_refreshPlayerPoints(int client, any cb = 0)
 
 void db_refreshPlayerPointsCallback(Handle hndl, const char[] error, int client, any cb)
 {
-	if (hndl == null) {
+	if (hndl == null)
+	{
 		LogError("[Surftimer] SQL Error (db_refreshPlayerPointsCallback): %s", error);
 		RunCallback(cb, true);
 		return;
@@ -207,7 +208,8 @@ void db_refreshPlayerPointsCallback(Handle hndl, const char[] error, int client,
 
 		g_pr_points[client][style] = points;
 		g_pr_finishedmaps[client][style] = finishedMaps;
-		if (style == STYLE_NORMAL) {
+		if (style == STYLE_NORMAL)
+		{
 			normalPoints = points;
 			g_iPlayTimeAlive[client] = SQL_FetchInt(hndl, 6);
 			g_iPlayTimeSpec[client] = SQL_FetchInt(hndl, 7);
@@ -280,7 +282,8 @@ void sql_getPlayerRankCallback(Handle hndl, const char[] error, int client, any 
 	}
 
 	int minRank = g_hPrestigeRank.IntValue;
-	if (!IsPlayerVip(client, true, false) && minRank > 0 && (normalRank == 0 || normalRank > minRank)) {
+	if (!IsPlayerVip(client, true, false) && minRank > 0 && (normalRank == 0 || normalRank > minRank))
+	{
 		KickClient(client, "You must be at least rank %i to join this server", minRank);
 	}
 

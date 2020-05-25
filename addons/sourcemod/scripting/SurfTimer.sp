@@ -702,7 +702,8 @@ public void OnClientPutInServer(int client)
 
 	// Get SteamID
 	g_szSteamID[client] = "";
-	if (!GetClientAuthId(client, AuthId_Steam2, g_szSteamID[client], MAX_NAME_LENGTH, true)) {
+	if (!GetClientAuthId(client, AuthId_Steam2, g_szSteamID[client], MAX_NAME_LENGTH, true))
+	{
 		g_szSteamID[client] = "";
 	}
 
@@ -815,7 +816,8 @@ public void OnClientDisconnect(int client)
 	if (client == g_WrcpBot) g_WrcpBot = -1;
 
 	// Database
-	if (IsValidClient(client)) {
+	if (IsValidClient(client))
+	{
 		if (!g_bIgnoreZone[client] && !g_bPracticeMode[client])
 			db_insertLastPosition(client, g_szMapName, g_Stage[g_iClientInZone[client][2]][client], g_iClientInZone[client][2]);
 

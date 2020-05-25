@@ -11,8 +11,10 @@ public void DrawBeamBox(int client)
 
 public Action BeamBox(Handle timer, int client)
 {
-	if (IsValidClient(client)) {
-		if (g_Editing[client] == 2 && g_bAllowBeams) {
+	if (IsValidClient(client))
+	{
+		if (g_Editing[client] == 2 && g_bAllowBeams)
+		{
 
 			//IG_SendBeamBoxToClient(client, g_Positions[client][1], g_Positions[client][0], g_BeamSprite, g_HaloSprite, 0, BEAM_FRAMERATE, 1.0, 1.0, 1.0, 1, 0.0, beamColorEdit, 0, true);
 			IG_SendBeamBoxToClient(client, g_Positions[client][1], g_Positions[client][0], 1.0, beamColorEdit, true);
@@ -52,16 +54,14 @@ public Action ThrottledBeamBoxAll(Handle timer, int i)
 	int zColor[4];
 	getZoneDisplayColor(iZoneType, zColor, iZoneGroup);
 
-	for (int p = 1; p <= MaxClients; p++) {
-		if (!IsValidClient(p) || IsFakeClient(p)) {
+	for (int p = 1; p <= MaxClients; p++)
+	{
+		if (!IsValidClient(p) || IsFakeClient(p) || g_ClientSelectedZone[p] == i)
 			continue;
-		}
-		if (g_ClientSelectedZone[p] == i) {
-			continue;
-		}
 
 		bool full = false;
 		bool draw = drawForEveryone;
+
 		if (g_bShowZones[p])
 		{
 			// Player has /showzones enabled
@@ -133,7 +133,8 @@ public void BeamBox_OnPlayerRunCmd(int client)
 		}
 	}
 
-	if (g_iSelectedTrigger[client] > -1 && g_bAllowBeams) {
+	if (g_iSelectedTrigger[client] > -1 && g_bAllowBeams)
+	{
 		// come back
 		float position[3], fMins[3], fMaxs[3];
 

@@ -75,13 +75,15 @@ public Action Event_OnFire(Event event, const char[] name, bool dontBroadcast)
 }
 
 // Player Spawns
-public Action Event_OnPlayerSpawn(Event event, const char[] name, bool dontBroadcast) {
+public Action Event_OnPlayerSpawn(Event event, const char[] name, bool dontBroadcast)
+{
 	int client = GetClientOfUserId(event.GetInt("userid"));
 
-	if (client == 0) {
-		if (IsFakeClient(client)) {
+	if (client == 0)
+	{
+		if (IsFakeClient(client))
 			SetEntData(client, FindSendPropInfo("CBaseEntity", "m_CollisionGroup"), 2, 4, true);
-		}
+
 		return Plugin_Continue;
 	}
 
@@ -473,13 +475,15 @@ public Action Say_Hook(int client, const char[] command, int argc)
 	WriteChatLog(client, "say", sText);
 	PrintToServer("%s: %s", szName, sText);
 
-	if (IsPlayerVip(client, true, false)) {
+	if (IsPlayerVip(client, true, false))
+	{
 		setNameColor(szName, g_iCustomColours[client][0], 64);
 		setTextColor(sText, g_iCustomColours[client][1], 1024);
 	}
 
 	char szChatRank[1024] = "";
-	if (g_bDbCustomTitleInUse[client]) {
+	if (g_bDbCustomTitleInUse[client])
+	{
 		Format(szChatRank, sizeof(szChatRank), "{default}%s {grey}| ", g_pr_chat_coloredrank[client]);
 		ReplaceString(szChatRank, sizeof(szChatRank), "{style}", "");
 	}

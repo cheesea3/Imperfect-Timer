@@ -851,7 +851,8 @@ public void LoadWrcpReplay()
 	}
 }
 
-public void StopPlayerMimic(int client) {
+public void StopPlayerMimic(int client)
+{
 	g_BotMimicTick[client] = 0;
 	g_CurrentAdditionalTeleportIndex[client] = 0;
 	g_BotMimicRecordTickCount[client] = 0;

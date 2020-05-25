@@ -31,7 +31,8 @@ stock bool TraceRayDontHitSelf(int entity, int mask, any data)
 
 stock void RunCallback(DataPack cb, bool error = false)
 {
-    if (cb != INVALID_HANDLE) {
+    if (cb != INVALID_HANDLE)
+	{
         cb.Reset();
         Function fn = cb.ReadFunction();
         Call_StartFunction(null, fn);

@@ -1241,22 +1241,37 @@ public void sql_updatePlayerRankPointsCallback(Handle owner, Handle hndl, const 
 	}
 }
 
-public void db_viewPlayerProfileByName(int client, int style, const char[] szName) {
+public void db_viewPlayerProfileByName(int client, int style, const char[] szName)
+{
 	char szNameEx[MAX_NAME_LENGTH*2+1];
 	SQL_EscapeString(g_hDb, szName, szNameEx, sizeof(szNameEx));
 	char szQuery[512];
 	Format(szQuery, sizeof(szQuery), "SELECT steamid, style FROM ck_playerrank WHERE style=%i AND name LIKE '%c%s%c' ORDER BY points DESC LIMIT 1", style, PERCENT, szNameEx, PERCENT);
 	g_hDb.Query(db_viewPlayerProfileByName2, szQuery, client);
 }
-public void db_viewPlayerProfileByName2(Handle owner, Handle hndl, const char[] error, int client) {
-	if (hndl == null) { LogError("[Surftimer] SQL Error (db_viewPlayerProfileByName2): %s", error); return; }
-	if (!SQL_HasResultSet(hndl) || !SQL_FetchRow(hndl)) { CPrintToChat(client, "Player not found"); return; }
+
+public void db_viewPlayerProfileByName2(Handle owner, Handle hndl, const char[] error, int client)
+{
+	if (hndl == null)
+	{ 
+		LogError("[Surftimer] SQL Error (db_viewPlayerProfileByName2): %s", error); 
+		return; 
+	}
+
+	if (!SQL_HasResultSet(hndl) || !SQL_FetchRow(hndl)) 
+	{ 
+		CPrintToChat(client, "Player not found"); 
+		return;
+	}
+
 	char szSteamid[MAX_NAME_LENGTH];
 	SQL_FetchString(hndl, 0, szSteamid, sizeof(szSteamid));
 	int style = SQL_FetchInt(hndl, 1);
 	db_viewPlayerProfileBySteamid(client, style, szSteamid);
 }
-public void db_viewPlayerProfileBySteamid(int client, int style, const char[] szSteamid) {
+
+public void db_viewPlayerProfileBySteamid(int client, int style, const char[] szSteamid)
+{
 	char szSteamidEx[MAX_NAME_LENGTH*2+1];
 	SQL_EscapeString(g_hDb, szSteamid, szSteamidEx, sizeof(szSteamidEx));
 	char szQuery[2048];
@@ -1272,9 +1287,20 @@ public void db_viewPlayerProfileBySteamid(int client, int style, const char[] sz
 	", szSteamidEx, style);
 	g_hDb.Query(db_viewPlayerProfileBySteamid2, szQuery, client);
 }
-public void db_viewPlayerProfileBySteamid2(Handle owner, Handle hndl, const char[] error, int client) {
-	if (hndl == null) { LogError("[Surftimer] SQL Error (db_viewPlayerProfileBySteamid2): %s", error); return; }
-	if (!SQL_HasResultSet(hndl) || !SQL_FetchRow(hndl)) { CPrintToChat(client, "Player not found"); return; }
+
+public void db_viewPlayerProfileBySteamid2(Handle owner, Handle hndl, const char[] error, int client)
+{
+	if (hndl == null) 
+	{ 
+		LogError("[Surftimer] SQL Error (db_viewPlayerProfileBySteamid2): %s", error); 
+		return;
+	}
+
+	if (!SQL_HasResultSet(hndl) || !SQL_FetchRow(hndl))
+	{
+		CPrintToChat(client, "Player not found"); 
+		return;
+	}
 
 	char szName[MAX_NAME_LENGTH], szSteamId[32], szCountry[64];
 
@@ -1308,9 +1334,14 @@ public void db_viewPlayerProfileBySteamid2(Handle owner, Handle hndl, const char
 	strcopy(g_szProfileSteamId[client], sizeof(g_szProfileSteamId), szSteamId);
 	strcopy(g_szProfileName[client], sizeof(g_szProfileName), szName);
 
-	if (finishedMaps > mapCount) finishedMaps = mapCount;
-	if (finishedBonuses > bonusCount) finishedBonuses = bonusCount;
-	if (finishedStages > stageCount) finishedStages = stageCount;
+	if (finishedMaps > mapCount) 
+		finishedMaps = mapCount;
+
+	if (finishedBonuses > bonusCount) 
+		finishedBonuses = bonusCount;
+
+	if (finishedStages > stageCount) 
+		finishedStages = stageCount;
 
 	int totalCompleted = finishedMaps + finishedBonuses + finishedStages;
 	int totalZones = mapCount + bonusCount + stageCount;
@@ -1391,9 +1422,8 @@ public void db_viewPlayerProfileBySteamid2(Handle owner, Handle hndl, const char
 	AddMenuItem(menu, "Finished maps", szCompleted);
 	AddMenuItem(menu, szSteamId, "Player Info");
 
-	if (IsValidClient(client))
-		if (StrEqual(szSteamId, g_szSteamID[client]))
-			AddMenuItem(menu, "Refresh my profile", "Refresh my profile");
+	if (IsValidClient(client) && StrEqual(szSteamId, g_szSteamID[client]))
+		AddMenuItem(menu, "Refresh my profile", "Refresh my profile");
 
 	SetMenuExitButton(menu, true);
 	DisplayMenu(menu, client, MENU_TIME_FOREVER);
@@ -1860,7 +1890,8 @@ public void sql_selectRecordCallback(Handle owner, Handle hndl, const char[] err
 		float time = SQL_FetchFloat(hndl, 0);
 
 		// If old time was slower than the new time, update record
-		if ((g_fFinalTime[client] <= time || time <= 0.0)) {
+		if ((g_fFinalTime[client] <= time || time <= 0.0))
+		{
 			char szUName[MAX_NAME_LENGTH];
 
 			if (IsValidClient(client))
@@ -1949,20 +1980,21 @@ void db_viewAllRecords(int client, char szSteamId[32], bool rankedOnly, bool fin
 {
 	char szSteamIdEx[MAX_NAME_LENGTH*2+1];
 	SQL_EscapeString(g_hDb, szSteamId, szSteamIdEx, sizeof(szSteamIdEx));
+
 	char rankedCondition[32] = "TRUE";
-	if (rankedOnly) {
+	if (rankedOnly)
 		rankedCondition = "ranked=1 AND tier > 0";
-	}
+
 	char finishedCondition[64];
-	if (finished) {
+	if (finished)
 		finishedCondition = "time IS NOT NULL";
-	} else {
+	else
 		finishedCondition = "time IS NULL";
-	}
+
 	char topCondition[32] = "TRUE";
-	if (top > 0) {
+	if (top > 0)
 		Format(topCondition, sizeof(topCondition), "rank <= %i", top);
-	}
+
 	int style = g_ProfileStyleSelect[client];
 	char szQuery[4096];
 	Format(szQuery, sizeof(szQuery), " \
@@ -2023,9 +2055,8 @@ public void SQL_ViewAllRecordsCallback(Handle owner, Handle hndl, const char[] e
 	else 
 		szTitle = "Unfinished Maps";
 
-	if (top > 0) {
+	if (top > 0)
 		Format(szTitle, sizeof(szTitle), "%s (Ranked in top %i only)", szTitle, top);
-	}
 
 	ArrayList msgs = CreateArray(100);
 	PushArrayString(msgs, " ");
@@ -2358,7 +2389,8 @@ public void SQL_updateBonusCallback(Handle owner, Handle hndl, const char[] erro
 	int zgroup = ReadPackCell(data);
 	delete data;
 
-	if (hndl == null) {
+	if (hndl == null)
+	{
 		LogError("[Surftimer] SQL Error (SQL_updateBonusCallback): %s", error);
 		return;
 	}
@@ -3172,7 +3204,8 @@ public void db_updatePlayerOptions(int client)
 	char szQuery[1024];
 	// "UPDATE ck_playeroptions2 SET timer = %i, hide = %i, sounds = %i, chat = %i, viewmodel = %i, autobhop = %i, checkpoints = %i, centrehud = %i, module1c = %i, module2c = %i, module3c = %i,
 	// module4c = %i, module5c = %i, module6c = %i, sidehud = %i, module1s = %i, module2s = %i, module3s = %i, module4s = %i, module5s = %i where steamid = '%s'";
-	if (IsPlayerLoaded(client)) {
+	if (IsPlayerLoaded(client))
+	{
 		Format(szQuery, sizeof(szQuery), sql_updatePlayerOptions,
 								view_as<int>(g_bTimerEnabled[client]),
 								view_as<int>(g_bHide[client]),
@@ -4885,12 +4918,14 @@ public void db_selectPlayerRankUnknown(int client, char szName[128])
 
 public void db_selectPlayerRankUnknownCallback(Handle owner, Handle hndl, const char[] error, any client)
 {
-	if (hndl == null) {
+	if (hndl == null)
+	{
 		LogError("[Surftimer] SQL Error (db_selectPlayerRankUnknownCallback): %s", error);
 		return;
 	}
 
-	if (SQL_HasResultSet(hndl) && SQL_FetchRow(hndl)) {
+	if (SQL_HasResultSet(hndl) && SQL_FetchRow(hndl))
+	{
 		char szSteamId[32];
 		SQL_FetchString(hndl, 0, szSteamId, sizeof(szSteamId));
 		char szName[128];
@@ -4898,7 +4933,9 @@ public void db_selectPlayerRankUnknownCallback(Handle owner, Handle hndl, const 
 		int points = SQL_FetchInt(hndl, 2);
 		int rank = SQL_FetchInt(hndl, 3);
 		CPrintToChatAll("%t", "SQL39", g_szChatPrefix, szName, rank, g_pr_RankedPlayers, points);
-	} else {
+	} 
+	else
+	{
 		CPrintToChat(client, "%t", "SQLTwo7", g_szChatPrefix);
 	}
 }
