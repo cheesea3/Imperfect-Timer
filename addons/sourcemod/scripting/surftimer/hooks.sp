@@ -14,7 +14,7 @@ void CreateHooks()
 	HookEvent("round_end", Event_OnRoundEnd, EventHookMode_Pre);
 	HookEvent("player_hurt", Event_OnPlayerHurt);
 	HookEvent("weapon_fire", Event_OnFire, EventHookMode_Pre);
-	HookEvent("player_team", Event_OnPlayerTeam_Pre, EventHookMode_Pre);
+	//HookEvent("player_team", Event_OnPlayerTeam_Pre, EventHookMode_Pre); // Temp disabled till fix for team select screen sticking 
 	HookEvent("player_team", Event_OnPlayerTeam, EventHookMode_Post);
 	HookEvent("player_disconnect", Event_PlayerDisconnect, EventHookMode_Pre);
 	HookEvent("player_jump", Event_PlayerJump);
@@ -1469,37 +1469,77 @@ public Action Event_PlayerJump(Event event, char[] name, bool dontBroadcast)
 		// surftimer method
 		if (g_hLimitSpeedType.IntValue == 1)
 		{
+			// if (!g_bInStartZone[client] && !g_bInStageZone[client])
+			// 	return Plugin_Continue;
+
+			// g_iTicksOnGround[client] = 0;
+			// int time = GetTime();
+			// int cTime = time - g_iLastJump[client];
+			// int style = g_players[client].currentStyle;
+
+			// if (style == 4 || style == 5)
+			// 	cTime--;
+
+			// if (!g_bInBhop[client])
+			// {
+			// 	if (g_bFirstJump[client])
+			// 	{
+			// 		if (cTime > 1)
+			// 			g_bFirstJump[client] = false;
+			// 		else
+			// 			g_bInBhop[client] = true;
+			// 	}
+			// 	else
+			// 	{
+			// 		g_bFirstJump[client] = true;
+			// 	}
+			// }
+			// else if (cTime > 1)
+			// {
+			// 	g_bInBhop[client] = false;
+			// }
+
+			// g_iLastJump[client] = GetTime();
 			if (!g_bInStartZone[client] && !g_bInStageZone[client])
 				return Plugin_Continue;
 
+			// This logic for detecting bhops is pretty terrible and should be reworked -sneaK
 			g_iTicksOnGround[client] = 0;
-			int time = GetTime();
-			int cTime = time - g_iLastJump[client];
-			int style = g_players[client].currentStyle;
-
-			if (style == 4 || style == 5)
-				cTime--;
-
+			float time = GetGameTime();
+			float cTime = time - g_iLastJump[client];
 			if (!g_bInBhop[client])
 			{
 				if (g_bFirstJump[client])
 				{
-					if (cTime > 1)
-						g_bFirstJump[client] = false;
+					if (cTime > 0.8)
+					{
+						g_bFirstJump[client] = true;
+						g_iLastJump[client] = GetGameTime();
+					}
 					else
+					{
+						g_iLastJump[client] = GetGameTime();
 						g_bInBhop[client] = true;
+					}
 				}
 				else
 				{
+					g_iLastJump[client] = GetGameTime();
 					g_bFirstJump[client] = true;
 				}
 			}
-			else if (cTime > 1)
+			else
 			{
-				g_bInBhop[client] = false;
+				if (cTime > 1)
+				{
+					g_bInBhop[client] = false;
+					g_iLastJump[client] = GetGameTime();
+				}
+				else
+				{
+					g_iLastJump[client] = GetGameTime();
+				}
 			}
-
-			g_iLastJump[client] = GetTime();
 		}
 		else if (g_hOneJumpLimit.BoolValue) // cksurf method
 		{

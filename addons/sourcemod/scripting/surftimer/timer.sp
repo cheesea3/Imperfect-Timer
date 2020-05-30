@@ -134,6 +134,8 @@ public Action DelayedStuff(Handle timer)
 	else
 		SetFailState("<surftimer> cfg/sourcemod/surftimer/main.cfg not found.");
 
+	GameRules_SetProp("m_iRoundTime", 1800, 4, 0, true); // set timer display
+
 	return Plugin_Handled;
 }
 
@@ -152,8 +154,7 @@ public Action CKTimer2(Handle timer)
 	if (g_hMapEnd.BoolValue)
 	{
 		ConVar hTmp = FindConVar("mp_timelimit");
-		int iTimeLimit;
-		iTimeLimit = hTmp.IntValue;
+		int iTimeLimit = hTmp.IntValue;
 		// Emergency reset timelimit if it's 0
 		// if (iTimeLimit == 0)
 		// {
