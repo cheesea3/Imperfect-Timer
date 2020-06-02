@@ -3055,7 +3055,7 @@ public Action Command_Vmute(int client, int args)
 		return Plugin_Handled;
 	}
 
-	if (CheckCommandAccess(client, "", ADMFLAG_ROOT) || CheckCommandAccess(client, "", ADMFLAG_KICK))
+	if (CheckCommandAccess(targetId, "", ADMFLAG_ROOT) || CheckCommandAccess(targetId, "", ADMFLAG_KICK))
 	{
 		CReplyToCommand(client, "Staff cannot be muted by VIPs!");
 		return Plugin_Handled;

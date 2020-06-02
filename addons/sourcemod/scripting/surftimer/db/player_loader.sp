@@ -138,7 +138,7 @@ void LoadPlayerFinished(int client)
 	LogToFileEx(g_szLogFile, "[Surftimer] %s<%s>: Finished loading in %fs", szName, g_szSteamID[client], time);
 #endif
 
-	if (g_PlayerRank[client][style] == 0)
+	if (g_PlayerRank[client][STYLE_NORMAL] == 0)
 		CS_SetClientContributionScore(client, -99998);
 
 	g_playerLoadState[client] = PLS_LOADED;
