@@ -124,7 +124,12 @@ void db_refreshPlayerMapRecordsCb(Handle hndl, const char[] error, int client, a
 						g_fPersonalRecord[client] = time;
 						FormatTimeFloat(client, time, 3, g_szPersonalRecord[client], 64);
 						g_MapRank[client] = rank;
-						Client_SetScore(client, rank);
+
+						if (rank < 0)
+							Client_SetScore(client, 0);
+						else
+							Client_SetScore(client, rank);
+						
 					}
 					else
 					{
