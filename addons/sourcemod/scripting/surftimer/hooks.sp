@@ -998,7 +998,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 				}
 			}
 			else if (!g_bInStartZone[client] && !g_bInStageZone[client] && val < -0.75)
-			g_KeyCount[client] = 0;
+				g_KeyCount[client] = 0;
 		}
 
 		// W Only buttons
@@ -1469,77 +1469,61 @@ public Action Event_PlayerJump(Event event, char[] name, bool dontBroadcast)
 		// surftimer method
 		if (g_hLimitSpeedType.IntValue == 1)
 		{
-			// if (!g_bInStartZone[client] && !g_bInStageZone[client])
-			// 	return Plugin_Continue;
-
-			// g_iTicksOnGround[client] = 0;
-			// int time = GetTime();
-			// int cTime = time - g_iLastJump[client];
-			// int style = g_players[client].currentStyle;
-
-			// if (style == 4 || style == 5)
-			// 	cTime--;
-
-			// if (!g_bInBhop[client])
-			// {
-			// 	if (g_bFirstJump[client])
-			// 	{
-			// 		if (cTime > 1)
-			// 			g_bFirstJump[client] = false;
-			// 		else
-			// 			g_bInBhop[client] = true;
-			// 	}
-			// 	else
-			// 	{
-			// 		g_bFirstJump[client] = true;
-			// 	}
-			// }
-			// else if (cTime > 1)
-			// {
-			// 	g_bInBhop[client] = false;
-			// }
-
-			// g_iLastJump[client] = GetTime();
 			if (!g_bInStartZone[client] && !g_bInStageZone[client])
 				return Plugin_Continue;
 
-			// This logic for detecting bhops is pretty terrible and should be reworked -sneaK
+
+			//if (g_iTicksOnGround[client] > 1 && g_bFirstJump[client])
+			//{
+			//	g_bFirstJump[client] = false;
+			//	if (IsPlayerZoner(client))
+			//		CPrintToChat(client, "TESTING: g_iTicksOnGround = %i;FirstJump = %i", g_iTicksOnGround[client], g_bFirstJump[client]);
+			//}
+
 			g_iTicksOnGround[client] = 0;
-			float time = GetGameTime();
-			float cTime = time - g_iLastJump[client];
+			int time = GetTime();
+			int cTime = time - g_iLastJump[client];
+			int style = g_players[client].currentStyle;
+
+			//float time = GetGameTime();
+			//float cTime = time - g_iLastJump[client];
+
+			// slomo and lg workaround
+			if (style == 4 || style == 5)
+				cTime -= 1;
+
 			if (!g_bInBhop[client])
 			{
 				if (g_bFirstJump[client])
 				{
-					if (cTime > 0.8)
+					if (cTime > 1)
 					{
-						g_bFirstJump[client] = true;
-						g_iLastJump[client] = GetGameTime();
+						g_bFirstJump[client] = false;
+						//if (IsPlayerZoner(client))
+						//	CPrintToChat(client, "1: g_bFirstJump = false");
 					}
 					else
 					{
-						g_iLastJump[client] = GetGameTime();
 						g_bInBhop[client] = true;
+						//if (IsPlayerZoner(client))
+						//	CPrintToChat(client, "2: g_bInBhop = true");
 					}
 				}
 				else
 				{
-					g_iLastJump[client] = GetGameTime();
 					g_bFirstJump[client] = true;
+					//if (IsPlayerZoner(client))
+					//	CPrintToChat(client, "3: g_bFirstJump = true");
 				}
 			}
-			else
+			else if (cTime > 1)
 			{
-				if (cTime > 1)
-				{
-					g_bInBhop[client] = false;
-					g_iLastJump[client] = GetGameTime();
-				}
-				else
-				{
-					g_iLastJump[client] = GetGameTime();
-				}
+				g_bInBhop[client] = false;
+				//if (IsPlayerZoner(client))
+				//	CPrintToChat(client, "4: g_bInBhop = false");
 			}
+
+			g_iLastJump[client] = GetTime();
 		}
 		else if (g_hOneJumpLimit.BoolValue) // cksurf method
 		{

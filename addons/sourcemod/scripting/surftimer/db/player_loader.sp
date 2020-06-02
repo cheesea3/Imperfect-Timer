@@ -138,12 +138,20 @@ void LoadPlayerFinished(int client)
 	LogToFileEx(g_szLogFile, "[Surftimer] %s<%s>: Finished loading in %fs", szName, g_szSteamID[client], time);
 #endif
 
+	if (g_PlayerRank[client][style] == 0)
+		CS_SetClientContributionScore(client, -99998);
+
 	g_playerLoadState[client] = PLS_LOADED;
 	db_UpdateLastSeen(client);
 
-	if (g_hTeleToStartWhenSettingsLoaded.BoolValue) {
-		Command_Restart(client, 1);
-		CreateTimer(0.1, RestartPlayer, client);
+	// dont force respawn admins (zoners have admin flag)
+	if (!IsPlayerZoner(client))
+	{
+		if (g_hTeleToStartWhenSettingsLoaded.BoolValue)
+		{
+			Command_Restart(client, 1);
+			CreateTimer(0.1, RestartPlayer, client);
+		}
 	}
 
 	LoadPlayerNext();

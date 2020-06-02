@@ -320,15 +320,23 @@ public int CustomTitleMenuHandler(Handle menu, MenuAction action, int param1, in
 		int client = param1;
 		char info[32];
 		GetMenuItem(menu, param2, info, sizeof(info));
-		if (StrEqual(info, "name")) {
+
+		if (StrEqual(info, "name"))
+		{
 			if (!IsPlayerVip(client))
 				return;
+
 			ChangeColorsMenu(client, 0);
-		} else if (StrEqual(info, "text")) {
+		}
+		else if (StrEqual(info, "text"))
+		{
 			if (!IsPlayerVip(client))
 				return;
+
 			ChangeColorsMenu(client, 1);
-		} else if (StrEqual(info, "next")) {
+		}
+		else if (StrEqual(info, "next"))
+		{
 			g_bUpdatingColours[client] = true;
 			NextTitle(client, client);
 		}
@@ -3044,6 +3052,12 @@ public Action Command_Vmute(int client, int args)
 	if (targetId < 0)
 	{
 		CReplyToCommand(client, "Target player not found");
+		return Plugin_Handled;
+	}
+
+	if (CheckCommandAccess(client, "", ADMFLAG_ROOT) || CheckCommandAccess(client, "", ADMFLAG_KICK))
+	{
+		CReplyToCommand(client, "Staff cannot be muted by VIPs!");
 		return Plugin_Handled;
 	}
 

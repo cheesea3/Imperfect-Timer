@@ -217,6 +217,7 @@ public Action StartTouchTrigger(int caller, int activator)
 		ResetGravity(client);
 		g_KeyCount[client] = 0;
 		g_bInJump[client] = false;
+
 		g_bInDuck[client] = false;
 		g_bInMaxSpeed[client] = 0.0;
 		g_iCurrentCheckpoint[client] = 0;
@@ -230,6 +231,17 @@ public Action StartTouchTrigger(int caller, int activator)
 		{
 			g_bWrcpTimeractivated[client] = false;
 			g_CurrentStage[client] = 0;
+		}
+
+		// @IG: prespeed exploit fix?
+		if (iZoneType == ZONETYPE_START && g_iTicksOnGround[client] == 0)
+		{
+			Command_Teleport(client, 1);
+			// g_bFirstJump[client] = false;
+			// g_bLeftZone[client] = false;
+			// g_bInBhop[client] = false;
+			// g_iTicksOnGround[client] = 0;
+			// g_bNewStage[client] = false;
 		}
 	}
 	else if (iZoneType == ZONETYPE_END)

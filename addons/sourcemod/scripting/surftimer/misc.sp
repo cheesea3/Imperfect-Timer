@@ -1056,9 +1056,6 @@ public void LimitSpeedNew(int client)
 	if (speedCap <= 0.0)
 		return;
 
-	float fVel[3];
-	GetEntPropVector(client, Prop_Data, "m_vecVelocity", fVel);
-
 	if (g_bInStartZone[client] || g_bInStageZone[client])
 	{
 		if (GetEntityFlags(client) & FL_ONGROUND)
@@ -1073,6 +1070,9 @@ public void LimitSpeedNew(int client)
 		}
 	}
 
+	float fVel[3];
+	GetEntPropVector(client, Prop_Data, "m_vecVelocity", fVel);
+
 	// Determine how much each vector must be scaled for the magnitude to equal the limit
 	// scale = limit / (vx^2 + vy^2)^0.5)
 	// Derived from Pythagorean theorem, where the hypotenuse represents the magnitude of velocity,
@@ -1083,12 +1083,7 @@ public void LimitSpeedNew(int client)
 	// A scale < 1 indicates a magnitude > limit
 	if (scale < 1.0)
 	{
-		// if (g_bInStageZone[client] && g_bNewStage[client])
-		// {
-		// 	g_bNewStage[client] = false;
-		// 	g_bLeftZone[client] = false;
-		// 	return;
-		// }
+
 
 		// Reduce each vector by the appropriate amount
 		fVel[0] = fVel[0] * scale;
@@ -1659,6 +1654,10 @@ stock void MapFinishedMsgs(int client, int rankThisRun = 0)
 		else
 			Format(szGroup, sizeof(szGroup), "");
 
+		// update kills (map rank)
+		if (g_bMapPBRecord[client])
+			Client_SetScore(client, rank);
+
 		// Check that ck_chat_record_type matches and ck_min_rank_announce matches
 		if ((g_hAnnounceRecord.IntValue == 0 ||
 			(g_hAnnounceRecord.IntValue == 1 && g_bMapPBRecord[client] || g_bMapSRVRecord[client] || g_bMapFirstRecord[client]) ||
@@ -1674,19 +1673,17 @@ stock void MapFinishedMsgs(int client, int rankThisRun = 0)
 						CPrintToChat(i, "%t", "MapFinished1", g_szChatPrefix, szName, g_szFinalTime[client], g_MapRank[client], count, szGroup, g_szRecordMapTime);
 						PrintToConsole(i, "%s finished the map with a time of (%s). [rank #%i/%i | record %s]", szName, g_szFinalTime[client], g_MapRank[client], count, g_szRecordMapTime);
 					}
-					else
-						if (g_bMapPBRecord[client]) // Own record
-						{
-							PlayUnstoppableSound(client);
-							CPrintToChat(i, "%t", "MapFinished3", g_szChatPrefix, szName, g_szFinalTime[client], g_szTimeDifference[client], g_MapRank[client], count, szGroup, g_szRecordMapTime);
-							PrintToConsole(i, "%s finished the map with a time of (%s). Improving their best time by (%s).  [rank #%i/%i | record %s]", szName, g_szFinalTime[client], g_szTimeDifference[client], g_MapRank[client], count, g_szRecordMapTime);
-						}
-						else
-							if (!g_bMapSRVRecord[client] && !g_bMapFirstRecord[client] && !g_bMapPBRecord[client])
-							{
-								CPrintToChat(i, "%t", "MapFinished5", g_szChatPrefix, szName, g_szFinalTime[client], g_szTimeDifference[client], g_MapRank[client], count, szGroup, g_szRecordMapTime);
-								PrintToConsole(i, "%s finished the map with a time of (%s). Missing their best time by (%s).  [rank #%i/%i | record %s]", szName, g_szFinalTime[client], g_szTimeDifference[client], g_MapRank[client], count, g_szRecordMapTime);
-							}
+					else if (g_bMapPBRecord[client]) // Own record
+					{
+						PlayUnstoppableSound(client);
+						CPrintToChat(i, "%t", "MapFinished3", g_szChatPrefix, szName, g_szFinalTime[client], g_szTimeDifference[client], g_MapRank[client], count, szGroup, g_szRecordMapTime);
+						PrintToConsole(i, "%s finished the map with a time of (%s). Improving their best time by (%s).  [rank #%i/%i | record %s]", szName, g_szFinalTime[client], g_szTimeDifference[client], g_MapRank[client], count, g_szRecordMapTime);
+					}
+					else if (!g_bMapSRVRecord[client] && !g_bMapFirstRecord[client] && !g_bMapPBRecord[client])
+					{
+						CPrintToChat(i, "%t", "MapFinished5", g_szChatPrefix, szName, g_szFinalTime[client], g_szTimeDifference[client], g_MapRank[client], count, szGroup, g_szRecordMapTime);
+						PrintToConsole(i, "%s finished the map with a time of (%s). Missing their best time by (%s).  [rank #%i/%i | record %s]", szName, g_szFinalTime[client], g_szTimeDifference[client], g_MapRank[client], count, g_szRecordMapTime);
+					}
 
 					if (g_bMapSRVRecord[client])
 					{
