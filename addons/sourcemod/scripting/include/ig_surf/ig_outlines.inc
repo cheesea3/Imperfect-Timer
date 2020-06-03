@@ -7,7 +7,7 @@
 #include <sdktools>
 
 // max outlines per map
-#define OUTLINE_REFRESH_TIME 2.0
+#define OUTLINE_REFRESH_TIME 0.5
 #define MAX_OUTLINE_LINES 100
 #define MAX_OUTLINE_BOXES 30
 

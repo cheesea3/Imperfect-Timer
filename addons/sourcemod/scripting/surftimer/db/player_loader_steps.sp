@@ -275,16 +275,13 @@ void sql_getPlayerRankCallback(Handle hndl, const char[] error, int client, any 
 		{
 			normalRank = rank;
 		}
-
-		// Sort players by rank in scoreboard
-		if (style == STYLE_NORMAL)
-		{
-			if (g_pr_AllPlayers[style] < g_PlayerRank[client][style] || g_PlayerRank[client][style] == 0)
-				CS_SetClientContributionScore(client, -99998);
-			else
-				CS_SetClientContributionScore(client, -rank);
-		}
 	}
+
+	// Sort players by rank in scoreboard
+	if (g_PlayerRank[client][STYLE_NORMAL] == 0 || g_pr_AllPlayers[STYLE_NORMAL] < g_PlayerRank[client][STYLE_NORMAL])
+		CS_SetClientContributionScore(client, -99998);
+	else
+		CS_SetClientContributionScore(client, -g_PlayerRank[client][STYLE_NORMAL]);
 
 	int minRank = g_hPrestigeRank.IntValue;
 	if (!IsPlayerVip(client, true, false) && minRank > 0 && (normalRank == 0 || normalRank > minRank))

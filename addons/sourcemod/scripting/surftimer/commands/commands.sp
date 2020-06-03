@@ -1952,7 +1952,7 @@ public Action Client_Help(int client, int args)
 
 			char szBuffer[512][2];
 			ExplodeString(desc, "[surftimer]", szBuffer, 2, 512, false);
-			Format(szCommand, 320, "%s - %s", name, szBuffer[1]);
+			Format(szCommand, sizeof(szCommand), "%s - %s", name, szBuffer[1]);
 			AddMenuItem(menu, "", szCommand, ITEMDRAW_DISABLED);
 		}
 	}

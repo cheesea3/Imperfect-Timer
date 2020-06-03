@@ -1254,9 +1254,6 @@ public void OnPluginStart()
 	if (LibraryExists("adminmenu") && ((tpMenu = GetAdminTopMenu()) != null))
 		OnAdminMenuReady(tpMenu);
 
-	// button sound hook
-	// AddNormalSoundHook(NormalSHook_callback);
-
 	// Botmimic 2
 	// https://forums.alliedmods.net/showthread.php?t=180114
 	// Optionally setup a hook on CBaseEntity::Teleport to keep track of sudden place changes
@@ -1316,9 +1313,6 @@ public void OnPluginStart()
 	// Server Announcements
 	g_bHasLatestID = false;
 	g_iLastID = 0;
-
-	// https://forums.alliedmods.net/showthread.php?t=300549
-	// HookUserMessage(GetUserMessageId("VGUIMenu"), TeamMenuHook, true);
 }
 
 public void OnAllPluginsLoaded()

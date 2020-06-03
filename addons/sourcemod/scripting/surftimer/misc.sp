@@ -1735,8 +1735,8 @@ stock void MapFinishedMsgs(int client, int rankThisRun = 0)
 				sendDiscordAnnouncement(szName, g_szMapName, g_szFinalTime[client]);
 		}
 
-		if (g_bTop10Time[client] && count > 100)
-			PlayRecordSound(3);
+		//if (g_bTop10Time[client] && count > 100)
+		//	PlayRecordSound(3);
 
 		if (g_MapRank[client] == 99999 && IsValidClient(client))
 			CPrintToChat(client, "%t", "Misc19", g_szChatPrefix);
