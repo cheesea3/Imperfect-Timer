@@ -1,5 +1,4 @@
 // 0
-
 static bool g_printRecord[MAXPLAYERS][MAX_ZONEGROUPS][MAX_STYLES];
 
 void db_refreshPlayerMapRecords(int client, any cb=0)
@@ -60,14 +59,14 @@ void db_refreshPlayerMapRecordsCb(Handle hndl, const char[] error, int client, a
 	//Client_SetScore(client, 99999);
 	Format(g_szPersonalRecord[client], 64, "NONE");
 	g_MapRank[client] = 9999999;
-	g_iPBMapStartSpeed[0][client] = -1; // @IG start speeds - set normal start speed
+	g_iPBMapStartSpeed[STYLE_NORMAL][client] = -1; // @IG start speeds - set normal start speed
 
 	for (int style = 1; style < MAX_STYLES; style++)
 	{
 		Format(g_szPersonalStyleRecord[style][client], 64, "NONE");
 		g_fPersonalStyleRecord[style][client] = 0.0;
 		g_StyleMapRank[style][client] = 9999999;
-		g_iPBMapStartSpeed[style][client] = -1; // @IG start speeds
+		g_iPBMapStartSpeed[style][client] = -1; // @IG reset start speeds
 	}
 
 	for (int zgroup = 0; zgroup < MAX_ZONEGROUPS; zgroup++)
@@ -75,12 +74,14 @@ void db_refreshPlayerMapRecordsCb(Handle hndl, const char[] error, int client, a
 		g_fPersonalRecordBonus[zgroup][client] = 0.0;
 		Format(g_szPersonalRecordBonus[zgroup][client], 64, "N/A");
 		g_MapRankBonus[zgroup][client] = 9999999;
+		g_iPBBonusStartSpeed[STYLE_NORMAL][zgroup][client] = startSpeed; // @IG start speeds - set normal start speed (bonus)
 
 		for (int style = 1; style < MAX_STYLES; style++)
 		{
 			g_fStylePersonalRecordBonus[style][zgroup][client] = 0.0;
 			Format(g_szStylePersonalRecordBonus[style][zgroup][client], 64, "N/A");
 			g_StyleMapRankBonus[style][zgroup][client] = 9999999;
+			g_iPBBonusStartSpeed[style][zgroup][client] = -1; // @IG reset start speeds (bonus)
 		}
 	}
 

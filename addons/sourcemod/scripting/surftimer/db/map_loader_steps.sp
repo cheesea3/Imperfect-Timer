@@ -431,6 +431,7 @@ public void SQL_selectFastestBonusCallback(Handle owner, Handle hndl, const char
 		Format(g_szBonusFastestTime[i], 64, "N/A");
 		g_fBonusFastest[i] = 9999999.0;
 
+		g_iRecordBonusStartSpeed[0][i] = -1; // reset normal start speed (bonus)
 		for (int s = 1; s < MAX_STYLES; s++)
 		{
 			Format(g_szStyleBonusFastestTime[s][i], 64, "N/A");
