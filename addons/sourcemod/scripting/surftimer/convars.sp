@@ -1,6 +1,6 @@
 /*----------  CVars  ----------*/
 // Zones
-bool g_bZoner[MAXPLAYERS + 1];
+//bool g_bZoner[MAXPLAYERS + 1];
 int g_ZonerFlag;
 ConVar g_hZonerFlag = null;
 ConVar g_hZoneDisplayType = null;								// How zones are displayed (lower edge, full)

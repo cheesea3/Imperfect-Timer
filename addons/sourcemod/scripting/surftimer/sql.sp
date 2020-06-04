@@ -5147,7 +5147,7 @@ public void db_selectMapImprovementCallback(Handle owner, Handle hndl, const cha
 				mapcompletion = 800;
 			}
 
-			default: wrpoints = 5; // no tier set
+			default: wrpoints = 5.0; // no tier set
 		}
 
 		// Round WR points up

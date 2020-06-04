@@ -74,7 +74,7 @@ void db_refreshPlayerMapRecordsCb(Handle hndl, const char[] error, int client, a
 		g_fPersonalRecordBonus[zgroup][client] = 0.0;
 		Format(g_szPersonalRecordBonus[zgroup][client], 64, "N/A");
 		g_MapRankBonus[zgroup][client] = 9999999;
-		g_iPBBonusStartSpeed[STYLE_NORMAL][zgroup][client] = startSpeed; // @IG start speeds - set normal start speed (bonus)
+		g_iPBBonusStartSpeed[STYLE_NORMAL][zgroup][client] = -1; // @IG start speeds - set normal start speed (bonus)
 
 		for (int style = 1; style < MAX_STYLES; style++)
 		{

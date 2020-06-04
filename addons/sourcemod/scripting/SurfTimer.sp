@@ -133,7 +133,6 @@
 #define ADDITIONAL_FIELD_TELEPORTED_ANGLES (1<<1)
 #define ADDITIONAL_FIELD_TELEPORTED_VELOCITY (1<<2)
 #define FRAME_INFO_SIZE 15
-#define AT_SIZE 10
 #define ORIGIN_SNAPSHOT_INTERVAL 500
 #define FILE_HEADER_LENGTH 74
 
@@ -173,13 +172,21 @@ enum FrameInfo
 	pause,
 }
 
-enum AdditionalTeleport
+enum struct AdditionalTeleport
 {
-	Float:atOrigin[3],
-	Float:atAngles[3],
-	Float:atVelocity[3],
-	atFlags
+	float AtOrigin[3];
+	float AtAngles[3];
+	float AtVelocity[3];
+	int AtFlags;
 }
+
+// enum AdditionalTeleport
+// {
+// 	Float:atOrigin[3],
+// 	Float:atAngles[3],
+// 	Float:atVelocity[3],
+// 	atFlags
+// }
 
 enum FileHeader
 {
@@ -660,7 +667,7 @@ public void OnClientPutInServer(int client)
 
 	if (IsFakeClient(client))
 	{
-		g_hRecordingAdditionalTeleport[client] = new ArrayList(view_as<int>(AdditionalTeleport));
+		g_hRecordingAdditionalTeleport[client] = new ArrayList(sizeof(AdditionalTeleport));
 		CS_SetMVPCount(client, 1);
 		return;
 	}
