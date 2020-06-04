@@ -673,6 +673,7 @@ public Action Event_OnRoundStart(Event event, const char[] name, bool dontBroadc
 
 	// Hook zones
 	iEnt = -1;
+	delete g_hTriggerMultiple;
 	g_hTriggerMultiple = new ArrayList(128);
 	while ((iEnt = FindEntityByClassname(iEnt, "trigger_multiple")) != -1)
 	{
@@ -688,6 +689,7 @@ public Action Event_OnRoundStart(Event event, const char[] name, bool dontBroadc
 
 	// Teleport Destinations (goose)
 	iEnt = -1;
+	delete g_hDestinations;
 	g_hDestinations = new ArrayList(128);
 	while ((iEnt = FindEntityByClassname(iEnt, "info_teleport_destination")) != -1)
 		g_hDestinations.Push(iEnt);
