@@ -773,7 +773,7 @@
 	"StartSpeedNew"
 	{
 		"#format"	"{1:s},{2:i},{3:s}"
-		"en"		"{1} Start speed: {bluegrey}{2} u/s {default}[{grey}PB: {3}]"
+		"en"		"{1} Start speed: {bluegrey}{2} u/s {default}[{grey}PB {3}]"
 	}
 	"StartSpeed"
 	{

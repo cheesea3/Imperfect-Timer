@@ -585,6 +585,9 @@ int g_OldMapRank[MAXPLAYERS + 1];
 // Current map's record player's name
 char g_szRecordPlayer[MAX_NAME_LENGTH];
 
+// Highest tier completed by the player
+int g_iHighestCompletedTier[MAXPLAYERS + 1];
+
 /*----------  Replay Variables  ----------*/
 
 // Checks if the bot is new, if so, set weapon

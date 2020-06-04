@@ -484,15 +484,15 @@ public Action EndTouchTrigger(int caller, int activator)
 				{
 					int speedDiff = speed - pbSpeed;
 					if (speedDiff < 0) // slower than pb
-						Format(szSpeed, 64, "{darkred}%i{default} | {grey}SR: ", speedDiff);
+						Format(szSpeed, 64, "{darkred}%i{default} | {grey}SR ", speedDiff);
 					else if (speedDiff > 0) // faster than pb
-						Format(szSpeed, 64, "{green}+%i{default} | {grey}SR: ");
+						Format(szSpeed, 64, "{green}+%i{default} | {grey}SR ");
 					else // same as pb
-						Format(szSpeed, 64, "{default}+0 | {grey}SR: ");
+						Format(szSpeed, 64, "{default}+0 | {grey}SR ");
 				}
 				else // pb doesn't exist
 				{
-					Format(szSpeed, 64, "{lightgreen}N/A{default} | {grey}SR: ");
+					Format(szSpeed, 64, "{lightgreen}N/A{default} | {grey}SR ");
 				}
 
 				if (recSpeed > 0) // sr start speed exists
@@ -558,15 +558,15 @@ public Action EndTouchTrigger(int caller, int activator)
 					{
 						int speedDiff = speed - pbSpeed;
 						if (speedDiff < 0) // slower than pb
-							Format(szSpeed, 80, "{darkred}%i{default} | {grey}SR: ", speedDiff);
+							Format(szSpeed, 80, "{darkred}%i{default} | {grey}SR ", speedDiff);
 						else if (speedDiff > 0) // faster than pb
-							Format(szSpeed, 80, "{green}+%i{default} | {grey}SR: ", speedDiff);
+							Format(szSpeed, 80, "{green}+%i{default} | {grey}SR ", speedDiff);
 						else // same as pb
-							Format(szSpeed, 80, "{default}+0 | {grey}SR: ");
+							Format(szSpeed, 80, "{default}+0 | {grey}SR ");
 					}
 					else // pb doesn't exist
 					{
-						Format(szSpeed, 80, "{lightgreen}N/A{default} | {grey}SR: ");
+						Format(szSpeed, 80, "{lightgreen}N/A{default} | {grey}SR ");
 					}
 
 					if (recSpeed > 0) // sr start speed exists
