@@ -1744,7 +1744,7 @@ stock void MapFinishedMsgs(int client, int rankThisRun = 0)
 		Handle pack;
 		int style = 0;
 		CreateDataTimer(1.0, UpdatePlayerProfile, pack, TIMER_FLAG_NO_MAPCHANGE);
-		WritePackCell(pack, GetClientUserId(client));
+		WritePackCell(pack, client);
 		WritePackCell(pack, style);
 
 		if (g_bMapFirstRecord[client] || g_bMapPBRecord[client] || g_bMapSRVRecord[client])

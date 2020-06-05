@@ -615,28 +615,28 @@ public void sql_CountFinishedBonusCallback(Handle owner, Handle hndl, const char
 			{
 				case 1:
 				{
-					g_pr_points[client][style] += 175;
-					g_Points[client][style][POINTS_BONUSWR] += 175;
+					g_pr_points[client][style] += 50;
+					g_Points[client][style][POINTS_BONUSWR] += 50;
 					wrbs++;
 				}
 
-				case 2:  points = 160;
-				case 3:  points = 150;
-				case 4:  points = 140;
-				case 5:  points = 130;
-				case 6:  points = 120;
-				case 7:  points = 110;
-				case 8:  points = 105;
-				case 9:  points = 100;
-				case 10: points = 95;
-				case 11: points = 90;
-				case 12: points = 80;
-				case 13: points = 70;
-				case 14: points = 60;
-				case 15: points = 50;
-				case 16: points = 40;
-				case 17: points = 30;
-				case 18: points = 20;
+				case 2:  points = 45;
+				case 3:  points = 40;
+				case 4:  points = 38;
+				case 5:  points = 36;
+				case 6:  points = 34;
+				case 7:  points = 32;
+				case 8:  points = 30;
+				case 9:  points = 28;
+				case 10: points = 26;
+				case 11: points = 24;
+				case 12: points = 22;
+				case 13: points = 20;
+				case 14: points = 18;
+				case 15: points = 16;
+				case 16: points = 14;
+				case 17: points = 12;
+				case 18: points = 11;
 				case 19: points = 10;
 				default: points = 5;
 			}
@@ -883,7 +883,7 @@ public void sql_CountFinishedMapsCallback(Handle owner, Handle hndl, const char[
 						if (wrpoints < 750.0)
 							wrpoints = 750.0;
 						else
-							wrpoints += 117;
+							wrpoints += 117.0;
 					}
 
 					// Map completion points
@@ -912,7 +912,7 @@ public void sql_CountFinishedMapsCallback(Handle owner, Handle hndl, const char[
 					if (wrpoints < 1250.0)
 						wrpoints = 1250.0;
 					else
-						wrpoints += 234;
+						wrpoints += 234.0;
 
 					// Map completion points
 					g_pr_points[client][style] += 400;
@@ -926,11 +926,11 @@ public void sql_CountFinishedMapsCallback(Handle owner, Handle hndl, const char[
 					if (wrpoints < 1500.0)
 						wrpoints = 1500.0;
 					else
-						wrpoints += 328;
+						wrpoints += 328.0;
 
 					// Map completion points
-					g_pr_points[client][style] += 800;
-					g_Points[client][style][POINTS_MAP] += 800;
+					g_pr_points[client][style] += 600;
+					g_Points[client][style][POINTS_MAP] += 600;
 				}
 
 				default: wrpoints = 5.0; // no tier set
@@ -939,8 +939,8 @@ public void sql_CountFinishedMapsCallback(Handle owner, Handle hndl, const char[
 			// Round WR points up
 			iwrpoints = RoundToCeil(wrpoints);
 
-			// Top 10 Points
-			if (rank < 11 && (totalplayers > 20 || tier > 3))
+			// Top 10 Points - only rewarded if certain style, tier or completion count target met
+			if (rank < 11 && (totalplayers > 20 || tier > 3 || style == STYLE_HSW || style == STYLE_SIDEWAYS || style == STYLE_BW || style == STYLE_WONLY))
 			{
 				g_Top10Maps[client][style]++;
 
@@ -1026,13 +1026,19 @@ public void sql_CountFinishedMapsCallback(Handle owner, Handle hndl, const char[
 			default: tierMultiplier = 1.0;
 		}
 
-		g_Points[client][style][POINTS_MAP]     *= tierMultiplier; // Map Points
-		//g_Points[client][style][POINTS_BONUS]   *= tierMultiplier; // Bonus Points
-		g_Points[client][style][POINTS_GROUP]   *= tierMultiplier; // Group Points
-		g_Points[client][style][POINTS_MAPWR]   *= tierMultiplier; // Map WR Points
-		g_Points[client][style][POINTS_BONUSWR] *= tierMultiplier; // Bonus WR Points
-		g_Points[client][style][POINTS_TOPTEN]  *= tierMultiplier; // Top 10 Points
-		//g_Points[client][style][POINTS_WRCP]    *= tierMultiplier; // WRCP Points
+//#if defined DEBUG_LOGGING
+//		char sName[MAX_NAME_LENGTH];
+//		GetClientName(client, sName, MAX_NAME_LENGTH);
+//		LogToFileEx(g_szLogFile, "[IG] Tier mutliplier for %s: %f (highest tier: %i)", sName, tierMultiplier, g_iHighestCompletedTier[client]);
+//#endif
+
+		g_Points[client][style][POINTS_MAP]     = RoundToCeil(float(g_Points[client][style][POINTS_MAP]) * tierMultiplier); // Map Points
+		//g_Points[client][style][POINTS_BONUS]   = RoundToCeil(float(g_Points[client][style][POINTS_BONUS]) * tierMultiplier); // Bonus Points
+		g_Points[client][style][POINTS_GROUP]   = RoundToCeil(float(g_Points[client][style][POINTS_GROUP]) * tierMultiplier); // Group Points
+		g_Points[client][style][POINTS_MAPWR]   = RoundToCeil(float(g_Points[client][style][POINTS_MAPWR]) * tierMultiplier); // Map WR Points
+		g_Points[client][style][POINTS_BONUSWR] = RoundToCeil(float(g_Points[client][style][POINTS_BONUSWR]) * tierMultiplier); // Bonus WR Points
+		g_Points[client][style][POINTS_TOPTEN]  = RoundToCeil(float(g_Points[client][style][POINTS_TOPTEN]) * tierMultiplier); // Top 10 Points
+		//g_Points[client][style][POINTS_WRCP]    = RoundToCeil(float(g_Points[client][style][POINTS_WRCP]) * tierMultiplier); // WRCP Points
 	}
 
 	// Finished maps amount is stored in memory
@@ -5144,7 +5150,7 @@ public void db_selectMapImprovementCallback(Handle owner, Handle hndl, const cha
 				else
 					wrpoints += 328;
 
-				mapcompletion = 800;
+				mapcompletion = 600;
 			}
 
 			default: wrpoints = 5.0; // no tier set

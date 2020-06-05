@@ -222,23 +222,20 @@ public Action Event_OnPlayerSpawn(Event event, const char[] name, bool dontBroad
 				teleportEntitySafe(client, g_fPlayerCordsRestore[client], g_fPlayerAnglesRestore[client], NULL_VECTOR, false);
 				g_bRestorePosition[client] = false;
 			}
+			else if (g_bRespawnPosition[client])
+			{
+				teleportEntitySafe(client, g_fPlayerCordsRestore[client], g_fPlayerAnglesRestore[client], NULL_VECTOR, false);
+				g_bRespawnPosition[client] = false;
+			}
 			else
 			{
-				if (g_bRespawnPosition[client])
-				{
-					teleportEntitySafe(client, g_fPlayerCordsRestore[client], g_fPlayerAnglesRestore[client], NULL_VECTOR, false);
-					g_bRespawnPosition[client] = false;
-				}
-				else
-				{
-					g_bTimerRunning[client] = false;
-					g_fStartTime[client] = -1.0;
-					g_fCurrentRunTime[client] = -1.0;
+				g_bTimerRunning[client] = false;
+				g_fStartTime[client] = -1.0;
+				g_fCurrentRunTime[client] = -1.0;
 
-					// Spawn Client To The Start Zone.
-					if (g_hSpawnToStartZone.BoolValue)
-						Command_Restart(client, 1);
-				}
+				// Spawn Client To The Start Zone.
+				if (g_hSpawnToStartZone.BoolValue)
+					Command_Restart(client, 1);
 			}
 		}
 	}
@@ -1462,7 +1459,7 @@ public Action Event_PlayerJump(Event event, char[] name, bool dontBroadcast)
 				CPrintToChat(client, "%t", "Hooks10", g_szChatPrefix);
 				DataPack pack;
 				CreateDataTimer(0.05, DelayedVelocityCap, pack);
-				pack.WriteCell(GetClientUserId(client));
+				pack.WriteCell(client);
 				pack.WriteFloat(0.0);
 				g_bJumpZoneTimer[client] = true;
 			}
@@ -1554,7 +1551,7 @@ public Action Event_PlayerJump(Event event, char[] name, bool dontBroadcast)
 							CPrintToChat(client, "%t", "Hooks15", g_szChatPrefix);
 							DataPack pack;
 							CreateDataTimer(0.05, DelayedVelocityCap, pack);
-							pack.WriteCell(GetClientUserId(client));
+							pack.WriteCell(client);
 							pack.WriteFloat(0.0);
 						}
 					}
@@ -1578,7 +1575,7 @@ public Action ResetOneJump(Handle timer, any client)
 public Action DelayedVelocityCap(Handle timer, DataPack pack)
 {
 	pack.Reset();
-	int client = GetClientOfUserId(ReadPackCell(pack));
+	int client = pack.ReadCell();
 	float speedCap = pack.ReadFloat();
 
 	if (IsValidClient(client))

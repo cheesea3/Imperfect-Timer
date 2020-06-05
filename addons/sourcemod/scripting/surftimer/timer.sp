@@ -62,7 +62,7 @@ public Action PlayerRanksTimer(Handle timer)
 public Action UpdatePlayerProfile(Handle timer, DataPack pack)
 {
 	pack.Reset();
-	int client = GetClientOfUserId(pack.ReadCell());
+	int client = pack.ReadCell();
 	int style = pack.ReadCell();
 
 	if (IsValidClient(client) && !IsFakeClient(client))
