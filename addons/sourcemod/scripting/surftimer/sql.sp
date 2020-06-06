@@ -732,6 +732,8 @@ public void sql_CountFinishedMapsCallback(Handle owner, Handle hndl, const char[
 	int style = ReadPackCell(pack);
 	delete pack;
 
+	bool isAngleSurf = (style == STYLE_HSW || style == STYLE_SW || style == STYLE_BW || style == STYLE_WONLY) ? true : false;
+
 	char szMap[128];
 	int finishedMaps = 0, totalplayers, rank, tier, wrs;
 
@@ -832,7 +834,7 @@ public void sql_CountFinishedMapsCallback(Handle owner, Handle hndl, const char[
 			{
 				case 1:
 				{
-					if (totalplayers < 250)
+					if (totalplayers < 250 && !isAngleSurf)
 					{
 						wrpoints = float(totalplayers); // reduce points when total completion count is low
 					}
@@ -852,7 +854,7 @@ public void sql_CountFinishedMapsCallback(Handle owner, Handle hndl, const char[
 
 				case 2:
 				{
-					if (totalplayers < 250)
+					if (totalplayers < 250 && !isAngleSurf)
 					{
 						wrpoints = float(totalplayers * 2); // reduce points when total completion count is low
 					}
@@ -872,7 +874,7 @@ public void sql_CountFinishedMapsCallback(Handle owner, Handle hndl, const char[
 
 				case 3:
 				{
-					if (totalplayers < 250)
+					if (totalplayers < 250 && !isAngleSurf)
 					{
 						wrpoints = float(totalplayers * 3); // reduce points when total completion count is low
 					}
@@ -940,7 +942,7 @@ public void sql_CountFinishedMapsCallback(Handle owner, Handle hndl, const char[
 			iwrpoints = RoundToCeil(wrpoints);
 
 			// Top 10 Points - only rewarded if certain style, tier or completion count target met
-			if (rank < 11 && (totalplayers > 20 || tier > 3 || style == STYLE_HSW || style == STYLE_SIDEWAYS || style == STYLE_BW || style == STYLE_WONLY))
+			if (rank < 11 && (totalplayers > 20 || tier > 3 || isAngleSurf))
 			{
 				g_Top10Maps[client][style]++;
 

@@ -71,12 +71,14 @@ public void getSteamIDFromClient(int client, char[] buffer, int length)
 	{
 		if (!g_pr_RankingRecalc_InProgress && !g_bProfileRecalc[client])
 			return;
+
 		Format(buffer, length, "%s", g_pr_szSteamID[client]);
 	}
 	else // Get steamid - Normal point increase
 	{
 		if (!g_hPointSystem.BoolValue || !IsValidClient(client))
 			return;
+			
 		GetClientAuthId(client, AuthId_Steam2, buffer, length, true);
 	}
 	return;
