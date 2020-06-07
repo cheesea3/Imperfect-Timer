@@ -264,6 +264,7 @@ enum SkillGroup
 #include "surftimer/db/map_loader_steps.sp"
 #include "surftimer/db/player_loader.sp"
 #include "surftimer/db/player_loader_steps.sp"
+#include "surftimer/db/recalculate.sp"
 
 #include "surftimer/admin.sp"
 #include "surftimer/commands/commands.sp"

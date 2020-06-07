@@ -429,14 +429,17 @@ public void RecalcPlayerRank(int client, char steamid[128])
 {
 	int i = 66;
 	while (g_bProfileRecalc[i])
-	i++;
+	{
+		i++;
+	}
+
 	if (!g_bProfileRecalc[i])
 	{
 		char szQuery[255];
-		char szsteamid[128 * 2 + 1];
-		SQL_EscapeString(g_hDb, steamid, szsteamid, 128 * 2 + 1);
+		char szSteamId[32];
+		SQL_EscapeString(g_hDb, steamid, szSteamId, sizeof(szSteamId));
 		Format(g_pr_szSteamID[i], 32, "%s", steamid);
-		Format(szQuery, sizeof(szQuery), sql_selectPlayerName, szsteamid);
+		Format(szQuery, sizeof(szQuery), sql_selectPlayerName, szSteamId);
 		DataPack pack = CreateDataPack();
 		WritePackCell(pack, i);
 		WritePackCell(pack, client);
@@ -489,7 +492,7 @@ public void CalculatePlayerRank(int client, int style)
 	g_WRs[client][style][1] = 0; // WRBs
 	g_WRs[client][style][2] = 0; // WRCPs
 
-	getSteamIDFromClient(client, szSteamId, 32);
+	getSteamIDFromClient(client, szSteamId, sizeof(szSteamId));
 
 	DataPack pack = CreateDataPack();
 	WritePackCell(pack, client);
@@ -517,7 +520,7 @@ public void sql_CalcuatePlayerRankCallback(Handle owner, Handle hndl, const char
 
 	char szSteamId[32], szSteamId64[64];
 
-	getSteamIDFromClient(client, szSteamId, 32);
+	getSteamIDFromClient(client, szSteamId, sizeof(szSteamId));
 
 	if (IsValidClient(client))
 		GetClientAuthId(client, AuthId_SteamID64, szSteamId64, MAX_NAME_LENGTH, true);
@@ -604,7 +607,7 @@ public void sql_CountFinishedBonusCallback(Handle owner, Handle hndl, const char
 			// Total amount of players who have finished the bonus
 			// totalplayers = SQL_FetchInt(hndl, 2);
 			rank = SQL_FetchInt(hndl, 1);
-			SQL_FetchString(hndl, 0, szMap, 128);
+			SQL_FetchString(hndl, 0, szMap, sizeof(szMap));
 
 			/*float percentage = 1.0 + ((1.0 / float(totalplayers)) - (float(rank) / float(totalplayers)));
 			g_pr_points[client] += RoundToCeil(200.0 * percentage);*/
@@ -3017,7 +3020,7 @@ public void RefreshPlayerRankTable(int max)
 	g_pr_RankingRecalc_InProgress = true;
 	char szQuery[255];
 
-	// SELECT steamid, name from ck_playerrank where points > 0 ORDER BY points DESC";
+	// SELECT steamid, name from ck_playerrank where points > 0 ORDER BY points DESC LIMIT 1000";
 	// SELECT steamid, name from ck_playerrank where points > 0 ORDER BY points DESC
 	Format(szQuery, sizeof(szQuery), sql_selectRankedPlayers);
 	g_hDb.Query(sql_selectRankedPlayersCallback, szQuery, max);
@@ -3036,6 +3039,8 @@ public void sql_selectRankedPlayersCallback(Handle owner, Handle hndl, const cha
 		int i = 66;
 		int x;
 		g_pr_TableRowCount = SQL_GetRowCount(hndl);
+		PrintToConsole(g_pr_Recalc_AdminID, "Recalc: g_pr_TableRowCount=%i", g_pr_TableRowCount);
+		
 		if (g_pr_TableRowCount == 0)
 		{
 			for (int c = 1; c <= MaxClients; c++)
@@ -3055,21 +3060,32 @@ public void sql_selectRankedPlayersCallback(Handle owner, Handle hndl, const cha
 		}
 
 		if (MAX_PR_PLAYERS != data && g_pr_TableRowCount > data)
+		{
 			x = 66 + data;
+			//PrintToConsole(g_pr_Recalc_AdminID, "(x = 66 + data) [x=%i, g_pr_TableRowCount=%i, data=%i]", x, g_pr_TableRowCount, data);
+		}
 		else
+		{
 			x = 66 + g_pr_TableRowCount;
+			//PrintToConsole(g_pr_Recalc_AdminID, "(x = 66 + g_pr_TableRowCount) [x=%i, g_pr_TableRowCount=%i, data=%i]", x, g_pr_TableRowCount, data);
+		}
 
 		if (g_pr_TableRowCount > MAX_PR_PLAYERS)
+		{
 			g_pr_TableRowCount = MAX_PR_PLAYERS;
+			//PrintToConsole(g_pr_Recalc_AdminID, "(g_pr_TableRowCount = MAX_PR_PLAYERS) [g_pr_TableRowCount=%i]", g_pr_TableRowCount);
+		}
 
 		if (x > MAX_PR_PLAYERS)
-			x = MAX_PR_PLAYERS - 1;
-
-		if (IsValidClient(g_pr_Recalc_AdminID) && g_bManualRecalc)
 		{
-			int max = MAX_PR_PLAYERS - 66;
-			PrintToConsole(g_pr_Recalc_AdminID, " \n>> Recalculation started! (Only Top %i because of performance reasons)", max);
+			x = MAX_PR_PLAYERS - 1;
+			//PrintToConsole(g_pr_Recalc_AdminID, "(x = MAX_PR_PLAYERS - 1) [x=%i]", x);
 		}
+
+		//if (IsValidClient(g_pr_Recalc_AdminID) && g_bManualRecalc)
+		//{
+		//	int max = MAX_PR_PLAYERS - 66;
+		//}
 
 		while (SQL_FetchRow(hndl))
 		{
@@ -3084,8 +3100,17 @@ public void sql_selectRankedPlayersCallback(Handle owner, Handle hndl, const cha
 			}
 
 			if (i == x)
+			{
+				PrintToConsole(g_pr_Recalc_AdminID, " \n[%i] Recalc start: %s (%s)", i, g_pr_szName[i], g_pr_szSteamID[i]);
 				CalculatePlayerRank(66, 0);
+			}
 		}
+
+		//for (i = 66; i < MAX_PR_PLAYERS; i++)
+		//{
+		//		PrintToConsole(g_pr_Recalc_AdminID, " \n[%i] Recalc start: %s (%s)", i, g_pr_szName[i], g_pr_szSteamID[i]);
+		//		CalculatePlayerRank(66, 0);
+		//}
 	}
 	else
 	{
