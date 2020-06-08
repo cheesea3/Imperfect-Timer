@@ -56,7 +56,9 @@ public void SQL_ViewPlayerInfoCallback(Handle owner, Handle hndl, const char[] e
 		DisplayMenu(menu, client, MENU_TIME_FOREVER);
 	}
 	else if (IsClientInGame(client))
+	{
 		CPrintToChat(client, "%t", "PlayerNotFound", g_szChatPrefix, g_szProfileName[client]);
+	}
 }
 
 public int ProfileInfoMenuHandler(Menu menu, MenuAction action, int param1, int param2)
@@ -68,11 +70,11 @@ public int ProfileInfoMenuHandler(Menu menu, MenuAction action, int param1, int 
 		GetMenuItem(menu, param2, info, sizeof(info));
 		CPrintToChat(param1, "%t", "SQLTime1", g_szChatPrefix, info);
 	}
-	else
-		if (action == MenuAction_End)
+	else if (action == MenuAction_End)
 	{
 		if (IsValidClient(param1))
 			g_bSelectProfile[param1] = false;
+
 		delete menu;
 	}
 }

@@ -4751,7 +4751,7 @@ public int PlayRecordMenuHandler(Handle menu, MenuAction action, int param1, int
 		if (bSpec)
 		{
 			// Delay the switch to spec so the client sees the new bot name
-			Handle pack;
+			DataPack pack;
 			CreateDataTimer(0.2, SpecBot, pack);
 			WritePackCell(pack, GetClientUserId(param1));
 			WritePackCell(pack, bot);

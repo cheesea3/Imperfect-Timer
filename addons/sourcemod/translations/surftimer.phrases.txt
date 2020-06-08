@@ -158,22 +158,22 @@
 	"MapFinished1"
 	{
 		"#format"	"{1:s},{2:s},{3:s},{4:i},{5:i},{6:s},{7:s}"
-		"en"		"{1} {yellow}{2}{default} finished in {lightgreen}{3}{default}. [Rank: {lightgreen}{4}/{5} {default}{6} | Record: {lightgreen}{7}{default}]"
+		"en"		"{1} {yellow}{2}{default} finished in {lightgreen}{3}{default}. [{lightgreen}{4}/{5} {default}{6} | SR {lightgreen}{7}{default}]"
 	}
 	"MapFinished3"
 	{
 		"#format"	"{1:s},{2:s},{3:s},{4:s},{5:i},{6:i},{7:s},{8:s}"
-		"en"		"{1} {yellow}{2}{default} finished in {lightgreen}{3}{default}. Improving their best time by [{lightgreen}{4}{default}]. [Rank: {lightgreen}{5}/{6} {default}{7} | Record: {lightgreen}{8}{default}]"
+		"en"		"{1} {yellow}{2}{default} finished in {lightgreen}{3}{default}. Improving by [{lightgreen}{4}{default}]. [{lightgreen}{5}/{6} {default}{7} | SR {lightgreen}{8}{default}]"
 	}
 	"MapFinished5"
 	{
 		"#format"	"{1:s},{2:s},{3:s},{4:s},{5:i},{6:i},{7:s},{8:s}"
-		"en"		"{1} {yellow}{2}{default} finished in {lightgreen}{3}{default}. Missing their best time by [{red}{4}{default}]. [Rank: {lightgreen}{5}/{6} {default}{7} | Record: {lightgreen}{8}{default}]"
+		"en"		"{1} {yellow}{2}{default} finished in {lightgreen}{3}{default}. Missing their best time by [{red}{4}{default}]. [{lightgreen}{5}/{6} {default}{7} | SR {lightgreen}{8}{default}]"
 	}
 	"BonusFinished1"
 	{
 		"#format"	"{1:s},{2:s},{3:s},{4:s},{5:s},{6:i},{7:i},{8:s}"
-		"en"		"{1} {yellow}{2}{default} finished [{orange}{3}{default}] in {red}{4}{default}. Missing their best time by [{red}{5}{default}]. [Rank: {lightgreen}{6}/{7} {default}| Record: {lightgreen}{8}{default}]"
+		"en"		"{1} {yellow}{2}{default} finished [{orange}{3}{default}] in {red}{4}{default}. Missing their best time by [{red}{5}{default}]. [{lightgreen}{6}/{7} {default}| SR {lightgreen}{8}{default}]"
 	}
 	"BonusFinished2"
 	{
@@ -183,27 +183,27 @@
 	"BonusFinished3"
 	{
 		"#format"	"{1:s},{2:s},{3:s},{4:s},{5:s}"
-		"en"		"{1} {yellow}{2}{default} finished [{orange}{3}{default}] in {lightgreen}{4}{default}. [Rank: {lightgreen}1/1 {default}| Record: {lightgreen}{5}{default}]"
+		"en"		"{1} {yellow}{2}{default} finished [{orange}{3}{default}] in {lightgreen}{4}{default}. [{lightgreen}1/1 {default}| SR {lightgreen}{5}{default}]"
 	}
 	"BonusFinished4"
 	{
 		"#format"	"{1:s},{2:s},{3:s},{4:s},{5:s},{6:i},{7:i},{8:s}"
-		"en"		"{1} {yellow}{2}{default} finished [{orange}{3}{default}] in {lightgreen}{4}{default}. Improving the best time by {lightgreen}{5}{default}. [Rank: {lightgreen}{6}/{7} {default}| Record: {lightgreen}{8}{default}]"
+		"en"		"{1} {yellow}{2}{default} finished [{orange}{3}{default}] in {lightgreen}{4}{default}. Improving by {lightgreen}{5}{default}. [{lightgreen}{6}/{7} {default}| SR {lightgreen}{8}{default}]"
 	}
 	"BonusFinished5"
 	{
 		"#format"	"{1:s},{2:s},{3:s},{4:s},{5:s},{6:i},{7:i},{8:s}"
-		"en"		"{1} {yellow}{2}{default} finished [{orange}{3}{default}] in {lightgreen}{4}{default}. Improving the best time by {lightgreen}{5}{default}. [Rank: {lightgreen}{6}/{7} {default}| Record: {lightgreen}{8}{default}]"
+		"en"		"{1} {yellow}{2}{default} finished [{orange}{3}{default}] in {lightgreen}{4}{default}. Improving by {lightgreen}{5}{default}. [{lightgreen}{6}/{7} {default}| SR {lightgreen}{8}{default}]"
 	}
 	"BonusFinished6"
 	{
 		"#format"	"{1:s},{2:s},{3:s},{4:s},{5:s},{6:i},{7:i},{8:s}"
-		"en"		"{1} {yellow}{2}{default} finished [{orange}{3}{default}] in {lightgreen}{4}{default}. Improving their best time by {lightgreen}{5}{default}. [Rank: {lightgreen}{6}/{7} {default}| Record: {lightgreen}{8}{default}]"
+		"en"		"{1} {yellow}{2}{default} finished [{orange}{3}{default}] in {lightgreen}{4}{default}. Improving by {lightgreen}{5}{default}. [{lightgreen}{6}/{7} {default}| SR {lightgreen}{8}{default}]"
 	}
 	"BonusFinished7"
 	{
 		"#format"	"{1:s},{2:s},{3:s},{4:s},{5:i},{6:i},{7:s}"
-		"en"		"{1} {yellow}{2}{default} finished [{orange}{3}{default}] in {lightgreen}{4}{default}. [Rank: {lightgreen}{5}/{6} {default}| Record: {lightgreen}{7}{default}]"
+		"en"		"{1} {yellow}{2}{default} finished [{orange}{3}{default}] in {lightgreen}{4}{default}. [{lightgreen}{5}/{6} {default}| SR {lightgreen}{7}{default}]"
 	}
 	"PlayerNotFound"
 	{

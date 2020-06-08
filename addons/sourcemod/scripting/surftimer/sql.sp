@@ -753,8 +753,8 @@ public void sql_CountFinishedMapsCallback(Handle owner, Handle hndl, const char[
 			// Map tier
 			tier = SQL_FetchInt(hndl, 3);
 
-			if (tier > g_iHighestCompletedTier[client])
-				g_iHighestCompletedTier[client] = tier;
+			if (tier > g_iHighestCompletedTier[client][style])
+				g_iHighestCompletedTier[client][style] = tier;
 
 			finishedMaps++;
 			float wrpoints;
@@ -1018,7 +1018,7 @@ public void sql_CountFinishedMapsCallback(Handle owner, Handle hndl, const char[
 		// multiply points based on highest tier completed - helps reward skilled surfers
 		float tierMultiplier = 1.0;
 
-		switch (g_iHighestCompletedTier[client])
+		switch (g_iHighestCompletedTier[client][style])
 		{
 			case 0: tierMultiplier = 1.0;
 			case 1: tierMultiplier = 1.0;
@@ -1034,14 +1034,14 @@ public void sql_CountFinishedMapsCallback(Handle owner, Handle hndl, const char[
 //#if defined DEBUG_LOGGING
 //		char sName[MAX_NAME_LENGTH];
 //		GetClientName(client, sName, MAX_NAME_LENGTH);
-//		LogToFileEx(g_szLogFile, "[IG] Tier mutliplier for %s: %f (highest tier: %i)", sName, tierMultiplier, g_iHighestCompletedTier[client]);
+//		LogToFileEx(g_szLogFile, "[IG] Tier mutliplier for %s: %f (highest tier: %i)", sName, tierMultiplier, g_iHighestCompletedTier[client][style]);
 //#endif
 
 		g_Points[client][style][POINTS_MAP]     = RoundToCeil(float(g_Points[client][style][POINTS_MAP]) * tierMultiplier); // Map Points
 		//g_Points[client][style][POINTS_BONUS]   = RoundToCeil(float(g_Points[client][style][POINTS_BONUS]) * tierMultiplier); // Bonus Points
 		g_Points[client][style][POINTS_GROUP]   = RoundToCeil(float(g_Points[client][style][POINTS_GROUP]) * tierMultiplier); // Group Points
 		g_Points[client][style][POINTS_MAPWR]   = RoundToCeil(float(g_Points[client][style][POINTS_MAPWR]) * tierMultiplier); // Map WR Points
-		g_Points[client][style][POINTS_BONUSWR] = RoundToCeil(float(g_Points[client][style][POINTS_BONUSWR]) * tierMultiplier); // Bonus WR Points
+		//g_Points[client][style][POINTS_BONUSWR] = RoundToCeil(float(g_Points[client][style][POINTS_BONUSWR]) * tierMultiplier); // Bonus WR Points
 		g_Points[client][style][POINTS_TOPTEN]  = RoundToCeil(float(g_Points[client][style][POINTS_TOPTEN]) * tierMultiplier); // Top 10 Points
 		//g_Points[client][style][POINTS_WRCP]    = RoundToCeil(float(g_Points[client][style][POINTS_WRCP]) * tierMultiplier); // WRCP Points
 	}
@@ -1714,7 +1714,7 @@ public void db_selectBonusTopSurfers(int client, char mapname[128], int zGrp)
 	WritePackCell(pack, client);
 	WritePackString(pack, mapname);
 	WritePackCell(pack, zGrp);
-	g_hDb.Query(sql_selectTopBonusSurfersCallback, szQuery, pack);
+	g_hDb.Query(sql_selectTopBonusSurfersCallback, szQuery, pack, DBPrio_Low);
 }
 
 public void sql_selectTopBonusSurfersCallback(Handle owner, Handle hndl, const char[] error, DataPack data)
@@ -2016,7 +2016,7 @@ void db_viewAllRecords(int client, char szSteamId[32], bool rankedOnly, bool fin
 	WritePackCell(pack, rankedOnly);
 	WritePackCell(pack, finished);
 	WritePackCell(pack, top);
-	g_hDb.Query(SQL_ViewAllRecordsCallback, szQuery, pack);
+	g_hDb.Query(SQL_ViewAllRecordsCallback, szQuery, pack, DBPrio_Low);
 }
 public void SQL_ViewAllRecordsCallback(Handle owner, Handle hndl, const char[] error, DataPack pack)
 {
@@ -2093,7 +2093,7 @@ public void SQL_ViewAllRecordsCallback(Handle owner, Handle hndl, const char[] e
 		}
 
 		char szValue[128];
-		Format(szValue, sizeof(szValue), "%s%s%s - Tier: %i, Time: %s, Rank: %s/%i", szMapName, szBonus, szRanked, tier, szTime, szRank, count);
+		Format(szValue, sizeof(szValue), "%s%s%s [T%i], Time: %s, Rank: %s/%i", szMapName, szBonus, szRanked, tier, szTime, szRank, count);
 
 		PushArrayString(msgs, szValue);
 	}

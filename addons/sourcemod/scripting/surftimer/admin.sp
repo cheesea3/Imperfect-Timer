@@ -430,12 +430,12 @@ public int AdminPanelHandler(Handle menu, MenuAction action, int param1, int par
 					CPrintToChat(param1, "%t", "PrUpdateStarted", g_szChatPrefix);
 					g_bManualRecalc = true;
 					g_pr_Recalc_AdminID = param1;
-					RefreshPlayerRankTable(MAX_PR_PLAYERS);
+					RecalculatePlayerRankTable(50, 0);
 				}
 				else
 				{
-					for (int i = 66; i < MAX_PR_PLAYERS; i++)
-						g_bProfileRecalc[i] = false;
+					//for (int i = 0; i < 1000; i++)
+					//	g_bProfileRecalc[i] = false;
 					g_bManualRecalc = false;
 					g_pr_RankingRecalc_InProgress = false;
 					CPrintToChat(param1, "%t", "StopRecalculation", g_szChatPrefix);

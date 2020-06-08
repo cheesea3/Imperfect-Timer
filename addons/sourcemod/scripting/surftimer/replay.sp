@@ -866,7 +866,7 @@ public bool IsPlayerMimicing(int client)
 	return g_hBotMimicsRecord[client] != null;
 }
 
-public void RecordReplay (int client, int &buttons, int &subtype, int &seed, int &impulse, int &weapon, float angles[3], float vel[3])
+public void RecordReplay(int client, int &buttons, int &subtype, int &seed, int &impulse, int &weapon, float angles[3], float vel[3])
 {
 	if (g_hRecording[client] != null && !IsFakeClient(client))
 	{

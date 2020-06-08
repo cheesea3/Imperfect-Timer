@@ -1743,7 +1743,7 @@ stock void MapFinishedMsgs(int client, int rankThisRun = 0)
 		if (g_MapRank[client] == 99999 && IsValidClient(client))
 			CPrintToChat(client, "%t", "Misc19", g_szChatPrefix);
 
-		Handle pack;
+		DataPack pack;
 		int style = 0;
 		CreateDataTimer(1.0, UpdatePlayerProfile, pack, TIMER_FLAG_NO_MAPCHANGE);
 		WritePackCell(pack, client);

@@ -497,6 +497,7 @@ public void OnMapStart()
 		g_hTriggerMultiple.Push(iEnt);
 	}
 
+	delete g_mTriggerMultipleMenu;
 	g_mTriggerMultipleMenu = new Menu(HookZonesMenuHandler);
 	g_mTriggerMultipleMenu.SetTitle("Select a trigger");
 
@@ -569,7 +570,6 @@ public void OnMapEnd()
 
 	// Hook Zones
 	delete g_hTriggerMultiple;
-	delete g_mTriggerMultipleMenu;
 	delete g_hDestinations;
 
 	// 	delete g_hStore;

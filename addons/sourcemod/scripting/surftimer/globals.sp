@@ -586,7 +586,7 @@ int g_OldMapRank[MAXPLAYERS + 1];
 char g_szRecordPlayer[MAX_NAME_LENGTH];
 
 // Highest tier completed by the player
-int g_iHighestCompletedTier[MAXPLAYERS + 1];
+int g_iHighestCompletedTier[MAXPLAYERS + 1][MAX_STYLES];
 
 /*----------  Replay Variables  ----------*/
 

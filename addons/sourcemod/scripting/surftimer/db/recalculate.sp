@@ -1,9 +1,9 @@
-#define MAX_RECALC_COUNT 1000
+#define MAX_RECALC_COUNT 50
 
-ArrayList g_hRecalcSteamIds = null;
-ArrayList g_hRecalcNames = null;
+char g_hRecalcSteamIds[MAX_RECALC_COUNT][32];
+char g_hRecalcNames[MAX_RECALC_COUNT][64];
+
 int g_iRecalcCount;
-bool g_bRecalcPlayer[MAX_RECALC_COUNT];
 int g_iTotalPoints[MAX_RECALC_COUNT][MAX_STYLES];
 int g_iRecalcPoints[MAX_RECALC_COUNT][MAX_STYLES][7];
 
@@ -11,6 +11,8 @@ int g_iFinishedBonusCount[MAX_RECALC_COUNT][MAX_STYLES];
 int g_iWRs[MAX_RECALC_COUNT][MAX_STYLES][3]; // 0 = wr, 1 = wrb, 2 = wrcp
 int g_iCompletedStageCount[MAX_RECALC_COUNT][MAX_STYLES];
 int g_iCompletedMapCount[MAX_RECALC_COUNT][MAX_STYLES];
+int g_iTop10RecalcMaps[MAX_RECALC_COUNT][MAX_STYLES];
+int g_iGroupRecalcMaps[MAX_RECALC_COUNT][MAX_STYLES];
 
 // 0. Admins counting players points starts here
 public void RecalculatePlayerRankTable(int max, int style)
@@ -20,8 +22,8 @@ public void RecalculatePlayerRankTable(int max, int style)
 
 	g_iRecalcCount = 0;
 
-	Format(szQuery, sizeof(szQuery), "SELECT steamid, name, style from ck_playerrank where points > 0 AND style = %i ORDER BY points DESC LIMIT 1000", style);
-	g_hDb.Query(SQL_SelectRankedPlayersRecalcCallback, szQuery, max);
+	Format(szQuery, sizeof(szQuery), "SELECT steamid, name from ck_playerrank where points > 0 AND style = %i ORDER BY points DESC LIMIT 1000", style);
+	g_hDb.Query(SQL_SelectRankedPlayersRecalcCallback, szQuery, style);
 }
 
 public void SQL_SelectRankedPlayersRecalcCallback(Handle owner, Handle hndl, const char[] error, any data)
@@ -37,39 +39,15 @@ public void SQL_SelectRankedPlayersRecalcCallback(Handle owner, Handle hndl, con
 		g_iRecalcCount = SQL_GetRowCount(hndl);
 		PrintToConsole(g_pr_Recalc_AdminID, "Recalc: g_iRecalcCount=%i", g_iRecalcCount);
 
-		delete g_hRecalcSteamIds;
-		g_hRecalcSteamIds = new ArrayList(32);
-
-		delete g_hRecalcNames;
-		g_hRecalcNames = new ArrayList(64);
-		
-		// if (g_iRecalcCount == 0)
-		// {
-		// 	g_bManualRecalc = false;
-		// 	g_pr_RankingRecalc_InProgress = false;
-
-		// 	if (IsValidClient(g_pr_Recalc_AdminID))
-		// 	{
-		// 		PrintToConsole(g_pr_Recalc_AdminID, ">> Recalculation finished");
-		// 		CreateTimer(0.1, RefreshAdminMenu, g_pr_Recalc_AdminID, TIMER_FLAG_NO_MAPCHANGE);
-		// 	}
-		// }
-
-		int style = STYLE_NORMAL;
+		int style = data;
 		int i = 0;
 		while (SQL_FetchRow(hndl))
 		{
 			g_iTotalPoints[i][0] = 0;
 
-			char szSteamId[32], szName[64];
-			SQL_FetchString(hndl, 0, szSteamId, sizeof(szSteamId));
-			SQL_FetchString(hndl, 1, szName, sizeof(szName));
-			style = SQL_FetchInt(hndl, 2);
+			SQL_FetchString(hndl, 0, g_hRecalcSteamIds[i], sizeof(g_hRecalcSteamIds[]));
+			SQL_FetchString(hndl, 1, g_hRecalcNames[i], sizeof(g_hRecalcNames[]));
 
-			g_hRecalcSteamIds.PushString(szSteamId);
-			g_hRecalcNames.PushString(szName);
-
-			g_bRecalcPlayer[i] = true;
 			i++;
 		}
 
@@ -77,13 +55,9 @@ public void SQL_SelectRankedPlayersRecalcCallback(Handle owner, Handle hndl, con
 		{
 			RecalculatePlayerRank(j, style);
 		}
-
-		delete g_hRecalcSteamIds;
-		delete g_hRecalcNames;
 	}
 	else
 	{
-		g_bManualRecalc = false;
 		g_pr_RankingRecalc_InProgress = false;
 		PrintToConsole(g_pr_Recalc_AdminID, " \n>> No valid players found!");
 	}
@@ -111,22 +85,20 @@ public void RecalculatePlayerRank(int index, int style)
 	// g_GroupPoints[index][2] // G3 Points
 	// g_GroupPoints[index][3] // G4 Points
 	// g_GroupPoints[index][4] // G5 Points
-	g_GroupMaps[index][style] = 0; // Group Maps
-	g_Top10Maps[index][style] = 0; // Top 10 Maps
+	g_iGroupRecalcMaps[index][style] = 0; // Group Maps
+	g_iTop10RecalcMaps[index][style] = 0; // Top 10 Maps
 	g_iWRs[index][style][0] = 0; // WRs
 	g_iWRs[index][style][1] = 0; // WRBs
 	g_iWRs[index][style][2] = 0; // WRCPs
 
-	char szSteamId[32], szName[64];
-	g_hRecalcNames.GetString(index, szName, sizeof(szName));
-	g_hRecalcSteamIds.GetString(index, szSteamId, sizeof(szSteamId));
-	PrintToConsole(g_pr_Recalc_AdminID, " [%i] Recalc start: %s (%s)", index, szName, szSteamId);
+	if (index % 5 == 0)
+		PrintToConsole(g_pr_Recalc_AdminID, " [%i] Recalc: %s (%s)", index, g_hRecalcNames[index], g_hRecalcSteamIds[index]);
 
 	DataPack pack = CreateDataPack();
 	WritePackCell(pack, index);
 	WritePackCell(pack, style);
 
-	Format(szQuery, sizeof(szQuery), "SELECT name FROM ck_playerrank WHERE steamid = '%s' AND style = '%i';", szSteamId, style);
+	Format(szQuery, sizeof(szQuery), "SELECT name FROM ck_playerrank WHERE steamid = '%s' AND style = '%i';", g_hRecalcSteamIds[index], style);
 	g_hDb.Query(SQL_RecalculatePlayerRankCallback, szQuery, pack);
 }
 
@@ -148,14 +120,15 @@ public void SQL_RecalculatePlayerRankCallback(Handle owner, Handle hndl, const c
 	int index = ReadPackCell(pack);
 	int style = ReadPackCell(pack);
 
-	char szSteamId[32];
-	g_hRecalcSteamIds.GetString(index, szSteamId, sizeof(szSteamId));
+#if defined DEBUG_LOGGING
+	LogToFileEx(g_szLogFile, "[%i] 2. See if player exists", index);
+#endif
 
 	if (SQL_HasResultSet(hndl) && SQL_FetchRow(hndl))
 	{
 		// Next up, calculate bonus points:
 		char szQuery[512];
-		Format(szQuery, sizeof(szQuery), "SELECT a.mapname, (SELECT count(1)+1 FROM ck_bonus b WHERE a.mapname=b.mapname AND a.runtime > b.runtime AND a.zonegroup = b.zonegroup AND b.style = %i) AS rank, (SELECT count(1) FROM ck_bonus b WHERE a.mapname = b.mapname AND a.zonegroup = b.zonegroup AND b.style = %i) as total FROM ck_bonus a INNER JOIN ck_maptier tier ON a.mapname=tier.mapname WHERE steamid = '%s' AND style = %i AND tier.ranked = 1 AND tier.tier > 0;", style, style, szSteamId, style);
+		Format(szQuery, sizeof(szQuery), "SELECT a.mapname, (SELECT count(1)+1 FROM ck_bonus b WHERE a.mapname=b.mapname AND a.runtime > b.runtime AND a.zonegroup = b.zonegroup AND b.style = %i) AS rank, (SELECT count(1) FROM ck_bonus b WHERE a.mapname = b.mapname AND a.zonegroup = b.zonegroup AND b.style = %i) as total FROM ck_bonus a INNER JOIN ck_maptier tier ON a.mapname=tier.mapname WHERE steamid = '%s' AND style = %i AND tier.ranked = 1 AND tier.tier > 0;", style, style, g_hRecalcSteamIds[index], style);
 		g_hDb.Query(SQL_RecalculateBonusPointsCallback, szQuery, pack);
 	}
 }
@@ -178,13 +151,16 @@ public void SQL_RecalculateBonusPointsCallback(Handle owner, Handle hndl, const 
 	int index = ReadPackCell(pack);
 	int style = ReadPackCell(pack);
 
-	char szMap[128], szSteamId[32];
+	char szMap[128];
 	// int totalPlayers
 	int rank;
 
-	g_hRecalcSteamIds.GetString(index, szSteamId, sizeof(szSteamId));
 	int finishedBonuses = 0;
 	int wrbs = 0;
+
+#if defined DEBUG_LOGGING
+	LogToFileEx(g_szLogFile, "[%i] 3. Recalculate points gained from bonuses", index);
+#endif
 
 	if (SQL_HasResultSet(hndl))
 	{
@@ -239,7 +215,7 @@ public void SQL_RecalculateBonusPointsCallback(Handle owner, Handle hndl, const 
 	g_iWRs[index][style][1] = wrbs;
 	// Next up: Points from stages
 	char szQuery[512];
-	Format(szQuery, sizeof(szQuery), "SELECT a.mapname, a.stage, (select count(1)+1 from ck_wrcps b where a.mapname=b.mapname and a.runtimepro > b.runtimepro and a.style = b.style and a.stage = b.stage) AS `rank` FROM ck_wrcps a INNER JOIN ck_maptier tier ON a.mapname=tier.mapname where steamid = '%s' AND style = %i AND tier.ranked = 1 AND tier.tier > 0;", szSteamId, style);
+	Format(szQuery, sizeof(szQuery), "SELECT a.mapname, a.stage, (select count(1)+1 from ck_wrcps b where a.mapname=b.mapname and a.runtimepro > b.runtimepro and a.style = b.style and a.stage = b.stage) AS `rank` FROM ck_wrcps a INNER JOIN ck_maptier tier ON a.mapname=tier.mapname where steamid = '%s' AND style = %i AND tier.ranked = 1 AND tier.tier > 0;", g_hRecalcSteamIds[index], style);
 	g_hDb.Query(SQL_CountFinishedStagesCallback, szQuery, pack);
 }
 
@@ -261,13 +237,16 @@ public void SQL_CountFinishedStagesCallback(Handle owner, Handle hndl, const cha
 	int index = ReadPackCell(pack);
 	int style = ReadPackCell(pack);
 
-	char szMap[128], szSteamId[32];
+	char szMap[128];
 	// int totalPlayers, rank;
 
-	g_hRecalcSteamIds.GetString(index, szSteamId, sizeof(szSteamId));
 	int finishedStages = 0;
 	int rank;
 	int wrcps = 0;
+
+#if defined DEBUG_LOGGING
+	LogToFileEx(g_szLogFile, "[%i] 4. Calculate points gained from stages", index);
+#endif
 
 	if (SQL_HasResultSet(hndl))
 	{
@@ -297,7 +276,7 @@ public void SQL_CountFinishedStagesCallback(Handle owner, Handle hndl, const cha
 
 	// Next up: Points from maps
 	char szQuery[512];
-	Format(szQuery, sizeof(szQuery), "SELECT a.mapname, (select count(1)+1 from ck_playertimes b where a.mapname=b.mapname and a.runtimepro > b.runtimepro AND b.style = %i) AS `rank`, (SELECT count(1) FROM ck_playertimes b WHERE a.mapname = b.mapname AND b.style = %i) as total, tier.tier FROM ck_playertimes a INNER JOIN ck_maptier tier ON a.mapname=tier.mapname where steamid = '%s' AND style = %i AND tier.ranked = 1 AND tier.tier > 0;", style, style, szSteamId, style);
+	Format(szQuery, sizeof(szQuery), "SELECT a.mapname, (select count(1)+1 from ck_playertimes b where a.mapname=b.mapname and a.runtimepro > b.runtimepro AND b.style = %i) AS `rank`, (SELECT count(1) FROM ck_playertimes b WHERE a.mapname = b.mapname AND b.style = %i) as total, tier.tier FROM ck_playertimes a INNER JOIN ck_maptier tier ON a.mapname=tier.mapname where steamid = '%s' AND style = %i AND tier.ranked = 1 AND tier.tier > 0;", style, style, g_hRecalcSteamIds[index], style);
 	g_hDb.Query(SQL_RecalculateMapPointsCallback, szQuery, pack);
 }
 
@@ -322,6 +301,11 @@ public void SQL_RecalculateMapPointsCallback(Handle owner, Handle hndl, const ch
 
 	char szMap[128];
 	int finishedMaps = 0, totalPlayers, rank, tier, wrs;
+	g_iHighestCompletedTier[index][style] = 0;
+
+#if defined DEBUG_LOGGING
+	LogToFileEx(g_szLogFile, "[%i] 5. Count the points gained from regular maps", index);
+#endif
 
 	if (SQL_HasResultSet(hndl))
 	{
@@ -336,8 +320,8 @@ public void SQL_RecalculateMapPointsCallback(Handle owner, Handle hndl, const ch
 			// Map tier
 			tier = SQL_FetchInt(hndl, 3);
 
-			if (tier > g_iHighestCompletedTier[index])
-				g_iHighestCompletedTier[index] = tier;
+			if (tier > g_iHighestCompletedTier[index][style])
+				g_iHighestCompletedTier[index][style] = tier;
 
 			finishedMaps++;
 			float wrpoints;
@@ -530,7 +514,7 @@ public void SQL_RecalculateMapPointsCallback(Handle owner, Handle hndl, const ch
 			// Top 10 Points - only rewarded if certain style, tier or completion count target met
 			if (rank < 11 && (totalPlayers > 20 || tier > 3 || isAngleSurf))
 			{
-				g_Top10Maps[index][style]++;
+				g_iTop10RecalcMaps[index][style]++;
 
 				switch (rank)
 				{
@@ -561,7 +545,7 @@ public void SQL_RecalculateMapPointsCallback(Handle owner, Handle hndl, const ch
 			else if (rank > 10 && rank <= g5top)
 			{
 				// Group 1-5 Points
-				g_GroupMaps[index][style] += 1;
+				g_iGroupRecalcMaps[index][style]++;
 
 				// Calculate Group Points
 				g1points = (iwrpoints * 0.25);
@@ -601,7 +585,7 @@ public void SQL_RecalculateMapPointsCallback(Handle owner, Handle hndl, const ch
 		// multiply points based on highest tier completed - helps reward skilled surfers
 		float tierMultiplier = 1.0;
 
-		switch (g_iHighestCompletedTier[index])
+		switch (g_iHighestCompletedTier[index][style])
 		{
 			case 0: tierMultiplier = 1.0;
 			case 1: tierMultiplier = 1.0;
@@ -617,14 +601,14 @@ public void SQL_RecalculateMapPointsCallback(Handle owner, Handle hndl, const ch
 //#if defined DEBUG_LOGGING
 //		char sName[MAX_NAME_LENGTH];
 //		GetClientName(index, sName, MAX_NAME_LENGTH);
-//		LogToFileEx(g_szLogFile, "[IG] Tier mutliplier for %s: %f (highest tier: %i)", sName, tierMultiplier, g_iHighestCompletedTier[index]);
+//		LogToFileEx(g_szLogFile, "[IG] Tier mutliplier for %s: %f (highest tier: %i)", sName, tierMultiplier, g_iHighestCompletedTier[index][style]);
 //#endif
 
-		g_iRecalcPoints[index][style][POINTS_MAP]	 = RoundToCeil(float(g_iRecalcPoints[index][style][POINTS_MAP]) * tierMultiplier); // Map Points
+		g_iRecalcPoints[index][style][POINTS_MAP]	  = RoundToCeil(float(g_iRecalcPoints[index][style][POINTS_MAP]) * tierMultiplier); // Map Points
 		//g_iRecalcPoints[index][style][POINTS_BONUS]   = RoundToCeil(float(g_iRecalcPoints[index][style][POINTS_BONUS]) * tierMultiplier); // Bonus Points
 		g_iRecalcPoints[index][style][POINTS_GROUP]   = RoundToCeil(float(g_iRecalcPoints[index][style][POINTS_GROUP]) * tierMultiplier); // Group Points
 		g_iRecalcPoints[index][style][POINTS_MAPWR]   = RoundToCeil(float(g_iRecalcPoints[index][style][POINTS_MAPWR]) * tierMultiplier); // Map WR Points
-		g_iRecalcPoints[index][style][POINTS_BONUSWR] = RoundToCeil(float(g_iRecalcPoints[index][style][POINTS_BONUSWR]) * tierMultiplier); // Bonus WR Points
+		//g_iRecalcPoints[index][style][POINTS_BONUSWR] = RoundToCeil(float(g_iRecalcPoints[index][style][POINTS_BONUSWR]) * tierMultiplier); // Bonus WR Points
 		g_iRecalcPoints[index][style][POINTS_TOPTEN]  = RoundToCeil(float(g_iRecalcPoints[index][style][POINTS_TOPTEN]) * tierMultiplier); // Top 10 Points
 		//g_iRecalcPoints[index][style][POINTS_WRCP]	= RoundToCeil(float(g_iRecalcPoints[index][style][POINTS_WRCP]) * tierMultiplier); // WRCP Points
 	}
@@ -659,15 +643,18 @@ public void DB_UpdateRecalculatedPoints(int index, int style)
 	WritePackCell(pack, style);
 
 	char szQuery[512];
-	char szName[MAX_NAME_LENGTH];
 	char szNameEscaped[MAX_NAME_LENGTH * 2 + 1];
-	char szSteamId[32];
-	g_hRecalcNames.GetString(index, szName, sizeof(szName));
-	g_hRecalcSteamIds.GetString(index, szSteamId, sizeof(szSteamId));
 
-	if (g_pr_RankingRecalc_InProgress && g_bRecalcPlayer[index])
+	if (IsValidClient(g_pr_Recalc_AdminID))
+		PrintToConsole(g_pr_Recalc_AdminID, "Updating: %s", g_hRecalcNames[index]);
+
+#if defined DEBUG_LOGGING
+	LogToFileEx(g_szLogFile, "[%i] 6. Updating points to database", index);
+#endif
+
+	if (g_pr_RankingRecalc_InProgress)
 	{
-		SQL_EscapeString(g_hDb, szName, szNameEscaped, sizeof(szNameEscaped));
+		SQL_EscapeString(g_hDb, g_hRecalcNames[index], szNameEscaped, sizeof(szNameEscaped));
 		Format(szQuery, sizeof(szQuery), sql_updatePlayerRankPoints, szNameEscaped, 
 																	g_iTotalPoints[index][style], 
 																	g_iRecalcPoints[index][style][POINTS_MAPWR],
@@ -683,9 +670,10 @@ public void DB_UpdateRecalculatedPoints(int index, int style)
 																	g_iWRs[index][style][0],
 																	g_iWRs[index][style][1],
 																	g_iWRs[index][style][2],
-																	g_Top10Maps[index][style],
-																	g_GroupMaps[index][style],
-																	szSteamId, style);
+																	g_iTop10RecalcMaps[index][style],
+																	g_iGroupRecalcMaps[index][style],
+																	g_hRecalcSteamIds[index],
+																	style);
 		g_hDb.Query(SQL_UpdateRecalculatedPlayerPointsCallback, szQuery, pack);
 	}
 }
@@ -702,23 +690,21 @@ public void SQL_UpdateRecalculatedPlayerPointsCallback(Handle owner, Handle hndl
 
 	ResetPack(pack);
 	int index = ReadPackCell(pack);
-	int style = ReadPackCell(pack);
+	//int style = ReadPackCell(pack);
 	delete pack;
 
+#if defined DEBUG_LOGGING
+	LogToFileEx(g_szLogFile, "[%i] 7. Finish recalculations for player", index);
+#endif
+
 	// If was recalculating points, go to the next player, announce or end calculating
-	if (g_pr_RankingRecalc_InProgress || g_bRecalcPlayer[index])
+	if (g_pr_RankingRecalc_InProgress && IsValidClient(g_pr_Recalc_AdminID))
 	{
-		g_bRecalcPlayer[index] = false;
-		if (g_pr_RankingRecalc_InProgress)
-		{
-			// console info
-			if (IsValidClient(g_pr_Recalc_AdminID) && g_bManualRecalc)
-				PrintToConsole(g_pr_Recalc_AdminID, "%i/%i", g_pr_Recalc_ClientID, g_iRecalcCount);
-		}
+		PrintToConsole(g_pr_Recalc_AdminID, "%i/%i", g_pr_Recalc_ClientID, g_iRecalcCount);
 	}
-	else // Gaining points normally
-	{
-		g_pr_Calculating[index] = false;
-		db_GetPlayerRank(index);
-	}
+	//else
+	//{
+	//	g_pr_Calculating[index] = false;
+	//	db_GetPlayerRankRecalc(index);
+	//}
 }

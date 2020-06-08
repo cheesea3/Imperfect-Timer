@@ -701,6 +701,7 @@ public Action OnTouchAllTriggers(int entity, int other)
 {
 	if (other >= 1 && other <= MaxClients && IsFakeClient(other))
 		return Plugin_Handled;
+		
 	return Plugin_Continue;
 }
 
@@ -708,6 +709,7 @@ public Action OnEndTouchAllTriggers(int entity, int other)
 {
 	if (other >= 1 && other <= MaxClients && IsFakeClient(other))
 		return Plugin_Handled;
+
 	return Plugin_Continue;
 }
 
@@ -969,20 +971,20 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 
 			GetClientEyeAngles(client, eye);
 
-			eye[0] = Cosine( DegToRad( eye[1] ) );
-			eye[1] = Sine( DegToRad( eye[1] ) );
+			eye[0] = Cosine(DegToRad(eye[1]));
+			eye[1] = Sine(DegToRad(eye[1]));
 			eye[2] = 0.0;
 
 			GetEntPropVector(client, Prop_Data, "m_vecVelocity", velocity);
 
 			velocity[2] = 0.0;
 
-			float len = SquareRoot( velocity[0] * velocity[0] + velocity[1] * velocity[1] );
+			float len = SquareRoot(velocity[0] * velocity[0] + velocity[1] * velocity[1]);
 
 			velocity[0] /= len;
 			velocity[1] /= len;
 
-			float val = GetVectorDotProduct( eye, velocity );
+			float val = GetVectorDotProduct(eye, velocity);
 
 			// CPrintToChat(client, "%.2f", val); // for testing
 

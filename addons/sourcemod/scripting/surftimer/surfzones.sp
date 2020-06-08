@@ -330,7 +330,9 @@ public Action StartTouchTrigger(int caller, int activator)
 				lastCheckpoint[g_iClientInZone[client][2]][client] = iZoneTypeId;
 			}
 			else if (!g_bTimerRunning[client])
+			{
 				g_players[client].currentStyle = g_players[client].initialStyle;
+			}
 
 			if (g_bWrcpTimeractivated[client])
 				g_bWrcpTimeractivated[client] = false;
@@ -598,21 +600,21 @@ public Action EndTouchTrigger(int caller, int activator)
 	else if (iZoneType == ZONETYPE_STAGE)
 	{
 		// targetname filters
-		if (StrEqual(g_szMapName, "surf_treespam") && g_Stage[g_iClientInZone[client][2]][client] == 4)
-		{
-			DispatchKeyValue(client, "targetname", "s4neutral");
-		}
-		else if (StrEqual(g_szMapName, "surf_looksmodern"))
-		{
-			if (g_Stage[g_iClientInZone[client][2]][client] == 2)
-				DispatchKeyValue(client, "classname", "two_1");
-			else if (g_Stage[g_iClientInZone[client][2]][client] == 3)
-				DispatchKeyValue(client, "classname", "threer");
-			else if (g_Stage[g_iClientInZone[client][2]][client] == 4)
-				DispatchKeyValue(client, "classname", "four_1");
-			else if (g_Stage[g_iClientInZone[client][2]][client] == 5)
-				DispatchKeyValue(client, "classname", "five_1");
-		}
+		// if (StrEqual(g_szMapName, "surf_treespam") && g_Stage[g_iClientInZone[client][2]][client] == 4)
+		// {
+		// 	DispatchKeyValue(client, "targetname", "s4neutral");
+		// }
+		// else if (StrEqual(g_szMapName, "surf_looksmodern"))
+		// {
+		// 	if (g_Stage[g_iClientInZone[client][2]][client] == 2)
+		// 		DispatchKeyValue(client, "classname", "two_1");
+		// 	else if (g_Stage[g_iClientInZone[client][2]][client] == 3)
+		// 		DispatchKeyValue(client, "classname", "threer");
+		// 	else if (g_Stage[g_iClientInZone[client][2]][client] == 4)
+		// 		DispatchKeyValue(client, "classname", "four_1");
+		// 	else if (g_Stage[g_iClientInZone[client][2]][client] == 5)
+		// 		DispatchKeyValue(client, "classname", "five_1");
+		// }
 
 		g_bInStageZone[client] = false;
 
