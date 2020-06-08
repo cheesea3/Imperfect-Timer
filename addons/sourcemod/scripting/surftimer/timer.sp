@@ -365,11 +365,11 @@ void SetClanTag(int client)
 	} 
 	else if (playerState == PLS_LOADING)
 	{
-		Format(tag, sizeof(tag), "LOAD %i/%i", GetPlayerLoadStep(client), GetPlayerLoadStepMax());
+		Format(tag, sizeof(tag), "LOAD %i/%i", GetPlayerLoadStep(client), MAX_LOAD_STEPS);
 	}
 	else if (playerState != PLS_LOADED)
 	{
-		Format(tag, sizeof(tag), "ERROR %i/%i", GetPlayerLoadStep(client), GetPlayerLoadStepMax());
+		Format(tag, sizeof(tag), "ERROR %i/%i", GetPlayerLoadStep(client), MAX_LOAD_STEPS);
 	}
 	else if (!StrEqual(g_pr_rankname[client], ""))
 	{

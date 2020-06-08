@@ -390,24 +390,18 @@ public void ckAdminMenu(int client)
 		adminmenu.OptionFlags = MENUFLAG_BUTTON_EXIT;
 		if (g_AdminMenuLastPage[client] < 6)
 			adminmenu.DisplayAt(client, 0, MENU_TIME_FOREVER);
-		else
-			if (g_AdminMenuLastPage[client] < 12)
-				adminmenu.DisplayAt(client, 6, MENU_TIME_FOREVER);
-			else
-				if (g_AdminMenuLastPage[client] < 18)
-					adminmenu.DisplayAt(client, 12, MENU_TIME_FOREVER);
-				else
-					if (g_AdminMenuLastPage[client] < 24)
-						adminmenu.DisplayAt(client, 18, MENU_TIME_FOREVER);
-					else
-						if (g_AdminMenuLastPage[client] < 30)
-							adminmenu.DisplayAt(client, 24, MENU_TIME_FOREVER);
-						else
-							if (g_AdminMenuLastPage[client] < 36)
-								adminmenu.DisplayAt(client, 30, MENU_TIME_FOREVER);
-							else
-								if (g_AdminMenuLastPage[client] < 42)
-									adminmenu.DisplayAt(client, 36, MENU_TIME_FOREVER);
+		else if (g_AdminMenuLastPage[client] < 12)
+			adminmenu.DisplayAt(client, 6, MENU_TIME_FOREVER);
+		else if (g_AdminMenuLastPage[client] < 18)
+			adminmenu.DisplayAt(client, 12, MENU_TIME_FOREVER);
+		else if (g_AdminMenuLastPage[client] < 24)
+			adminmenu.DisplayAt(client, 18, MENU_TIME_FOREVER);
+		else if (g_AdminMenuLastPage[client] < 30)
+			adminmenu.DisplayAt(client, 24, MENU_TIME_FOREVER);
+		else if (g_AdminMenuLastPage[client] < 36)
+			adminmenu.DisplayAt(client, 30, MENU_TIME_FOREVER);
+		else if (g_AdminMenuLastPage[client] < 42)
+			adminmenu.DisplayAt(client, 36, MENU_TIME_FOREVER);
 	}
 	else
 	{

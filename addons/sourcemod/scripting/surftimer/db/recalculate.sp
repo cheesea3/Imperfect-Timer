@@ -1,3 +1,4 @@
+
 #define MAX_RECALC_COUNT 50
 
 char g_hRecalcSteamIds[MAX_RECALC_COUNT][32];
@@ -14,6 +15,8 @@ int g_iCompletedMapCount[MAX_RECALC_COUNT][MAX_STYLES];
 int g_iTop10RecalcMaps[MAX_RECALC_COUNT][MAX_STYLES];
 int g_iGroupRecalcMaps[MAX_RECALC_COUNT][MAX_STYLES];
 
+int g_iCurrentRecalcIndex;
+
 // 0. Admins counting players points starts here
 public void RecalculatePlayerRankTable(int max, int style)
 {
@@ -21,8 +24,9 @@ public void RecalculatePlayerRankTable(int max, int style)
 	char szQuery[255];
 
 	g_iRecalcCount = 0;
+	g_iCurrentRecalcIndex = 0;
 
-	Format(szQuery, sizeof(szQuery), "SELECT steamid, name from ck_playerrank where points > 0 AND style = %i ORDER BY points DESC LIMIT 1000", style);
+	Format(szQuery, sizeof(szQuery), "SELECT steamid, name from ck_playerrank where points > 0 AND style = %i ORDER BY points DESC LIMIT %i", style, max);
 	g_hDb.Query(SQL_SelectRankedPlayersRecalcCallback, szQuery, style);
 }
 
@@ -43,7 +47,7 @@ public void SQL_SelectRankedPlayersRecalcCallback(Handle owner, Handle hndl, con
 		int i = 0;
 		while (SQL_FetchRow(hndl))
 		{
-			g_iTotalPoints[i][0] = 0;
+			g_iTotalPoints[i][style] = 0;
 
 			SQL_FetchString(hndl, 0, g_hRecalcSteamIds[i], sizeof(g_hRecalcSteamIds[]));
 			SQL_FetchString(hndl, 1, g_hRecalcNames[i], sizeof(g_hRecalcNames[]));
@@ -51,10 +55,7 @@ public void SQL_SelectRankedPlayersRecalcCallback(Handle owner, Handle hndl, con
 			i++;
 		}
 
-		for (int j = 0; j < g_iRecalcCount; j++)
-		{
-			RecalculatePlayerRank(j, style);
-		}
+		RecalculatePlayerRank(g_iCurrentRecalcIndex, style);
 	}
 	else
 	{
@@ -73,13 +74,13 @@ public void RecalculatePlayerRank(int index, int style)
 	// Initialize point recalculation
 	g_iTotalPoints[index][style] = 0;
 
-	g_iRecalcPoints[index][style][POINTS_MAP]	 = 0; // Map Points
+	g_iRecalcPoints[index][style][POINTS_MAP]	  = 0; // Map Points
 	g_iRecalcPoints[index][style][POINTS_BONUS]   = 0; // Bonus Points
 	g_iRecalcPoints[index][style][POINTS_GROUP]   = 0; // Group Points
 	g_iRecalcPoints[index][style][POINTS_MAPWR]   = 0; // Map WR Points
 	g_iRecalcPoints[index][style][POINTS_BONUSWR] = 0; // Bonus WR Points
 	g_iRecalcPoints[index][style][POINTS_TOPTEN]  = 0; // Top 10 Points
-	g_iRecalcPoints[index][style][POINTS_WRCP]	= 0; // WRCP Points
+	g_iRecalcPoints[index][style][POINTS_WRCP]	  = 0; // WRCP Points
 	// g_GroupPoints[index][0] // G1 Points
 	// g_GroupPoints[index][1] // G2 Points
 	// g_GroupPoints[index][2] // G3 Points
@@ -619,18 +620,6 @@ public void SQL_RecalculateMapPointsCallback(Handle owner, Handle hndl, const ch
 	// WRs
 	g_iWRs[index][style][0] = wrs;
 
-	/*
-	// TODO
-	int totalperc = g_iCompletedStageCount[index][style] + g_iFinishedBonusCount[index][style] + g_iCompletedMapCount[index][style];
-	int totalcomp = g_pr_StageCount + g_pr_BonusCount + g_pr_MapCount[0];
-	float ftotalperc;
-
-	ftotalperc = (float(totalperc) / (float(totalcomp))) * 100.0;
-
-	if (IsValidClient(index) && !IsFakeClient(index))
-		CS_SetMVPCount(index, (RoundFloat(ftotalperc)));
-	*/
-
 	// Done checking, update points
 	DB_UpdateRecalculatedPoints(index, style);
 }
@@ -646,7 +635,7 @@ public void DB_UpdateRecalculatedPoints(int index, int style)
 	char szNameEscaped[MAX_NAME_LENGTH * 2 + 1];
 
 	if (IsValidClient(g_pr_Recalc_AdminID))
-		PrintToConsole(g_pr_Recalc_AdminID, "Updating: %s", g_hRecalcNames[index]);
+		PrintToConsole(g_pr_Recalc_AdminID, "[%i] %s", index, g_hRecalcNames[index]);
 
 #if defined DEBUG_LOGGING
 	LogToFileEx(g_szLogFile, "[%i] 6. Updating points to database", index);
@@ -690,7 +679,7 @@ public void SQL_UpdateRecalculatedPlayerPointsCallback(Handle owner, Handle hndl
 
 	ResetPack(pack);
 	int index = ReadPackCell(pack);
-	//int style = ReadPackCell(pack);
+	int style = ReadPackCell(pack);
 	delete pack;
 
 #if defined DEBUG_LOGGING
@@ -698,9 +687,19 @@ public void SQL_UpdateRecalculatedPlayerPointsCallback(Handle owner, Handle hndl
 #endif
 
 	// If was recalculating points, go to the next player, announce or end calculating
-	if (g_pr_RankingRecalc_InProgress && IsValidClient(g_pr_Recalc_AdminID))
+	//if (g_pr_RankingRecalc_InProgress && IsValidClient(g_pr_Recalc_AdminID))
+	//{
+	//	PrintToConsole(g_pr_Recalc_AdminID, "%i/%i", g_pr_Recalc_ClientID, g_iRecalcCount);
+	//}
+
+	if (g_iCurrentRecalcIndex < MAX_RECALC_COUNT)
 	{
-		PrintToConsole(g_pr_Recalc_AdminID, "%i/%i", g_pr_Recalc_ClientID, g_iRecalcCount);
+		g_iCurrentRecalcIndex++;
+		RecalculatePlayerRank(g_iCurrentRecalcIndex, style);
+	}
+	else
+	{
+		g_pr_RankingRecalc_InProgress = false;
 	}
 	//else
 	//{

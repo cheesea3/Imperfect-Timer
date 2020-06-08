@@ -2929,30 +2929,37 @@ public void CenterHudDead(int client)
 				Format(sResult, sizeof(sResult), "<font color='#00ff00'>A</font>");
 			else
 				Format(sResult, sizeof(sResult), "_");
+			
 			if (Buttons & IN_FORWARD)
 				Format(sResult, sizeof(sResult), "%s <font color='#00ff00'>W</font>", sResult);
 			else
 				Format(sResult, sizeof(sResult), "%s _", sResult);
+			
 			if (Buttons & IN_BACK)
 				Format(sResult, sizeof(sResult), "%s <font color='#00ff00'>S</font>", sResult);
 			else
 				Format(sResult, sizeof(sResult), "%s _", sResult);
+			
 			if (Buttons & IN_MOVERIGHT)
 				Format(sResult, sizeof(sResult), "%s <font color='#00ff00'>D</font>", sResult);
 			else
 				Format(sResult, sizeof(sResult), "%s _", sResult);
+			
 			if (Buttons & IN_DUCK)
 				Format(sResult, sizeof(sResult), "%s - <font color='#00ff00'>+D</font>", sResult);
 			else
 				Format(sResult, sizeof(sResult), "%s - __", sResult);
+			
 			if (Buttons & IN_JUMP)
 				Format(sResult, sizeof(sResult), "%s <font color='#00ff00'>+J</font>", sResult);
 			else
 				Format(sResult, sizeof(sResult), "%s __", sResult);
+			
 			if (Buttons & IN_LEFT)
 				Format(sResult, sizeof(sResult), "%s <font color='#00ff00'>+L</font>", sResult);
 			else
 				Format(sResult, sizeof(sResult), "%s __", sResult);
+			
 			if (Buttons & IN_RIGHT)
 				Format(sResult, sizeof(sResult), "%s <font color='#00ff00'>+R</font>", sResult);
 			else
@@ -3028,13 +3035,13 @@ public void CenterHudAlive(int client)
 
 	if (playerState == PLS_LOADING)
 	{
-		PrintHintText(client, "<font color='#FFFF00'>Loading your account ... %i/%i</font>", GetPlayerLoadStep(client), GetPlayerLoadStepMax());
+		PrintHintText(client, "<font color='#FFFF00'>Loading your account ... %i/%i</font>", GetPlayerLoadStep(client), MAX_LOAD_STEPS);
 		return;
 	}
 
 	if (playerState != PLS_LOADED)
 	{
-		PrintHintText(client, "<font color='#FFFF00'>Account Load Error %i/%i</font>", GetPlayerLoadStep(client), GetPlayerLoadStepMax());
+		PrintHintText(client, "<font color='#FFFF00'>Account Load Error %i/%i</font>", GetPlayerLoadStep(client), MAX_LOAD_STEPS);
 		return;
 	}
 
@@ -3126,12 +3133,12 @@ public void CenterHudAlive(int client)
 						{
 							// fluffys
 							if (g_bPracticeMode[client])
-								Format(g_szLastSRDifference[client], 64, "WR: %s", g_szRecordMapTime);
+								Format(g_szLastSRDifference[client], 64, "SR: %s", g_szRecordMapTime);
 							else
-								Format(g_szLastSRDifference[client], 64, "WR: %s", g_szRecordMapTime);
+								Format(g_szLastSRDifference[client], 64, "SR: %s", g_szRecordMapTime);
 						}
 						else
-							Format(g_szLastSRDifference[client], 64, "WR: N/A");
+							Format(g_szLastSRDifference[client], 64, "SR: N/A");
 					}
 					else if (g_iClientInZone[client][2] == 0 && g_players[client].currentStyle != STYLE_NORMAL) // Styles
 					{
@@ -3139,19 +3146,19 @@ public void CenterHudAlive(int client)
 						{
 							// fluffys
 							if (g_bPracticeMode[client])
-								Format(g_szLastSRDifference[client], 64, "WR: %s", g_szRecordStyleMapTime[style]);
+								Format(g_szLastSRDifference[client], 64, "SR: %s", g_szRecordStyleMapTime[style]);
 							else
-								Format(g_szLastSRDifference[client], 64, "WR: %s", g_szRecordStyleMapTime[style]);
+								Format(g_szLastSRDifference[client], 64, "SR: %s", g_szRecordStyleMapTime[style]);
 						}
 						else
-							Format(g_szLastSRDifference[client], 64, "WR: N/A");
+							Format(g_szLastSRDifference[client], 64, "SR: N/A");
 					}
 					else
 					{
 						if (g_players[client].currentStyle == STYLE_NORMAL)
-							Format(g_szLastSRDifference[client], 64, "WR: %s", g_szBonusFastestTime[g_iClientInZone[client][2]]);
+							Format(g_szLastSRDifference[client], 64, "SR: %s", g_szBonusFastestTime[g_iClientInZone[client][2]]);
 						else if (g_players[client].currentStyle != 0) // Styles
-							Format(g_szLastSRDifference[client], 64, "WR: %s", g_szStyleBonusFastestTime[style][g_iClientInZone[client][2]]);
+							Format(g_szLastSRDifference[client], 64, "SR: %s", g_szStyleBonusFastestTime[style][g_iClientInZone[client][2]]);
 					}
 				}
 				Format(module[i], 128, "%s", g_szLastSRDifference[client]);
@@ -3341,7 +3348,7 @@ public void SideHudAlive(int client)
 				{
 					ExplodeString(g_szLastSRDifference[client], ">", szBuffer, 2, 128);
 					ExplodeString(szBuffer[1], "<", szBuffer, 2, 128);
-					Format(szWR, 128, "WR: %s", szBuffer[0]);
+					Format(szWR, 128, "SR: %s", szBuffer[0]);
 				}
 				else
 					Format(szWR, 128, "%s", g_szLastSRDifference[client]);
@@ -3602,7 +3609,7 @@ public void Checkpoint(int client, int zone, int zonegroup, float time)
 		g_fLastDifferenceTime[client] = GetGameTime();
 	}
 	else
-		Format(sz_srDiff, 128, "%cWR: %cN/A%c", WHITE, LIGHTGREEN, WHITE);
+		Format(sz_srDiff, 128, "%cSR: %cN/A%c", WHITE, LIGHTGREEN, WHITE);
 
 
 	// Get client name for spectators

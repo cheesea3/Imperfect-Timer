@@ -238,11 +238,6 @@ int GetPlayerLoadStep(int client)
 	return g_playerLoadStep[client];
 }
 
-int GetPlayerLoadStepMax()
-{
-	return MAX_LOAD_STEPS;
-}
-
 bool IsPlayerLoaded(int client)
 {
 	return g_playerLoadState[client] == PLS_LOADED;
