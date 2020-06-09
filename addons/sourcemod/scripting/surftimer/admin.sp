@@ -421,18 +421,18 @@ public int AdminPanelHandler(Handle menu, MenuAction action, int param1, int par
 			{
 				if (!g_pr_RankingRecalc_InProgress)
 				{
-					CPrintToChat(param1, "%t", "PrUpdateStarted", g_szChatPrefix);
-					g_bManualRecalc = true;
-					g_pr_Recalc_AdminID = param1;
-					RecalculatePlayerRankTable(50, 0);
+					// CPrintToChat(param1, "%t", "PrUpdateStarted", g_szChatPrefix);
+					// g_bManualRecalc = true;
+					// g_pr_Recalc_AdminID = param1;
+					// RecalculatePlayerRankTable(1000, 0);
 				}
 				else
 				{
 					//for (int i = 0; i < 1000; i++)
 					//	g_bProfileRecalc[i] = false;
-					g_bManualRecalc = false;
-					g_pr_RankingRecalc_InProgress = false;
-					CPrintToChat(param1, "%t", "StopRecalculation", g_szChatPrefix);
+					// g_bManualRecalc = false;
+					// g_pr_RankingRecalc_InProgress = false;
+					// CPrintToChat(param1, "%t", "StopRecalculation", g_szChatPrefix);
 				}
 			}
 

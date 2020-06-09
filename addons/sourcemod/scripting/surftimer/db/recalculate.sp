@@ -1,5 +1,4 @@
-
-#define MAX_RECALC_COUNT 50
+#define MAX_RECALC_COUNT 100
 
 char g_hRecalcSteamIds[MAX_RECALC_COUNT][32];
 char g_hRecalcNames[MAX_RECALC_COUNT][64];
@@ -14,6 +13,7 @@ int g_iCompletedStageCount[MAX_RECALC_COUNT][MAX_STYLES];
 int g_iCompletedMapCount[MAX_RECALC_COUNT][MAX_STYLES];
 int g_iTop10RecalcMaps[MAX_RECALC_COUNT][MAX_STYLES];
 int g_iGroupRecalcMaps[MAX_RECALC_COUNT][MAX_STYLES];
+int g_iHighestTierRecalc[MAX_RECALC_COUNT][MAX_STYLES];
 
 int g_iCurrentRecalcIndex;
 
@@ -26,7 +26,7 @@ public void RecalculatePlayerRankTable(int max, int style)
 	g_iRecalcCount = 0;
 	g_iCurrentRecalcIndex = 0;
 
-	Format(szQuery, sizeof(szQuery), "SELECT steamid, name from ck_playerrank where points > 0 AND style = %i ORDER BY points DESC LIMIT %i", style, max);
+	Format(szQuery, sizeof(szQuery), "SELECT steamid, name from ck_playerrank where points > 1 AND style = %i ORDER BY points DESC LIMIT %i", style, max);
 	g_hDb.Query(SQL_SelectRankedPlayersRecalcCallback, szQuery, style);
 }
 
@@ -92,9 +92,6 @@ public void RecalculatePlayerRank(int index, int style)
 	g_iWRs[index][style][1] = 0; // WRBs
 	g_iWRs[index][style][2] = 0; // WRCPs
 
-	if (index % 5 == 0)
-		PrintToConsole(g_pr_Recalc_AdminID, " [%i] Recalc: %s (%s)", index, g_hRecalcNames[index], g_hRecalcSteamIds[index]);
-
 	DataPack pack = CreateDataPack();
 	WritePackCell(pack, index);
 	WritePackCell(pack, style);
@@ -120,10 +117,6 @@ public void SQL_RecalculatePlayerRankCallback(Handle owner, Handle hndl, const c
 	ResetPack(pack);
 	int index = ReadPackCell(pack);
 	int style = ReadPackCell(pack);
-
-#if defined DEBUG_LOGGING
-	LogToFileEx(g_szLogFile, "[%i] 2. See if player exists", index);
-#endif
 
 	if (SQL_HasResultSet(hndl) && SQL_FetchRow(hndl))
 	{
@@ -153,23 +146,19 @@ public void SQL_RecalculateBonusPointsCallback(Handle owner, Handle hndl, const 
 	int style = ReadPackCell(pack);
 
 	char szMap[128];
-	// int totalPlayers
+	int totalPlayers;
 	int rank;
 
 	int finishedBonuses = 0;
 	int wrbs = 0;
-
-#if defined DEBUG_LOGGING
-	LogToFileEx(g_szLogFile, "[%i] 3. Recalculate points gained from bonuses", index);
-#endif
 
 	if (SQL_HasResultSet(hndl))
 	{
 		while (SQL_FetchRow(hndl))
 		{
 			finishedBonuses++;
-			// totalPlayers = SQL_FetchInt(hndl, 2);
 			rank = SQL_FetchInt(hndl, 1);
+			totalPlayers = SQL_FetchInt(hndl, 2);
 			SQL_FetchString(hndl, 0, szMap, sizeof(szMap));
 
 			int points = 0;
@@ -178,29 +167,32 @@ public void SQL_RecalculateBonusPointsCallback(Handle owner, Handle hndl, const 
 			{
 				case 1:
 				{
-					g_iTotalPoints[index][style] += 50;
-					g_iRecalcPoints[index][style][POINTS_BONUSWR] += 50;
+					int p = totalPlayers >= 3 ? 58 : 50;
+					g_iTotalPoints[index][style] += p;
+					g_iRecalcPoints[index][style][POINTS_BONUSWR] += p;
+
 					wrbs++;
 				}
 
-				case 2:  points = 45;
-				case 3:  points = 40;
-				case 4:  points = 38;
-				case 5:  points = 36;
-				case 6:  points = 34;
-				case 7:  points = 32;
-				case 8:  points = 30;
-				case 9:  points = 28;
-				case 10: points = 26;
-				case 11: points = 24;
-				case 12: points = 22;
-				case 13: points = 20;
-				case 14: points = 18;
-				case 15: points = 16;
-				case 16: points = 14;
+				case 2:  points = totalPlayers >= 3 ? 48 : 38;
+				case 3:  points = totalPlayers >= 3 ? 42 : 36;
+				case 4:  points = 32;
+				case 5:  points = 30;
+				case 6:  points = 28;
+				case 7:  points = 26;
+				case 8:  points = 24;
+				case 9:  points = 22;
+				case 10: points = 20;
+				case 11: points = 18;
+				case 12: points = 17;
+				case 13: points = 16;
+				case 14: points = 15;
+				case 15: points = 14;
+				case 16: points = 13;
 				case 17: points = 12;
 				case 18: points = 11;
 				case 19: points = 10;
+				case 20: points = 10;
 				default: points = 5;
 			}
 
@@ -244,10 +236,6 @@ public void SQL_CountFinishedStagesCallback(Handle owner, Handle hndl, const cha
 	int finishedStages = 0;
 	int rank;
 	int wrcps = 0;
-
-#if defined DEBUG_LOGGING
-	LogToFileEx(g_szLogFile, "[%i] 4. Calculate points gained from stages", index);
-#endif
 
 	if (SQL_HasResultSet(hndl))
 	{
@@ -302,11 +290,7 @@ public void SQL_RecalculateMapPointsCallback(Handle owner, Handle hndl, const ch
 
 	char szMap[128];
 	int finishedMaps = 0, totalPlayers, rank, tier, wrs;
-	g_iHighestCompletedTier[index][style] = 0;
-
-#if defined DEBUG_LOGGING
-	LogToFileEx(g_szLogFile, "[%i] 5. Count the points gained from regular maps", index);
-#endif
+	g_iHighestTierRecalc[index][style] = 0;
 
 	if (SQL_HasResultSet(hndl))
 	{
@@ -321,8 +305,8 @@ public void SQL_RecalculateMapPointsCallback(Handle owner, Handle hndl, const ch
 			// Map tier
 			tier = SQL_FetchInt(hndl, 3);
 
-			if (tier > g_iHighestCompletedTier[index][style])
-				g_iHighestCompletedTier[index][style] = tier;
+			if (tier > g_iHighestTierRecalc[index][style])
+				g_iHighestTierRecalc[index][style] = tier;
 
 			finishedMaps++;
 			float wrpoints;
@@ -586,7 +570,7 @@ public void SQL_RecalculateMapPointsCallback(Handle owner, Handle hndl, const ch
 		// multiply points based on highest tier completed - helps reward skilled surfers
 		float tierMultiplier = 1.0;
 
-		switch (g_iHighestCompletedTier[index][style])
+		switch (g_iHighestTierRecalc[index][style])
 		{
 			case 0: tierMultiplier = 1.0;
 			case 1: tierMultiplier = 1.0;
@@ -602,7 +586,7 @@ public void SQL_RecalculateMapPointsCallback(Handle owner, Handle hndl, const ch
 //#if defined DEBUG_LOGGING
 //		char sName[MAX_NAME_LENGTH];
 //		GetClientName(index, sName, MAX_NAME_LENGTH);
-//		LogToFileEx(g_szLogFile, "[IG] Tier mutliplier for %s: %f (highest tier: %i)", sName, tierMultiplier, g_iHighestCompletedTier[index][style]);
+//		LogToFileEx(g_szLogFile, "[IG] Tier mutliplier for %s: %f (highest tier: %i)", sName, tierMultiplier, g_iHighestTierRecalc[index][style]);
 //#endif
 
 		g_iRecalcPoints[index][style][POINTS_MAP]	  = RoundToCeil(float(g_iRecalcPoints[index][style][POINTS_MAP]) * tierMultiplier); // Map Points
@@ -636,10 +620,6 @@ public void DB_UpdateRecalculatedPoints(int index, int style)
 
 	if (IsValidClient(g_pr_Recalc_AdminID))
 		PrintToConsole(g_pr_Recalc_AdminID, "[%i] %s", index, g_hRecalcNames[index]);
-
-#if defined DEBUG_LOGGING
-	LogToFileEx(g_szLogFile, "[%i] 6. Updating points to database", index);
-#endif
 
 	if (g_pr_RankingRecalc_InProgress)
 	{
@@ -678,21 +658,12 @@ public void SQL_UpdateRecalculatedPlayerPointsCallback(Handle owner, Handle hndl
 	}
 
 	ResetPack(pack);
-	int index = ReadPackCell(pack);
+	//int index = 
+	ReadPackCell(pack);
 	int style = ReadPackCell(pack);
 	delete pack;
 
-#if defined DEBUG_LOGGING
-	LogToFileEx(g_szLogFile, "[%i] 7. Finish recalculations for player", index);
-#endif
-
-	// If was recalculating points, go to the next player, announce or end calculating
-	//if (g_pr_RankingRecalc_InProgress && IsValidClient(g_pr_Recalc_AdminID))
-	//{
-	//	PrintToConsole(g_pr_Recalc_AdminID, "%i/%i", g_pr_Recalc_ClientID, g_iRecalcCount);
-	//}
-
-	if (g_iCurrentRecalcIndex < MAX_RECALC_COUNT)
+	if (g_iCurrentRecalcIndex < g_iRecalcCount - 1)
 	{
 		g_iCurrentRecalcIndex++;
 		RecalculatePlayerRank(g_iCurrentRecalcIndex, style);

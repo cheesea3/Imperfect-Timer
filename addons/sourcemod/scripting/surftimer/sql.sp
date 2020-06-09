@@ -592,7 +592,7 @@ public void sql_CountFinishedBonusCallback(Handle owner, Handle hndl, const char
 	int style = ReadPackCell(pack);
 
 	char szMap[128], szSteamId[32];
-	// int totalplayers
+	int totalPlayers;
 	int rank;
 
 	getSteamIDFromClient(client, szSteamId, 32);
@@ -604,13 +604,9 @@ public void sql_CountFinishedBonusCallback(Handle owner, Handle hndl, const char
 		while (SQL_FetchRow(hndl))
 		{
 			finishedbonuses++;
-			// Total amount of players who have finished the bonus
-			// totalplayers = SQL_FetchInt(hndl, 2);
 			rank = SQL_FetchInt(hndl, 1);
+			totalPlayers = SQL_FetchInt(hndl, 2);
 			SQL_FetchString(hndl, 0, szMap, sizeof(szMap));
-
-			/*float percentage = 1.0 + ((1.0 / float(totalplayers)) - (float(rank) / float(totalplayers)));
-			g_pr_points[client] += RoundToCeil(200.0 * percentage);*/
 
 			int points = 0;
 
@@ -618,29 +614,32 @@ public void sql_CountFinishedBonusCallback(Handle owner, Handle hndl, const char
 			{
 				case 1:
 				{
-					g_pr_points[client][style] += 50;
-					g_Points[client][style][POINTS_BONUSWR] += 50;
+					int p = totalPlayers >= 3 ? 58 : 50;
+					g_pr_points[client][style] += p;
+					g_Points[client][style][POINTS_BONUSWR] += p;
+
 					wrbs++;
 				}
 
-				case 2:  points = 45;
-				case 3:  points = 40;
-				case 4:  points = 38;
-				case 5:  points = 36;
-				case 6:  points = 34;
-				case 7:  points = 32;
-				case 8:  points = 30;
-				case 9:  points = 28;
-				case 10: points = 26;
-				case 11: points = 24;
-				case 12: points = 22;
-				case 13: points = 20;
-				case 14: points = 18;
-				case 15: points = 16;
-				case 16: points = 14;
+				case 2:  points = totalPlayers >= 3 ? 48 : 38;
+				case 3:  points = totalPlayers >= 3 ? 42 : 36;
+				case 4:  points = 32;
+				case 5:  points = 30;
+				case 6:  points = 28;
+				case 7:  points = 26;
+				case 8:  points = 24;
+				case 9:  points = 22;
+				case 10: points = 20;
+				case 11: points = 18;
+				case 12: points = 17;
+				case 13: points = 16;
+				case 14: points = 15;
+				case 15: points = 14;
+				case 16: points = 13;
 				case 17: points = 12;
 				case 18: points = 11;
 				case 19: points = 10;
+				case 20: points = 10;
 				default: points = 5;
 			}
 
@@ -739,6 +738,7 @@ public void sql_CountFinishedMapsCallback(Handle owner, Handle hndl, const char[
 
 	char szMap[128];
 	int finishedMaps = 0, totalplayers, rank, tier, wrs;
+	g_iHighestCompletedTier[client][style] = 0;
 
 	if (SQL_HasResultSet(hndl))
 	{
