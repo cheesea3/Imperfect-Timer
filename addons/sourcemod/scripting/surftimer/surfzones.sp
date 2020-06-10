@@ -309,9 +309,17 @@ public Action StartTouchTrigger(int caller, int activator)
 			{
 				// Make sure the player is not going backwards
 				if ((iZoneTypeId + 2) < g_Stage[g_iClientInZone[client][2]][client])
+				{
 					g_bWrcpTimeractivated[client] = false;
+				}
 				else
+				{
 					g_bNewStage[client] = true;
+
+					// @IG fix stage prestrafe speeds if you jump early?snice 
+					g_bFirstJump[client] = false;
+					g_bLeftZone[client] = false;
+				}
 
 				g_Stage[g_iClientInZone[client][2]][client] = (iZoneTypeId + 2);
 

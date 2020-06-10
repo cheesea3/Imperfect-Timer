@@ -1052,8 +1052,7 @@ public void LimitSpeedNew(int client)
 	if (g_hLimitSpeedType.IntValue == 0 || !g_bInStartZone[client] && !g_bInStageZone[client])
 		return;
 
-	float speedCap = 0.0;
-	speedCap = g_mapZones[g_iClientInZone[client][3]].preSpeed;
+	float speedCap = g_mapZones[g_iClientInZone[client][3]].preSpeed;
 
 	if (speedCap <= 0.0)
 		return;
@@ -1063,7 +1062,7 @@ public void LimitSpeedNew(int client)
 		if (GetEntityFlags(client) & FL_ONGROUND)
 		{
 			g_iTicksOnGround[client]++;
-			if (g_iTicksOnGround[client] > 60)
+			if (g_iTicksOnGround[client] > 50)
 			{
 				g_bNewStage[client] = false;
 				g_bLeftZone[client] = false;
@@ -1085,8 +1084,6 @@ public void LimitSpeedNew(int client)
 	// A scale < 1 indicates a magnitude > limit
 	if (scale < 1.0)
 	{
-
-
 		// Reduce each vector by the appropriate amount
 		fVel[0] = fVel[0] * scale;
 		fVel[1] = fVel[1] * scale;
