@@ -1062,7 +1062,14 @@ public void LimitSpeedNew(int client)
 		if (GetEntityFlags(client) & FL_ONGROUND)
 		{
 			g_iTicksOnGround[client]++;
-			if (g_iTicksOnGround[client] > 50)
+
+			// @IG possible prestrafe exploit fix?
+			if (g_bFirstJump[client] && g_iTicksOnGround[client] > 2)
+			{
+				g_bFirstJump[client] = false;
+			}
+
+			if (g_iTicksOnGround[client] > 30)
 			{
 				g_bNewStage[client] = false;
 				g_bLeftZone[client] = false;

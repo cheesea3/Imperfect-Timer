@@ -159,6 +159,7 @@ void CreateCommands()
 	RegConsoleCmd("sm_tp", Command_ToggleThirdPerson, "[surftimer] Toggles between first and third person"); // Zephyrus' third person plugin
 
 	RegAdminCmd("sm_recalculateallpoints", Command_RecalculateAllPoints, ADMFLAG_ROOT, "[IG] Recalculate the player rank table (DO NOT USE IF YOU DO NOT KNOW WHAT YOU ARE DOING)");
+	RegAdminCmd("sm_extendmap", Command_ExtendMap, ADMFLAG_ROOT, "[IG] Extend the map by specified minutes");
 
 	CreateStyleCommands();
 
@@ -475,6 +476,26 @@ public void VoteExtend(int client)
 	CPrintToChatAll("%t", "VoteStartedBy", g_szChatPrefix, szPlayerName);
 
 	return;
+}
+
+public Action Command_ExtendMap(int client, int args)
+{
+	char arg1[32];
+	GetCmdArg(1, arg1, sizeof(arg1));
+
+	if (!arg1[0])
+		return Plugin_Handled;
+
+	int minutes = StringToInt(arg1);
+
+	if (minutes > 0)
+	{
+		int seconds = minutes * 60;
+		ExtendMapTimeLimit(seconds);
+		GameRules_SetProp("m_iRoundTime", GameRules_GetProp("m_iRoundTime", 4, 0) + seconds, 4, 0, true);
+	}
+
+	return Plugin_Handled;
 }
 
 public Action Command_normalMode(int client, int args)
