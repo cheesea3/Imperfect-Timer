@@ -4882,7 +4882,7 @@ public Action Command_RecalculateAllPoints(int client, int args)
 		style = StringToInt(arg1);
 	}
 
-	if (style >= 0 && args < MAX_STYLES)
+	if (style >= 0 && style < MAX_STYLES)
 	{
 		CPrintToChat(client, "%t", "PrUpdateStarted", g_szChatPrefix);
 		g_bManualRecalc = true;
