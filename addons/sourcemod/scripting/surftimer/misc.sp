@@ -1341,14 +1341,17 @@ public float GetSpeed(int client)
 	GetEntPropVector(client, Prop_Data, "m_vecVelocity", fVelocity);
 	float speed;
 
-	if (g_SpeedMode[client] == 0) // XY
-		speed = SquareRoot(Pow(fVelocity[0], 2.0) + Pow(fVelocity[1], 2.0));
-	else if (g_SpeedMode[client] == 1) // XYZ
-		speed = SquareRoot(Pow(fVelocity[0], 2.0) + Pow(fVelocity[1], 2.0) + Pow(fVelocity[2], 2.0));
-	else if (g_SpeedMode[client] == 2) // Z
-		speed = fVelocity[2];
-	else // XY default
-		speed = SquareRoot(Pow(fVelocity[0], 2.0) + Pow(fVelocity[1], 2.0));
+	// @IG - only xy speed
+	speed = SquareRoot(Pow(fVelocity[0], 2.0) + Pow(fVelocity[1], 2.0));
+
+	// if (g_SpeedMode[client] == 0) // XY
+	// 	speed = SquareRoot(Pow(fVelocity[0], 2.0) + Pow(fVelocity[1], 2.0));
+	// else if (g_SpeedMode[client] == 1) // XYZ
+	// 	speed = SquareRoot(Pow(fVelocity[0], 2.0) + Pow(fVelocity[1], 2.0) + Pow(fVelocity[2], 2.0));
+	// else if (g_SpeedMode[client] == 2) // Z
+	// 	speed = fVelocity[2];
+	// else // XY default
+	// 	speed = SquareRoot(Pow(fVelocity[0], 2.0) + Pow(fVelocity[1], 2.0));
 
 	return speed;
 }
