@@ -1,5 +1,6 @@
 // Start Timer
-public void CL_OnStartTimerPress(int client) {
+public void CL_OnStartTimerPress(int client)
+{
 	if (!IsFakeClient(client))
 	{
 		if (IsValidClient(client))
@@ -12,6 +13,7 @@ public void CL_OnStartTimerPress(int client) {
 					ClientCommand(client, "play buttons\\button10.wav");
 					g_fErrorMessage[client] = GetGameTime();
 				}
+
 				return;
 			}
 			else if (!IsPlayerLoaded(client))
@@ -22,17 +24,19 @@ public void CL_OnStartTimerPress(int client) {
 					ClientCommand(client, "play buttons\\button10.wav");
 					g_fErrorMessage[client] = GetGameTime();
 				}
+
 				return;
 			}
 		}
+
 		if (g_bNewReplay[client] || g_bNewBonus[client]) // Don't allow starting the timer, if players record is being saved
-		return;
+			return;
 	}
 
 	if (!g_bSpectate[client] && !g_bNoClip[client] && ((GetGameTime() - g_fLastTimeNoClipUsed[client]) > 2.0))
 	{
 		if (g_bActivateCheckpointsOnStart[client])
-		g_bCheckpointsEnabled[client] = true;
+			g_bCheckpointsEnabled[client] = true;
 
 		// Reset Run Variables
 		tmpDiff[client] = 9999.0;
@@ -59,19 +63,17 @@ public void CL_OnStartTimerPress(int client) {
 		{
 			// Reset Checkpoint Times
 			for (int i = 0; i < CPLIMIT; i++)
-			g_fCheckpointTimesNew[g_iClientInZone[client][2]][client][i] = 0.0;
+				g_fCheckpointTimesNew[g_iClientInZone[client][2]][client][i] = 0.0;
 
 			// Set missed record time variables
 			if (g_iClientInZone[client][2] == 0)
 			{
 				if (g_fPersonalRecord[client] > 0.0)
-				g_bMissedMapBest[client] = false;
+					g_bMissedMapBest[client] = false;
 			}
-			else
+			else if (g_fPersonalRecordBonus[g_iClientInZone[client][2]][client] > 0.0)
 			{
-				if (g_fPersonalRecordBonus[g_iClientInZone[client][2]][client] > 0.0)
 				g_bMissedBonusBest[client] = false;
-
 			}
 		}
 	}
@@ -80,7 +82,7 @@ public void CL_OnStartTimerPress(int client) {
 	PlayButtonSound(client);
 
 	// Start recording for record bot
-	if ((!IsFakeClient(client) && g_hReplayBot.BoolValue) || (!IsFakeClient(client) && g_hBonusBot.BoolValue))
+	if (!IsFakeClient(client) && (g_hReplayBot.BoolValue || g_hBonusBot.BoolValue))
 	{
 		if (!IsPlayerAlive(client) || GetClientTeam(client) == 1)
 		{
@@ -90,6 +92,7 @@ public void CL_OnStartTimerPress(int client) {
 		else
 		{
 			StartRecording(client);
+
 			if (g_bhasStages)
 				Stage_StartRecording(client);
 		}
@@ -110,15 +113,21 @@ public void CL_OnEndTimerPress(int client)
 			if (IsValidClient(i) && !IsPlayerAlive(i))
 			{
 				int SpecMode = GetEntProp(i, Prop_Send, "m_iObserverMode");
+
 				if (SpecMode == 4 || SpecMode == 5)
 				{
 					int Target = GetEntPropEnt(i, Prop_Send, "m_hObserverTarget");
+
 					if (Target == client)
 					{
 						if (Target == g_RecordBot)
+						{
 							CPrintToChat(i, "%t", "ReplayFinishingMsg", g_szChatPrefix, g_szReplayName, g_szReplayTime);
-						if (Target == g_BonusBot)
+						}
+						else if (Target == g_BonusBot)
+						{
 							CPrintToChat(i, "%t", "ReplayFinishingMsgBonus", g_szChatPrefix, g_szBonusName, g_szZoneGroupName[g_iClientInZone[g_BonusBot][2]], g_szBonusTime);
+						}
 					}
 				}
 			}
@@ -172,20 +181,6 @@ public void CL_OnEndTimerPress(int client)
 		return;
 	}
 
-	// Set "Map Finished" overlay panel
-	/*g_bOverlay[client] = true;
-	g_fLastOverlay[client] = GetGameTime();*/
-	// PrintHintText(client, "%t", "TimerStopped", g_szFinalTime[client]);
-
-	// how much credits to give
-	// first complete
-	// int fcTierCredits = (100 * g_iMapTier);
-	// int tierCredits = (5 * g_iMapTier);
-	// int wrCredits = 0;
-	// int fcCredits = 0;
-	// int pbCredits = 0;
-	// int slowCredits = 0;
-
 	// Get zonegroup and style
 	int zGroup = g_iClientInZone[client][2];
 	int style = g_players[client].currentStyle;
@@ -199,14 +194,11 @@ public void CL_OnEndTimerPress(int client)
 		if (style == STYLE_NORMAL)
 		{
 			// Make a new record bot?
-			if (g_hReplaceReplayTime.BoolValue && (g_fFinalTime[client] < g_fReplayTimes[0][0] || g_fReplayTimes[0][0] == 0.0))
+			if (g_hReplaceReplayTime.BoolValue && (g_fFinalTime[client] < g_fReplayTimes[0][0] || g_fReplayTimes[0][0] == 0.0) && g_hReplayBot.BoolValue && !g_bPositionRestored[client])
 			{
-				if (g_hReplayBot.BoolValue && !g_bPositionRestored[client])
-				{
-					g_fReplayTimes[0][0] = g_fFinalTime[client];
-					g_bNewReplay[client] = true;
-					CreateTimer(3.0, ReplayTimer, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
-				}
+				g_fReplayTimes[0][0] = g_fFinalTime[client];
+				g_bNewReplay[client] = true;
+				CreateTimer(3.0, ReplayTimer, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 			}
 
 			char szDiff[54];
@@ -221,10 +213,11 @@ public void CL_OnEndTimerPress(int client)
 
 			diff = g_fPersonalRecord[client] - g_fFinalTime[client];
 			FormatTimeFloat(client, diff, 3, szDiff, sizeof(szDiff));
+
 			if (diff > 0.0)
-			Format(g_szTimeDifference[client], sizeof(szDiff), "-%s", szDiff);
+				Format(g_szTimeDifference[client], sizeof(szDiff), "-%s", szDiff);
 			else
-			Format(g_szTimeDifference[client], sizeof(szDiff), "+%s", szDiff);
+				Format(g_szTimeDifference[client], sizeof(szDiff), "+%s", szDiff);
 
 			// If the server already has a record
 			if (g_MapTimesCount > 0)
@@ -248,6 +241,7 @@ public void CL_OnEndTimerPress(int client)
 						{
 							g_fCheckpointServerRecord[zGroup][i] = g_fCheckpointTimesNew[zGroup][client][i];
 						}
+
 						g_bCheckpointRecordFound[zGroup] = true;
 					}
 
@@ -257,7 +251,6 @@ public void CL_OnEndTimerPress(int client)
 						g_fReplayTimes[0][0] = g_fFinalTime[client];
 						CreateTimer(3.0, ReplayTimer, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 					}
-					// wrCredits = 500;
 				}
 			}
 			else
@@ -286,12 +279,14 @@ public void CL_OnEndTimerPress(int client)
 					{
 						g_fCheckpointServerRecord[zGroup][i] = g_fCheckpointTimesNew[zGroup][client][i];
 					}
+
 					g_bCheckpointRecordFound[zGroup] = true;
 				}
 			}
 
 			// Clients first record
-			if (g_fPersonalRecord[client] == 0.0) {
+			if (g_fPersonalRecord[client] == 0.0)
+			{
 				g_fPersonalRecord[client] = g_fFinalTime[client];
 				g_iPBMapStartSpeed[style][client] = g_iStartSpeed[client]; // @IG start speeds
 				g_pr_finishedmaps[client][0]++;
@@ -303,7 +298,9 @@ public void CL_OnEndTimerPress(int client)
 				db_UpdateCheckpoints(client, g_szSteamID[client], zGroup);
 
 				db_selectRecord(client);
-			} else if (diff > 0.0) {
+			} 
+			else if (diff > 0.0)
+			{
 				// Client's new record
 				g_fPersonalRecord[client] = g_fFinalTime[client];
 				g_iPBMapStartSpeed[style][client] = g_iStartSpeed[client]; // @IG start speeds
@@ -315,76 +312,56 @@ public void CL_OnEndTimerPress(int client)
 
 				db_selectRecord(client);
 			}
-			if (!g_bMapSRVRecord[client] && !g_bMapFirstRecord[client] && !g_bMapPBRecord[client]) {
+
+			if (!g_bMapSRVRecord[client] && !g_bMapFirstRecord[client] && !g_bMapPBRecord[client])
+			{
 				// for ck_min_rank_announce
 				db_currentRunRank(client);
 			}
-		}
-		else if (style != STYLE_NORMAL)
+		}								   // Third person angle surfing check. Do not record these times
+		else if (style != STYLE_NORMAL && (!g_players[client].thirdPerson || style == STYLE_LOWGRAV || style == STYLE_FASTFORWARD || style == STYLE_SLOMO))
 		{
-			// Third person angle surfing check. Do not record these times
-			if (!g_players[client].thirdPerson || style == STYLE_LOWGRAV || style == STYLE_FASTFORWARD || style == STYLE_SLOMO)
+			// Make a new record bot?
+			if (g_hReplaceReplayTime.BoolValue && (g_fFinalTime[client] < g_fReplayTimes[0][style] || g_fReplayTimes[0][style] == 0.0) && g_hReplayBot.BoolValue && !g_bPositionRestored[client])
 			{
-				// Make a new record bot?
-				if (g_hReplaceReplayTime.BoolValue && (g_fFinalTime[client] < g_fReplayTimes[0][style] || g_fReplayTimes[0][style] == 0.0))
+				g_fReplayTimes[0][style] = g_fFinalTime[client];
+				g_bNewReplay[client] = true;
+				DataPack pack;
+				CreateDataTimer(3.0, StyleReplayTimer, pack);
+				WritePackCell(pack, GetClientUserId(client));
+				WritePackCell(pack, style);
+			}
+
+			// Styles
+			char szDiff[54];
+			float diff;
+
+			// Record bools init
+			g_bStyleMapFirstRecord[style][client] = false;
+			g_bStyleMapPBRecord[style][client] = false;
+			g_bStyleMapSRVRecord[style][client] = false;
+
+			g_OldStyleMapRank[style][client] = g_StyleMapRank[style][client];
+
+			diff = g_fPersonalStyleRecord[style][client] - g_fFinalTime[client];
+			FormatTimeFloat(client, diff, 3, szDiff, sizeof(szDiff));
+			if (diff > 0.0)
+				Format(g_szTimeDifference[client], sizeof(szDiff), "-%s", szDiff);
+			else
+				Format(g_szTimeDifference[client], sizeof(szDiff), "+%s", szDiff);
+
+			// If the server already has a record
+			if (g_StyleMapTimesCount[style] > 0)
+			{
+				if (g_fFinalTime[client] < g_fRecordStyleMapTime[style])
 				{
-					if (g_hReplayBot.BoolValue && !g_bPositionRestored[client])
-					{
-						g_fReplayTimes[0][style] = g_fFinalTime[client];
-						g_bNewReplay[client] = true;
-						DataPack pack;
-						CreateDataTimer(3.0, StyleReplayTimer, pack);
-						WritePackCell(pack, GetClientUserId(client));
-						WritePackCell(pack, style);
-					}
-				}
+					// New fastest time in map
+					g_bStyleMapSRVRecord[style][client] = true;
+					g_fRecordStyleMapTime[style] = g_fFinalTime[client];
+					g_iRecordMapStartSpeed[style] = g_iStartSpeed[client]; // @IG start speeds
+					Format(g_szRecordStylePlayer[style], MAX_NAME_LENGTH, "%s", szName);
+					FormatTimeFloat(1, g_fRecordStyleMapTime[style], 3, g_szRecordStyleMapTime[style], 64);
 
-				// Styles
-				char szDiff[54];
-				float diff;
-
-				// Record bools init
-				g_bStyleMapFirstRecord[style][client] = false;
-				g_bStyleMapPBRecord[style][client] = false;
-				g_bStyleMapSRVRecord[style][client] = false;
-
-				g_OldStyleMapRank[style][client] = g_StyleMapRank[style][client];
-
-				diff = g_fPersonalStyleRecord[style][client] - g_fFinalTime[client];
-				FormatTimeFloat(client, diff, 3, szDiff, sizeof(szDiff));
-				if (diff > 0.0)
-					Format(g_szTimeDifference[client], sizeof(szDiff), "-%s", szDiff);
-				else
-					Format(g_szTimeDifference[client], sizeof(szDiff), "+%s", szDiff);
-
-				// If the server already has a record
-				if (g_StyleMapTimesCount[style] > 0)
-				{
-					if (g_fFinalTime[client] < g_fRecordStyleMapTime[style])
-					{
-						// New fastest time in map
-						g_bStyleMapSRVRecord[style][client] = true;
-						g_fRecordStyleMapTime[style] = g_fFinalTime[client];
-						g_iRecordMapStartSpeed[style] = g_iStartSpeed[client]; // @IG start speeds
-						Format(g_szRecordStylePlayer[style], MAX_NAME_LENGTH, "%s", szName);
-						FormatTimeFloat(1, g_fRecordStyleMapTime[style], 3, g_szRecordStyleMapTime[style], 64);
-
-						if (g_hReplayBot.BoolValue && !g_bPositionRestored[client] && !g_bNewReplay[client])
-						{
-							g_bNewReplay[client] = true;
-							g_fReplayTimes[0][style] = g_fFinalTime[client];
-							DataPack pack;
-							CreateDataTimer(3.0, StyleReplayTimer, pack);
-							WritePackCell(pack, GetClientUserId(client));
-							WritePackCell(pack, style);
-						}
-
-						// Insert latest record
-						// db_InsertLatestRecords(g_szSteamID[client], szName, g_fFinalTime[client]);
-					}
-				}
-				else
-				{
 					if (g_hReplayBot.BoolValue && !g_bPositionRestored[client] && !g_bNewReplay[client])
 					{
 						g_bNewReplay[client] = true;
@@ -395,56 +372,71 @@ public void CL_OnEndTimerPress(int client)
 						WritePackCell(pack, style);
 					}
 
-					// Has to be the new record, since it is the first completion
-					g_bStyleMapSRVRecord[style][client] = true;
-					g_fRecordStyleMapTime[style] = g_fFinalTime[client];
-					g_iRecordMapStartSpeed[style] = g_iStartSpeed[client]; // @IG start speeds
-					Format(g_szRecordStylePlayer[style], MAX_NAME_LENGTH, "%s", szName);
-					FormatTimeFloat(1, g_fRecordStyleMapTime[style], 3, g_szRecordStyleMapTime[style], 64);
-
 					// Insert latest record
 					// db_InsertLatestRecords(g_szSteamID[client], szName, g_fFinalTime[client]);
 				}
-
-
-				// Check for personal record
-				if (g_fPersonalStyleRecord[style][client] == 0.0)
+			}
+			else
+			{
+				if (g_hReplayBot.BoolValue && !g_bPositionRestored[client] && !g_bNewReplay[client])
 				{
-					// Clients first record
-					g_fPersonalStyleRecord[style][client] = g_fFinalTime[client];
-					g_iPBMapStartSpeed[style][client] = g_iStartSpeed[client]; // @IG start speeds
-					/*g_pr_finishedmaps[client]++;
-					g_MapTimesCount++;*/
-					FormatTimeFloat(1, g_fPersonalStyleRecord[style][client], 3, g_szPersonalStyleRecord[style][client], 64);
-
-					g_bStyleMapFirstRecord[style][client] = true;
-					g_pr_showmsg[client] = true;
-
-					db_selectStyleRecord(client, style);
-				}
-				else if (diff > 0.0)
-				{
-					// Client's new record
-					g_fPersonalStyleRecord[style][client] = g_fFinalTime[client];
-					g_iPBMapStartSpeed[style][client] = g_iStartSpeed[client]; // @IG start speeds
-					FormatTimeFloat(1, g_fPersonalStyleRecord[style][client], 3, g_szPersonalStyleRecord[style][client], 64);
-
-					g_bStyleMapPBRecord[style][client] = true;
-					g_pr_showmsg[client] = true;
-
-					db_selectStyleRecord(client, style);
+					g_bNewReplay[client] = true;
+					g_fReplayTimes[0][style] = g_fFinalTime[client];
+					DataPack pack;
+					CreateDataTimer(3.0, StyleReplayTimer, pack);
+					WritePackCell(pack, GetClientUserId(client));
+					WritePackCell(pack, style);
 				}
 
-				if (!g_bStyleMapSRVRecord[style][client] && !g_bStyleMapFirstRecord[style][client] && !g_bStyleMapPBRecord[style][client])
-				{
-					int count = g_StyleMapTimesCount[style];
+				// Has to be the new record, since it is the first completion
+				g_bStyleMapSRVRecord[style][client] = true;
+				g_fRecordStyleMapTime[style] = g_fFinalTime[client];
+				g_iRecordMapStartSpeed[style] = g_iStartSpeed[client]; // @IG start speeds
+				Format(g_szRecordStylePlayer[style], MAX_NAME_LENGTH, "%s", szName);
+				FormatTimeFloat(1, g_fRecordStyleMapTime[style], 3, g_szRecordStyleMapTime[style], 64);
 
-					for (int i = 1; i <= MaxClients; i++)
+				// Insert latest record
+				// db_InsertLatestRecords(g_szSteamID[client], szName, g_fFinalTime[client]);
+			}
+
+
+			// Check for personal record
+			if (g_fPersonalStyleRecord[style][client] == 0.0)
+			{
+				// Clients first record
+				g_fPersonalStyleRecord[style][client] = g_fFinalTime[client];
+				g_iPBMapStartSpeed[style][client] = g_iStartSpeed[client]; // @IG start speeds
+				/*g_pr_finishedmaps[client]++;
+				g_MapTimesCount++;*/
+				FormatTimeFloat(1, g_fPersonalStyleRecord[style][client], 3, g_szPersonalStyleRecord[style][client], 64);
+
+				g_bStyleMapFirstRecord[style][client] = true;
+				g_pr_showmsg[client] = true;
+
+				db_selectStyleRecord(client, style);
+			}
+			else if (diff > 0.0)
+			{
+				// Client's new record
+				g_fPersonalStyleRecord[style][client] = g_fFinalTime[client];
+				g_iPBMapStartSpeed[style][client] = g_iStartSpeed[client]; // @IG start speeds
+				FormatTimeFloat(1, g_fPersonalStyleRecord[style][client], 3, g_szPersonalStyleRecord[style][client], 64);
+
+				g_bStyleMapPBRecord[style][client] = true;
+				g_pr_showmsg[client] = true;
+
+				db_selectStyleRecord(client, style);
+			}
+
+			if (!g_bStyleMapSRVRecord[style][client] && !g_bStyleMapFirstRecord[style][client] && !g_bStyleMapPBRecord[style][client])
+			{
+				int count = g_StyleMapTimesCount[style];
+
+				for (int i = 1; i <= MaxClients; i++)
+				{
+					if (IsValidClient(i) && !IsFakeClient(i))
 					{
-						if (IsValidClient(i) && !IsFakeClient(i))
-						{
-							CPrintToChat(i, "%t", "BPress6", g_szChatPrefix, szName, g_szStyleRecordPrint[style], g_szFinalTime[client], g_szTimeDifference[client], g_StyleMapRank[style][client], count, g_szRecordStyleMapTime[style]);
-						}
+						CPrintToChat(i, "%t", "BPress6", g_szChatPrefix, szName, g_szStyleRecordPrint[style], g_szFinalTime[client], g_szTimeDifference[client], g_StyleMapRank[style][client], count, g_szRecordStyleMapTime[style]);
 					}
 				}
 			}
@@ -457,17 +449,14 @@ public void CL_OnEndTimerPress(int client)
 		====================================*/
 		if (style == STYLE_NORMAL)
 		{
-			if (g_hReplaceReplayTime.BoolValue && (g_fFinalTime[client] < g_fReplayTimes[zGroup][0] || g_fReplayTimes[zGroup][0] == 0.0))
+			if (g_hReplaceReplayTime.BoolValue && (g_fFinalTime[client] < g_fReplayTimes[zGroup][0] || g_fReplayTimes[zGroup][0] == 0.0) && g_hBonusBot.BoolValue && !g_bPositionRestored[client])
 			{
-				if (g_hBonusBot.BoolValue && !g_bPositionRestored[client])
-				{
-					g_fReplayTimes[zGroup][0] = g_fFinalTime[client];
-					g_bNewBonus[client] = true;
-					DataPack pack;
-					CreateDataTimer(3.0, BonusReplayTimer, pack);
-					WritePackCell(pack, GetClientUserId(client));
-					WritePackCell(pack, zGroup);
-				}
+				g_fReplayTimes[zGroup][0] = g_fFinalTime[client];
+				g_bNewBonus[client] = true;
+				DataPack pack;
+				CreateDataTimer(3.0, BonusReplayTimer, pack);
+				WritePackCell(pack, GetClientUserId(client));
+				WritePackCell(pack, zGroup);
 			}
 
 			char szDiff[54];
@@ -510,6 +499,7 @@ public void CL_OnEndTimerPress(int client)
 						{
 							g_fCheckpointServerRecord[zGroup][i] = g_fCheckpointTimesNew[zGroup][client][i];
 						}
+
 						g_bCheckpointRecordFound[zGroup] = true;
 					}
 
@@ -548,7 +538,10 @@ public void CL_OnEndTimerPress(int client)
 				if (g_bCheckpointsEnabled[client] && !g_bPositionRestored[client])
 				{
 					for (int i = 0; i < CPLIMIT; i++)
+					{
 						g_fCheckpointServerRecord[zGroup][i] = g_fCheckpointTimesNew[zGroup][client][i];
+					}
+
 					g_bCheckpointRecordFound[zGroup] = true;
 				}
 
@@ -569,7 +562,6 @@ public void CL_OnEndTimerPress(int client)
 				db_UpdateCheckpoints(client, g_szSteamID[client], zGroup);
 				db_insertBonus(client, g_szSteamID[client], szName, g_fFinalTime[client], g_iStartSpeed[client], zGroup);
 			}
-
 			else if (diff > 0.0)
 			{
 				// client's new bonus record
@@ -583,80 +575,59 @@ public void CL_OnEndTimerPress(int client)
 				db_updateBonus(client, g_szSteamID[client], szName, g_fFinalTime[client], g_iStartSpeed[client], zGroup);
 			}
 
-
 			if (!g_bBonusSRVRecord[client] && !g_bBonusFirstRecord[client] && !g_bBonusPBRecord[client])
 			{
 				db_currentBonusRunRank(client, zGroup);
 			}
-		}
-		else if (style != STYLE_NORMAL)
+		} 								   // Third person angle surfing check. Do not record these times if the player is in third person
+		else if (style != STYLE_NORMAL && (!g_players[client].thirdPerson || style == STYLE_LOWGRAV || style == STYLE_FASTFORWARD || style == STYLE_SLOMO))
 		{
-			// Third person angle surfing check. Do not record these times if the player is in third person
-			if (!g_players[client].thirdPerson || style == STYLE_LOWGRAV || style == STYLE_FASTFORWARD || style == STYLE_SLOMO)
+			if (g_hReplaceReplayTime.BoolValue && (g_fFinalTime[client] < g_fReplayTimes[zGroup][style] || g_fReplayTimes[zGroup][style] == 0.0) && g_hBonusBot.BoolValue && !g_bPositionRestored[client])
 			{
-				if (g_hReplaceReplayTime.BoolValue && (g_fFinalTime[client] < g_fReplayTimes[zGroup][style] || g_fReplayTimes[zGroup][style] == 0.0))
+				g_fReplayTimes[zGroup][style] = g_fFinalTime[client];
+				g_bNewBonus[client] = true;
+				DataPack pack;
+				CreateDataTimer(3.0, StyleBonusReplayTimer, pack);
+				WritePackCell(pack, GetClientUserId(client));
+				WritePackCell(pack, zGroup);
+				WritePackCell(pack, style);
+			}
+
+			// styles for bonus
+			char szDiff[54];
+			float diff;
+
+			// Record bools init
+			g_bBonusFirstRecord[client] = false;
+			g_bBonusPBRecord[client] = false;
+			g_bBonusSRVRecord[client] = false;
+
+			g_StyleOldMapRankBonus[style][zGroup][client] = g_StyleMapRankBonus[style][zGroup][client];
+
+			diff = g_fStylePersonalRecordBonus[style][zGroup][client] - g_fFinalTime[client];
+			FormatTimeFloat(client, diff, 3, szDiff, sizeof(szDiff));
+
+			if (diff > 0.0)
+				Format(g_szBonusTimeDifference[client], sizeof(szDiff), "-%s", szDiff);
+			else
+				Format(g_szBonusTimeDifference[client], sizeof(szDiff), "+%s", szDiff);
+
+
+			g_StyletmpBonusCount[style][zGroup] = g_iStyleBonusCount[style][zGroup];
+
+			// If the server already has a record
+			if (g_iStyleBonusCount[style][zGroup] > 0)
+			{
+				if (g_fFinalTime[client] < g_fStyleBonusFastest[style][zGroup])
 				{
-					if (g_hBonusBot.BoolValue && !g_bPositionRestored[client])
-					{
-						g_fReplayTimes[zGroup][style] = g_fFinalTime[client];
-						g_bNewBonus[client] = true;
-						DataPack pack;
-						CreateDataTimer(3.0, StyleBonusReplayTimer, pack);
-						WritePackCell(pack, GetClientUserId(client));
-						WritePackCell(pack, zGroup);
-						WritePackCell(pack, style);
-					}
-				}
+					// New fastest time in current bonus
+					g_fStyleOldBonusRecordTime[style][zGroup] = g_fStyleBonusFastest[style][zGroup];
+					g_fStyleBonusFastest[style][zGroup] = g_fFinalTime[client];
+					g_iRecordBonusStartSpeed[style][zGroup] = g_iStartSpeed[client]; // @IG start speeds (bonus)
+					Format(g_szStyleBonusFastest[style][zGroup], MAX_NAME_LENGTH, "%s", szName); // fluffys come back stopped here
+					FormatTimeFloat(1, g_fStyleBonusFastest[style][zGroup], 3, g_szStyleBonusFastestTime[style][zGroup], 64);
 
-				// styles for bonus
-				char szDiff[54];
-				float diff;
-
-				// Record bools init
-				g_bBonusFirstRecord[client] = false;
-				g_bBonusPBRecord[client] = false;
-				g_bBonusSRVRecord[client] = false;
-
-				g_StyleOldMapRankBonus[style][zGroup][client] = g_StyleMapRankBonus[style][zGroup][client];
-
-				diff = g_fStylePersonalRecordBonus[style][zGroup][client] - g_fFinalTime[client];
-				FormatTimeFloat(client, diff, 3, szDiff, sizeof(szDiff));
-
-				if (diff > 0.0)
-					Format(g_szBonusTimeDifference[client], sizeof(szDiff), "-%s", szDiff);
-				else
-					Format(g_szBonusTimeDifference[client], sizeof(szDiff), "+%s", szDiff);
-
-
-				g_StyletmpBonusCount[style][zGroup] = g_iStyleBonusCount[style][zGroup];
-
-				// If the server already has a record
-				if (g_iStyleBonusCount[style][zGroup] > 0)
-				{
-					if (g_fFinalTime[client] < g_fStyleBonusFastest[style][zGroup])
-					{
-						// New fastest time in current bonus
-						g_fStyleOldBonusRecordTime[style][zGroup] = g_fStyleBonusFastest[style][zGroup];
-						g_fStyleBonusFastest[style][zGroup] = g_fFinalTime[client];
-						g_iRecordBonusStartSpeed[style][zGroup] = g_iStartSpeed[client]; // @IG start speeds (bonus)
-						Format(g_szStyleBonusFastest[style][zGroup], MAX_NAME_LENGTH, "%s", szName); // fluffys come back stopped here
-						FormatTimeFloat(1, g_fStyleBonusFastest[style][zGroup], 3, g_szStyleBonusFastestTime[style][zGroup], 64);
-
-						g_bBonusSRVRecord[client] = true;
-						if (g_hBonusBot.BoolValue && !g_bPositionRestored[client] && !g_bNewBonus[client])
-						{
-							g_bNewBonus[client] = true;
-							g_fReplayTimes[zGroup][style] = g_fFinalTime[client];
-							DataPack pack;
-							CreateDataTimer(3.0, StyleBonusReplayTimer, pack);
-							WritePackCell(pack, GetClientUserId(client));
-							WritePackCell(pack, zGroup);
-							WritePackCell(pack, style);
-						}
-					}
-				}
-				else
-				{
+					g_bBonusSRVRecord[client] = true;
 					if (g_hBonusBot.BoolValue && !g_bPositionRestored[client] && !g_bNewBonus[client])
 					{
 						g_bNewBonus[client] = true;
@@ -667,70 +638,75 @@ public void CL_OnEndTimerPress(int client)
 						WritePackCell(pack, zGroup);
 						WritePackCell(pack, style);
 					}
-
-					// Has to be the new record, since it is the first completion
-					g_fStyleOldBonusRecordTime[style][zGroup] = g_fStyleBonusFastest[style][zGroup];
-					g_fStyleBonusFastest[style][zGroup] = g_fFinalTime[client];
-					g_iRecordBonusStartSpeed[style][zGroup] = g_iStartSpeed[client]; // @IG start speeds (bonus)
-					Format(g_szStyleBonusFastest[style][zGroup], MAX_NAME_LENGTH, "%s", szName);
-					FormatTimeFloat(1, g_fStyleBonusFastest[style][zGroup], 3, g_szStyleBonusFastestTime[style][zGroup], 64);
-
-					g_bBonusSRVRecord[client] = true;
-
-					g_fStyleOldBonusRecordTime[style][zGroup] = g_fStyleBonusFastest[style][zGroup];
 				}
-
-				// Clients first record
-				if (g_fStylePersonalRecordBonus[style][zGroup][client] == 0.0)
+			}
+			else
+			{
+				if (g_hBonusBot.BoolValue && !g_bPositionRestored[client] && !g_bNewBonus[client])
 				{
-					g_fStylePersonalRecordBonus[style][zGroup][client] = g_fFinalTime[client];
-					g_iPBBonusStartSpeed[style][zGroup][client] = g_iStartSpeed[client]; // @IG start speeds (bonus)
-					FormatTimeFloat(1, g_fStylePersonalRecordBonus[style][zGroup][client], 3, g_szStylePersonalRecordBonus[style][zGroup][client], 64);
-
-					g_bBonusFirstRecord[client] = true;
-					g_pr_showmsg[client] = true;
-					db_insertBonusStyle(client, g_szSteamID[client], szName, g_fFinalTime[client], g_iStartSpeed[client], zGroup, style);
-				}
-				else if (diff > 0.0)
-				{
-					// client's new record
-					g_fStylePersonalRecordBonus[style][zGroup][client] = g_fFinalTime[client];
-					g_iPBBonusStartSpeed[style][zGroup][client] = g_iStartSpeed[client]; // @IG start speeds (bonus)
-					FormatTimeFloat(1, g_fStylePersonalRecordBonus[style][zGroup][client], 3, g_szStylePersonalRecordBonus[style][zGroup][client], 64);
-
-					g_bBonusPBRecord[client] = true;
-					g_pr_showmsg[client] = true;
-					db_updateBonusStyle(client, g_szSteamID[client], szName, g_fFinalTime[client], g_iStartSpeed[client], zGroup, style);
+					g_bNewBonus[client] = true;
+					g_fReplayTimes[zGroup][style] = g_fFinalTime[client];
+					DataPack pack;
+					CreateDataTimer(3.0, StyleBonusReplayTimer, pack);
+					WritePackCell(pack, GetClientUserId(client));
+					WritePackCell(pack, zGroup);
+					WritePackCell(pack, style);
 				}
 
+				// Has to be the new record, since it is the first completion
+				g_fStyleOldBonusRecordTime[style][zGroup] = g_fStyleBonusFastest[style][zGroup];
+				g_fStyleBonusFastest[style][zGroup] = g_fFinalTime[client];
+				g_iRecordBonusStartSpeed[style][zGroup] = g_iStartSpeed[client]; // @IG start speeds (bonus)
+				Format(g_szStyleBonusFastest[style][zGroup], MAX_NAME_LENGTH, "%s", szName);
+				FormatTimeFloat(1, g_fStyleBonusFastest[style][zGroup], 3, g_szStyleBonusFastestTime[style][zGroup], 64);
 
-				if (!g_bBonusSRVRecord[client] && !g_bBonusFirstRecord[client] && !g_bBonusPBRecord[client])
-				{
-					db_currentBonusStyleRunRank(client, zGroup, style);
-				}
+				g_bBonusSRVRecord[client] = true;
+
+				g_fStyleOldBonusRecordTime[style][zGroup] = g_fStyleBonusFastest[style][zGroup];
+			}
+
+			// Clients first record
+			if (g_fStylePersonalRecordBonus[style][zGroup][client] == 0.0)
+			{
+				g_fStylePersonalRecordBonus[style][zGroup][client] = g_fFinalTime[client];
+				g_iPBBonusStartSpeed[style][zGroup][client] = g_iStartSpeed[client]; // @IG start speeds (bonus)
+				FormatTimeFloat(1, g_fStylePersonalRecordBonus[style][zGroup][client], 3, g_szStylePersonalRecordBonus[style][zGroup][client], 64);
+
+				g_bBonusFirstRecord[client] = true;
+				g_pr_showmsg[client] = true;
+				db_insertBonusStyle(client, g_szSteamID[client], szName, g_fFinalTime[client], g_iStartSpeed[client], zGroup, style);
+			}
+			else if (diff > 0.0)
+			{
+				// client's new record
+				g_fStylePersonalRecordBonus[style][zGroup][client] = g_fFinalTime[client];
+				g_iPBBonusStartSpeed[style][zGroup][client] = g_iStartSpeed[client]; // @IG start speeds (bonus)
+				FormatTimeFloat(1, g_fStylePersonalRecordBonus[style][zGroup][client], 3, g_szStylePersonalRecordBonus[style][zGroup][client], 64);
+
+				g_bBonusPBRecord[client] = true;
+				g_pr_showmsg[client] = true;
+				db_updateBonusStyle(client, g_szSteamID[client], szName, g_fFinalTime[client], g_iStartSpeed[client], zGroup, style);
+			}
+
+			if (!g_bBonusSRVRecord[client] && !g_bBonusFirstRecord[client] && !g_bBonusPBRecord[client])
+			{
+				db_currentBonusStyleRunRank(client, zGroup, style);
 			}
 		}
 	}
 
 	Client_Stop(client, 1);
 	db_deleteTmp(client);
-
-	// Give Credits
-	// if (g_hStore != INVALID_HANDLE && GetPluginStatus(g_hStore) == Plugin_Running)
-	// {
-		// 	int totalCredits = (wrCredits + fcCredits + pbCredits + slowCredits);
-		// 	int credits = Store_GetClientCredits(client);
-		// 	Store_SetClientCredits(client, credits + totalCredits);
-		// 	CPrintToChat(client, "%t", "BPress7", g_szChatPrefix, totalCredits);
-	// }
 }
 
 // Start Timer
 public void CL_OnStartWrcpTimerPress(int client)
 {
-	if (!IsPlayerLoaded(client)) {
+	if (!IsPlayerLoaded(client))
+	{
 		return;
 	}
+
 	if (!g_bSpectate[client] && !g_bNoClip[client] && ((GetGameTime() - g_fLastTimeNoClipUsed[client]) > 2.0))
 	{
 		int zGroup = g_iClientInZone[client][2];

@@ -3908,7 +3908,7 @@ public void sql_selectStageTopSurfersCallback(Handle owner, Handle hndl, const c
 				time = SQL_FetchFloat(hndl, 2);
 				SQL_FetchString(hndl, 4, szMap, 128);
 
-				if (i == 1 || (i > 1))
+				if (i == 1 || i > 1)
 				{
 					int stringArraySize = GetArraySize(stringArray);
 					for (int x = 0; x < stringArraySize; x++)
@@ -3973,7 +3973,9 @@ public int StageTopMenuHandler(Menu menu, MenuAction action, int client, int ite
 		db_viewStyleWrcpMap(client, g_szWrcpMapSelect[client], 0);
 	}
 	else if (action == MenuAction_End)
+	{
 		delete menu;
+	}
 }
 
 // Styles for maps
