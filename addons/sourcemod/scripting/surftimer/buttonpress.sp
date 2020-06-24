@@ -323,8 +323,7 @@ public void CL_OnEndTimerPress(int client)
 		else if (style != STYLE_NORMAL)
 		{
 			// Third person angle surfing check. Do not record these times
-			if (((style == STYLE_SW || style == STYLE_BW || style == STYLE_HSW || style == STYLE_WONLY) && !g_players[client].thirdPerson)
-				|| (style == STYLE_LOWGRAV || style == STYLE_FASTFORWARD || style == STYLE_SLOMO))
+			if (!g_players[client].thirdPerson || style == STYLE_LOWGRAV || style == STYLE_FASTFORWARD || style == STYLE_SLOMO)
 			{
 				// Make a new record bot?
 				if (g_hReplaceReplayTime.BoolValue && (g_fFinalTime[client] < g_fReplayTimes[0][style] || g_fReplayTimes[0][style] == 0.0))
@@ -593,8 +592,7 @@ public void CL_OnEndTimerPress(int client)
 		else if (style != STYLE_NORMAL)
 		{
 			// Third person angle surfing check. Do not record these times if the player is in third person
-			if (((style == STYLE_SW || style == STYLE_BW || style == STYLE_HSW || style == STYLE_WONLY) && !g_players[client].thirdPerson)
-				|| (style == STYLE_LOWGRAV || style == STYLE_FASTFORWARD || style == STYLE_SLOMO))
+			if (!g_players[client].thirdPerson || style == STYLE_LOWGRAV || style == STYLE_FASTFORWARD || style == STYLE_SLOMO)
 			{
 				if (g_hReplaceReplayTime.BoolValue && (g_fFinalTime[client] < g_fReplayTimes[zGroup][style] || g_fReplayTimes[zGroup][style] == 0.0))
 				{
@@ -804,23 +802,24 @@ public void CL_OnEndWrcpTimerPress(int client, float time2)
 		//if its not stage 2 it must be a-ok (hopefully)
 		g_wrcpGlitchStopper[client] = false;
 
-		char sz_srDiff[128];
-		float time = g_fFinalWrcpTime[client];
-		float f_srDiff = (g_fStageRecord[stage] - time);
-		FormatTimeFloat(client, f_srDiff, 3, sz_srDiff, 128);
-		if (f_srDiff > 0)
-		{
-			// Format(sz_srDiff_colorless, 128, "-%s", sz_srDiff);
-			Format(sz_srDiff, 128, "%cWR: %c-%s%c", WHITE, LIGHTGREEN, sz_srDiff, WHITE);
-		}
-		else
-		{
-			// Format(sz_srDiff_colorless, 128, "+%s", sz_srDiff);
-			Format(sz_srDiff, 128, "%cWR: %c+%s%c", WHITE, RED, sz_srDiff, WHITE);
-		}
-		// g_fLastDifferenceTime[client] = GetGameTime();
-		/*else
-		Format(sz_srDiff, 128, "");*/
+		// Why is this even here?
+		// char sz_srDiff[128];
+		// float time = g_fFinalWrcpTime[client];
+		// float f_srDiff = (g_fStageRecord[stage] - time);
+		// FormatTimeFloat(client, f_srDiff, 3, sz_srDiff, 128);
+		// if (f_srDiff > 0)
+		// {
+		// 	// Format(sz_srDiff_colorless, 128, "-%s", sz_srDiff);
+		// 	Format(sz_srDiff, 128, "%cSR: %c-%s%c", WHITE, LIGHTGREEN, sz_srDiff, WHITE);
+		// }
+		// else
+		// {
+		// 	// Format(sz_srDiff_colorless, 128, "+%s", sz_srDiff);
+		// 	Format(sz_srDiff, 128, "%cSR: %c+%s%c", WHITE, RED, sz_srDiff, WHITE);
+		// }
+		// // g_fLastDifferenceTime[client] = GetGameTime();
+		// /*else
+		// Format(sz_srDiff, 128, "");*/
 
 		FormatTimeFloat(client, g_fFinalWrcpTime[client], 3, g_szFinalWrcpTime[client], 32);
 		// Make a new stage replay bot?
@@ -853,37 +852,41 @@ public void CL_OnEndWrcpTimerPress(int client, float time2)
 			return;
 		}
 
-		//Stage 1 to stage 2 glitch stopper.
-		if(g_wrcpGlitchStopper[client] && stage == 2){
+		// Stage 1 to stage 2 glitch stopper.
+		if(g_wrcpGlitchStopper[client] && stage == 2)
+		{
 			g_wrcpGlitchStopper[client] = false;
 			//CPrintToChat(client, "Potential S1 to S2 glitch stopped. Stage time was not recorded");
 			return;
 		}
-		//if its not stage 2 it must be a-ok (hopefully)
+
+		// if its not stage 2 it must be a-ok (hopefully)
 		g_wrcpGlitchStopper[client] = false;
 
-		char sz_srDiff[128];
-		float time = g_fFinalWrcpTime[client];
-		float f_srDiff = (g_fStyleStageRecord[style][stage] - time);
-		FormatTimeFloat(client, f_srDiff, 3, sz_srDiff, 128);
-		if (f_srDiff > 0)
-		{
-			// Format(sz_srDiff_colorless, 128, "-%s", sz_srDiff);
-			Format(sz_srDiff, 128, "%cWR: %c-%s%c", WHITE, LIGHTGREEN, sz_srDiff, WHITE);
-		}
-		else
-		{
-			// Format(sz_srDiff_colorless, 128, "+%s", sz_srDiff);
-			Format(sz_srDiff, 128, "%cWR: %c+%s%c", WHITE, RED, sz_srDiff, WHITE);
-		}
+		// Why is this even here?
+		//char sz_srDiff[128];
+		//float time = g_fFinalWrcpTime[client];
+		//float f_srDiff = (g_fStyleStageRecord[style][stage] - time);
+		//
+		//FormatTimeFloat(client, f_srDiff, 3, sz_srDiff, 128);
+		//if (f_srDiff > 0)
+		//{
+		//	// Format(sz_srDiff_colorless, 128, "-%s", sz_srDiff);
+		//	Format(sz_srDiff, 128, "%cSR: %c-%s%c", WHITE, LIGHTGREEN, sz_srDiff, WHITE);
+		//}
+		//else
+		//{
+		//	// Format(sz_srDiff_colorless, 128, "+%s", sz_srDiff);
+		//	Format(sz_srDiff, 128, "%cSR: %c+%s%c", WHITE, RED, sz_srDiff, WHITE);
+		//}
 		// g_fLastDifferenceTime[client] = GetGameTime();
-		/*else
-		Format(sz_srDiff, 128, "");*/
+		///*else
+		//Format(sz_srDiff, 128, "");*/
 
 		FormatTimeFloat(client, g_fFinalWrcpTime[client], 3, g_szFinalWrcpTime[client], 32);
 
 		// Third person angle surfing check. Do not record these times
-		if ((style > 0 && style < 4 && !g_players[client].thirdPerson) || style > 3)
+		if (!g_players[client].thirdPerson || style == STYLE_LOWGRAV || style == STYLE_FASTFORWARD || style == STYLE_SLOMO)
 		{
 			db_selectWrcpRecord(client, style, stage);
 		}

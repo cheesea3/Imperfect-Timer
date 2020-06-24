@@ -1,4 +1,4 @@
-#define MAX_RECALC_COUNT 100
+#define MAX_RECALC_COUNT 250
 
 char g_hRecalcSteamIds[MAX_RECALC_COUNT][32];
 char g_hRecalcNames[MAX_RECALC_COUNT][64];

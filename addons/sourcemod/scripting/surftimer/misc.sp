@@ -3592,28 +3592,28 @@ public void Checkpoint(int client, int zone, int zonegroup, float time)
 		if (f_srDiff > 0)
 		{
 			Format(sz_srDiff_colorless, 128, "-%s", sz_srDiff);
-			Format(sz_srDiff, 128, "%cWR: %c-%s%c", WHITE, LIGHTGREEN, sz_srDiff, WHITE);
+			Format(sz_srDiff, 128, "%cSR %c-%s%c", GRAY, LIGHTGREEN, sz_srDiff, WHITE);
 			if (zonegroup > 0)
-				Format(g_szLastSRDifference[client], 64, "WR: <font color='#00ff00'>%s</font>", sz_srDiff_colorless);
+				Format(g_szLastSRDifference[client], 64, "SR <font color='#00ff00'>%s</font>", sz_srDiff_colorless);
 			else
-				Format(g_szLastSRDifference[client], 64, "WR: <font color='#00ff00'>%s</font>", sz_srDiff_colorless);
+				Format(g_szLastSRDifference[client], 64, "SR <font color='#00ff00'>%s</font>", sz_srDiff_colorless);
 
 		}
 		else
 		{
 			Format(sz_srDiff_colorless, 128, "+%s", sz_srDiff);
-			Format(sz_srDiff, 128, "%cWR: %c+%s%c", WHITE, RED, sz_srDiff, WHITE);
+			Format(sz_srDiff, 128, "%cSR %c+%s%c", GRAY, RED, sz_srDiff, WHITE);
 			if (zonegroup > 0)
-				Format(g_szLastSRDifference[client], 64, "WR: <font color='#FF0000'>%s</font>", sz_srDiff_colorless);
+				Format(g_szLastSRDifference[client], 64, "SR <font color='#FF0000'>%s</font>", sz_srDiff_colorless);
 			else if (g_players[client].currentStyle > 0)
-				Format(g_szLastSRDifference[client], 64, "\tWR: <font color='#FF0000'>%s</font>", sz_srDiff_colorless);
+				Format(g_szLastSRDifference[client], 64, "\tSR <font color='#FF0000'>%s</font>", sz_srDiff_colorless);
 			else
-				Format(g_szLastSRDifference[client], 64, "WR: <font color='#FF0000'>%s</font>", sz_srDiff_colorless);
+				Format(g_szLastSRDifference[client], 64, "SR <font color='#FF0000'>%s</font>", sz_srDiff_colorless);
 		}
 		g_fLastDifferenceTime[client] = GetGameTime();
 	}
 	else
-		Format(sz_srDiff, 128, "%cSR: %cN/A%c", WHITE, LIGHTGREEN, WHITE);
+		Format(sz_srDiff, 128, "%cSR %cN/A%c", GRAY, LIGHTGREEN, WHITE);
 
 
 	// Get client name for spectators

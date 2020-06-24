@@ -1365,7 +1365,7 @@ public void db_viewPlayerProfileBySteamid2(Handle owner, Handle hndl, const char
 		Format(szStagePc, sizeof(szStagePc), "Stages: %i/%i [0] (%s%c)", finishedStages, stageCount, szSPerc, PERCENT);
 
 	Format(szMiPc, sizeof(szMiPc), "Map Improvement Pts: %i - [%i]", groups, groupPoints);
-	Format(szRecords, sizeof(szRecords), "Records:\nMap WR: %i\nStage WR: %i\nBonus WR: %i", wrs, wrcps, wrbs);
+	Format(szRecords, sizeof(szRecords), "Records:\nMap SR: %i\nStage SR: %i\nBonus SR: %i", wrs, wrcps, wrbs);
 	Format(szCompleted, sizeof(szCompleted), "Completed - Points (%s%c):\n%s\n%s\n%s\n%s\n \n%s\n \n%s\n \n", szTotalPerc, PERCENT, szMapPoints, szBonusPoints, szTop10Points, szStagePc, szMiPc, szRecords);
 	Format(szRankLine, sizeof(szRankLine), "Rank: %s/%i %s\nTotal pts: %i\n \n", szRank, g_pr_RankedPlayers[style], szSkillGroup, points);
 
@@ -1410,7 +1410,7 @@ public int ProfileMenuHandler(Handle menu, MenuAction action, int client, int it
 			{
 				if (g_bRecalcRankInProgess[client])
 				{
-					CPrintToChat(client, "%t", "SQL1", g_szChatPrefix);
+					CPrintToChat(client, "%s Recalculation in progress. Please wait!", g_szChatPrefix);
 				}
 				else
 				{
@@ -3484,9 +3484,9 @@ public void sql_selectWrcpRecordCallback(Handle owner, Handle hndl, const char[]
 	FormatTimeFloat(data, fDiff, 3, szDiff, 128);
 
 	if (fDiff > 0)
-		Format(szDiff, sizeof(szDiff), "%cPB: %c-%s%c", WHITE, LIGHTGREEN, szDiff, WHITE);
+		Format(szDiff, sizeof(szDiff), "%cPB %c-%s%c", GRAY, LIGHTGREEN, szDiff, WHITE);
 	else
-		Format(szDiff, sizeof(szDiff), "%cPB: %c+%s%c", WHITE, RED, szDiff, WHITE);
+		Format(szDiff, sizeof(szDiff), "%cPB %c+%s%c", GRAY, RED, szDiff, WHITE);
 
 	// SR
 	if (style == STYLE_NORMAL)
@@ -3497,9 +3497,9 @@ public void sql_selectWrcpRecordCallback(Handle owner, Handle hndl, const char[]
 	FormatTimeFloat(data, f_srDiff, 3, sz_srDiff, 128);
 
 	if (f_srDiff > 0)
-		Format(sz_srDiff, sizeof(sz_srDiff), "%cWR: %c-%s%c", WHITE, LIGHTGREEN, sz_srDiff, WHITE);
+		Format(sz_srDiff, sizeof(sz_srDiff), "%cSR %c-%s%c", GRAY, LIGHTGREEN, sz_srDiff, WHITE);
 	else
-		Format(sz_srDiff, sizeof(sz_srDiff), "%cWR: %c+%s%c", WHITE, RED, sz_srDiff, WHITE);
+		Format(sz_srDiff, sizeof(sz_srDiff), "%cSR %c+%s%c", GRAY, RED, sz_srDiff, WHITE);
 
 	// Found old time from database
 	if (SQL_HasResultSet(hndl) && SQL_FetchRow(hndl))
@@ -3700,9 +3700,9 @@ public void SQL_UpdateWrcpRecordCallback2(Handle owner, Handle hndl, const char[
 	FormatTimeFloat(client, f_srDiff, 3, sz_srDiff, 128);
 
 	if (f_srDiff > 0)
-		Format(sz_srDiff, sizeof(sz_srDiff), "%cWR: %c-%s%c", WHITE, LIGHTGREEN, sz_srDiff, WHITE);
+		Format(sz_srDiff, sizeof(sz_srDiff), "%cSR: %c-%s%c", WHITE, LIGHTGREEN, sz_srDiff, WHITE);
 	else
-		Format(sz_srDiff, sizeof(sz_srDiff), "%cWR: %c+%s%c", WHITE, RED, sz_srDiff, WHITE);
+		Format(sz_srDiff, sizeof(sz_srDiff), "%cSR: %c+%s%c", WHITE, RED, sz_srDiff, WHITE);
 
 	// Check for SR
 	bool newRecordHolder = false;

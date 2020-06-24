@@ -358,7 +358,7 @@
 	"BPress6"
 	{
 		"#format"	"{1:s},{2:s},{3:s},{4:s},{5:s},{6:i},{7:i},{8:s}"
-		"en"		"{1} {yellow}{2}{default} finished {red}{3} {default}in {lightgreen}{4}{default}. Missing their best time by [{red}{5}{default}]. [Rank: {lightgreen}{6}/{7} {default}| Record: {lightgreen}{8}{default}]"
+		"en"		"{1} {yellow}{2}{default} finished {red}{3} {default}in {lightgreen}{4}{default}. Missing their best time by [{red}{5}{default}]. [Rank: {lightgreen}{6}/{7} {default}| SR: {lightgreen}{8}{default}]"
 	}
 	"ErrorStageTime"
 	{
@@ -1241,32 +1241,32 @@
 	"CPDisplay"
 	{
 		"#format"	"{1:s},{2:i},{3:s},{4:s},{5:s}"
-		"en"		"{1} CP [{lightgreen}{2}{default}]: {lightgreen}{3} {default}[PB: {4}{default} | {5}{default}]"
+		"en"		"{1} CP [{lightgreen}{2}{default}]: {lightgreen}{3} {default}[{grey}PB {4}{default} | {5}{default}]"
 	}
 	"CPDisplayNoPB"
 	{
 		"#format"	"{1:s},{2:i},{3:s},{4:s}"
-		"en"		"{1} CP [{lightgreen}{2}{default}]: {lightgreen}{3} {default}[PB: {lightgreen}N/A{default} | {4}{default}]"
+		"en"		"{1} CP [{lightgreen}{2}{default}]: {lightgreen}{3} {default}[{grey}PB {lightgreen}N/A{default} | {4}{default}]"
 	}
 	"CPDisplayLinear"
 	{
 		"#format"	"{1:s},{2:i},{3:s},{4:i},{5:s},{6:s}"
-		"en"		"{1} CP [{lightgreen}{2}{default}]: {lightgreen}{3}{default} ({4} u/s) [PB: {5}{default} | {6}{default}]"
+		"en"		"{1} CP [{lightgreen}{2}{default}]: {lightgreen}{3}{default} ({4} u/s) [{grey}PB {5}{default} | {6}{default}]"
 	}
 	"CPDisplayLinearNoPB"
 	{
 		"#format"	"{1:s},{2:i},{3:s},{4:i},{5:s}"
-		"en"		"{1} CP [{lightgreen}{2}{default}]: {lightgreen}{3}{default} ({4} u/s) [PB: {lightgreen}N/A{default} | {5}{default}]"
+		"en"		"{1} CP [{lightgreen}{2}{default}]: {lightgreen}{3}{default} ({4} u/s) [{grey}PB {lightgreen}N/A{default} | {5}{default}]"
 	}
 	"CPDisplaySpectator"
 	{
 		"#format"	"{1:s},{2:s},{3:i},{4:s},{5:s},{6:s}"
-		"en"		"{1} {yellow}{2} {default}| CP [{lightgreen}{3}{default}]: {lightgreen}{4} {default}[PB: {5}{default} | {6}{default}]"
+		"en"		"{1} {yellow}{2} {default}| CP [{lightgreen}{3}{default}]: {lightgreen}{4} {default}[{grey}PB {5}{default} | {6}{default}]"
 	}
 	"CPDisplaySpectatorNoPB"
 	{
 		"#format"	"{1:s},{2:s},{3:i},{4:s},{5:s}"
-		"en"		"{1} {yellow}{2} {default}| CP [{lightgreen}{3}{default}]: {lightgreen}{4} {default}[PB: {lightgreen}N/A{default} | {5}{default}]"
+		"en"		"{1} {yellow}{2} {default}| CP [{lightgreen}{3}{default}]: {lightgreen}{4} {default}[{grey}PB {lightgreen}N/A{default} | {5}{default}]"
 	}
 	"FirstMapPB"
 	{
@@ -1291,27 +1291,27 @@
 	"Misc38"
 	{
 		"#format"	"{1:s},{2:s},{3:s},{4:s},{5:s},{6:s}"
-		"en"		"{1} {yellow}{2} {default}finished {orange}{3}{default} {red}{4} {default}in {lightgreen}{5}{default}. [Rank: {lightgreen}1/1 {default}| Record: {lightgreen}{6}{default}]"
+		"en"		"{1} {yellow}{2} {default}finished {orange}{3}{default} {red}{4} {default}in {lightgreen}{5}{default}. [Rank: {lightgreen}1/1 {default}| SR: {lightgreen}{6}{default}]"
 	}
 	"Misc39"
 	{
 		"#format"	"{1:s},{2:s},{3:s},{4:s},{5:s},{6:s},{7:i},{8:i},{9:s}"
-		"en"		"{1} {yellow}{2} {default}finished {orange}{3}{default} {red}{4} {default}in {lightgreen}{5}{default}. Improving the best time by {lightgreen}{6}{default}. [Rank: {lightgreen}{7}/{8} {default}| Record: {lightgreen}{9}{default}]"
+		"en"		"{1} {yellow}{2} {default}finished {orange}{3}{default} {red}{4} {default}in {lightgreen}{5}{default}. Improving the best time by {lightgreen}{6}{default}. [Rank: {lightgreen}{7}/{8} {default}| SR: {lightgreen}{9}{default}]"
 	}
 	"Misc40"
 	{
 		"#format"	"{1:s},{2:s},{3:s},{4:s},{5:s},{6:s},{7:i},{8:i},{9:s}"
-		"en"		"{1} {yellow}{2} {default}finished {orange}{3}{default} {red}{4} {default}in {lightgreen}{5}{default}. Improving their best time by {lightgreen}{6}{default}. [Rank: {lightgreen}{7}/{8} {default}| Record: {lightgreen}{9}{default}]"
+		"en"		"{1} {yellow}{2} {default}finished {orange}{3}{default} {red}{4} {default}in {lightgreen}{5}{default}. Improving their best time by {lightgreen}{6}{default}. [Rank: {lightgreen}{7}/{8} {default}| SR: {lightgreen}{9}{default}]"
 	}
 	"Misc41"
 	{
 		"#format"	"{1:s},{2:s},{3:s},{4:s},{5:s},{6:i},{7:i},{8:s}"
-		"en"		"{1} {yellow}{2} {default}finished {orange}{3}{default} {red}{4} {default}in {lightgreen}{5}{default}. [Rank: {lightgreen}{6}/{7} {default}| Record: {lightgreen}{8}{default}]"
+		"en"		"{1} {yellow}{2} {default}finished {orange}{3}{default} {red}{4} {default}in {lightgreen}{5}{default}. [Rank: {lightgreen}{6}/{7} {default}| SR: {lightgreen}{8}{default}]"
 	}
 	"Misc42"
 	{
 		"#format"	"{1:s},{2:s},{3:s},{4:s},{5:s},{6:s},{7:i},{8:i},{9:s}"
-		"en"		"{1} {yellow}{2} {default}finished {orange}{3}{default} {red}{4} {default}in {lightgreen}{5}{default}. Missing their best time by {red}{6}{default}. [Rank: {lightgreen}{7}/{8} {default}| Record: {lightgreen}{9}{default}]"
+		"en"		"{1} {yellow}{2} {default}finished {orange}{3}{default} {red}{4} {default}in {lightgreen}{5}{default}. Missing their best time by {red}{6}{default}. [Rank: {lightgreen}{7}/{8} {default}| SR: {lightgreen}{9}{default}]"
 	}
 	"Misc43"
 	{
@@ -1327,11 +1327,6 @@
 	{
 		"#format"	"{1:s}"
 		"en"		"{1} Report sent"
-	}
-	"SQL1"
-	{
-		"#format"	"{1:s}"
-		"en"		"{1} Recalculation in progress. Please wait!"
 	}
 	"SQL2"
 	{
