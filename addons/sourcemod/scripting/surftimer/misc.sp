@@ -2540,6 +2540,15 @@ public void CheckRun(int client)
 					FormatTimeFloat(1, bestTime, 3, szBestTime, 32);
 					CPrintToChat(client, "%t", "MissedMapBest", g_szChatPrefix, szBestTime);
 					EmitSoundToClient(client, "buttons/button18.wav", client);
+					StopRecording(client); // stop replay recording
+				}
+				else if (style > 0 && g_fCurrentRunTime[client] > g_fRecordStyleMapTime[style]) // other styles
+				{
+					StopRecording(client);
+				}
+				else if (g_fCurrentRunTime[client] > g_fRecordMapTime && g_fRecordMapTime > 0.0) // normal styles
+				{
+					StopRecording(client);
 				}
 			}
 		}
@@ -2548,13 +2557,25 @@ public void CheckRun(int client)
 			// get the style to compare against
 			float bestTime = style == 0 ? g_fPersonalRecordBonus[zoneGroup][client] : g_fStylePersonalRecordBonus[style][zoneGroup][client];
 
-			if (!g_bMissedBonusBest[client] && g_fCurrentRunTime[client] > bestTime /*&& zoneGroup > 0*/ && !g_bPause[client] && bestTime > 0.0)
+			if (!g_bMissedBonusBest[client] && g_fCurrentRunTime[client] > bestTime /*&& zoneGroup > 0*/ && !g_bPause[client])
 			{
-				g_bMissedBonusBest[client] = true;
-				char szBestTime[32];
-				FormatTimeFloat(1, bestTime, 3, szBestTime, 32);
-				CPrintToChat(client, "%t", "MissedBonusPB", g_szChatPrefix, szBestTime);
-				EmitSoundToClient(client, "buttons/button18.wav", client);
+				if (bestTime > 0.0)
+				{
+					g_bMissedBonusBest[client] = true;
+					char szBestTime[32];
+					FormatTimeFloat(1, bestTime, 3, szBestTime, 32);
+					CPrintToChat(client, "%t", "MissedBonusPB", g_szChatPrefix, szBestTime);
+					EmitSoundToClient(client, "buttons/button18.wav", client);
+					StopRecording(client); // stop replay recording
+				}
+				else if (style > 0 && g_fCurrentRunTime[client] > g_fStyleBonusFastest[style][zoneGroup]) // other styles
+				{
+					StopRecording(client);
+				}
+				else if (g_fCurrentRunTime[client] > g_fBonusFastest[zoneGroup] && g_fBonusFastest[zoneGroup] > 0.0) // normal style
+				{
+					StopRecording(client);
+				}
 			}
 		}
 	}

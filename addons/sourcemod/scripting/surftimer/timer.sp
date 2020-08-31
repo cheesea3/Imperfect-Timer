@@ -240,34 +240,6 @@ public Action CKTimer2(Handle timer)
 			{
 				StopRecording(i);
 			}
-			else
-			{
-				int style = g_players[i].currentStyle;
-				int zGroup = g_iClientInZone[i][2];
-
-				if (zGroup == 0) // in main map
-				{
-					if (style > 0 && g_fCurrentRunTime[i] > g_fRecordStyleMapTime[style]) // other styles
-					{
-						StopRecording(i);
-					}
-					else if (g_fCurrentRunTime[i] > g_fRecordMapTime && g_fRecordMapTime > 0.0) // normal styles
-					{
-						StopRecording(i);
-					}
-				}
-				else // in bonus
-				{
-					if (style > 0 && g_fCurrentRunTime[i] > g_fStyleBonusFastest[style][zGroup]) // other styles
-					{
-						StopRecording(i);
-					}
-					else if (g_fCurrentRunTime[i] > g_fBonusFastest[zGroup] && g_fBonusFastest[zGroup] > 0.0) // normal style
-					{
-						StopRecording(i);
-					}
-				}
-			}
 		}
 
 		SetClanTag(i);
