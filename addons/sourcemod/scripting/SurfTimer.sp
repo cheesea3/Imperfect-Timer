@@ -838,11 +838,9 @@ public void OnSettingChanged(Handle convar, const char[] oldValue, const char[] 
 						StopPlayerMimic(i);
 						KickClient(i);
 					}
-					else
+					else if (!g_hBonusBot.BoolValue && !g_hWrcpBot.BoolValue) // if both bots are off, no need to record
 					{
-						if (!g_hBonusBot.BoolValue && !g_hWrcpBot.BoolValue) // if both bots are off, no need to record
-							if (g_hRecording[i] != null)
-								StopRecording(i);
+						StopRecording(i);
 					}
 				}
 			}
@@ -872,11 +870,9 @@ public void OnSettingChanged(Handle convar, const char[] oldValue, const char[] 
 						StopPlayerMimic(i);
 						KickClient(i);
 					}
-					else
+					else if (!g_hReplayBot.BoolValue && !g_hWrcpBot.BoolValue) // if both bots are off
 					{
-						if (!g_hReplayBot.BoolValue && !g_hWrcpBot.BoolValue) // if both bots are off
-							if (g_hRecording[i] != null)
-								StopRecording(i);
+						StopRecording(i);
 					}
 				}
 			}
@@ -908,11 +904,9 @@ public void OnSettingChanged(Handle convar, const char[] oldValue, const char[] 
 						StopPlayerMimic(i);
 						KickClient(i);
 					}
-					else
+					else if (!g_hReplayBot.BoolValue && !g_hBonusBot.BoolValue) // if both bots are off
 					{
-						if (!g_hReplayBot.BoolValue && !g_hBonusBot.BoolValue) // if both bots are off
-							if (g_hRecording[i] != null)
-								StopRecording(i);
+						StopRecording(i);
 					}
 				}
 			}

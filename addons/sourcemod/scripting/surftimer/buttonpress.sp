@@ -86,8 +86,7 @@ public void CL_OnStartTimerPress(int client)
 	{
 		if (!IsPlayerAlive(client) || GetClientTeam(client) == 1)
 		{
-			if (g_hRecording[client] != null)
-				StopRecording(client);
+			StopRecording(client);
 		}
 		else
 		{

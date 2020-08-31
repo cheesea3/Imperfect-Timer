@@ -593,9 +593,7 @@ public Action Event_OnPlayerDeath(Event event, const char[] name, bool dontBroad
 	{
 		if (!IsFakeClient(client))
 		{
-			if (g_hRecording[client] != null)
-				StopRecording(client);
-
+			StopRecording(client);
 			CreateTimer(2.0, RemoveRagdoll, client);
 		}
 		else if (g_hBotMimicsRecord[client] != null)

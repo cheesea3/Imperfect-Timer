@@ -200,8 +200,7 @@ public void SaveRecording(int client, int zgroup, int style)
 	g_bNewReplay[client] = false;
 	g_bNewBonus[client] = false;
 
-	if (g_hRecording[client] != null)
-		StopRecording(client);
+	StopRecording(client);
 }
 
 
