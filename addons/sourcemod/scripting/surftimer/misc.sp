@@ -2542,6 +2542,7 @@ public void CheckRun(int client)
 					EmitSoundToClient(client, "buttons/button18.wav", client);
 					StopRecording(client); // stop replay recording
 				}
+				// @IG - Replay recording checks
 				else if (style > 0 && g_fCurrentRunTime[client] > g_fRecordStyleMapTime[style]) // other styles
 				{
 					StopRecording(client);
@@ -2568,6 +2569,7 @@ public void CheckRun(int client)
 					EmitSoundToClient(client, "buttons/button18.wav", client);
 					StopRecording(client); // stop replay recording
 				}
+				// @IG - Replay recording checks
 				else if (style > 0 && g_fCurrentRunTime[client] > g_fStyleBonusFastest[style][zoneGroup]) // other styles
 				{
 					StopRecording(client);

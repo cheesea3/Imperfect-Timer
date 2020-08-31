@@ -232,7 +232,6 @@ public Action CKTimer2(Handle timer)
 		if (g_bOverlay[i] && GetGameTime() - g_fLastOverlay[i] > 5.0)
 			g_bOverlay[i] = false;
 
-		// @IG - Replay recording checks
 		if (g_hRecording[i] != null)
 		{
 			// stop replay to prevent server crashes because of a massive recording array (max. 1h)
