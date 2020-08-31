@@ -614,31 +614,29 @@ public void sql_CountFinishedBonusCallback(Handle owner, Handle hndl, const char
 			{
 				case 1:
 				{
-					int p = totalPlayers >= 3 ? 58 : 50;
-					g_pr_points[client][style] += p;
-					g_Points[client][style][POINTS_BONUSWR] += p;
-
+					g_pr_points[client][style] += 250;
+					g_Points[client][style][4] += 250;
 					wrbs++;
 				}
 
-				case 2:  points = totalPlayers >= 3 ? 48 : 38;
-				case 3:  points = totalPlayers >= 3 ? 42 : 36;
-				case 4:  points = 32;
-				case 5:  points = 30;
-				case 6:  points = 28;
-				case 7:  points = 26;
-				case 8:  points = 24;
-				case 9:  points = 22;
-				case 10: points = 20;
-				case 11: points = 18;
-				case 12: points = 17;
-				case 13: points = 16;
-				case 14: points = 15;
-				case 15: points = 14;
-				case 16: points = 13;
-				case 17: points = 12;
-				case 18: points = 11;
-				case 19: points = 10;
+				case 2:  points = 235;
+				case 3:  points = 220;
+				case 4:  points = 205;
+				case 5:  points = 190;
+				case 6:  points = 175;
+				case 7:  points = 160;
+				case 8:  points = 145;
+				case 9:  points = 130;
+				case 10: points = 100;
+				case 11: points = 95;
+				case 12: points = 90;
+				case 13: points = 80;
+				case 14: points = 70;
+				case 15: points = 60;
+				case 16: points = 50;
+				case 17: points = 40;
+				case 18: points = 30;
+				case 19: points = 20;
 				case 20: points = 10;
 				default: points = 5;
 			}
@@ -646,8 +644,48 @@ public void sql_CountFinishedBonusCallback(Handle owner, Handle hndl, const char
 			if (rank != 1)
 			{
 				g_pr_points[client][style] += points;
-				g_Points[client][style][POINTS_BONUS] += points;
+				g_Points[client][style][1] += points;
 			}
+
+			/* IG REWEIGHTED POINTS - Not using this right now, but leave it here if we ever want to rebalance things. */
+			// switch (rank)
+			// {
+			// 	case 1:
+			// 	{
+			// 		int p = totalPlayers >= 3 ? 58 : 50;
+			// 		g_pr_points[client][style] += p;
+			// 		g_Points[client][style][POINTS_BONUSWR] += p;
+
+			// 		wrbs++;
+			// 	}
+
+			// 	case 2:  points = totalPlayers >= 3 ? 48 : 38;
+			// 	case 3:  points = totalPlayers >= 3 ? 42 : 36;
+			// 	case 4:  points = 32;
+			// 	case 5:  points = 30;
+			// 	case 6:  points = 28;
+			// 	case 7:  points = 26;
+			// 	case 8:  points = 24;
+			// 	case 9:  points = 22;
+			// 	case 10: points = 20;
+			// 	case 11: points = 18;
+			// 	case 12: points = 17;
+			// 	case 13: points = 16;
+			// 	case 14: points = 15;
+			// 	case 15: points = 14;
+			// 	case 16: points = 13;
+			// 	case 17: points = 12;
+			// 	case 18: points = 11;
+			// 	case 19: points = 10;
+			// 	case 20: points = 10;
+			// 	default: points = 5;
+			// }
+
+			// if (rank != 1)
+			// {
+			// 	g_pr_points[client][style] += points;
+			// 	g_Points[client][style][POINTS_BONUS] += points;
+			// }
 		}
 	}
 
@@ -837,7 +875,7 @@ public void sql_CountFinishedMapsCallback(Handle owner, Handle hndl, const char[
 			{
 				case 1:
 				{
-					if (totalplayers < 250 && !isAngleSurf)
+					if (totalplayers < 250)
 					{
 						wrpoints = float(totalplayers); // reduce points when total completion count is low
 					}
@@ -851,13 +889,13 @@ public void sql_CountFinishedMapsCallback(Handle owner, Handle hndl, const char[
 					}
 
 					// Map completion points
-					g_pr_points[client][style] += 15;
-					g_Points[client][style][POINTS_MAP] += 15;
+					g_pr_points[client][style] += 10;
+					g_Points[client][style][POINTS_MAP] += 10;
 				}
 
 				case 2:
 				{
-					if (totalplayers < 250 && !isAngleSurf)
+					if (totalplayers < 250)
 					{
 						wrpoints = float(totalplayers * 2); // reduce points when total completion count is low
 					}
@@ -877,7 +915,7 @@ public void sql_CountFinishedMapsCallback(Handle owner, Handle hndl, const char[
 
 				case 3:
 				{
-					if (totalplayers < 250 && !isAngleSurf)
+					if (totalplayers < 250)
 					{
 						wrpoints = float(totalplayers * 3); // reduce points when total completion count is low
 					}
@@ -888,7 +926,7 @@ public void sql_CountFinishedMapsCallback(Handle owner, Handle hndl, const char[
 						if (wrpoints < 750.0)
 							wrpoints = 750.0;
 						else
-							wrpoints += 117.0;
+							wrpoints += 117;
 					}
 
 					// Map completion points
@@ -917,7 +955,7 @@ public void sql_CountFinishedMapsCallback(Handle owner, Handle hndl, const char[
 					if (wrpoints < 1250.0)
 						wrpoints = 1250.0;
 					else
-						wrpoints += 234.0;
+						wrpoints += 234;
 
 					// Map completion points
 					g_pr_points[client][style] += 400;
@@ -931,21 +969,21 @@ public void sql_CountFinishedMapsCallback(Handle owner, Handle hndl, const char[
 					if (wrpoints < 1500.0)
 						wrpoints = 1500.0;
 					else
-						wrpoints += 328.0;
+						wrpoints += 328;
 
 					// Map completion points
-					g_pr_points[client][style] += 600;
-					g_Points[client][style][POINTS_MAP] += 600;
+					g_pr_points[client][style] += 800;
+					g_Points[client][style][POINTS_MAP] += 800;
 				}
 
-				default: wrpoints = 5.0; // no tier set
+				default: wrpoints = 25.0; // no tier set
 			}
 
 			// Round WR points up
 			iwrpoints = RoundToCeil(wrpoints);
 
-			// Top 10 Points - only rewarded if certain style, tier or completion count target met
-			if (rank < 11 && (totalplayers > 20 || tier > 3 || isAngleSurf))
+			// Top 10 Points
+			if (rank < 11 && (totalplayers > 20 || tier > 3))
 			{
 				g_Top10Maps[client][style]++;
 
@@ -1013,22 +1051,204 @@ public void sql_CountFinishedMapsCallback(Handle owner, Handle hndl, const char[
 					g_Points[client][style][POINTS_GROUP] += RoundFloat(g5points);
 				}
 			}
-		}
 
-		// multiply points based on highest tier completed - helps reward skilled surfers
-		float tierMultiplier = 1.0;
+		/* BEGIN IG POINT REWEIGHTS -- Disabled for now, leave it here */
+		// 	switch (tier)
+		// 	{
+		// 		case 1:
+		// 		{
+		// 			if (totalplayers < 250 && !isAngleSurf)
+		// 			{
+		// 				wrpoints = float(totalplayers); // reduce points when total completion count is low
+		// 			}
+		// 			else
+		// 			{
+		// 				wrpoints = ((float(totalplayers) * 1.75) / 6);
+		// 				wrpoints += 58.5;
 
-		switch (g_iHighestCompletedTier[client][style])
-		{
-			case 0: tierMultiplier = 1.0;
-			case 1: tierMultiplier = 1.0;
-			case 2: tierMultiplier = 1.04;
-			case 3: tierMultiplier = 1.08;
-			case 4: tierMultiplier = 1.16;
-			case 5: tierMultiplier = 1.32;
-			case 6: tierMultiplier = 1.48;
+		// 				if (wrpoints < 250.0)
+		// 					wrpoints = 250.0;
+		// 			}
 
-			default: tierMultiplier = 1.0;
+		// 			// Map completion points
+		// 			g_pr_points[client][style] += 15;
+		// 			g_Points[client][style][POINTS_MAP] += 15;
+		// 		}
+
+		// 		case 2:
+		// 		{
+		// 			if (totalplayers < 250 && !isAngleSurf)
+		// 			{
+		// 				wrpoints = float(totalplayers * 2); // reduce points when total completion count is low
+		// 			}
+		// 			else
+		// 			{
+		// 				wrpoints = ((float(totalplayers) * 2.8) / 5);
+		// 				wrpoints += 82.15;
+
+		// 				if (wrpoints < 500.0)
+		// 					wrpoints = 500.0;
+		// 			}
+
+		// 			// Map completion points
+		// 			g_pr_points[client][style] += 30;
+		// 			g_Points[client][style][POINTS_MAP] += 30;
+		// 		}
+
+		// 		case 3:
+		// 		{
+		// 			if (totalplayers < 250 && !isAngleSurf)
+		// 			{
+		// 				wrpoints = float(totalplayers * 3); // reduce points when total completion count is low
+		// 			}
+		// 			else
+		// 			{
+		// 				wrpoints = ((float(totalplayers) * 3.5) / 4);
+
+		// 				if (wrpoints < 750.0)
+		// 					wrpoints = 750.0;
+		// 				else
+		// 					wrpoints += 117.0;
+		// 			}
+
+		// 			// Map completion points
+		// 			g_pr_points[client][style] += 100;
+		// 			g_Points[client][style][POINTS_MAP] += 100;
+		// 		}
+
+		// 		case 4:
+		// 		{
+		// 			wrpoints = ((float(totalplayers) * 5.74) / 4);
+
+		// 			if (wrpoints < 1000.0)
+		// 				wrpoints = 1000.0;
+		// 			else
+		// 				wrpoints += 164.25;
+
+		// 			// Map completion points
+		// 			g_pr_points[client][style] += 200;
+		// 			g_Points[client][style][POINTS_MAP] += 200;
+		// 		}
+
+		// 		case 5:
+		// 		{
+		// 			wrpoints = ((float(totalplayers) * 7) / 4);
+
+		// 			if (wrpoints < 1250.0)
+		// 				wrpoints = 1250.0;
+		// 			else
+		// 				wrpoints += 234.0;
+
+		// 			// Map completion points
+		// 			g_pr_points[client][style] += 400;
+		// 			g_Points[client][style][POINTS_MAP] += 400;
+		// 		}
+
+		// 		case 6:
+		// 		{
+		// 			wrpoints = ((float(totalplayers) * 14) / 4);
+					
+		// 			if (wrpoints < 1500.0)
+		// 				wrpoints = 1500.0;
+		// 			else
+		// 				wrpoints += 328.0;
+
+		// 			// Map completion points
+		// 			g_pr_points[client][style] += 600;
+		// 			g_Points[client][style][POINTS_MAP] += 600;
+		// 		}
+
+		// 		default: wrpoints = 5.0; // no tier set
+		// 	}
+
+		// 	// Round WR points up
+		// 	iwrpoints = RoundToCeil(wrpoints);
+
+		// 	// Top 10 Points - only rewarded if certain style, tier or completion count target met
+		// 	if (rank < 11 && (totalplayers > 20 || tier > 3 || isAngleSurf))
+		// 	{
+		// 		g_Top10Maps[client][style]++;
+
+		// 		switch (rank)
+		// 		{
+		// 			case 1:
+		// 			{
+		// 				g_pr_points[client][style] += iwrpoints;
+		// 				g_Points[client][style][POINTS_MAPWR] += iwrpoints;
+		// 				wrs++;
+		// 			}
+
+		// 			case 2:  points = (0.80 * iwrpoints);
+		// 			case 3:  points = (0.75 * iwrpoints);
+		// 			case 4:  points = (0.70 * iwrpoints);
+		// 			case 5:  points = (0.65 * iwrpoints);
+		// 			case 6:  points = (0.60 * iwrpoints);
+		// 			case 7:  points = (0.55 * iwrpoints);
+		// 			case 8:  points = (0.50 * iwrpoints);
+		// 			case 9:  points = (0.45 * iwrpoints);
+		// 			case 10: points = (0.40 * iwrpoints);
+		// 		}
+
+		// 		if (rank != 1)
+		// 		{
+		// 			g_pr_points[client][style] += RoundToCeil(points);
+		// 			g_Points[client][style][POINTS_TOPTEN] += RoundToCeil(points);
+		// 		}
+		// 	}
+		// 	else if (rank > 10 && rank <= g5top)
+		// 	{
+		// 		// Group 1-5 Points
+		// 		g_GroupMaps[client][style] += 1;
+
+		// 		// Calculate Group Points
+		// 		g1points = (iwrpoints * 0.25);
+		// 		g2points = (g1points / 1.5);
+		// 		g3points = (g2points / 1.5);
+		// 		g4points = (g3points / 1.5);
+		// 		g5points = (g4points / 1.5);
+
+		// 		if (rank >= g1bot && rank <= g1top) // Group 1
+		// 		{
+		// 			g_pr_points[client][style] += RoundFloat(g1points);
+		// 			g_Points[client][style][POINTS_GROUP] += RoundFloat(g1points);
+		// 		}
+		// 		else if (rank >= g2bot && rank <= g2top) // Group 2
+		// 		{
+		// 			g_pr_points[client][style] += RoundFloat(g2points);
+		// 			g_Points[client][style][POINTS_GROUP] += RoundFloat(g2points);
+		// 		}
+		// 		else if (rank >= g3bot && rank <= g3top) // Group 3
+		// 		{
+		// 			g_pr_points[client][style] += RoundFloat(g3points);
+		// 			g_Points[client][style][POINTS_GROUP] += RoundFloat(g3points);
+		// 		}
+		// 		else if (rank >= g4bot && rank <= g4top) // Group 4
+		// 		{
+		// 			g_pr_points[client][style] += RoundFloat(g4points);
+		// 			g_Points[client][style][POINTS_GROUP] += RoundFloat(g4points);
+		// 		}
+		// 		else if (rank >= g5bot && rank <= g5top) // Group 5
+		// 		{
+		// 			g_pr_points[client][style] += RoundFloat(g5points);
+		// 			g_Points[client][style][POINTS_GROUP] += RoundFloat(g5points);
+		// 		}
+		// 	}
+		// }
+
+		// // multiply points based on highest tier completed - helps reward skilled surfers
+		// float tierMultiplier = 1.0;
+
+		// switch (g_iHighestCompletedTier[client][style])
+		// {
+		// 	case 0: tierMultiplier = 1.0;
+		// 	case 1: tierMultiplier = 1.0;
+		// 	case 2: tierMultiplier = 1.04;
+		// 	case 3: tierMultiplier = 1.08;
+		// 	case 4: tierMultiplier = 1.16;
+		// 	case 5: tierMultiplier = 1.32;
+		// 	case 6: tierMultiplier = 1.48;
+
+		// 	default: tierMultiplier = 1.0;
 		}
 
 //#if defined DEBUG_LOGGING
@@ -1037,13 +1257,15 @@ public void sql_CountFinishedMapsCallback(Handle owner, Handle hndl, const char[
 //		LogToFileEx(g_szLogFile, "[IG] Tier mutliplier for %s: %f (highest tier: %i)", sName, tierMultiplier, g_iHighestCompletedTier[client][style]);
 //#endif
 
-		g_Points[client][style][POINTS_MAP]     = RoundToCeil(float(g_Points[client][style][POINTS_MAP]) * tierMultiplier); // Map Points
-		//g_Points[client][style][POINTS_BONUS]   = RoundToCeil(float(g_Points[client][style][POINTS_BONUS]) * tierMultiplier); // Bonus Points
-		g_Points[client][style][POINTS_GROUP]   = RoundToCeil(float(g_Points[client][style][POINTS_GROUP]) * tierMultiplier); // Group Points
-		g_Points[client][style][POINTS_MAPWR]   = RoundToCeil(float(g_Points[client][style][POINTS_MAPWR]) * tierMultiplier); // Map WR Points
-		//g_Points[client][style][POINTS_BONUSWR] = RoundToCeil(float(g_Points[client][style][POINTS_BONUSWR]) * tierMultiplier); // Bonus WR Points
-		g_Points[client][style][POINTS_TOPTEN]  = RoundToCeil(float(g_Points[client][style][POINTS_TOPTEN]) * tierMultiplier); // Top 10 Points
-		//g_Points[client][style][POINTS_WRCP]    = RoundToCeil(float(g_Points[client][style][POINTS_WRCP]) * tierMultiplier); // WRCP Points
+		//g_Points[client][style][POINTS_MAP]     = RoundToCeil(float(g_Points[client][style][POINTS_MAP]) * tierMultiplier); // Map Points
+		////g_Points[client][style][POINTS_BONUS]   = RoundToCeil(float(g_Points[client][style][POINTS_BONUS]) * tierMultiplier); // Bonus Points
+		//g_Points[client][style][POINTS_GROUP]   = RoundToCeil(float(g_Points[client][style][POINTS_GROUP]) * tierMultiplier); // Group Points
+		//g_Points[client][style][POINTS_MAPWR]   = RoundToCeil(float(g_Points[client][style][POINTS_MAPWR]) * tierMultiplier); // Map WR Points
+		////g_Points[client][style][POINTS_BONUSWR] = RoundToCeil(float(g_Points[client][style][POINTS_BONUSWR]) * tierMultiplier); // Bonus WR Points
+		//g_Points[client][style][POINTS_TOPTEN]  = RoundToCeil(float(g_Points[client][style][POINTS_TOPTEN]) * tierMultiplier); // Top 10 Points
+		////g_Points[client][style][POINTS_WRCP]    = RoundToCeil(float(g_Points[client][style][POINTS_WRCP]) * tierMultiplier); // WRCP Points
+
+		/* END IG POINT REWEIGHTS */
 	}
 
 	// Finished maps amount is stored in memory

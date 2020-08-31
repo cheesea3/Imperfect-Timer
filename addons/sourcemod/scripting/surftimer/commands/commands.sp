@@ -158,7 +158,9 @@ void CreateCommands()
 	RegConsoleCmd("sm_showweapons", Command_ShowWeapons, "[surftimer] Give weapons and allow pickups");
 	RegConsoleCmd("sm_tp", Command_ToggleThirdPerson, "[surftimer] Toggles between first and third person"); // Zephyrus' third person plugin
 
-	RegAdminCmd("sm_recalculateallpoints", Command_RecalculateAllPoints, ADMFLAG_ROOT, "[IG] Recalculate the player rank table (DO NOT USE IF YOU DO NOT KNOW WHAT YOU ARE DOING)");
+	// Disabled for now
+	//RegAdminCmd("sm_recalculateallpoints", Command_RecalculateAllPoints, ADMFLAG_ROOT, "[IG] Recalculate the player rank table (DO NOT USE IF YOU DO NOT KNOW WHAT YOU ARE DOING)");
+	
 	RegAdminCmd("sm_extendmap", Command_ExtendMap, ADMFLAG_ROOT, "[IG] Extend the map by specified minutes");
 
 	CreateStyleCommands();
@@ -4871,28 +4873,29 @@ public Action Command_ShowWeapons(int client, int args)
 	return Plugin_Handled;
 }
 
-public Action Command_RecalculateAllPoints(int client, int args)
-{
-	int style = STYLE_NORMAL;
+// Disabled for now
+// public Action Command_RecalculateAllPoints(int client, int args)
+// {
+// 	int style = STYLE_NORMAL;
 
-	if (args >= 1)
-	{
-		char arg1[3];
-		GetCmdArg(1, arg1, sizeof(arg1));
-		style = StringToInt(arg1);
-	}
+// 	if (args >= 1)
+// 	{
+// 		char arg1[3];
+// 		GetCmdArg(1, arg1, sizeof(arg1));
+// 		style = StringToInt(arg1);
+// 	}
 
-	if (style >= 0 && style < MAX_STYLES)
-	{
-		CPrintToChat(client, "%t", "PrUpdateStarted", g_szChatPrefix);
-		g_bManualRecalc = true;
-		g_pr_Recalc_AdminID = client;
+// 	if (style >= 0 && style < MAX_STYLES)
+// 	{
+// 		CPrintToChat(client, "%t", "PrUpdateStarted", g_szChatPrefix);
+// 		g_bManualRecalc = true;
+// 		g_pr_Recalc_AdminID = client;
 
-		RecalculatePlayerRankTable(MAX_RECALC_COUNT, args);
-	}
+// 		RecalculatePlayerRankTable(MAX_RECALC_COUNT, args);
+// 	}
 
-	return Plugin_Handled;
-}
+// 	return Plugin_Handled;
+// }
 
 
 // check for spam; false = spamming

@@ -448,10 +448,7 @@ public Action EndTouchTrigger(int caller, int activator)
 		g_bInMaxSpeed[client] = 0.0;
 	}
 
-	if (iZoneGroup != g_iClientInZone[activator][2]
-		|| iZoneType == ZONETYPE_TELETOSTART
-		|| iZoneType == ZONETYPE_CHECKER
-		|| iZoneType != g_iClientInZone[activator][0])
+	if (iZoneGroup != g_iClientInZone[activator][2] || iZoneType == ZONETYPE_TELETOSTART || iZoneType == ZONETYPE_CHECKER || iZoneType != g_iClientInZone[activator][0])
 	{
 		// Ignore end touches in other zonegroups, zones that teleports away or multiple zones on top of each other // fluffys
 		return Plugin_Handled;
@@ -607,23 +604,6 @@ public Action EndTouchTrigger(int caller, int activator)
 	}
 	else if (iZoneType == ZONETYPE_STAGE)
 	{
-		// targetname filters
-		// if (StrEqual(g_szMapName, "surf_treespam") && g_Stage[g_iClientInZone[client][2]][client] == 4)
-		// {
-		// 	DispatchKeyValue(client, "targetname", "s4neutral");
-		// }
-		// else if (StrEqual(g_szMapName, "surf_looksmodern"))
-		// {
-		// 	if (g_Stage[g_iClientInZone[client][2]][client] == 2)
-		// 		DispatchKeyValue(client, "classname", "two_1");
-		// 	else if (g_Stage[g_iClientInZone[client][2]][client] == 3)
-		// 		DispatchKeyValue(client, "classname", "threer");
-		// 	else if (g_Stage[g_iClientInZone[client][2]][client] == 4)
-		// 		DispatchKeyValue(client, "classname", "four_1");
-		// 	else if (g_Stage[g_iClientInZone[client][2]][client] == 5)
-		// 		DispatchKeyValue(client, "classname", "five_1");
-		// }
-
 		g_bInStageZone[client] = false;
 
 		if (!g_bPracticeMode[client] && g_bTimerEnabled[client])
@@ -632,6 +612,7 @@ public Action EndTouchTrigger(int caller, int activator)
 
 			// not saving stage speeds yet
 			int speed = RoundToNearest(g_fLastSpeed[client]);
+
 			if (speed > 0 && g_players[client].repeatMode)
 				CPrintToChat(client, "%t", "StartSpeed", g_szChatPrefix, speed);
 		}
@@ -699,16 +680,10 @@ public int Handle_ZoneMenu(Handle tMenu, MenuAction action, int client, int item
 		{
 			switch (item)
 			{
-				case 0:
-				{
-					// Create a zone
-					SelectZoneGroup(client);
-				}
-				case 1:
-				{
-					// Edit Zones
-					EditZoneGroup(client);
-				}
+				case 0: SelectZoneGroup(client); // Create a zone
+				
+				case 1: EditZoneGroup(client); // Edit Zones
+
 				case 2:
 				{
 					// Save Zones
@@ -716,11 +691,9 @@ public int Handle_ZoneMenu(Handle tMenu, MenuAction action, int client, int item
 					resetSelection(client);
 					ZoneMenu(client);
 				}
-				case 3:
-				{
-					// Edit Zone Settings
-					ZoneSettings(client);
-				}
+
+				case 3: ZoneSettings(client); // Edit Zone Settings
+
 				case 4:
 				{
 					// Reload Zones
@@ -771,11 +744,13 @@ public int h_editZoneGroupMenu(Handle tMenu, MenuAction action, int client, int 
 				}
 			}
 		}
+		
 		case MenuAction_Cancel:
 		{
 			resetSelection(client);
 			ZoneMenu(client);
 		}
+
 		case MenuAction_End: delete tMenu;
 	}
 }
@@ -853,6 +828,7 @@ public int Handler_ListBonusSettings(Handle tMenu, MenuAction action, int client
 				case 3:checkForMissclick(client);
 			}
 		}
+
 		case MenuAction_Cancel:
 		{
 			resetSelection(client);
@@ -918,6 +894,7 @@ public void listZonesInGroup(int client)
 	{
 		h_listBonusZones.AddItem("", "No zones are available", ITEMDRAW_DISABLED);
 	}
+
 	h_listBonusZones.ExitButton = true;
 	h_listBonusZones.Display(client, MENU_TIME_FOREVER);
 }
@@ -978,17 +955,23 @@ public int Handler_selectBonusZoneType(Handle tMenu, MenuAction action, int clie
 			char aID[12];
 			GetMenuItem(tMenu, item, aID, sizeof(aID));
 			g_CurrentZoneType[client] = StringToInt(aID);
-			if (g_bEditZoneType[client]) {
+
+			if (g_bEditZoneType[client])
+			{
 				db_selectzoneTypeIds(g_CurrentZoneType[client], client, g_CurrentSelectedZoneGroup[client]);
 			}
 			else
+			{				
 				EditorMenu(client);
+			}
 		}
+
 		case MenuAction_Cancel:
 		{
 			resetSelection(client);
 			SelectZoneGroup(client);
 		}
+
 		case MenuAction_End:
 		{
 			delete tMenu;
@@ -1023,11 +1006,13 @@ public int h_newZoneGroupMenu(Handle tMenu, MenuAction action, int client, int i
 					g_CurrentSelectedZoneGroup[client] = 0;
 					SelectNormalZoneType(client);
 				}
+
 				case 1: // Bonus Zones
 				{
 					g_CurrentSelectedZoneGroup[client] = -1;
 					StartBonusZoneCreation(client);
 				}
+
 				case 2: // Misc zones
 				{
 					g_CurrentSelectedZoneGroup[client] = 0;
@@ -1035,11 +1020,13 @@ public int h_newZoneGroupMenu(Handle tMenu, MenuAction action, int client, int i
 				}
 			}
 		}
+
 		case MenuAction_Cancel:
 		{
 			resetSelection(client);
 			ZoneMenu(client);
 		}
+
 		case MenuAction_End:
 		{
 			delete tMenu;
@@ -1051,14 +1038,17 @@ public void StartBonusZoneCreation(int client)
 {
 	Menu CreateBonusFirst = new Menu(H_CreateBonusFirst);
 	CreateBonusFirst.SetTitle("Create the Bonus Start Zone:");
+
 	if (g_Editing[client] == 0)
+	{
 		CreateBonusFirst.AddItem("1", "Start Drawing");
+	}
 	else
 	{
 		CreateBonusFirst.AddItem("1", "Restart Drawing");
 		CreateBonusFirst.AddItem("2", "Save Bonus Start Zone");
-
 	}
+
 	CreateBonusFirst.ExitButton = true;
 	CreateBonusFirst.Display(client, MENU_TIME_FOREVER);
 }
@@ -1082,6 +1072,7 @@ public int H_CreateBonusFirst(Handle tMenu, MenuAction action, int client, int i
 					TR_GetEndPosition(g_fBonusStartPos[client][0]);
 					StartBonusZoneCreation(client);
 				}
+
 				case 1:
 				{
 					if (!IsValidClient(client))
@@ -1093,15 +1084,14 @@ public int H_CreateBonusFirst(Handle tMenu, MenuAction action, int client, int i
 				}
 			}
 		}
+
 		case MenuAction_Cancel:
 		{
 			resetSelection(client);
 			SelectZoneGroup(client);
 		}
-		case MenuAction_End:
-		{
-			delete tMenu;
-		}
+
+		case MenuAction_End: delete tMenu;
 	}
 }
 
@@ -1109,13 +1099,17 @@ public void EndBonusZoneCreation(int client)
 {
 	Menu CreateBonusSecond = new Menu(H_CreateBonusSecond);
 	CreateBonusSecond.SetTitle("Create the Bonus End Zone:");
+
 	if (g_Editing[client] == 2)
+	{
 		CreateBonusSecond.AddItem("1", "Start Drawing");
+	}
 	else
 	{
 		CreateBonusSecond.AddItem("1", "Restart Drawing");
 		CreateBonusSecond.AddItem("2", "Save Bonus End Zone");
 	}
+
 	CreateBonusSecond.ExitButton = true;
 	CreateBonusSecond.Display(client, MENU_TIME_FOREVER);
 }
@@ -1139,6 +1133,7 @@ public int H_CreateBonusSecond(Handle tMenu, MenuAction action, int client, int 
 					TR_GetEndPosition(g_fBonusEndPos[client][0]);
 					EndBonusZoneCreation(client);
 				}
+
 				case 1:
 				{
 					g_Editing[client] = 2;
@@ -1152,10 +1147,8 @@ public int H_CreateBonusSecond(Handle tMenu, MenuAction action, int client, int 
 			resetSelection(client);
 			SelectZoneGroup(client);
 		}
-		case MenuAction_End:
-		{
-			delete tMenu;
-		}
+
+		case MenuAction_End: delete tMenu;
 	}
 }
 
@@ -1169,7 +1162,9 @@ public void SaveBonusZones(int client)
 		CPrintToChat(client, "%t", "SurfZones6", g_szChatPrefix);
 	}
 	else
+	{
 		CPrintToChat(client, "%t", "SurfZones7", g_szChatPrefix);
+	}
 
 	resetSelection(client);
 	ZoneMenu(client);
@@ -1182,6 +1177,7 @@ public void SelectNormalZoneType(int client)
 	SelectNormalZoneMenu.SetTitle("Select Zone Type");
 	SelectNormalZoneMenu.AddItem("1", "Start");
 	SelectNormalZoneMenu.AddItem("2", "End");
+
 	if (g_mapZonesTypeCount[g_CurrentSelectedZoneGroup[client]][3] == 0 && g_mapZonesTypeCount[g_CurrentSelectedZoneGroup[client]][4] == 0)
 	{
 		SelectNormalZoneMenu.AddItem("3", "Stage");
@@ -1192,7 +1188,9 @@ public void SelectNormalZoneType(int client)
 		SelectNormalZoneMenu.AddItem("3", "Stage");
 	}
 	else if (g_mapZonesTypeCount[g_CurrentSelectedZoneGroup[client]][3] == 0 && g_mapZonesTypeCount[g_CurrentSelectedZoneGroup[client]][4] > 0)
+	{
 		SelectNormalZoneMenu.AddItem("4", "Checkpoint");
+	}
 
 	SelectNormalZoneMenu.AddItem("hook", "Hook Zone");
 
@@ -1208,8 +1206,11 @@ public int Handle_SelectNormalZoneType(Handle tMenu, MenuAction action, int clie
 		{
 			char aID[12];
 			GetMenuItem(tMenu, item, aID, sizeof(aID));
+
 			if (StrEqual(aID, "hook"))
+			{
 				HookZonesMenu(client);
+			}
 			else
 			{
 				g_CurrentZoneType[client] = StringToInt(aID);
@@ -1219,15 +1220,14 @@ public int Handle_SelectNormalZoneType(Handle tMenu, MenuAction action, int clie
 					EditorMenu(client);
 			}
 		}
+
 		case MenuAction_Cancel:
 		{
 			resetSelection(client);
 			SelectZoneGroup(client);
 		}
-		case MenuAction_End:
-		{
-			delete tMenu;
-		}
+
+		case MenuAction_End: delete tMenu;
 	}
 }
 
@@ -1268,6 +1268,7 @@ public int Handle_ZoneSettingMenu(Handle tMenu, MenuAction action, int client, i
 					else
 						SetConVarInt(g_hZoneDisplayType, 0);
 				}
+
 				case 1:
 				{
 					if (g_hZonesToDisplay.IntValue < 3)
@@ -1278,15 +1279,14 @@ public int Handle_ZoneSettingMenu(Handle tMenu, MenuAction action, int client, i
 			}
 			CreateTimer(0.1, RefreshZoneSettings, client, TIMER_FLAG_NO_MAPCHANGE);
 		}
+
 		case MenuAction_Cancel:
 		{
 			resetSelection(client);
 			ZoneMenu(client);
 		}
-		case MenuAction_End:
-		{
-			delete tMenu;
-		}
+
+		case MenuAction_End: delete tMenu;
 	}
 }
 
@@ -1317,21 +1317,24 @@ public int Handle_SelectMiscZoneType(Handle tMenu, MenuAction action, int client
 			char aID[12];
 			GetMenuItem(tMenu, item, aID, sizeof(aID));
 			g_CurrentZoneType[client] = StringToInt(aID);
-			if (g_bEditZoneType[client]) {
+
+			if (g_bEditZoneType[client])
+			{
 				db_selectzoneTypeIds(g_CurrentZoneType[client], client, 0);
 			}
 			else
+			{
 				EditorMenu(client);
+			}
 		}
+
 		case MenuAction_Cancel:
 		{
 			resetSelection(client);
 			SelectZoneGroup(client);
 		}
-		case MenuAction_End:
-		{
-			delete tMenu;
-		}
+
+		case MenuAction_End: delete tMenu;
 	}
 }
 // Types: Start(1), End(2), Stage(3), Checkpoint(4), Speed(5), TeleToStart(6), Validator(7), Chekcer(8), Stop(0)
@@ -1346,14 +1349,13 @@ public int Handle_EditZoneTypeId(Handle tMenu, MenuAction action, int client, in
 			g_CurrentZoneTypeId[client] = StringToInt(selection);
 			EditorMenu(client);
 		}
+
 		case MenuAction_Cancel:
 		{
 			SelectNormalZoneType(client);
 		}
-		case MenuAction_End:
-		{
-			delete tMenu;
-		}
+
+		case MenuAction_End: delete tMenu;
 	}
 }
 
@@ -1376,6 +1378,7 @@ public void ListZones(int client, bool mapzones)
 						Format(ZoneId, sizeof(ZoneId), "%s-%i", g_szZoneDefaultNames[g_mapZones[i].zoneType], (g_mapZones[i].zoneTypeId + 2));
 					else
 						Format(ZoneId, sizeof(ZoneId), "%s-%i", g_szZoneDefaultNames[g_mapZones[i].zoneType], g_mapZones[i].zoneTypeId);
+
 					IntToString(i, Id, sizeof(Id));
 					Format(listZoneName, sizeof(listZoneName), ZoneId);
 					ZoneList.AddItem(Id, ZoneId);
@@ -1400,6 +1403,7 @@ public void ListZones(int client, bool mapzones)
 	{
 		ZoneList.AddItem("", "No zones are available", ITEMDRAW_DISABLED);
 	}
+
 	ZoneList.ExitButton = true;
 	ZoneList.Display(client, MENU_TIME_FOREVER);
 }
@@ -1416,21 +1420,22 @@ public int MenuHandler_ZoneModify(Handle tMenu, MenuAction action, int client, i
 			g_CurrentZoneType[client] = g_mapZones[g_ClientSelectedZone[client]].zoneType;
 			DrawBeamBox(client);
 			g_Editing[client] = 2;
+
 			if (g_ClientSelectedZone[client] != -1)
 			{
 				GetClientSelectedZone(client);
 			}
+
 			EditorMenu(client);
 		}
+
 		case MenuAction_Cancel:
 		{
 			resetSelection(client);
 			ZoneMenu(client);
 		}
-		case MenuAction_End:
-		{
-			delete tMenu;
-		}
+
+		case MenuAction_End: delete tMenu;
 	}
 }
 
@@ -1529,27 +1534,33 @@ public int MenuHandler_Editor(Handle tMenu, MenuAction action, int client, int i
 					TR_GetEndPosition(g_Positions[client][0]);
 					EditorMenu(client);
 				}
+
 				case 1: // Setting zone type
 				{
 					g_bEditZoneType[client] = true;
+
 					if (g_CurrentSelectedZoneGroup[client] == 0)
 						SelectNormalZoneType(client);
 					else if (g_CurrentSelectedZoneGroup[client] > 0)
 						SelectBonusZoneType(client);
-
 				}
+
 				case 2:
 				{
 					// Pause
 					if (g_Editing[client] == 2)
 					{
 						g_Editing[client] = 1;
-					} else {
+					}
+					else
+					{
 						DrawBeamBox(client);
 						g_Editing[client] = 2;
 					}
+
 					EditorMenu(client);
 				}
+
 				case 3:
 				{
 					// Delete
@@ -1558,9 +1569,11 @@ public int MenuHandler_Editor(Handle tMenu, MenuAction action, int client, int i
 						db_deleteZone(client, g_mapZones[g_ClientSelectedZone[client]].zoneId);
 						resetZone(g_ClientSelectedZone[client]);
 					}
+
 					resetSelection(client);
 					ZoneMenu(client);
 				}
+
 				case 4:
 				{
 					// Save
@@ -1570,6 +1583,7 @@ public int MenuHandler_Editor(Handle tMenu, MenuAction action, int client, int i
 							db_updateZone(g_mapZones[g_ClientSelectedZone[client]].zoneId, g_mapZones[g_ClientSelectedZone[client]].zoneType, g_mapZones[g_ClientSelectedZone[client]].zoneTypeId, g_Positions[client][0], g_Positions[client][1], 0, 0, g_CurrentSelectedZoneGroup[client], g_mapZones[g_ClientSelectedZone[client]].oneJumpLimit, g_mapZones[g_ClientSelectedZone[client]].preSpeed, g_mapZones[g_ClientSelectedZone[client]].hookName, g_mapZones[g_ClientSelectedZone[client]].targetName);
 						else
 							db_updateZone(g_mapZones[g_ClientSelectedZone[client]].zoneId, g_CurrentZoneType[client], g_CurrentZoneTypeId[client], g_Positions[client][0], g_Positions[client][1], 0, 0, g_CurrentSelectedZoneGroup[client], g_mapZones[g_ClientSelectedZone[client]].oneJumpLimit, g_mapZones[g_ClientSelectedZone[client]].preSpeed, g_mapZones[g_ClientSelectedZone[client]].hookName, g_mapZones[g_ClientSelectedZone[client]].targetName);
+						
 						g_bEditZoneType[client] = false;
 					}
 					else
@@ -1577,10 +1591,12 @@ public int MenuHandler_Editor(Handle tMenu, MenuAction action, int client, int i
 						db_insertZone(g_mapZonesCount, g_CurrentZoneType[client], g_mapZonesTypeCount[g_CurrentSelectedZoneGroup[client]][g_CurrentZoneType[client]], g_Positions[client][0][0], g_Positions[client][0][1], g_Positions[client][0][2], g_Positions[client][1][0], g_Positions[client][1][1], g_Positions[client][1][2], 0, 0, g_CurrentSelectedZoneGroup[client]);
 						g_bEditZoneType[client] = false;
 					}
+
 					CPrintToChat(client, "%t", "SurfZones8", g_szChatPrefix);
 					resetSelection(client);
 					ZoneMenu(client);
 				}
+
 				case 5:
 				{
 					// Teleport
@@ -1594,21 +1610,18 @@ public int MenuHandler_Editor(Handle tMenu, MenuAction action, int client, int i
 					TeleportEntity(client, ZonePos, NULL_VECTOR, NULL_VECTOR);
 					EditorMenu(client);
 				}
-				case 6:
-				{
-					// Scaling
-					ScaleMenu(client, 0);
-				}
-				case 7:
-				{
-					ChangeZonesHook(client);
-				}
+
+				case 6: ScaleMenu(client, 0); // Scaling
+
+				case 7: ChangeZonesHook(client);
+
 				case 8:
 				{
 					// Set Target Name
 					g_iWaitingForResponse[client] = 5;
 					CPrintToChat(client, "%t", "SurfZones9", g_szChatPrefix);
 				}
+
 				case 9:
 				{
 					// One jump limit
@@ -1619,22 +1632,18 @@ public int MenuHandler_Editor(Handle tMenu, MenuAction action, int client, int i
 
 					EditorMenu(client);
 				}
-				case 10:
-				{
-					// prespeed
-					PrespeedMenu(client);
-				}
+
+				case 10: PrespeedMenu(client); // prespeed
 			}
 		}
+
 		case MenuAction_Cancel:
 		{
 			resetSelection(client);
 			ZoneMenu(client);
 		}
-		case MenuAction_End:
-		{
-			delete tMenu;
-		}
+
+		case MenuAction_End: delete tMenu;
 	}
 }
 
@@ -1697,15 +1706,18 @@ public int MenuHandler_Scale(Handle tMenu, MenuAction action, int client, int it
 					else
 						g_ClientSelectedPoint[client] = 1;
 				}
+
 				case 1:	g_Positions[client][g_ClientSelectedPoint[client]][0] = g_Positions[client][g_ClientSelectedPoint[client]][0] + g_AvaliableScales[g_ClientSelectedScale[client]];
 				case 2: g_Positions[client][g_ClientSelectedPoint[client]][0] = g_Positions[client][g_ClientSelectedPoint[client]][0] - g_AvaliableScales[g_ClientSelectedScale[client]];
 				case 3: g_Positions[client][g_ClientSelectedPoint[client]][1] = g_Positions[client][g_ClientSelectedPoint[client]][1] + g_AvaliableScales[g_ClientSelectedScale[client]];
 				case 4:	g_Positions[client][g_ClientSelectedPoint[client]][1] = g_Positions[client][g_ClientSelectedPoint[client]][1] - g_AvaliableScales[g_ClientSelectedScale[client]];
 				case 5:	g_Positions[client][g_ClientSelectedPoint[client]][2] = g_Positions[client][g_ClientSelectedPoint[client]][2] + g_AvaliableScales[g_ClientSelectedScale[client]];
 				case 6:	g_Positions[client][g_ClientSelectedPoint[client]][2] = g_Positions[client][g_ClientSelectedPoint[client]][2] - g_AvaliableScales[g_ClientSelectedScale[client]];
+				
 				case 7:
 				{
 					++g_ClientSelectedScale[client];
+
 					if (g_ClientSelectedScale[client] == 5)
 						g_ClientSelectedScale[client] = 0;
 				}
@@ -1759,9 +1771,13 @@ public int MenuHandler_Prespeed(Handle tMenu, MenuAction action, int client, int
 				return;
 			}
 			else if (prespeed == -2.0)
+			{
 				g_mapZones[g_ClientSelectedZone[client]].preSpeed = 0.0;
+			}
 			else
+			{
 				g_mapZones[g_ClientSelectedZone[client]].preSpeed = prespeed;
+			}
 			PrespeedMenu(client);
 		}
 
@@ -1781,6 +1797,7 @@ public void ChangeZonesHook(int client)
 		GetArrayString(g_TriggerMultipleList, i, szTriggerName, sizeof(szTriggerName));
 		AddMenuItem(menu, szTriggerName, szTriggerName);
 	}
+
 	SetMenuExitButton(menu, true);
 	DisplayMenu(menu, client, MENU_TIME_FOREVER);
 }
@@ -1840,6 +1857,7 @@ public int ZoneHookHandler(Handle menu, MenuAction action, int param1, int param
 				teleportEntitySafe(param1, position, angles, view_as<float>( { 0.0, 0.0, -100.0 } ), true);
 				SelectTrigger(param1, index);
 			}
+
 			case 1: // hook zone
 			{
 				float position[3], fMins[3], fMaxs[3];

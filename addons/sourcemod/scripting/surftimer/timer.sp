@@ -232,10 +232,42 @@ public Action CKTimer2(Handle timer)
 		if (g_bOverlay[i] && GetGameTime() - g_fLastOverlay[i] > 5.0)
 			g_bOverlay[i] = false;
 
-		// stop replay to prevent server crashes because of a massive recording array (max. 2h)
-		if (g_hRecording[i] != null && g_fCurrentRunTime[i] > 6720.0)
+		// @IG - Replay recording checks
+		if (g_hRecording[i] != null)
 		{
-			StopRecording(i);
+			// stop replay to prevent server crashes because of a massive recording array (max. 1h)
+			if (g_fCurrentRunTime[i] > 3360.0)
+			{
+				StopRecording(i);
+			}
+			else
+			{
+				int style = g_players[i].currentStyle;
+				int zGroup = g_iClientInZone[i][2];
+
+				if (zGroup == 0) // in main map
+				{
+					if (style > 0 && g_fCurrentRunTime[i] > g_fRecordStyleMapTime[style]) // other styles
+					{
+						StopRecording(i);
+					}
+					else if (g_fCurrentRunTime[i] > g_fRecordMapTime && g_fRecordMapTime > 0.0) // normal styles
+					{
+						StopRecording(i);
+					}
+				}
+				else // in bonus
+				{
+					if (style > 0 && g_fCurrentRunTime[i] > g_fStyleBonusFastest[style][zGroup]) // other styles
+					{
+						StopRecording(i);
+					}
+					else if (g_fCurrentRunTime[i] > g_fBonusFastest[zGroup] && g_fBonusFastest[zGroup] > 0.0) // normal style
+					{
+						StopRecording(i);
+					}
+				}
+			}
 		}
 
 		SetClanTag(i);
