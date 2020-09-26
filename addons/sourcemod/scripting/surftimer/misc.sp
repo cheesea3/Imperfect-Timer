@@ -1745,7 +1745,7 @@ stock void MapFinishedMsgs(int client, int rankThisRun = 0)
 		//	PlayRecordSound(3);
 
 		if (g_MapRank[client] == 99999 && IsValidClient(client))
-			CPrintToChat(client, "%t", "Misc19", g_szChatPrefix);
+			CPrintToChat(client, "%t", "PlayerSaveFailure", g_szChatPrefix);
 
 		DataPack pack;
 		int style = 0;
@@ -1886,7 +1886,7 @@ stock void PrintChatBonus(int client, int zGroup, int rank = 0)
 	db_CalcAvgRunTimeBonus();
 
 	if (rank == 9999999 && IsValidClient(client))
-		CPrintToChat(client, "%t", "Misc19", g_szChatPrefix);
+		CPrintToChat(client, "%t", "PlayerSaveFailure", g_szChatPrefix);
 
 	return;
 }
@@ -3898,7 +3898,7 @@ stock void PrintChatBonusStyle(int client, int zGroup, int style, int rank = 0)
 	CheckBonusStyleRanks(client, zGroup, style);
 
 	if (rank == 9999999 && IsValidClient(client))
-		CPrintToChat(client, "%t", "Misc19", g_szChatPrefix);
+		CPrintToChat(client, "%t", "PlayerSaveFailure", g_szChatPrefix);
 
 	CalculatePlayerRank(client, style);
 	return;
