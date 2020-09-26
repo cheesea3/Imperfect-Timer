@@ -2540,6 +2540,11 @@ public void CheckRun(int client)
 					FormatTimeFloat(1, bestTime, 3, szBestTime, 32);
 					CPrintToChat(client, "%t", "MissedMapBest", g_szChatPrefix, szBestTime);
 					EmitSoundToClient(client, "buttons/button18.wav", client);
+					if (g_iAutoReset[client]) { // auto reset
+						Command_Restart(client, 1);
+						CPrintToChat(client, "%t", "AutoResetMessage1", g_szChatPrefix);
+						CPrintToChat(client, "%t", "AutoResetMessage2", g_szChatPrefix);
+					}
 					StopRecording(client); // stop replay recording
 				}
 				// @IG - Replay recording checks
@@ -2567,6 +2572,11 @@ public void CheckRun(int client)
 					FormatTimeFloat(1, bestTime, 3, szBestTime, 32);
 					CPrintToChat(client, "%t", "MissedBonusPB", g_szChatPrefix, szBestTime);
 					EmitSoundToClient(client, "buttons/button18.wav", client);
+					if (g_iAutoReset[client]) { // auto reset
+						Command_Teleport(client, 0);
+						CPrintToChat(client, "%t", "AutoResetMessage1", g_szChatPrefix);
+						CPrintToChat(client, "%t", "AutoResetMessage2", g_szChatPrefix);
+					}
 					StopRecording(client); // stop replay recording
 				}
 				// @IG - Replay recording checks

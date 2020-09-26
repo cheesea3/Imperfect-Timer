@@ -157,6 +157,7 @@ void CreateCommands()
 	RegConsoleCmd("sm_showweps", Command_ShowWeapons, "[surftimer] Give weapons and allow pickups");
 	RegConsoleCmd("sm_showweapons", Command_ShowWeapons, "[surftimer] Give weapons and allow pickups");
 	RegConsoleCmd("sm_tp", Command_ToggleThirdPerson, "[surftimer] Toggles between first and third person"); // Zephyrus' third person plugin
+	RegConsoleCmd("sm_autoreset", Command_ToggleAutoReset, "[surftimer] [settings] on/off - toggle auto reset for your current map/bonus run if your above your pb");
 
 	// Disabled for now
 	//RegAdminCmd("sm_recalculateallpoints", Command_RecalculateAllPoints, ADMFLAG_ROOT, "[IG] Recalculate the player rank table (DO NOT USE IF YOU DO NOT KNOW WHAT YOU ARE DOING)");
@@ -205,6 +206,17 @@ void CreateCommands()
 #if defined DEBUG
 	CreateTestCommands();
 #endif
+}
+
+public Action Command_ToggleAutoReset(int client, int args) {
+	if (g_iAutoReset[client]) {
+		g_iAutoReset[client] = false;
+		CPrintToChat(client, "%t", "AutoResetDisabled", g_szChatPrefix);
+	} else {
+		g_iAutoReset[client] = true;
+		CPrintToChat(client, "%t", "AutoResetEnabled", g_szChatPrefix);
+	}
+	return Plugin_Handled;
 }
 
 public Action Command_DeleteRecords(int client, int args)
