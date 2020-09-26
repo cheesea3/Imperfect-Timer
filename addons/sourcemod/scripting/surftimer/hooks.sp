@@ -97,6 +97,24 @@ public Action Event_OnPlayerSpawn(Event event, const char[] name, bool dontBroad
 	g_bInJump[client] = false;
 	g_bInDuck[client] = false;
 
+
+	// auto disable player recording if current player count exceeds player limit
+	if (GetConVarInt(g_szPlayerRecordLimit) <= GetClientCount(true)) {
+		SetConVarInt(g_szEnablePlayerRecording, 0); 
+
+		// stop recording for all players if player limit exceeds
+		(for new i = 1; i <= MaxClients; i++) {
+		    if (IsClientInGame(i) && (!IsFakeClient(i)) && IsPlayerAlive(i))
+		    {
+		        StopRecording(i);
+		    }
+		} 
+	// hysteresis (player record limit > player count + 5) to prevent cvar spam
+	} else if (GetConVarInt(g_szPlayerRecordLimit) > (GetClientCount(true) + 5)) {
+		// reenable player recording if player count is 5 players lower then actual limit
+		SetConVarInt(g_szEnablePlayerRecording, 1); 
+	}
+
 	// Set stage to 1 on spawn cause why not
 	if (!g_bRespawnPosition[client] && !g_specToStage[client])
 	{

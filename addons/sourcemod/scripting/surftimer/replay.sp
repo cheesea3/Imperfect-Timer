@@ -101,6 +101,8 @@ public Action Hook_WeaponCanSwitchTo(int client, int weapon)
 public void StartRecording(int client)
 {
 	StopRecording(client);
+	if (!GetConVarBool(g_szEnablePlayerRecording)) // return if player recording is disabled
+		return;
 
 	if (!IsValidClient(client) || IsFakeClient(client))
 		return;
@@ -1177,6 +1179,9 @@ public void PlayReplay(int client, int &buttons, int &subtype, int &seed, int &i
 public void Stage_StartRecording(int client)
 {
 	if (!IsValidClient(client) || IsFakeClient(client))
+		return;
+
+	if (!GetConVarBool(g_szEnablePlayerRecording)) // return if player recording is disabled
 		return;
 
 	GetClientAbsOrigin(client, g_fStageInitialPosition[client]);

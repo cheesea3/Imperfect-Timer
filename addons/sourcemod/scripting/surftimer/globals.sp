@@ -487,6 +487,9 @@ int g_iSideHudModule[MAXPLAYERS + 1][5];
 // Custom tele side
 int g_iTeleSide[MAXPLAYERS + 1];
 
+//auto reset
+bool g_iAutoReset[MAXPLAYER + 1];
+
 /*----------  Run Variables  ----------*/
 
 // Clients personal record in map
